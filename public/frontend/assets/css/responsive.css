@@ -1,0 +1,692 @@
+/* ====================== RESPONSIVE SETTINGS ====================== */
+
+
+/* =========== All page Responsive =============== */
+
+@media screen and (max-width: 1199px) {
+    /* ====== index.html ====== */
+    .work-para {
+        padding: 0 10px;
+    }
+    .work-line div:nth-child(2) {
+        bottom: -70px;
+        left: 200px;
+    }
+    .work-line div:nth-child(3) {
+        right: 200px;
+        top: -66px;
+    }
+    .work-hr {
+        display: none !important;
+    }
+    .pricing-card div {
+        padding: 50px 40px;
+    }
+    /* ====== 404.html / Coming.html ====== */
+    .coming-soon p {
+        padding: 0 50px;
+    }
+    .coming-soon img {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    /* global setting */
+    .container {
+        max-width: 925px;
+    }
+    /* ====== index.html ====== */
+    .header-about h2 {
+        margin-top: 26px;
+    }
+    .feature h4 {
+        width: 100%;
+        margin: 19px 0 15px 0;
+    }
+    .feature .mt {
+        margin-top: 32px !important;
+    }
+    .portfolio-1 p {
+        padding-right: 80px;
+    }
+    .service-1 .col-lg-8 p {
+        padding: 0;
+    }
+    .experience .col-lg-8 p {
+        padding: 0;
+    }
+    .work-line div:first-child {
+        top: -100px;
+        left: -30px;
+    }
+    .work-line div:nth-child(2) {
+        bottom: -70px;
+        left: 132px;
+    }
+    .work-line div:nth-child(3) {
+        right: 96px;
+        top: -117px;
+    }
+    .work-line div:last-child {
+        right: -23px;
+        bottom: -70px;
+    }
+    .testimonial_slider p {
+        padding: 0 100px;
+    }
+    .pricing p {
+        padding: 0 135px;
+    }
+    .blog p {
+        padding: 0 100px 0 0;
+    }
+    .footer-hr p {
+        padding: 0 95px;
+    }
+    .footer-menu p {
+        padding: 0 10px 0 0;
+    }
+    /* ====== services.html ====== */
+    .header-service h2 {
+        margin-top: 17px;
+    }
+    /* ====== testimonials.html ======  */
+    .testimonial_page p {
+        padding: 0 100px;
+    }
+    .ab-count {
+        bottom: 40px;
+        left: 73px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    /* global style */
+    h1 {
+        font-size: 60px;
+        font-weight: 800;
+        line-height: 66px;
+    }
+    h2 {
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 48px;
+    }
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 24px;
+    }
+    h4 {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 22px;
+    }
+    h5 {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+    h6 {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 18px;
+    }
+    p {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+    button {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 18px;
+        padding: 14px 30px 14px 30px;
+    }
+    a {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 18px;
+        padding: 14px 30px 14px 30px !important;
+    }
+    .h2_margin {
+        margin: 13px 0;
+    }
+    .container {
+        max-width: 757px;
+    }
+    /* ====== index.html ====== */
+    .hero {
+        padding: 110px 0 279px 0;
+    }
+    .ab-feature {
+        padding: 10px 0 60px 0;
+    }
+    .logoipsum {
+        padding: 100px 0;
+    }
+    .logoipsum .hr1 {
+        width: 80px;
+        margin: 0 auto 33px auto;
+    }
+    .logoipsum .hr2 {
+        width: 80px;
+        margin: 33px auto 0 auto;
+    }
+    .logoipsum-slider {
+        margin-top: 12px;
+    }
+    .logoipsum img {
+        width: 150px;
+    }
+    .about {
+        padding: 70px 0;
+    }
+    .ab-count {
+        width: 155px;
+        height: 155px;
+    }
+    .ab-count h5 {
+        width: 110px;
+    }
+    .portfolio-1 {
+        padding: 70px 0 70px 0;
+    }
+    .gallary {
+        padding-bottom: 70px;
+    }
+    .tab button {
+        padding: 11px 19px;
+    }
+    .gallary img {
+        height: 300px;
+    }
+    .gallary img[alt="sm_img"] {
+        height: 150px;
+    }
+    .gallary .container {
+        margin-top: -355px;
+    }
+    .gallary .mt {
+        margin-top: -258px;
+    }
+    .service-1 {
+        padding: 70px 0;
+    }
+    .service-1 .flex-column {
+        flex-wrap: wrap;
+    }
+    .service-card {
+        width: 48%;
+    }
+    .service-card img[alt="slider1"] {
+        width: 85px;
+    }
+    .service-card img[alt="slider2"] {
+        width: 62px;
+    }
+    .service-card img[alt="slider3"] {
+        width: 52px;
+    }
+    .experience {
+        padding: 70px 0;
+    }
+    .ex-card .d-flex {
+        padding: 26px 2px;
+    }
+    .ex-card p {
+        margin-top: 5px;
+    }
+    .work-line div {
+        padding: 33px 8px 32px 29px;
+    }
+    .work {
+        padding: 70px 0;
+    }
+    .work-para {
+        padding: 0 95px;
+    }
+    .work-line div:first-child {
+        width: 185px;
+        min-height: 185px;
+    }
+    .work-line div:nth-child(2) {
+        width: 170px;
+        min-height: 170px;
+    }
+    .work-line div:nth-child(3) {
+        width: 185px;
+        min-height: 185px;
+    }
+    .work-line div:last-child {
+        width: 170px;
+        min-height: 170px;
+    }
+    .testimonial {
+        padding: 120px 0 70px 0;
+    }
+    .team {
+        padding: 70px 0 0 0;
+    }
+    #team {
+        padding: 70px 0 70px 0;
+    }
+    .overlay_text i {
+        font-size: 18px;
+    }
+    .team-btn {
+        margin-top: 70px;
+    }
+    .team h2 {
+        padding: 0 0 0 0;
+    }
+    .team p {
+        padding: 0 0 0 0;
+    }
+    .pricing {
+        padding: 70px 0;
+    }
+    #pricing {
+        padding: 70px 0;
+    }
+    .pricing-hr {
+        display: none !important;
+    }
+    .faq {
+        padding: 70px 0;
+    }
+    #faq {
+        padding: 70px 0;
+    }
+    .faq .text-center h2 {
+        padding: 0 10px 0 0;
+    }
+    .faq .text-center p {
+        padding: 0 10px 0 0;
+    }
+    .blog {
+        padding: 70px 0;
+    }
+    /* ====== services.html ====== */
+    .service-page .col-lg-4 div img[alt="slider1"] {
+        width: 85px;
+    }
+    .service-page .col-lg-4 div img[alt="slider2"] {
+        width: 62px;
+    }
+    .service-page .col-lg-4 div img[alt="slider3"] {
+        width: 52px;
+    }
+    .service-page .col-lg-4 div img[alt="slider4"] {
+        width: 80px;
+    }
+    .service-page .col-lg-4 div img[alt="slider5"] {
+        width: 38px;
+    }
+    .service-page .col-lg-4 div img[alt="slider6"] {
+        width: 30px;
+    }
+    .service-page .col-lg-4 div img[alt="slider7"] {
+        width: 48px;
+    }
+    .service-page .col-lg-4 div img[alt="slider8"] {
+        width: 69px;
+    }
+    .service-page .col-lg-4 div img[alt="slider9"] {
+        width: 61px;
+    }
+    .service-page {
+        padding: 70px 0 50px 0;
+    }
+    /* ====== contact.html ====== */
+    .contact form {
+        padding: 40px 45px;
+    }
+    .contact-address hr {
+        display: none;
+    }
+    /* ====== testimonials.html ======  */
+    #testimonial {
+        padding: 70px 0;
+        gap: 65px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    /* ====== index.html ====== */
+    .hero-social-icon {
+        display: flex !important;
+        justify-content: center !important;
+        position: relative;
+        margin-bottom: 18px;
+    }
+    .feature .container .col-lg-3 {
+        margin-top: 30px !important;
+        justify-content: center;
+        text-align: center;
+    }
+    .about-hr {
+        display: none !important;
+    }
+    .about-mask figure {
+        clip-path: circle(49% at 50% 50%);
+    }
+    .about-mask img {
+        width: 100%;
+    }
+    .portfolio-1 p {
+        padding: 0 10px;
+    }
+    .service .gap-4 {
+        align-items: center;
+    }
+    .service-card {
+        padding: 30px 20px;
+        width: 90%;
+    }
+    .service-card figure {
+        margin: auto;
+    }
+    .service-card a {
+        justify-content: center;
+    }
+    .work-para {
+        padding: 0 10px;
+    }
+    .work-line {
+        background-image: none;
+    }
+    .work-line div {
+        position: relative;
+        padding: 0;
+        text-align: center;
+    }
+    .work-line h4 {
+        padding: 0 17px;
+    }
+    .work-line div:first-child {
+        top: 20px;
+        left: 0;
+    }
+    .work-line div:nth-child(2) {
+        top: 20px;
+        left: 20px;
+    }
+    .work-line div:nth-child(3) {
+        left: 0;
+        top: 20px;
+    }
+    .work-line div:last-child {
+        top: 20px;
+        left: 0;
+    }
+    .work-line {
+        margin: 25px 25px 53px 25px;
+    }
+    .work-line div {
+        width: 170px !important;
+        min-height: 170px !important;
+    }
+    .testimonial_slider p {
+        padding: 0 50px;
+    }
+    .pricing p {
+        padding: 0 10px;
+    }
+    .pricing-card div:nth-child(2) {
+        transform: scale(1);
+    }
+    .pricing-card {
+        align-items: center;
+    }
+    .faq .text-center h2 {
+        padding: 0 0;
+    }
+    .faq .text-center p {
+        padding: 0 0;
+    }
+    .blog p {
+        padding: 0 10px;
+    }
+    .footer-hr p {
+        padding: 0 20px;
+    }
+    footer form {
+        border: none;
+        background: none;
+    }
+    footer form input {
+        background: #381a46;
+        padding: 14px 30px;
+        width: 100%;
+        border: 1px solid #6d2f8a;
+    }
+    footer {
+        text-align: center;
+    }
+    footer .col-lg-4 .d-flex {
+        margin: auto;
+    }
+    .footer-menu {
+        padding: 0px 0 45px 0;
+    }
+    /* ====== services.html ====== */
+    .service-page .col-lg-4 div {
+        padding: 30px 20px;
+        width: 90%;
+        text-align: center;
+    }
+    .service-page .col-lg-4 div figure {
+        margin: auto;
+    }
+    .service-page .col-lg-4 div a {
+        justify-content: center;
+    }
+    /* ====== contact.html ====== */
+    .contact-address {
+        flex-direction: column;
+        padding: 0 80px;
+    }
+    /* ====== testimonials.html ======  */
+    .testimonial_page p {
+        padding: 0 50px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* global style */
+    h1 {
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 46px;
+    }
+    h2 {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 36px;
+    }
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 22px;
+    }
+    h4 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 22px;
+    }
+    h5 {
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+    h6 {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+    p {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+    button {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        padding: 12px 26px 12px 26px;
+    }
+    a {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        padding: 12px 26px 12px 26px !important;
+    }
+    .h2_margin {
+        margin: 9px 0;
+    }
+    /* ====== index.html ====== */
+    .hero {
+        padding: 62px 0;
+    }
+    .hero-social-icon {
+        display: none !important;
+    }
+    .feature .container .col-lg-3 div {
+        width: 90%;
+    }
+    .logoipsum img {
+        width: 135px;
+    }
+    .about {
+        padding: 50px 0;
+    }
+    .about hr {
+        display: none;
+    }
+    .portfolio-1 {
+        padding: 50px 0 50px 0;
+    }
+    .gallary {
+        padding-bottom: 40px;
+    }
+    .portfolio-1 .gallary-hr1 {
+        display: none;
+    }
+    .service-1 {
+        padding: 50px 0;
+    }
+    .service-hr1 {
+        display: none;
+    }
+    .ab-count {
+        bottom: 0;
+        left: 0;
+    }
+    .experience {
+        padding: 50px 0;
+    }
+    .ex-card .d-flex {
+        padding: 30px 0px;
+    }
+    .experience-hr1 {
+        display: none;
+    }
+    .work {
+        padding: 50px 0;
+    }
+    .testimonial {
+        padding: 100px 0 60px 0;
+    }
+    .testimonial_slider {
+        background-size: 60% 77%;
+        background-position: center;
+    }
+    .agency i {
+        margin-left: 60px;
+    }
+    .team {
+        padding: 50px 0 0 0;
+    }
+    #team {
+        padding: 50px 0 50px 0;
+    }
+    .team-hr1 {
+        display: none;
+    }
+    .pricing {
+        padding: 40px 0;
+    }
+    #pricing {
+        padding: 40px 0;
+    }
+    .pricing-card div {
+        width: 90%;
+    }
+    .faq {
+        padding: 40px 0;
+    }
+    #faq {
+        padding: 40px 0;
+    }
+    .faq-hr1 {
+        display: none;
+    }
+    .blog {
+        padding: 40px 0;
+    }
+    .blog-hr1 {
+        display: none;
+    }
+    .blog-card {
+        width: 90% !important;
+    }
+    /* ====== services.html ====== */
+    .service-page {
+        padding: 50px 0 30px 0;
+    }
+    /* ====== testimonials.html ======  */
+    .testimonial_page {
+        background-size: 60% 77%;
+        background-position: center;
+    }
+    #testimonial {
+        padding: 50px 0;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    /* global setting */
+    .container {
+        max-width: 95%;
+    }
+    /* ====== index.html ====== */
+    .tab button {
+        padding: 11px 14px;
+    }
+    .ex-card .d-flex {
+        padding: 26px 0px;
+    }
+    .work-line div {
+        left: 0 !important;
+    }
+    .testimonial_slider {
+        background-size: 57% 54%;
+    }
+    .team-slider {
+        padding-bottom: 30px;
+    }
+    /* ====== contact.html ====== */
+    .contact-address {
+        padding: 0 20px;
+    }
+    /* ====== testimonials.html ======  */
+    .testimonial_page {
+        background-size: 57% 54%;
+    }
+    /* ====== 404.html / Coming.html ====== */
+    .coming-soon h2 {
+        margin-top: -29px;
+    }
+}
