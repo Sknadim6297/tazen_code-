@@ -1,0 +1,110 @@
+var markers = [
+{
+    "id":1,
+    "type_point":"Pediatrician",
+    "location_latitude":48.865633,
+    "location_longitude":2.321236,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Maria Cornfield",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":2,
+    "type_point":"Autoimmune Diseases",
+    "location_latitude":48.854183,
+    "location_longitude":2.354808,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Lucy Shoemaker",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":3,
+    "type_point":"Obstetrician",
+    "location_latitude":48.863893,
+    "location_longitude":2.342348,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Luke Lachinet",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":4,
+    "type_point":"Dermatologist",
+    "location_latitude":48.858370,
+    "location_longitude":2.294481,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Marta Rainwater",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":5,
+    "type_point":"Psychologist",
+    "location_latitude":48.837273,
+    "location_longitude":2.335387,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Tom Manzone",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":6,
+    "type_point":"General Medicine",
+    "location_latitude":48.860819,
+    "location_longitude":2.354507,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Rose Cornfield",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":7,
+    "type_point":"Cardiologist",
+    "location_latitude":48.853798,
+    "location_longitude":2.333328,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Maria Cornfield",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":8,
+    "type_point":"Gynecologist",
+    "location_latitude":48.862880,
+    "location_longitude":2.287205,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Jim Jake",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  },
+  {
+    "id":9,
+    "type_point":"Cardiologist",
+    "location_latitude":48.865784,
+    "location_longitude":2.307314,
+    "map_image_url":"img/thumb_map_single_pro.jpg",
+    "rate":"Superb | 7.5",
+    "name_point":"Dr. Barbara Ocean",
+    "get_directions_start_address":"",
+    "phone":"+3934245255",
+    "url_point":"detail-page.html"
+  }
+];

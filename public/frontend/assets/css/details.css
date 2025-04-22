@@ -1,0 +1,151 @@
+.appointment_types {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+/* Tab Navigation */
+.appointment_types .nav-tabs {
+    border-bottom: 2px solid #f0f0f0;
+    padding: 0 15px;
+    padding-bottom: 10px;
+}
+
+.appointment_types .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 12px 15px;
+    position: relative;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.appointment_types .nav-link:hover {
+    color: #00a6eb;
+    background: transparent;
+}
+
+.appointment_types .nav-link.active {
+    color: #00a6eb;
+    background: transparent;
+}
+
+.appointment_types .nav-link.active:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #00a6eb;
+}
+
+/* Tab Content */
+.appointment_types .tab-content {
+    padding: 20px;
+}
+
+.appointment-details {
+    text-align: center;
+}
+
+.appointment-details h4 {
+    color: #2a2a2a;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.appointment-details p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.appointment-features {
+    text-align: left;
+    margin: 0 auto 20px;
+    padding: 0;
+    max-width: 280px;
+}
+
+.appointment-features li {
+    list-style: none;
+    padding: 8px 0;
+    color: #555;
+    font-size: 14px;
+    position: relative;
+    padding-left: 25px;
+}
+
+.appointment-features i {
+    color: #00a6eb;
+    position: absolute;
+    left: 0;
+    top: 10px;
+}
+
+.price {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.price strong {
+    color: #00a6eb;
+    font-size: 22px;
+    font-weight: 700;
+    display: block;
+}
+
+.price small, .price-range small {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.select-plan {
+    background: #00a6eb;
+    border: none;
+    transition: all 0.3s ease;
+    padding: 12px 15px;
+    font-weight: 600;
+}
+
+.select-plan:hover {
+    background: #0088c6;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 166, 235, 0.3);
+}
+
+/* Selected Plan Display */
+#selected-plan-display {
+    background: #f0f9ff;
+    border-left: 4px solid #00a6eb;
+    color: #2a2a2a;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .appointment_types .nav-link {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    .appointment-details h4 {
+        font-size: 16px;
+    }
+    
+    .price strong {
+        font-size: 20px;
+    }
+}
