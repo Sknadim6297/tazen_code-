@@ -75,6 +75,23 @@ Route::get('register', function () {
 });
 
 
+<<<<<<< Updated upstream
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/store', [AdminLoginController::class, 'store'])->name('admin.store');
 Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+=======
+
+// Route::prefix('admin')->group(function () {
+//     Route::get('/about', [AdminAboutPageController::class, 'edit'])->name('admin.about.edit');
+//     Route::put('/about', [AdminAboutPageController::class, 'update'])->name('admin.about.update');
+// });
+
+
+Route::get('/customer/dashboard', function () {
+    return view('customer.index');
+});
+
+Route::get('/customer/createprofile', function () {
+    return view('customer.addprofile.index');
+});
+>>>>>>> Stashed changes
