@@ -1,0 +1,239 @@
+/* interior page edit  */
+.need-help-service .container .text-center{
+   
+}
+.need-help-service .container .text-center figure{ 
+    z-index: 2;
+    position: relative;
+}
+.need-help-service .container .text-center figure img{  
+    border-radius: 5px;
+}
+
+.need-help-service .container .text-center figure::before {
+    position: absolute;
+    top: 10%;
+    right: 60px;
+    content: "";
+    height: 340px;
+    width: 340px;
+    background-color: #039d99;
+    z-index: -1;
+    border-radius: 5px;
+}
+/* service section  */
+.services-counter-section-info .container .hero-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.services-counter-section-info .container .row .counter-section .card .text-info h3{
+    font-size: 20px;
+    font-weight: 600;
+    color: whitesmoke;
+}
+.services-counter-section-info .container .row .counter-section .card .text-info p{
+    font-size: 15px;
+    font-weight: 450;
+    color: whitesmoke;
+}
+.services-counter-section-info .container .row .counter-section .card{
+    padding: 15px 0px;
+    height: 215px;
+    background: rgba( 255, 255, 255, 0.25 );
+box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+backdrop-filter: blur( 4px );
+-webkit-backdrop-filter: blur( 4px );
+border-radius: 10px;
+border: 1px solid rgba( 255, 255, 255, 0.18 );
+}
+.services-counter-section-info .container .row .counter-section .card .text-info{
+    text-align: center;
+    padding: 0px 16px;
+}
+.services-counter-section-info .container .row .counter-section .card .icon{
+    text-align: center;
+}
+.services-counter-section-info .container .row .counter-section .card .icon i{
+   color: white;
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+.services-counter-section-info .container .row .counter-section .container .second-row {
+    margin-top: 20px;
+}
+
+/* event details page edit  */
+ .unique-btn{
+    -moz-transition: .3s ease-in-out;
+    -o-transition: .3s ease-in-out;
+    -webkit-transition: .3s ease-in-out;
+    -ms-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 0;
+    padding: 0 25px;
+    height: 50px;
+    cursor: pointer;
+    outline: 0;
+    width: 50%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #1f2f6a;
+    margin-right: -1px;
+}
+.unique-btn:hover{
+    color: #fff;
+    background-color: #039d99;
+}
+.event-information .row hr {
+    width: 100%;
+    border: none;                /* Removes the default border */
+    height: 3px;                 /* Increases thickness for a bold look */
+    background-color: #039d99;   /* Sets the color to dark gray */
+    margin: 0;                   /* Ensures no extra space around the line */
+}
+.event-information .container {
+    padding: 20px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    border-radius: 6px;
+}
+.event-information .container .row{ 
+    margin: 20px;
+}
+.event-information .container .row .col-lg-12 .event-date{ 
+display: flex;
+margin-top:8px ;
+}
+.event-information .container .row .col-lg-12 .event-date p:nth-child(1),
+.event-information .container .row .col-lg-12 .event-date p:nth-child(2) {
+    margin-right: 15px;
+}
+.event-information .container .row .col-lg-12 .event-date p span{ 
+    font-weight: 600;
+} 
+.share-description-map .container .share-content {
+    padding: 18px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    border-radius: 6px;
+}
+.share-description-map .container .share-content .share-button i{
+    font-size: 30px;
+    color: #039d99;
+    -moz-transition: .3s ease-in-out;
+    -o-transition: .3s ease-in-out;
+    -webkit-transition: .3s ease-in-out;
+    -ms-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+}
+.share-description-map .container .share-content .share-button i:hover{
+    color: #1f2f6a;
+}
+.share-description-map .container .share-content .share-button i:nth-child(1),
+.share-description-map .container .share-content .share-button i:nth-child(2),
+.share-description-map .container .share-content .share-button i:nth-child(3)
+{
+   margin-right: 10px;
+}
+.share-description-map .col-lg-6 .first-portion h2{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.share-description-map .col-lg-6 .first-portion {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    padding: 20px;
+    border-radius: 6px;
+}
+.share-description-map .col-lg-6 .first-portion .interest .like-text{
+   text-align:start;
+  
+}
+.share-description-map .col-lg-6 .first-portion .interest  p{ 
+    margin-bottom: 0px;
+}
+
+.share-description-map .col-lg-6 .first-portion .interest .like-text .likes{
+   margin-right:380px;
+ }
+.share-description-map .col-lg-6 .first-portion .interest .like-text i{
+    font-size: 20px;
+}
+.share-description-map .col-lg-6 .first-portion .interest .like-text a span{
+    font-size: 16px;
+    font-weight: 600;
+}
+.share-description-map .col-lg-6 .second-portion .note-content{
+    background-color: #1f2f6a;
+    color: #fff;
+    padding: 20px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    border-radius: 6px;
+}
+.share-description-map .col-lg-6 .second-portion .note-content h2
+{ 
+    color: #fff;
+}
+.share-description-map .col-lg-6 .second-portion .note-content p {
+    margin-bottom: 0px;
+}
+#read-more {
+    color: #1f2f6a;            /* Initial color for "Read More" and "Read Less" */
+    text-decoration: none;     /* Removes underline */
+    font-weight: 600;         /* Makes the text bold */
+    cursor: pointer;           /* Changes cursor to pointer */
+}
+
+#read-more:hover {
+    color: #039d99;            /* Darker color on hover */
+    text-decoration: underline; /* Adds underline on hover */
+}
+.share-description-map .col-lg-6 .third-portion .about-content{
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+}
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding {
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+}
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding .gallery-carousal .item img{
+    height: 200px;
+}
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding .owl-carousel .item {
+    height: 250px; /* Sets the item height to 250px */
+    overflow: hidden; /* Ensures any overflow is hidden */
+}
+
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding .owl-carousel .item img {
+    width: 100%;      /* Makes the image fit the width of the item */
+    height: 100%;     /* Scales the image to fit the height */
+    object-fit: cover; /* Crops the image to cover the entire item area */
+}
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding .owl-carousel .owl-stage-outer {
+    height: 250px; /* Sets a fixed height for the carousel wrapper */
+    overflow: hidden; /* Hides any overflow */
+}
+.share-description-map .col-lg-6 .forth-portion .gallery-sliding .gallery-carousal .owl-nav{
+    /* display: block !important; */
+}
+
+/* event-list page edit  */
+/* every pages cta bg  */
+.cta-bg-color-new{
+    background-color: #FAF9F6;
+}
+
+/* submit-professional page style  */
+.new .container .row .counter-section .card-new-style {
+    justify-content: center;
+}
+.new .container .row .counter-section .counter-box:nth-child(1),
+.new .container .row .counter-section .counter-box:nth-child(2) {
+margin-bottom: 12px;
+}

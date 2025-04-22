@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServicePro Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-bg: #2a3042;
+            --sidebar-color: #a6b0cf;
+            --sidebar-active: #3a7afe;
+            --header-bg: #ffffff;
+            --header-height: 70px;
+            --content-bg: #f5f7fb;
+            --card-bg: #ffffff;
+            --primary: #3a7afe;
+            --success: #1ee0ac;
+            --danger: #ff4f70;
+            --warning: #fdbc40;
+            --info: #00c9ff;
+            --text-dark: #2a3042;
+            --text-gray: #8a909d;
+            --border-color: #e4e6ef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Serif', serif;
+        }
+
+        body {
+            background-color: var(--content-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-color);
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h3 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-title {
+            padding: 0 20px 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: rgba(166, 176, 207, 0.5);
+            font-weight: 600;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--sidebar-color);
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            border-left: 3px solid var(--sidebar-active);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-sidebar {
+            font-size: 20px;
+            color: var(--text-dark);
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 15px 8px 40px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #f5f7fb;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .header-icon .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-left: 25px;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info h5 {
+            font-size: 14px;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .breadcrumb {
+            display: flex;
+            list-style: none;
+        }
+
+        .breadcrumb li {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .breadcrumb li:after {
+            content: '/';
+            margin: 0 10px;
+        }
+
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+
+        .breadcrumb li.active {
+            color: var(--primary);
+        }
+
+        /* Table Styles */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-gray);
+            text-transform: uppercase;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status.active {
+            background-color: rgba(30, 224, 172, 0.1);
+            color: var(--success);
+        }
+
+        .status.pending {
+            background-color: rgba(253, 188, 64, 0.1);
+            color: var(--warning);
+        }
+
+        .status.inactive {
+            background-color: rgba(255, 79, 112, 0.1);
+            color: var(--danger);
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a68fe;
+        }
+
+        .btn-view {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background-color: #00b8e6;
+        }
+
+        .document-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .document-link:hover {
+            text-decoration: underline;
+        }
+
+        .document-icon {
+            margin-right: 5px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1200px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .search-box input {
+                width: 180px;
+            }
+
+            .content-wrapper {
+                padding: 20px 15px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../images/tazen_logo-01-removebg-preview.png" alt="Logo" class="sidebar-logo" height="100">
+                <i class="fas fa-times close-sidebar"></i>
+            </div> 
+
+            <div class="sidebar-menu">
+                <div class="menu-title">Main</div>
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="menu-title">Manage</div>
+                <a href="professional.html" class="menu-item">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Professional</span>
+                </a>
+                <a href="customer.html" class="menu-item active">
+                    <i class="fas fa-users"></i>
+                    <span>Customer</span>
+                </a>
+                
+                <div class="menu-title">Booking</div>
+                <a href="one-time.html" class="menu-item">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>One Time</span>
+                </a>
+                <a href="monthly.html" class="menu-item">
+                    <i class="fas fa-calendar-week"></i>
+                    <span>Monthly</span>
+                </a>
+                <a href="quaterly.html" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Quarterly</span>
+                </a>
+                <a href="free-hand.html" class="menu-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Free Hand</span>
+                </a>
+
+                <div class="menu-title">Billing</div>
+                <a href="customer-bill.html" class="menu-item">
+                    <i class="fas fa-receipt"></i>
+                    <span>Customer Billing</span>
+                </a>
+                <a href="professional-bill.html" class="menu-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Professional Billing</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="header-icon">
+                        <i class="far fa-envelope"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="header-icon">
+                        <i class="far fa-bell"></i>
+                        <span class="badge">5</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                        <div class="user-info">
+                            <h5>Sarah Smith</h5>
+                            <p>Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="page-title">
+                        <h3>Customer Management</h3>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li>Home</li>
+                        <li class="active">Customers</li>
+                    </ul>
+                </div>
+
+                <!-- Customer Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Date of Logged in</th>
+                                <th>Ph. No</th>
+                                <th>Name</th>
+                                <th>Booking Status</th>
+                                <th>Pre Defined SMS Filter</th>
+                                <th>Documents from Professional</th>
+                                <th>Documents from Customer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>25-04-2025</td>
+                                <td>+91 9876543210</td>
+                                <td>John Doe</td>
+                                <td><span class="status active">Active</span></td>
+                                <td>Enabled</td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-link document-icon"></i>Link
+                                    </a>,
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-word document-icon"></i>Word
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-pdf document-icon"></i>PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>21-06-2025</td>
+                                <td>+91 8765432109</td>
+                                <td>Jane Smith</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>Disabled</td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-pdf document-icon"></i>PDF
+                                    </a>,
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-image document-icon"></i>JPEG
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-word document-icon"></i>Word
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>18-03-2025</td>
+                                <td>+91 7654321098</td>
+                                <td>Robert Brown</td>
+                                <td><span class="status inactive">Inactive</span></td>
+                                <td>Enabled</td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-link document-icon"></i>Link
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-image document-icon"></i>JPEG
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>16-03-2025</td>
+                                <td>+91 6543210987</td>
+                                <td>Emily Davis</td>
+                                <td><span class="status active">Active</span></td>
+                                <td>Enabled</td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-word document-icon"></i>Word
+                                    </a>,
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-pdf document-icon"></i>PDF
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-pdf document-icon"></i>PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>19-03-2025</td>
+                                <td>+91 5432109876</td>
+                                <td>Michael Wilson</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>Disabled</td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-image document-icon"></i>JPEG
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-word document-icon"></i>Word
+                                    </a>,
+                                    <a href="#" class="document-link">
+                                        <i class="fas fa-file-pdf document-icon"></i>PDF
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar on mobile
+        document.querySelector('.toggle-sidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar on mobile
+        document.querySelector('.close-sidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+.service-container .card {
+    position: relative;
+  
+    border-radius: 12px;
+}
+
+.service-container .card .card-body {
+    height: 420px;
+    /* position: relative; */
+}
+
+.service-container .card  .info {
+position: absolute;
+bottom: 0;
+left: 0;
+background: transparent;
+width: 100%;
+/* text-align: right; */
+padding: 6px;
+
+border-top: 0;
+border-bottom: 0;
+opacity: 1;
+/* transition: 0.3s ease; */
+}
+.service-container .card  .info .content-discover{
+display: flex;
+border-radius: 6px ;
+background: #ffffff;
+
+}
+.service-container .card  .info .content-discover .l{
+text-align:start;
+width: 60%;
+align-content: center;
+}
+.service-container .card  .info .content-discover .r{
+margin-right: 8px;
+text-align: end;
+width: 40%;
+}
+
+
+.service-container .card  .info .text-dark
+{
+    text-transform: uppercase;
+    font-size: 15px !important;
+    font-weight: 550;
+    margin-bottom: 0px;
+}
+
+.service-container .card .one {
+    background-image: url(../img/professionals_photos/seven-services/career-consultant.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .two {
+    background-image: url(../img/professionals_photos/seven-services/interior-design-service.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .three {
+    background-image: url(../img/services-pic/astro-service.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .four {
+    background-image: url(../img/services-pic/yoga-consult.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .five {
+    background-image: url(../img/services-pic/stylish-consutant.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .six {
+    background-image: url(../img/professionals_photos/seven-services/Influencer-consulating.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+
+.service-container .card .seven {
+    background-image: url(../img/professionals_photos/seven-services/psychology-consulting.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
+.service-container .card .eight {
+    background-image: url(../img/professionals_photos/seven-services/food-dietician.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+}
