@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
+use App\Http\Controllers\Auth\AdminLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,31 +67,14 @@ Route::get('blog-post', function () {
     return view('frontend.sections.blog-post');
 });
 
-
 Route::get('login', function () {
     return view('frontend.login.login');
 });
 Route::get('register', function () {
     return view('frontend.login.register');
 });
-// Route::get('adminindex', function () {
-//     return view('admin.index');
-// });
-// Route::get('adminabout', function () {
-//     return view('admin.about');
-// });
-
-Route::get('admin/dashboard', function () {
-    return view('admin.index');
-});
-
-Route::resource('testimonial', App\Http\Controllers\admin\TestimonialController::class);
-Route::resource('about', App\Http\Controllers\admin\AboutController::class);
-Route::resource('whychooseus', App\Http\Controllers\admin\WhyController::class);
 
 
-
-// Route::prefix('admin')->group(function () {
-//     Route::get('/about', [AdminAboutPageController::class, 'edit'])->name('admin.about.edit');
-//     Route::put('/about', [AdminAboutPageController::class, 'update'])->name('admin.about.update');
-// });
+Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::post('admin/store', [AdminLoginController::class, 'store'])->name('admin.store');
+Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
