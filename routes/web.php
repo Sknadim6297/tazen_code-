@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\frontend\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +16,7 @@ use App\Http\Controllers\Auth\AdminLoginController;
 |
 */
 
-Route::get('/', function () {
-    return view('frontend.index');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', function () {
     return view('frontend.sections.gridlisting');
 });
@@ -74,24 +73,19 @@ Route::get('register', function () {
     return view('frontend.login.register');
 });
 
-
-<<<<<<< Updated upstream
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/store', [AdminLoginController::class, 'store'])->name('admin.store');
 Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
-=======
 
 // Route::prefix('admin')->group(function () {
 //     Route::get('/about', [AdminAboutPageController::class, 'edit'])->name('admin.about.edit');
 //     Route::put('/about', [AdminAboutPageController::class, 'update'])->name('admin.about.update');
 // });
 
-
 Route::get('/customer/dashboard', function () {
     return view('customer.index');
 });
 
-Route::get('/customer/createprofile', function () {
+Route::get('/customer/add-profile', function () {
     return view('customer.addprofile.index');
-});
->>>>>>> Stashed changes
+})->name('customer.add-profile');
