@@ -73,9 +73,12 @@ Route::get('register', function () {
     return view('frontend.login.register');
 });
 
+
+
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/store', [AdminLoginController::class, 'store'])->name('admin.store');
 Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+
 
 // Route::prefix('admin')->group(function () {
 //     Route::get('/about', [AdminAboutPageController::class, 'edit'])->name('admin.about.edit');
@@ -88,4 +91,5 @@ Route::get('/customer/dashboard', function () {
 
 Route::get('/customer/add-profile', function () {
     return view('customer.addprofile.index');
-})->name('customer.add-profile');
+});
+
