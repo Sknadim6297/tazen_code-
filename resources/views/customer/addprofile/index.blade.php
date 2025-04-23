@@ -5,139 +5,562 @@
 @endsection
 
 @section('content')
- 
-<div class="row gy-4">
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <p class="mb-2 text-muted">Basic Input:</p>
-        <input type="text" class="form-control" id="input">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-label" class="form-label">Form Input With Label</label>
-        <input type="text" class="form-control" id="input-label">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-placeholder" class="form-label">Form Input With Placeholder</label>
-        <input type="text" class="form-control" id="input-placeholder" placeholder="Placeholder">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-text" class="form-label">Type Text</label>
-        <input type="text" class="form-control" id="input-text" placeholder="Text">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-number" class="form-label">Type Number</label>
-        <input type="number" class="form-control" id="input-number" placeholder="Number">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-password" class="form-label">Type Password</label>
-        <input type="password" class="form-control" id="input-password" placeholder="Password">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-email" class="form-label">Type Email</label>
-        <input type="email" class="form-control" id="input-email" placeholder="Email@xyz.com">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-tel" class="form-label">Type Tel</label>
-        <input type="tel" class="form-control" id="input-tel" placeholder="+1100-2031-1233">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-date" class="form-label">Type Date</label>
-        <input type="date" class="form-control" id="input-date">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-week" class="form-label">Type Week</label>
-        <input type="week" class="form-control" id="input-week">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-month" class="form-label">Type Month</label>
-        <input type="month" class="form-control" id="input-month">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-time" class="form-label">Type Time</label>
-        <input type="time" class="form-control" id="input-time">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-datetime-local" class="form-label">Type datetime-local</label>
-        <input type="datetime-local" class="form-control" id="input-datetime-local">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-search" class="form-label">Type Search</label>
-        <input type="search" class="form-control" id="input-search" placeholder="Search">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-submit" class="form-label">Type Submit</label>
-        <input type="submit" class="form-control" id="input-submit" value="Submit">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-reset" class="form-label">Type Reset</label>
-        <input type="reset" class="form-control" id="input-reset">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-button" class="form-label">Type Button</label>
-        <input type="button" class="form-control btn btn-primary" id="input-button"  value="Button">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <div class="row">
-            <div class="col-xl-4">
-                <label class="form-label">Type Color</label>
-                <input class="form-control form-input-color" type="color" value="#136bd0">
-            </div>
-            <div class="col-xl-4">
-                <div class="form-check">
-                    <p class="mb-3 px-0 text-muted">Type Checkbox</p>
-                    <input class="form-check-input ms-2" type="checkbox" value="" checked="">
-                </div>
-            </div>
-            <div class="col-xl-3">
-                <div class="form-check">
-                    <p class="mb-3 px-0 text-muted">Type Radio</p>
-                    <input class="form-check-input ms-2" type="radio" checked="">
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">Task List View</h1>
+                <div class="">
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Apps</a></li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Task</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Task List View</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-file" class="form-label">Type File</label>
-        <input class="form-control" type="file" id="input-file">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label class="form-label">Type Url</label>
-        <input class="form-control" type="url"  name="website" placeholder="http://example.com">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-disabled" class="form-label">Type Disabled</label>
-        <input type="text" id="input-disabled" class="form-control" placeholder="Disabled input" disabled="">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-readonlytext" class="form-label">Input Readonly Text</label>
-        <input type="text" readonly="" class="form-control-plaintext" id="input-readonlytext" value="email@example.com">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="disabled-readonlytext" class="form-label">Disabled Readonly Input</label>
-        <input class="form-control" type="text" value="Disabled readonly input" id="disabled-readonlytext" aria-label="Disabled input example" disabled="" readonly="">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label class="form-label">Type Readonly Input</label>
-        <input class="form-control" type="text" value="Readonly input here..." aria-label="readonly input example" readonly="">
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="text-area" class="form-label">Textarea</label>
-        <textarea class="form-control" id="text-area" rows="1"></textarea>
-    </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-        <label for="input-DataList" class="form-label">Datalist example</label>
-        <input class="form-control" list="datalistOptions" id="input-DataList" placeholder="Type to search...">
-        <datalist id="datalistOptions">
-            <option value="San Francisco">
-            </option>
-            <option value="New York">
-            </option>
-            <option value="Seattle">
-            </option>
-            <option value="Los Angeles">
-            </option>
-            <option value="Chicago">
-            </option>
-        </datalist>
+        <!-- Page Header Close -->
+
+
+
+        <!-- Start::row-2 -->
+        <div class="row">
+            <div class="col-xxl-12 col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">
+                            Total Tasks
+                        </div>
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Task</button>
+                            <!-- Start::add task modal -->
+                            <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title">Add Task</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body px-4">
+                                            <div class="row gy-2">
+                                                <div class="col-xl-6">
+                                                    <label for="task-name" class="form-label">Task Name</label>
+                                                    <input type="text" class="form-control" id="task-name" placeholder="Task Name">
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <label for="task-id" class="form-label">Task ID</label>
+                                                    <input type="text" class="form-control" id="task-id" placeholder="Task ID">
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <label class="form-label">Assigned Date</label>
+                                                    <div class="form-group">
+                                                        <div class="input-group">
+                                                            <div class="input-group-text text-muted"> <i class="ri-calendar-line"></i> </div>
+                                                            <input type="text" class="form-control" id="assignedDate" placeholder="Choose date and time">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <label class="form-label">Due Date</label>
+                                                    <div class="form-group">
+                                                        <div class="input-group">
+                                                            <div class="input-group-text text-muted"> <i class="ri-calendar-line"></i> </div>
+                                                            <input type="text" class="form-control" id="dueDate" placeholder="Choose date and time">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <label class="form-label">Status</label>
+                                                    <select class="form-control" data-trigger name="choices-single-default" id="choices-single-default">
+                                                        <option value="New">New</option>
+                                                        <option value="Completed">Completed</option>
+                                                        <option value="Inprogress">Inprogress</option>
+                                                        <option value="Pending">Pending</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <label class="form-label">Priority</label>
+                                                    <select class="form-control" data-trigger name="choices-single-default" id="choices-single-default1">
+                                                        <option value="High">High</option>
+                                                        <option value="Medium">Medium</option>
+                                                        <option value="Low">Low</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xl-12">
+                                                    <label class="form-label">Assigned To</label>
+                                                    <select class="form-control" name="choices-multiple-remove-button1" id="choices-multiple-remove-button1" multiple>
+                                                        <option value="Choice 1">Angelina May</option>
+                                                        <option value="Choice 2">Kiara advain</option>
+                                                        <option value="Choice 3">Hercules Jhon</option>
+                                                        <option value="Choice 4">Mayor Kim</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-primary">Add Task</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End::add task modal -->
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-icon btn-secondary-light btn-sm btn-wave waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="javascript:void(0);">New Tasks</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Pending Tasks</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Completed Tasks</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Inprogress Tasks</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input class="form-check-input check-all" type="checkbox" id="all-tasks" value="" aria-label="...">
+                                        </th>
+                                        <th scope="col">Task</th>
+                                        <th scope="col">Task ID</th>
+                                        <th scope="col">Assigned Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Due Date</th>
+                                        <th scope="col">Priority</th>
+                                        <th scope="col">Assigned To</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">Design New Landing Page</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 01</span>
+                                        </td>
+                                        <td>
+                                            02-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-primary">New</span>
+                                        </td>
+                                        <td>
+                                            10-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary-transparent">Medium</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/2.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/8.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/2.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +2
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..." checked></td>
+                                        <td>
+                                            <span class="fw-medium">New Project Buleprint</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 04</span>
+                                        </td>
+                                        <td>
+                                            05-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-secondary">Inprogress</span>
+                                        </td>
+                                        <td>
+                                            15-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger-transparent">High</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/12.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/11.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +4
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">Server Side Validation</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 11</span>
+                                        </td>
+                                        <td>
+                                            12-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-warning">Pending</span>
+                                        </td>
+                                        <td>
+                                            16-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-transparent">Low</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/5.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/9.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/13.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +5
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">New Plugin Development</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 24</span>
+                                        </td>
+                                        <td>
+                                            08-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-success">Completed</span>
+                                        </td>
+                                        <td>
+                                            17-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-transparent">Low</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/2.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/8.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/2.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +2
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..." checked></td>
+                                        <td>
+                                            <span class="fw-medium">Designing New Authentication Page</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 16</span>
+                                        </td>
+                                        <td>
+                                            03-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-secondary">Inprogress</span>
+                                        </td>
+                                        <td>
+                                            08-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary-transparent">Medium</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/10.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/15.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +3
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..." checked></td>
+                                        <td>
+                                            <span class="fw-medium">Documentation For New Template</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 07</span>
+                                        </td>
+                                        <td>
+                                            12-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-primary">New</span>
+                                        </td>
+                                        <td>
+                                            25-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger-transparent">High</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/12.jpg" alt="img">
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">Updating Old UI</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 13</span>
+                                        </td>
+                                        <td>
+                                            06-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-success">Completed</span>
+                                        </td>
+                                        <td>
+                                            12-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-transparent">Low</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/11.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/1.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/10.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +1
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..." checked></td>
+                                        <td>
+                                            <span class="fw-medium">Developing New Events In Plugins</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 20</span>
+                                        </td>
+                                        <td>
+                                            14-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-warning">Pending</span>
+                                        </td>
+                                        <td>
+                                            19-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger-transparent">High</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/3.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/9.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +2
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">Fixing Minor Ui Issues</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 26</span>
+                                        </td>
+                                        <td>
+                                            11-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-success">Completed</span>
+                                        </td>
+                                        <td>
+                                            18-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary-transparent">Medium</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/5.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/14.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/12.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/3.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +1
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="task-list">
+                                        <td class="task-checkbox"><input class="form-check-input" type="checkbox" value="" aria-label="..."></td>
+                                        <td>
+                                            <span class="fw-medium">Designing Of New Ecommerce Website</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">SPK - 32</span>
+                                        </td>
+                                        <td>
+                                            03-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-secondary">Inprogress</span>
+                                        </td>
+                                        <td>
+                                            09-06-2024
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-transparent">Low</span>
+                                        </td>
+                                        <td>
+                                            <div class="avatar-list-stacked">
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/12.jpg" alt="img">
+                                                </span>
+                                                <span class="avatar avatar-sm avatar-rounded">
+                                                    <img src="assets/images/faces/6.jpg" alt="img">
+                                                </span>
+                                                <a class="avatar avatar-sm bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);">
+                                                    +4
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="ri-edit-line"></i></button>
+                                            <button class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn"><i class="ri-delete-bin-5-line"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer border-top-0">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0 float-end">
+                                <li class="page-item disabled">
+                                    <a class="page-link">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                <li class="page-item active" aria-current="page">
+                                    <a class="page-link" href="javascript:void(0);">2</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="javascript:void(0);">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::row-2 -->
+
+
     </div>
 </div>
 @endsection

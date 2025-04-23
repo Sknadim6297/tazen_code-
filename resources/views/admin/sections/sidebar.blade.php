@@ -102,6 +102,10 @@
                                     </li>
                                 </ul>
                             </li>
+                            <li class="slide has-sub">
+                                <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page
+                                
+                            </li>
                         </ul>
                     </li>
                     <!-- End::slide -->

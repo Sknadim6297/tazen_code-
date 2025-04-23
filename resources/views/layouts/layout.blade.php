@@ -30,26 +30,26 @@
 <!-- YOUR CUSTOM CSS -->
 <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/new-style.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/testi.css') }}">
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/testi.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/listing.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/details.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/detail-page.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/event-list.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
+<link rel="stylesheet" href="{{ asset('frontend/assets/css/event-list.css') }}"> --}}
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/owl2.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/aos.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/astro.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/campaign.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/style.css') }}">
+<link rel="stylesheet" href="{{ asset('frontend/assets/css/campaign.css') }}"> --}}
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/style.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/slick.min.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/campaign-detail.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/swiper-bundle.min.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
+<link rel="stylesheet" href="{{ asset('frontend/assets/css/swiper-bundle.min.css') }}"> --}}
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/account.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
+<link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}"> --}}
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}"> --}}
 
 
 	<!-- slick slider css  -->
