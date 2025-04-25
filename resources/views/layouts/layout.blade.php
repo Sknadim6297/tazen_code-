@@ -253,11 +253,11 @@
           @yield('content')
 	@include('frontend.sections.footer')
 
-
-	
-	<!-- COMMON SCRIPTS -->
+      @yield('script')
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
 <script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
@@ -491,7 +491,23 @@ function checkSlides(slider, currentSlide) {
 			});
 		});
 	</script>
+<script>
+	@if (session('success'))
+		toastr.success("{{ session('success') }}");
+	@endif
 
+	@if (session('error'))
+		toastr.error("{{ session('error') }}");
+	@endif
+
+	@if (session('warning'))
+		toastr.warning("{{ session('warning') }}");
+	@endif
+
+	@if (session('info'))
+		toastr.info("{{ session('info') }}");
+	@endif
+</script>
 </body>
 
 </html>

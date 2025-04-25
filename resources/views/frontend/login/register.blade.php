@@ -25,6 +25,7 @@
 
    <!-- YOUR CUSTOM CSS -->
    <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <style>
 		@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
@@ -48,31 +49,35 @@
 					<a href="#0" class="social_bt google">Register with Google</a>
 				</div>
             <div class="divider"><span>Or</span></div>
-			<form autocomplete="off">
+			<form id="registerForm">
+				@csrf
 				<div class="form-group">
-					<input class="form-control" type="text" placeholder="Name">
+					<input class="form-control" type="text" name="first_name" placeholder="First Name" required>
 					<i class="icon_pencil-edit"></i>
 				</div>
 				<div class="form-group">
-					<input class="form-control" type="text" placeholder="Last Name">
+					<input class="form-control" type="text" name="last_name" placeholder="Last Name" required>
 					<i class="icon_pencil-edit"></i>
 				</div>
 				<div class="form-group">
-					<input class="form-control" type="email" placeholder="Email">
+					<input class="form-control" type="email" name="email" placeholder="Email" required>
 					<i class="icon_mail_alt"></i>
 				</div>
 				<div class="form-group">
-					<input class="form-control" type="password" id="password1" placeholder="Password">
+					<input class="form-control" type="password" name="password" id="password1" placeholder="Password" required>
 					<i class="icon_lock_alt"></i>
 				</div>
 				<div class="form-group">
-					<input class="form-control" type="password" id="password2" placeholder="Confirm Password">
+					<input class="form-control" type="password" name="password_confirmation" id="password2" placeholder="Confirm Password" required>
 					<i class="icon_lock_alt"></i>
 				</div>
 				<div id="pass-info" class="clearfix"></div>
-				<a href="#0" class="btn_1 rounded full-width">Register Now!</a>
-				<div class="text-center add_top_10">Already have an acccount? <strong><a href="login.html">Sign In</a></strong></div>
+				<button type="submit" class="btn_1 rounded full-width">Register Now!</button>
+				<div class="text-center add_top_10">
+					Already have an account? <strong><a href="{{ route('login') }}">Sign In</a></strong>
+				</div>
 			</form>
+			
 			<div class="copy">© Tazen</div>
 		</aside>
 	</div>
@@ -85,6 +90,56 @@
 	
 	<!-- SPECIFIC SCRIPTS -->
 	<script src="{{ asset('frontend/assets/js/pw_strenght.js') }}"></script>	
-  
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script>
+$('#registerForm').submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: "{{ route('register') }}",
+        type: "POST",
+        data: $(this).serialize(),
+        headers: {
+            "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                toastr.success(response.message);
+                window.location.href = "{{ route('login') }}";
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function(xhr) {
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                var errors = xhr.responseJSON.errors;
+                for (var key in errors) {
+                    toastr.error(errors[key][0]);
+                }
+            } else {
+                toastr.error("Something went wrong. Please try again.");
+            }
+        }
+    });
+});
+	</script>
+	<script>
+		@if (session('success'))
+			toastr.success("{{ session('success') }}");
+		@endif
+	
+		@if (session('error'))
+			toastr.error("{{ session('error') }}");
+		@endif
+	
+		@if (session('warning'))
+			toastr.warning("{{ session('warning') }}");
+		@endif
+	
+		@if (session('info'))
+			toastr.info("{{ session('info') }}");
+		@endif
+	</script>
 </body>
 </html>

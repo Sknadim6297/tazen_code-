@@ -63,126 +63,31 @@
 						</div>
 					</div>
 				</div>
-
 				<div class="container py-5">
 					<div class="row">
 						<div class="owl-carousel services-carousal">
-							<div class="card">
-								<div class="card-body one"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">job , career and business</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body two"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">interior designer</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
+							@foreach($services as $service)
+								<div class="card">
+									<div 
+										class="card-body" 
+										style="background-image: url('{{ asset($service->image) }}'); background-size: cover; background-position: center; border-radius: .375rem;"
+									></div>
+									
+									<div class="info mt-3 p-2">
+										<div class="content-discover p-3 d-flex justify-content-between align-items-center">
+											<div class="l">
+												<p class="text-dark mb-0">{{ $service->name }}</p>
+											</div>
+											<div class="r">
+												<button class="btn_1 book-now-btn" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body three"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">astrologer / priest</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body four"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">fitness yoga zumba weight training</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body five"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">style image consultant</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body six"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">influencer for business</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body seven"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">psychologist</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
-				
-							<div class="card">
-								<div class="card-body eight"></div>
-								<div class="info mt-3 p-2">
-									<div class="content-discover p-3">
-										<div class="l">
-											<p class="text-dark">Dieticians</p>
-										</div>
-										<div class="r">
-											<button class="btn_1 book-now-btn">Book Now</button>
-										</div>
-									</div>
-								</div>
-							</div>
+							@endforeach
 						</div>
 					</div>
 				</div>
-				
-				<!-- Modal Structure -->
 				<div id="mcqModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-dialog-centered" role="document">
 						<div class="modal-content">
@@ -275,6 +180,12 @@
 											<label class="form-check-label" for="q4d">Just exploring options</label>
 										</div>
 									</div>
+									
+									<!-- Question 5 -->
+									<div class="question" id="question5">
+										<h6>Question 5: Any specific preferences or additional information?</h6>
+										<textarea name="q5" class="form-control" rows="3"></textarea>
+									</div>
 								</form>
 							</div>
 							<div class="modal-footer">
@@ -289,7 +200,7 @@
 				
 
 				<!-- Modal Structure -->
-				{{-- <div id="mcqModal" class="modal fade" tabindex="-1" role="dialog">
+				<div id="mcqModal" class="modal fade" tabindex="-1" role="dialog">
 					<div class="modal-dialog" role="document">
 						<div class="modal-content">
 							<div class="modal-header">
@@ -395,143 +306,11 @@
 							</div>
 						</div>
 					</div>
-				</div> --}}
+				</div>
                 </main>
 
 			</div>
 		</section>
-		<!-- first popups  -->
-		<div id="progressModel" class="model">
-
-			<div class="model-content mx-auto">
-				<span class="close" id="closeModel">&times;</span>
-				<div class="img">
-
-				</div>
-
-				<div class="inside-question-model">
-					<div class="progress-container">
-						<div class="progress-bars" id="progressBar"></div>
-					</div>
-					<h1 class="headline headline-one text-center active" style="font-size: 30px;">You need counselling
-						for which field ?
-					</h1>
-					<h1 class="headline headline-two text-center" style="font-size: 30px;">Which stage of education do
-						you need counselling for?</h1>
-					<h1 class="headline headline-three text-center" style="font-size: 30px;">What type of counselling do
-						you need?</h1>
-					<h1 class="headline headline-four text-center" style="font-size: 30px;">Please enter your field of
-						specialization and degree (only applicable)</h1>
-					<form action="" id="progressForm">
-
-
-						<div class="step selection-step">
-
-							<div class="question question-1">
-								<label>
-									<input type="checkbox" name="option" id="edu-check" value="option-1"><span
-										class="text-span">
-										Education
-									</span>
-								</label>
-							</div>
-
-							<div class="question question-2">
-								<label>
-									<input type="checkbox" name="option" value="option-2"><span class="text-span">
-										Job
-									</span>
-								</label>
-							</div>
-
-							<div class="question question-3">
-								<label>
-									<input type="checkbox" name="option" value="option-3"><span class="text-span">
-										Business
-									</span>
-								</label>
-							</div>
-
-						</div>
-						<div class="step education-step-one">
-
-							<div class="question">
-								<label><input type="radio" name="option" value="elementary">Elementary (class
-									1-8)</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="secondary">Secondary school (Class 9-12)
-									//need parent consent</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="bachelors">Bachelor’s Degree</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="masters">Master Degree</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="doctoral">Doctoral Degree</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="professional">Parallel Professional
-									courses</label>
-							</div>
-							<div class="question">
-								<label><input type="radio" name="option" value="diploma">Diploma Courses</label>
-							</div>
-							<div class="question">
-								<label>
-									<input type="radio" name="option" value="others" id="othersOption">Others (Please
-									Specify)
-								</label>
-								<input type="text" id="othersInput" placeholder="Please specify..."
-									style="display: none;">
-							</div>
-							<!-- Input box for 'Others' -->
-
-						</div>
-
-
-
-
-						<div class="step education-step-two">
-							<h2>step 4</h2>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 5
-							</label><br>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 6
-							</label><br>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 7
-							</label><br>
-						</div>
-						<div class="step education-step-three">
-							<h2>step 4</h2>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 6
-							</label><br>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 7
-							</label><br>
-							<label>
-								<input type="radio" name="option" value="option-1" required>option 8
-							</label><br>
-						</div>
-						<div class="button-area d-flex">
-							<div class="col-lg-6 text-start one-btn">
-								<button class=" btn new-style-form-btn" id="back-control">Back</button>
-							</div>
-							<div class="col-lg-6 text-end two-btn">
-								<button class=" btn new-style-form-btn" id="progress-control">Continue</button>
-							</div>
-
-
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
 		<!-- second popups  -->
 
 		<section class=" home-about-section py-5" style="background-color: #FFF2E1;">
@@ -1321,9 +1100,88 @@
 				</div>
 			</div>
 		</section>
-		<!--/call_section-->
 
 	</main>
-	<!-- /main -->
-    @endsection
 
+    @endsection
+	@section('script')
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const questions = document.querySelectorAll(".question");
+			const nextBtn = document.getElementById("nextBtn");
+			const prevBtn = document.getElementById("prevBtn");
+			const submitBtn = document.getElementById("submitBtn");
+			const form = document.getElementById("mcqForm");
+	
+			let currentQuestion = 0;
+
+			function showQuestion(index) {
+				questions.forEach((q, i) => {
+					q.style.display = i === index ? "block" : "none";
+				});
+				prevBtn.style.display = index > 0 ? "inline-block" : "none";
+				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
+				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+			}
+			nextBtn.addEventListener("click", function () {
+				if (currentQuestion < questions.length - 1) {
+					currentQuestion++;
+					showQuestion(currentQuestion);
+				}
+			});
+	
+			prevBtn.addEventListener("click", function () {
+				if (currentQuestion > 0) {
+					currentQuestion--;
+					showQuestion(currentQuestion);
+				}
+			});
+			submitBtn.addEventListener("click", function () {
+    const formData = new FormData(form);
+    fetch("{{ route('submitQuestionnaire') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+        },
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw err;
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            toastr.success("Thanks for your feedback!");
+			setTimeout(() => {
+				window.location.href = "{{ route('professionals') }}";	
+			}, 3000);
+            	
+        }
+    })
+    .catch(error => {
+        if (error.errors) {
+            Object.values(error.errors).forEach(msgArray => {
+                msgArray.forEach(msg => {
+                    toastr.error(msg);
+                });
+            });
+        } else if (error.message) {
+            toastr.error(error.message); 
+        } else {
+            toastr.error("Something went wrong. Please try again.");
+        }
+        console.error("Validation or Server Error:", error);
+    });
+});
+
+
+			showQuestion(currentQuestion);
+		});
+	</script>
+	
+ @endsection
