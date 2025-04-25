@@ -3,19 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AboutBanner;
 use Illuminate\Http\Request;
-use App\Models\Banner;
 
-
-class BannerController extends Controller
+class AboutBannerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
+        $banners = AboutBanner::all();
+        return view('admin.about-banner.index', compact('banners'));
     }
 
     /**
@@ -33,24 +32,22 @@ class BannerController extends Controller
     {
         $request->validate([
             'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'subheading' => 'nullable|string|max:255',
+            'banner_image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
-
         // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
-        }
+        $imagePath = $request->file('banner_image')->store('banner_images', 'public');
 
-        Banner::create($data);
+        // Store the banner details in the database
+        AboutBanner::create([
+            'heading' => $request->input('heading'),
+            'subheading' => $request->input('subheading'),
+            'banner_image' => $imagePath,
+        ]);
 
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->route('admin.about-banner.index')->with('success', 'Banner added successfully');
     }
-
 
     /**
      * Display the specified resource.

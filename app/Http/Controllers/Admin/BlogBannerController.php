@@ -1,23 +1,24 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\BlogBanner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Banner;
 
-
-class BannerController extends Controller
+class BlogBannerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
-    }
+{
+    // Fetch all blog banners from the database
+    $blogbanners = BlogBanner::all();
 
+    // Pass the data to the view
+    return view('admin.blogbanners.index', compact('blogbanners'));
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -33,24 +34,22 @@ class BannerController extends Controller
     {
         $request->validate([
             'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'subheading' => 'required|string|max:255',
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
+        // Handle file upload
+        $imagePath = $request->file('banner_image')->store('public/blog_banners');
 
-        // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
-        }
+        // Create the new blog banner
+        BlogBanner::create([
+            'heading' => $request->heading,
+            'subheading' => $request->subheading,
+            'banner_image' => $imagePath,
+        ]);
 
-        Banner::create($data);
-
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->route('admin.blogbanners.index')->with('success', 'Blog Banner Created Successfully!');
     }
-
 
     /**
      * Display the specified resource.
