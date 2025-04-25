@@ -48,7 +48,7 @@
                             </li>
                         
                             <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item">Manage Professional</a>
+                                <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">Manage Professional</a>
                                 <a href="javascript:void(0);" class="side-menu__item">Professional Billing</a>
                             </li>
                         </ul>
@@ -185,6 +185,7 @@
                                 </ul>
                             </li>
                             <li class="slide has-sub">
+<<<<<<< Updated upstream
                                 <a href="javascript:void(0);" class="side-menu__item">Service Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
@@ -195,9 +196,15 @@
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
                                 </ul>
+=======
+                                <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page</a>
+>>>>>>> Stashed changes
                             </li>
-                        </ul>
-                    </li>
+
+                        </li>
+                    </ul>
+                </li>
+                    
                     <!-- End::slide -->
 
                     </aside>

@@ -7,10 +7,27 @@
             </a>
         </div>
         <ul id="top_menu">
-            <li><a href="login.html" class="btn_access">Log In</a></li>
-            <li><a href="professional-dashboard.html" class="btn_access green"><i class="fa-solid fa-user-plus"></i>
-                    Join as a Professional</a></li>
+            @php
+                $user = Auth::guard('user')->user(); 
+                $professional = Auth::guard('professional')->user();
+            @endphp
+        
+            @if($user)
+                <li class="d-flex align-items-center gap-2">
+                    <a href="{{ route('user.dashboard') }}" class="btn_access bg-success" style="border-radius: 30px;">Dashboard</a>
+                </li>
+            @elseif($professional)
+                <li class="d-flex align-items-center gap-2">
+                    <a href="{{ route('professional.dashboard') }}" class="btn_access bg-primary" style="border-radius: 30px;">Professional Dashboard</a>
+                </li>
+            @else
+                <li><a href="{{ route('login') }}" class="btn_access">Log In</a></li>
+                <li><a href="{{ route('professional.login') }}" class="btn_access green"><i class="fa-solid fa-user-plus"></i> Join as a Professional</a></li>
+            @endif
         </ul>
+        
+        
+        
         <!-- /top_menu -->
         <a href="#0" class="open_close">
             <i class="icon_menu"></i><span>Menu</span>

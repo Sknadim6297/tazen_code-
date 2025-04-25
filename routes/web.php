@@ -4,8 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\frontend\HomeController;
+
 use App\Http\Controllers\Admin\HowworksController;
 use App\Http\Controllers\Admin\AboutBannerController;
+
+use App\Http\Controllers\frontend\LoginController;
+use App\Http\Controllers\Professional\ProfessionalController;
+use Illuminate\Auth\Events\Login;
+use App\Http\Controllers\Admin\BannerController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -67,12 +73,11 @@ Route::get('blog-post', function () {
     return view('frontend.sections.blog-post');
 });
 
-Route::get('login', function () {
-    return view('frontend.login.login');
-});
-Route::get('register', function () {
-    return view('frontend.login.register');
-});
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('register', [LoginController::class, 'showRegisterForm'])->name('register');
+
+Route::post('login', [LoginController::class, 'login'])->name('login.submit');
+Route::post('register', [LoginController::class, 'register'])->name('register.submit');
 
 
 
@@ -86,12 +91,9 @@ Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin
 //     Route::put('/about', [AdminAboutPageController::class, 'update'])->name('admin.about.update');
 // });
 
-Route::get('/customer/dashboard', function () {
-    return view('customer.index');
-});
-
-Route::get('/customer/add-profile', function () {
-    return view('customer.addprofile.index');
+Route::post('/submit-questionnaire', [HomeController::class, 'submitQuestionnaire'])->name('submitQuestionnaire');
+Route::middleware(['auth:user'])->group(function () {
+    Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
