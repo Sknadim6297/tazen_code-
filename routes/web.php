@@ -4,14 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\frontend\HomeController;
-
 use App\Http\Controllers\Admin\HowworksController;
 use App\Http\Controllers\Admin\AboutBannerController;
-
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\frontend\LoginController;
 use App\Http\Controllers\Professional\ProfessionalController;
 use Illuminate\Auth\Events\Login;
-use App\Http\Controllers\Admin\BannerController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -105,7 +104,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('homeblog', \App\Http\Controllers\Admin\HomeBlogController::class);
-    Route::resource('howworks', \App\Http\Controllers\Admin\HowworksController::class); 
+    Route::resource('howworks', \App\Http\Controllers\Admin\HowworksController::class);
     Route::resource('about-banner', AboutBannerController::class);
 });
 
@@ -113,3 +112,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('aboutus', \App\Http\Controllers\Admin\AboutUsController::class);
 });
+Route::get('professional/login', [ProfessionalController::class, 'showLoginForm'])->name('professional.login');
+Route::post('professional/store', [ProfessionalController::class, 'store'])->name('professional.store');
+Route::get('professional/logout', [ProfessionalController::class, 'logout'])->name('professional.logout');
+Route::get('professional/register', [ProfessionalController::class, 'registerForm'])->name('professional.register');
+Route::post('professional/register', [ProfessionalController::class, 'register'])->name('professional.register.submit');
