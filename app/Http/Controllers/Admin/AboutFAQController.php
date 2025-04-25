@@ -1,22 +1,20 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use App\Models\AboutFAQ;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Banner;
 
-
-class BannerController extends Controller
+class AboutFAQController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
-    }
+{
+    $aboutfaqs = AboutFAQ::all(); // or paginate()
+    return view('admin.aboutfaq.index', compact('aboutfaqs'));
+}
 
     /**
      * Show the form for creating a new resource.
@@ -32,25 +30,21 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'faq_description' => 'required|string',
+            'question1' => 'required|string',
+            'answer1' => 'required|string',
+            'question2' => 'nullable|string',
+            'answer2' => 'nullable|string',
+            'question3' => 'nullable|string',
+            'answer3' => 'nullable|string',
+            'question4' => 'nullable|string',
+            'answer4' => 'nullable|string',
         ]);
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
+        AboutFAQ::create($request->all());
 
-        // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
-        }
-
-        Banner::create($data);
-
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->route('admin.abouthowweworks.index')->with('success', 'FAQ created successfully.');
     }
-
 
     /**
      * Display the specified resource.

@@ -103,26 +103,26 @@
                                 <a href="javascript:void(0)">Nested Menu</a>
                             </li>
                             <li class="slide">
-                                <a href="javascript:void(0);" class="side-menu__item">Logo</a>
+                                <a href="{{ route('admin.logo.index') }}" class="side-menu__item">Logo</a>
                             </li>
                             <li class="slide has-sub">
                                 <a href="javascript:void(0);" class="side-menu__item">Home Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
-                                        <a href="{{ route('admin.banner.index') }}" class="side-menu__item">Banner Section</a>
+                                        <a href="{{ route('admin.banners.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.banner.index') }}" class="side-menu__item">Why Choose us Section</a>
+                                        <a href="{{ route('admin.whychoose.index') }}" class="side-menu__item">Why Choose us Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.banner.index') }}" class="side-menu__item">Testimonials Section</a>
+                                        <a href="{{ route('admin.admin.testimonial.index') }}" class="side-menu__item">Testimonials Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.banner.index') }}" class="side-menu__item">Blog Section</a>
+                                        <a href="{{ route('admin.homeblog.index') }}" class="side-menu__item">Blog Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.banner.index') }}" class="side-menu__item">How It Works Section</a>
+                                        <a href="{{ route('admin.howworks.index') }}" class="side-menu__item">How It Works Section</a>
                                     </li>
                                 </ul>
                             </li>
@@ -131,10 +131,19 @@
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Banner Section</a>
+                                        <a href="{{ route('admin.about-banner.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">About Us Section</a>
+                                        <a href="{{ route('admin.aboutus.index') }}" class="side-menu__item">About Us Section</a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.aboutexperiences.index') }}" class="side-menu__item">Experience Section</a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.abouthowweworks.index') }}" class="side-menu__item">How we work Section</a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.aboutfaq.index') }}" class="side-menu__item">FAQ Section</a>
                                     </li>
                                 </ul>
                             </li>
@@ -143,10 +152,10 @@
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Banner Section</a>
+                                        <a href="{{ route('admin.contactbanner.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Contact Details Section</a>
+                                        <a href="{{ route('admin.contactdetails.index') }}" class="side-menu__item">Contact Details Section</a>
                                     </li>
                                 </ul>
                             </li>
@@ -155,25 +164,37 @@
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Banner Section</a>
+                                        <a href="{{ route('admin.blogbanners.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Card Section</a>
+                                        <a href="{{ route('admin.blogposts.index') }}" class="side-menu__item">Blog Post Section</a>
                                     </li>
                                 </ul>
                             </li>
+
                             <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item">Blog Details Page
+                                <a href="javascript:void(0);" class="side-menu__item">Event Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
-                                        <a href="javascript:void(0);" class="side-menu__item">Details Section</a>
+                                        <a href="{{ route('admin.eventdetails.index') }}" class="side-menu__item">Event Details </a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.eventfaq.index') }}" class="side-menu__item">Event FAQ </a>
                                     </li>
                                 </ul>
                             </li>
                             <li class="slide has-sub">
-                                <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page
-                                
+                                <a href="javascript:void(0);" class="side-menu__item">Service Page
+                                    <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
+                                <ul class="slide-menu child2">
+                                    <li class="slide">
+                                        <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Cards </a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
