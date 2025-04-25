@@ -212,11 +212,8 @@
                         </div>
                     </li>
                     <li><a class="dropdown-item d-flex align-items-center" href="profile.html"><i class="ri-user-line fs-15 me-2 text-gray fw-normal"></i>Profile</a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="mail.html"><i class="ri-chat-1-line fs-15 me-2 text-gray fw-normal"></i>Messages <span class="badge bg-pink ms-auto">02</span></a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="profile.html"><i class="ri-group-line fs-15 me-2 text-gray fw-normal"></i>Friends</a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="mail-settings.html"><i class="ri-user-settings-line fs-15 me-2 text-gray fw-normal"></i>Account Settings</a></li>
-                    <li> <hr class="dropdown-divider"> </li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="sign-in-cover.html"><i class="ri-logout-circle-line fs-15 me-2 text-gray fw-normal"></i>Sign Out</a></li>
+                    
+                    <li><a class="dropdown-item d-flex align-items-center" href="{{ route('user.logout') }}"><i class="ri-logout-circle-line fs-15 me-2 text-gray fw-normal"></i>Sign Out</a></li>
                 </ul>
             </li>  
             <!-- End::header-element -->

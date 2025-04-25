@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\ManageProfessionalController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\WhychooseController;
 use App\Http\Controllers\Admin\ContactBannerController;
@@ -18,9 +19,10 @@ use App\Http\Controllers\Admin\LogoController;
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', function () {
-    return view('admin.index');
-})->name('dashboard');
+Route::middleware(['auth:admin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.index');
+    })->name('dashboard');
 
 Route::resource('banners', BannerController::class);
 Route::resource('service', ServiceController::class);
@@ -54,4 +56,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 Route::resource('testimonial', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonial');
 
+
+    Route::resource('banner', BannerController::class);
+    Route::resource('service', ServiceController::class);
+    Route::resource('manage-professional', ManageProfessionalController::class);
+});
 

@@ -23,23 +23,36 @@ class RouteServiceProvider extends ServiceProvider
      * Define your route model bindings, pattern filters, and other route configuration.
      */
     public function boot(): void
-    {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+{
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
 
-        $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+    $this->routes(function () {
+        Route::middleware('api')
+            ->prefix('api')
+            ->group(base_path('routes/api.php'));
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+        Route::middleware('web')
+            ->group(base_path('routes/web.php'));
 
-            Route::middleware(['web', 'auth:admin']) 
-                ->prefix('admin')
-                ->name('admin.')
-                ->group(base_path('routes/admin.php'));
-        });
-    }
+        // Admin routes with the correct guard
+        Route::middleware(['web', 'auth:admin'])
+            ->prefix('admin')
+            ->name('admin.')
+            ->group(base_path('routes/admin.php'));
+
+        // User routes with the correct guard
+        Route::middleware(['web', 'auth:user'])
+            ->prefix('user')
+            ->name('user.')
+            ->group(base_path('routes/user.php'));
+        // Professional routes with the correct guard
+        Route::middleware(['web', 'auth:professional'])
+            ->prefix('professional')
+            ->name('professional.')
+            ->group(base_path('routes/professional.php'));
+    });
+}
+
 }

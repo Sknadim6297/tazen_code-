@@ -42,9 +42,17 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
+        ],
+        'professional' => [
+            'driver' => 'session',
+            'provider' => 'professionals',
         ],
     ],
 
@@ -78,6 +86,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => Admin::class,
+        ],
+        'professionals' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Professional::class,
         ],
     ],
 
