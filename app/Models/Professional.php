@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Professional extends Model
+class Professional extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
+
+    protected $fillable = ['name', 'email', 'password'];
+
+    public function profiles()
+    {
+        return $this->hasMany(Profile::class, 'professional_id', 'id');
+    }
+    public function professionalServices()
+    {
+        return $this->hasMany(ProfessionalService::class);
+    }
+    public function rates()
+    {
+        return $this->hasMany(Rate::class);
+    }
 }

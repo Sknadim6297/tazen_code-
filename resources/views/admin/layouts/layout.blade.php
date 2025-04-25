@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        @include('admin.sections.footer')
+        {{-- @include('admin.sections.footer') --}}
 
         @yield('scripts')
 

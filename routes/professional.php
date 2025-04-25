@@ -1,0 +1,18 @@
+<?php
+
+use App\Http\Controllers\Professional\AvailabilityController;
+use App\Http\Controllers\Professional\ProfileController;
+use App\Http\Controllers\Professional\RateController;
+use App\Http\Controllers\Professional\ServiceController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth:professional'])->group(function () {
+    Route::get('dashboard', function () {
+        return view('professional.index');
+    })->name('dashboard');
+
+    Route::resource('profile', ProfileController::class);
+    Route::resource('service', ServiceController::class);
+    Route::resource('rate', RateController::class);
+    Route::resource('availability', AvailabilityController::class);
+});
