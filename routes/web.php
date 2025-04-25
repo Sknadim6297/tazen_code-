@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\frontend\HomeController;
-
+use App\Http\Controllers\Admin\HowworksController;
+use App\Http\Controllers\Admin\AboutBannerController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -93,3 +94,20 @@ Route::get('/customer/add-profile', function () {
     return view('customer.addprofile.index');
 });
 
+Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
+Route::post('/admin/banners', [BannerController::class, 'store'])->name('admin.banner.store');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('testimonial', App\Http\Controllers\Admin\TestimonialController::class);
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('homeblog', \App\Http\Controllers\Admin\HomeBlogController::class);
+    Route::resource('howworks', \App\Http\Controllers\Admin\HowworksController::class); 
+    Route::resource('about-banner', AboutBannerController::class);
+});
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('aboutus', \App\Http\Controllers\Admin\AboutUsController::class);
+});

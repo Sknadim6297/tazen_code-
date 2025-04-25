@@ -32,20 +32,20 @@
                             Total Tasks
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Banner</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Contact Banner</button>
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
+                                    <form action="{{ route('admin.contactbanner.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h6 class="modal-title">Add Home Banner</h6>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
+                                                <h6 class="modal-title">Add Contact Banner</h6>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body px-4">
                                                 <div class="row gy-3">
+                                    
                                                     {{-- Banner Heading --}}
                                                     <div class="col-xl-6">
                                                         <label for="heading" class="form-label">Banner Heading</label>
@@ -54,7 +54,7 @@
                                     
                                                     {{-- Banner Sub Heading --}}
                                                     <div class="col-xl-6">
-                                                        <label for="sub_heading" class="form-label">Sub Heading</label>
+                                                        <label for="sub_heading" class="form-label">Banner Sub Heading</label>
                                                         <input type="text" class="form-control" id="sub_heading" name="sub_heading" placeholder="Enter Sub Heading">
                                                     </div>
                                     
@@ -72,15 +72,17 @@
                                                             <option value="inactive">Inactive</option>
                                                         </select>
                                                     </div>
+                                    
                                                 </div>
                                             </div>
                                     
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">Add Banner</button>
+                                                <button type="submit" class="btn btn-primary">Add Contact Banner</button>
                                             </div>
                                         </div>
-                                    </form>                                    
+                                    </form>
+                                                                      
                                 </div>
                             </div>
                         </div>
@@ -99,44 +101,41 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
+                                
                                 <tbody>
-                                    @forelse ($banners as $key => $banner)
-                                    <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $banner->heading }}</td>
-                                        <td>{{ $banner->sub_heading ?? '-' }}</td>
-                                        <td>
-                                            @if($banner->banner_image)
-                                                <img src="{{ asset($banner->banner_image) }}" alt="Banner Image" width="100">
-                                            @else
-                                                No Image
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $banner->status == 'active' ? 'success' : 'secondary' }}">
-                                                {{ ucfirst($banner->status) }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $banner->created_at->format('d M Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.banners.edit', $banner->id) }}" class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit">
-                                                <i class="ri-edit-line"></i>
-                                            </a>
-                                            <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
-                                                    <i class="ri-delete-bin-5-line"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">No banners found.</td>
-                                    </tr>
-                                @endforelse
+                                    @foreach ($contactbanners as $key => $banner)
+                                        <tr>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $banner->heading }}</td>
+                                            <td>{{ $banner->sub_heading }}</td>
+                                            <td>
+                                                @if ($banner->banner_image)
+                                                    <img src="{{ asset('uploads/contactbanner/' . $banner->banner_image) }}" alt="Banner Image" width="80">
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($banner->status == 'active')
+                                                    <span class="badge bg-success">Active</span>
+                                                @else
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $banner->created_at->format('d-m-Y') }}</td>
+                                            <td>
+                                                <a href="{{ route('admin.contactbanner.edit', $banner->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                                <form action="{{ route('admin.contactbanner.destroy', $banner->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
+                                
+                                
                             </table>
                         </div>
                     </div>

@@ -4,18 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Banner;
+use App\Models\Testimonial;
 
-
-class BannerController extends Controller
+class TestimonialController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
+        $testimonial = Testimonial::first(); // Only one row expected
+        return view('admin.testimonial.index', compact('testimonial'));
     }
 
     /**
@@ -31,24 +30,17 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $data = $request->all();
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
-
-        // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
+        for ($i = 1; $i <= 4; $i++) {
+            if ($request->hasFile("image$i")) {
+                $data["image$i"] = $request->file("image$i")->store('testimonials', 'public');
+            }
         }
 
-        Banner::create($data);
+        Testimonial::updateOrCreate(['id' => 1], $data);
 
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->back()->with('success', 'Testimonial updated successfully!');
     }
 
 

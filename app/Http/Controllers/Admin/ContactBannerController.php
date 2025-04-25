@@ -1,21 +1,20 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Models\Contactbanner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Banner;
 
-
-class BannerController extends Controller
+class ContactBannerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
+    $contactbanners = ContactBanner::all(); // or paginate(10) if needed
+    return view('admin.contactbanner.index', compact('contactbanners'));
     }
 
     /**
@@ -34,23 +33,23 @@ class BannerController extends Controller
         $request->validate([
             'heading' => 'required|string|max:255',
             'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'banner_image' => 'nullable|image',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $data = $request->only(['heading', 'sub_heading', 'status']);
 
-        // Handle image upload
         if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
+            $file = $request->file('banner_image');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('uploads/contactbanners'), $filename);
+            $data['banner_image'] = 'uploads/contactbanners/'.$filename;
         }
 
-        Banner::create($data);
+        Contactbanner::create($data);
 
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->route('admin.contactbanner.index')->with('success', 'Banner Added Successfully!');
     }
-
 
     /**
      * Display the specified resource.

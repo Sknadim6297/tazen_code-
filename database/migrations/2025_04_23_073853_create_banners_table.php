@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('testimonials', function (Blueprint $table) {
+        Schema::create('banners', function (Blueprint $table) {
             $table->id();
+            $table->string('heading');
+            $table->string('sub_heading')->nullable();
+            $table->string('banner_image')->nullable(); // image path
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('testimonials');
+        Schema::dropIfExists('banners');
     }
 };

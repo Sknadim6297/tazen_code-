@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class About extends Model
+class BlogPost extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'heading',
-        'description',
-        'line_1',
-        'line_2',
         'image',
-        'year_of_experience',
-        'banner_image',
+        'category',
+        'published_at',
+        'title',
+        'content',
+        'author_name',
+        'author_avatar',
+        'comment_count',
     ];
 }

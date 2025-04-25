@@ -4,19 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Banner;
+use App\Models\HomeBlog;
 
-
-class BannerController extends Controller
+class HomeBlogController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $banners = Banner::orderBy('created_at', 'desc')->get(); // fetch all banners
-        return view('admin.banner.index', compact('banners'));   // pass to the view
+        $homeblogs = HomeBlog::all(); // fetch all records
+        return view('admin.homeblog.index', compact('homeblogs'));
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -31,26 +31,19 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $data = $request->all();
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
-
-        // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
+        // Handle 3 images
+        for ($i = 1; $i <= 3; $i++) {
+            if ($request->hasFile("image$i")) {
+                $data["image$i"] = $request->file("image$i")->store('homeblogs', 'public');
+            }
         }
 
-        Banner::create($data);
+        HomeBlog::updateOrCreate(['id' => 1], $data);
 
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+        return redirect()->back()->with('success', 'Home Blog updated successfully!');
     }
-
 
     /**
      * Display the specified resource.

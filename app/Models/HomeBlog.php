@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Testimonial extends Model
+class HomeBlog extends Model
 {
     use HasFactory;
     protected $fillable = [
         'section_sub_heading',
-        'image1', 'description1',
-        'image2', 'description2',
-        'image3', 'description3',
-        'image4', 'description4',
+        'image1', 'heading1', 'description1', 'by_whom1',
+        'image2', 'heading2', 'description2', 'by_whom2',
+        'image3', 'heading3', 'description3', 'by_whom3',
     ];
 }

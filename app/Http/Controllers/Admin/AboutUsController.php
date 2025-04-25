@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AboutUs;
+use Illuminate\Http\Request;
+
+class AboutUsController extends Controller
+{
+    public function index()
+{
+    $aboutuses = AboutUs::all(); // Fetch all AboutUs records
+    return view('admin.aboutus.index', compact('aboutuses')); // Pass to view
+}
+
+    public function create()
+    {
+        return view('admin.aboutus.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'line1' => 'nullable|string|max:255',
+            'line2' => 'nullable|string|max:255',
+            'image' => 'nullable|image',
+            'year_of_experience' => 'required|integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('aboutus', 'public');
+        }
+
+        AboutUs::create($validated);
+
+        return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry created successfully.');
+    }
+
+    public function edit(AboutUs $aboutus)
+    {
+        return view('admin.aboutus.edit', compact('aboutus'));
+    }
+
+    public function update(Request $request, AboutUs $aboutus)
+    {
+        $validated = $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'line1' => 'nullable|string|max:255',
+            'line2' => 'nullable|string|max:255',
+            'image' => 'nullable|image',
+            'year_of_experience' => 'required|integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('aboutus', 'public');
+        }
+
+        $aboutus->update($validated);
+
+        return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry updated successfully.');
+    }
+
+    public function destroy(AboutUs $aboutus)
+    {
+        $aboutus->delete();
+        return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry deleted successfully.');
+    }
+}
