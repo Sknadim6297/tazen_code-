@@ -52,8 +52,8 @@
                                                     </div>
                                     
                                                     <div class="col-md-6">
-                                                        <label for="section_sub_heading" class="form-label">Section Sub Heading</label>
-                                                        <input type="text" class="form-control" name="section_sub_heading" id="section_sub_heading">
+                                                        <label for="section_subheading" class="form-label">Section Sub Heading</label>
+                                                        <input type="text" class="form-control" name="section_subheading" id="section_subheading">
                                                     </div>
                                     
                                                     <div class="col-md-6">
@@ -62,8 +62,8 @@
                                                     </div>
                                     
                                                     <div class="col-md-6">
-                                                        <label for="content_sub_heading" class="form-label">Content Sub Heading</label>
-                                                        <input type="text" class="form-control" name="content_sub_heading" id="content_sub_heading">
+                                                        <label for="content_subheading" class="form-label">Content Sub Heading</label>
+                                                        <input type="text" class="form-control" name="content_subheading" id="content_subheading">
                                                     </div>
                                     
                                                     @for ($i = 1; $i <= 3; $i++)
@@ -130,9 +130,9 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $exp->section_heading }}</td>
-                                            <td>{{ $exp->section_sub_heading }}</td>
+                                            <td>{{ $exp->section_subheading }}</td>
                                             <td>{{ $exp->content_heading }}</td>
-                                            <td>{{ $exp->content_sub_heading }}</td>
+                                            <td>{{ $exp->content_subheading }}</td>
                                 
                                             <td>{{ $exp->experience_heading1 }}</td>
                                             <td>{{ $exp->experience_percentage1 }}%</td>
@@ -149,8 +149,8 @@
                                             <td>{{ $exp->created_at->format('d M Y') }}</td>
                                 
                                             <td>
-                                                <a href="{{ route('aboutexperiences.edit', $exp->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                                <form action="{{ route('aboutexperiences.destroy', $exp->id) }}" method="POST" style="display:inline-block;">
+                                                <a href="{{ route('admin.aboutexperiences.edit', $exp->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <form action="{{ route('admin.aboutexperiences.destroy', $exp->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-sm btn-danger">Delete</button>

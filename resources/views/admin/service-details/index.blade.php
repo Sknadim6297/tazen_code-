@@ -45,6 +45,26 @@
                                             </div>
                                     
                                             <div class="modal-body">
+                                                <!-- Service Name Section -->
+                                                <div class="card mb-4">
+                                                    <div class="card-header bg-light">
+                                                        <h6 class="mb-0">Service Name</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-12">
+                                                                <label for="service_id" class="form-label">Select Service Name</label>
+                                                                <select class="form-select" name="service_id" id="service_id" required>
+                                                                    <option value="" disabled selected>Select a service</option>
+                                                                    @foreach($services as $service)
+                                                                        <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                    
                                                 <!-- Banner Section -->
                                                 <div class="card mb-4">
                                                     <div class="card-header bg-light">
@@ -157,47 +177,56 @@
                                             </div>
                                         </div>
                                     </form>
-                                    
-                                                                      
+                                                                                            
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap">
+                            <table class="table table-bordered text-nowrap">
                                 <thead class="table-light align-middle">
                                     <tr>
                                         <th rowspan="2" width="5%">#</th>
+                                        <th rowspan="2" width="10%">Service Nmae</th>
                                         <th colspan="3">Banner Section</th>
                                         <th colspan="4">About Section</th>
-                                        <th colspan="4">How It Works</th>
+                                        <th colspan="3">How It Works</th>
+                                        <th colspan="6">Steps</th>
                                         <th rowspan="2" width="8%" class="text-center">Actions</th>
                                     </tr>
                                     <tr>
-                                        <!-- Banner Section Sub-headers -->
+                                        <!-- Banner Section Sub-Headers -->
                                         <th width="10%">Image</th>
                                         <th width="12%">Heading</th>
                                         <th width="12%">Sub Heading</th>
-                                        
-                                        <!-- About Section Sub-headers -->
+                            
+                                        <!-- About Section Sub-Headers -->
                                         <th width="10%">Image</th>
                                         <th width="12%">Heading</th>
                                         <th width="12%">Subheading</th>
                                         <th width="15%">Description</th>
-                                        
-                                        <!-- How It Works Sub-headers -->
+                            
+                                        <!-- How It Works Sub-Headers -->
                                         <th width="10%">BG Image</th>
                                         <th width="12%">Content Heading</th>
                                         <th width="12%">Sub Heading</th>
-                                        <th width="15%">Steps</th>
+                            
+                                        <!-- Steps Sub-Headers -->
+                                        <th width="10%">Step 1 Heading</th>
+                                        <th width="10%">Step 1 Description</th>
+                                        <th width="10%">Step 2 Heading</th>
+                                        <th width="10%">Step 2 Description</th>
+                                        <th width="10%">Step 3 Heading</th>
+                                        <th width="10%">Step 3 Description</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($serviceDetails as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        
+                                        <td>{{ $item->service->name }}</td>
+                            
                                         <!-- Banner Section -->
                                         <td>
                                             @if($item->banner_image)
@@ -208,7 +237,7 @@
                                         </td>
                                         <td>{{ Str::limit($item->banner_heading, 20) }}</td>
                                         <td>{{ Str::limit($item->banner_sub_heading, 20) }}</td>
-                                        
+                            
                                         <!-- About Section -->
                                         <td>
                                             @if($item->about_image)
@@ -220,8 +249,8 @@
                                         <td>{{ Str::limit($item->about_heading, 20) }}</td>
                                         <td>{{ Str::limit($item->about_subheading, 20) }}</td>
                                         <td>{{ Str::limit($item->about_description, 30) }}</td>
-                                        
-                                        <!-- How It Works Section -->
+                            
+                                        <!-- How It Works -->
                                         <td>
                                             @if($item->background_image)
                                             <img src="{{ asset('storage/'.$item->background_image) }}" width="50" class="img-thumbnail">
@@ -231,33 +260,34 @@
                                         </td>
                                         <td>{{ Str::limit($item->content_heading, 20) }}</td>
                                         <td>{{ Str::limit($item->content_sub_heading, 20) }}</td>
-                                        <td>
-                                            <small>
-                                                <strong>1.</strong> {{ Str::limit($item->step1_heading, 10) }}<br>
-                                                @if($item->step2_heading)
-                                                <strong>2.</strong> {{ Str::limit($item->step2_heading, 10) }}<br>
-                                                @endif
-                                                @if($item->step3_heading)
-                                                <strong>3.</strong> {{ Str::limit($item->step3_heading, 10) }}
-                                                @endif
-                                            </small>
-                                        </td>
-                                        
+                            
+                                        <!-- Steps -->
+                                        <td>{{ Str::limit($item->step1_heading, 15) }}</td>
+                                        <td>{{ Str::limit($item->step1_description, 25) }}</td>
+                                        <td>{{ Str::limit($item->step2_heading, 15) }}</td>
+                                        <td>{{ Str::limit($item->step2_description, 25) }}</td>
+                                        <td>{{ Str::limit($item->step3_heading, 15) }}</td>
+                                        <td>{{ Str::limit($item->step3_description, 25) }}</td>
+                            
                                         <!-- Actions -->
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="{{ route('admin.service-details.edit', $item->id) }}" class="btn btn-outline-primary">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button class="btn btn-outline-danger delete-btn" data-id="{{ $item->id }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <td>
+                                            <!-- Edit Button -->
+                                            <a href="{{ route('admin.service-details.edit', $item->id) }}" class="btn btn-sm btn-info">Edit</a>
+                                        
+                                            <!-- Delete Form with Confirmation -->
+                                            <form action="{{ route('admin.service-details.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            </form>
+                                        </td>                                        
+                                        
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                            
+                            
                         </div>
                     </div>
                     <div class="card-footer border-top-0">

@@ -54,9 +54,15 @@
                                                     </div>
                                     
                                                     {{-- Event Name --}}
+                                                    {{-- Event Name (Dropdown from All Events) --}}
                                                     <div class="col-xl-6">
-                                                        <label for="event_name" class="form-label">Event Name</label>
-                                                        <input type="text" class="form-control" name="event_name" id="event_name" placeholder="Enter Event Name" required>
+                                                        <label for="event_id" class="form-label">Event Name</label>
+                                                        <select class="form-select" name="event_id" id="event_id" required>
+                                                        <option value="" disabled selected>Select Event</option>
+                                                        @foreach($allevents as $event)
+                                                        <option value="{{ $event->id }}">{{ $event->heading }}</option>
+                                                        @endforeach
+                                                        </select>
                                                     </div>
                                     
                                                     {{-- Event Type --}}
@@ -89,6 +95,13 @@
                                                         <input type="file" class="form-control" name="event_gallery[]" id="event_gallery" accept="image/*" multiple required>
                                                     </div>
                                     
+                                                    {{-- Map Location Link (NEW FIELD) --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="map_link" class="form-label">Event Location Map Link</label>
+                                                        <input type="text" class="form-control" name="map_link" id="map_link" placeholder="Paste Google Map URL" required>
+                                                        <small class="text-muted">Example: https://www.google.com/maps/place/Chandannagar,+West+Bengal</small>
+                                                    </div>
+                                    
                                                 </div>
                                             </div>
                                     
@@ -97,14 +110,15 @@
                                                 <button type="submit" class="btn btn-primary">Add Event</button>
                                             </div>
                                         </div>
-                                    </form>                                    
+                                    </form>
+                                                                      
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap">
+                            <table class="table text-bordered">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -115,6 +129,7 @@
                                         <th>Start Date</th>
                                         <th>Fees</th>
                                         <th>Gallery</th>
+                                        <th>Map Link</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
@@ -127,7 +142,7 @@
                                             <td>
                                                 <img src="{{ asset('uploads/eventdetails/' . $event->banner_image) }}" width="70" height="50" alt="Banner">
                                             </td>
-                                            <td>{{ $event->event_name }}</td>
+                                            <td>{{ $event->event->heading ?? 'N/A' }}</td>
                                             <td>{{ $event->event_type }}</td>
                                             <td>{{ \Illuminate\Support\Str::limit($event->event_details, 50) }}</td>
                                             <td>{{ \Carbon\Carbon::parse($event->starting_date)->format('d M Y') }}</td>
@@ -142,6 +157,7 @@
                                                     @endforeach
                                                 @endif
                                             </td>
+                                            <td>{{ $event->map_link }}</td>
                                             <td>{{ $event->created_at->format('d M Y') }}</td>
                                             <td>
                                                 <a href="{{ route('admin.eventdetails.edit', $event->id) }}" class="btn btn-sm btn-primary">Edit</a>

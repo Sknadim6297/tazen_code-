@@ -28,23 +28,34 @@ class AboutFAQController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'faq_description' => 'required|string',
-            'question1' => 'required|string',
-            'answer1' => 'required|string',
-            'question2' => 'nullable|string',
-            'answer2' => 'nullable|string',
-            'question3' => 'nullable|string',
-            'answer3' => 'nullable|string',
-            'question4' => 'nullable|string',
-            'answer4' => 'nullable|string',
-        ]);
+{
+    $validatedData = $request->validate([
+        'faq_description' => 'required|string',
+        'question1' => 'required|string',
+        'answer1' => 'required|string',
+        'question2' => 'required|string',
+        'answer2' => 'required|string',
+        'question3' => 'required|string',
+        'answer3' => 'required|string',
+        'question4' => 'required|string',
+        'answer4' => 'required|string',
+    ]);
 
-        AboutFAQ::create($request->all());
+    AboutFaq::create([
+        'faq_description' => $validatedData['faq_description'],
+        'question1' => $validatedData['question1'],
+        'answer1' => $validatedData['answer1'],
+        'question2' => $validatedData['question2'],
+        'answer2' => $validatedData['answer2'],
+        'question3' => $validatedData['question3'],
+        'answer3' => $validatedData['answer3'],
+        'question4' => $validatedData['question4'],
+        'answer4' => $validatedData['answer4'],
+    ]);
 
-        return redirect()->route('admin.abouthowweworks.index')->with('success', 'FAQ created successfully.');
-    }
+    return redirect()->back()->with('success', 'FAQ Added Successfully!');
+}
+
 
     /**
      * Display the specified resource.

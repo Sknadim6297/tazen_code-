@@ -11,7 +11,8 @@ class Banner extends Model
     protected $fillable = [
         'heading',
         'sub_heading',
-        'banner_image',
+        'banner_video', // updated from banner_image to banner_video
         'status',
     ];
+    
 }

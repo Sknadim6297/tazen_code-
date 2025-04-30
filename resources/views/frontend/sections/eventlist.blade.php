@@ -1,6 +1,16 @@
 @extends('layouts.layout')
 @section('styles')
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
+   <link href="{{ asset('frontend/assets/css/style.css') }}" rel="stylesheet">
+
+<!-- SPECIFIC CSS -->
+<link href="{{ asset('frontend/assets/css/listing.css') }}" rel="stylesheet">
+
+<!-- YOUR CUSTOM CSS -->
+<link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
+<link href="{{ asset('frontend/assets/css/event-list.css') }}" rel="stylesheet">
+
+
 @endsection
 @section('content')
 
@@ -189,204 +199,39 @@
                      <li><a href="">Mental Health</a></li>
                 </ul>
                 <div class="row grid_sidebar">
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="740" height="508" src="img/event-list/astrologer event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
+                    <!-- Display Total Event Count -->
+                    
+                
+                    <!-- Loop through each event and display details -->
+                    @foreach($events as $event)
+                        <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
+                            <div class="featured-imagebox featured-imagebox-blog style2">
+                                <div class="featured-thumbnail">
+                                    <a href="{{ route('event.details', $event->id) }}">
+                                        <img class="img-fluid" width="370" height="254" src="{{ asset('storage/' . $event->event->card_image) }}" alt="image">
+                                    </a>
+                                    <div class="ttm-box-date">
+                                        <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
+                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($event->event->date)->format('M d, Y') }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Stress Release</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">Wellbeing is Important</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>The confidence that person is able to make</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark" tabindex="0">₹ 500 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="370" height="254" src="img/event-list/fitness yoga event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark"  tabindex="0">FREE</span>
+                                <div class="featured-content-inner">
+                                    <p class="category">{{ $event->event->mini_heading }}</p>
+                                    <div class="featured-title">
+                                        <h3><a href="{{ route('event.details', $event->id) }}">{{ $event->event->heading }}</a></h3>
+                                    </div>
+                                    <div class="featured-desc">
+                                        <p>{{ $event->event->short_description }}</p>
+                                    </div>
+                                    <div class="ttm-blogbox-footer-readmore">
+                                        <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark">
+                                            ₹ {{ $event->event->starting_fees }} onwards
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="370" height="254" src="img/event-list/influencer event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark" tabindex="0">₹ 664 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="370" height="254" src="img/event-list/interior designer event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark"  tabindex="0">₹ 754 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="740" height="508" src="img/event-list/job career business event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Stress Release</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">Wellbeing is Important</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>The confidence that person is able to make</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark" tabindex="0">₹ 500 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="370" height="254" src="img/event-list/psychologist event list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark"  tabindex="0">FREE</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                                <a href="all-event.html">
-                                    <img class="img-fluid" width="370" height="254" src="img/event-list/style image consultantent list.jpg" alt="image"> 
-                                </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark" tabindex="0">₹ 664 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                        <div class="featured-imagebox featured-imagebox-blog style2 ">
-                            <div class="featured-thumbnail"> 
-                            <a href="all-event.html"><img class="img-fluid" width="370" height="254" src="assets/images/campaign/4.jpg" alt="image"> </a>
-                                <div class="ttm-box-date">
-                                    <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                    <span class="ttm-entry-date">Mar 20 2021</span>
-                                </div>
-                            </div>
-                            <div class="featured-content-inner">
-                                <p class="category">Phobias &amp; Anxiety</p>
-                                <div class="featured-title">
-                                    <h3><a href="all-event.html" tabindex="0">A Reestablished Peace</a></h3>
-                                </div>
-                                <div class="featured-desc">
-                                    <p>This group makes me think of things</p>
-                                </div>
-                                <div class="ttm-blogbox-footer-readmore">
-                                    <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark"  tabindex="0">₹ 754 onwards</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
                 <!-- /row -->
                 <div class="pagination_fg">

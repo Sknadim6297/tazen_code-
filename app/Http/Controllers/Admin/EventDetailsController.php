@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EventDetail;
+use App\Models\AllEvent;
 use Illuminate\Support\Facades\Storage;
 
 class EventDetailsController extends Controller
@@ -12,7 +13,10 @@ class EventDetailsController extends Controller
     public function index()
     {
         $eventdetails = EventDetail::latest()->get();
-        return view('admin.eventdetails.index', compact('eventdetails'));
+        $allevents = AllEvent::latest()->get(); // Fetch all events
+        $events = EventDetail::with('event')->get();
+
+        return view('admin.eventdetails.index', compact('eventdetails','allevents'));
     }
 
     public function create()
@@ -23,22 +27,24 @@ class EventDetailsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'event_name' => 'required|string|max:255',
+            'event_id' => 'required|exists:all_events,id',
             'event_type' => 'required|string|max:255',
             'event_details' => 'required',
             'starting_date' => 'required|date',
             'starting_fees' => 'required|numeric',
             'banner_image' => 'required|image|mimes:jpg,jpeg,png,webp',
             'event_gallery.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'map_link' => 'required|url|max:500',
         ]);
-
-        $data = $request->only(['event_name', 'event_type', 'event_details', 'starting_date', 'starting_fees']);
-
+    
+        $data = $request->only(['event_type', 'event_details', 'starting_date', 'starting_fees', 'map_link']);
+        $data['event_id'] = $request->input('event_id');
+    
         // Upload banner image
         if ($request->hasFile('banner_image')) {
             $data['banner_image'] = $request->file('banner_image')->store('events/banners', 'public');
         }
-
+    
         // Upload gallery images as JSON
         $galleryImages = [];
         if ($request->hasFile('event_gallery')) {
@@ -47,11 +53,15 @@ class EventDetailsController extends Controller
             }
             $data['event_gallery'] = json_encode($galleryImages);
         }
+    
+        // dd($request->all());
 
-        EventDetail::create($data);
-
+        EventDetail::create($data); // Now event_id is definitely included
+    
         return redirect()->route('admin.eventdetails.index')->with('success', 'Event created successfully.');
     }
+    
+
 
     public function show(EventDetail $eventdetail)
     {
@@ -73,9 +83,10 @@ class EventDetailsController extends Controller
             'starting_fees' => 'required|numeric',
             'banner_image' => 'image|mimes:jpg,jpeg,png,webp',
             'event_gallery.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'map_link' => 'nullable|url|max:500',
         ]);
 
-        $data = $request->only(['event_name', 'event_type', 'event_details', 'starting_date', 'starting_fees']);
+        $data = $request->only(['event_name', 'event_type', 'event_details', 'starting_date', 'starting_fees','map_link']);
 
         // Update banner image if new one is uploaded
         if ($request->hasFile('banner_image')) {

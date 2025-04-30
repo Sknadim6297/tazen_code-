@@ -58,10 +58,10 @@
                                                         <input type="text" class="form-control" id="sub_heading" name="sub_heading" placeholder="Enter Sub Heading">
                                                     </div>
                                     
-                                                    {{-- Banner Image --}}
+                                                    {{-- Banner Video --}}
                                                     <div class="col-xl-12">
-                                                        <label for="banner_image" class="form-label">Banner Image</label>
-                                                        <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*">
+                                                        <label for="banner_video" class="form-label">Banner Video</label>
+                                                        <input type="file" class="form-control" name="banner_video" id="banner_video" accept="video/*" required>
                                                     </div>
                                     
                                                     {{-- Status --}}
@@ -93,7 +93,7 @@
                                         <th>#</th>
                                         <th>Heading</th>
                                         <th>Sub Heading</th>
-                                        <th>Image</th>
+                                        <th>Video</th>
                                         <th>Status</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
@@ -106,10 +106,10 @@
                                         <td>{{ $banner->heading }}</td>
                                         <td>{{ $banner->sub_heading ?? '-' }}</td>
                                         <td>
-                                            @if($banner->banner_image)
-                                                <img src="{{ asset($banner->banner_image) }}" alt="Banner Image" width="100">
+                                            @if($banner->banner_video)
+                                                <img src="{{ asset($banner->banner_video) }}" alt="Banner Video" width="100">
                                             @else
-                                                No Image
+                                                No video
                                             @endif
                                         </td>
                                         <td>

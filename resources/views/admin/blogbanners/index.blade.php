@@ -32,7 +32,7 @@
                             Total Tasks
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blogsir Banner</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blog Banner</button>
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
@@ -55,7 +55,7 @@
                                                     {{-- Banner Sub Heading --}}
                                                     <div class="col-xl-6">
                                                         <label for="sub_heading" class="form-label">Banner Sub Heading</label>
-                                                        <input type="text" class="form-control" id="sub_heading" name="sub_heading" placeholder="Enter Sub Heading">
+                                                        <input type="text" class="form-control" id="sub_heading" name="subheading" placeholder="Enter Sub Heading">
                                                     </div>
                                     
                                                     {{-- Banner Image --}}
@@ -81,9 +81,7 @@
                                                 <button type="submit" class="btn btn-primary">Add Blog Banner</button>
                                             </div>
                                         </div>
-                                    </form>
-                                    
-                                                                      
+                                    </form>                                                                                                         
                                 </div>
                             </div>
                         </div>
@@ -107,7 +105,7 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $banner->heading }}</td>
-                                            <td>{{ $banner->sub_heading }}</td>
+                                            <td>{{ $banner->subheading }}</td>
                                             <td>
                                                 <img src="{{ asset('storage/' . $banner->banner_image) }}" alt="Banner Image" width="100">
                                             </td>
