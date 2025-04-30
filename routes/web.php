@@ -4,13 +4,30 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\frontend\HomeController;
+use App\Http\Controllers\Frontend\EventController;
 use App\Http\Controllers\Admin\HowworksController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\AboutBannerController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\frontend\LoginController;
+use App\Http\Controllers\Frontend\ServiceController;
 use App\Http\Controllers\Professional\ProfessionalController;
 use Illuminate\Auth\Events\Login;
-
+use App\Http\Controllers\Admin\BlogPostController;
+use App\Models\AboutUs;
+use App\Models\Whychoose;
+use App\Models\Testimonial;
+use App\Models\AboutBanner;
+use App\Models\AboutExperience;
+use App\Models\AboutHowWeWork;
+use App\Models\AboutFAQ;
+use App\Models\Eventdetail;
+use App\Models\EventFAQ;
+use App\Models\Contactbanner;
+use App\Models\ContactDetail;
+use App\Models\BlogBanner;
+use App\Models\BlogPost;
+use App\Models\Blog;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,14 +47,41 @@ Route::get('professionaldetails', function () {
     return view('frontend.sections.professional-details');
 });
 Route::get('about', function () {
-    return view('frontend.sections.about');
+    $about_us = AboutUs::latest()->get();
+    $whychooses = Whychoose::latest()->get();
+    $testimonials = Testimonial::latest()->get();
+    $banners = AboutBanner::latest()->get();
+    $aboutexperiences = AboutExperience::latest()->get();
+    $abouthowweworks = AboutHowWeWork::latest()->get();
+    $aboutfaqs = AboutFAQ::latest()->get();
+
+    return view('frontend.sections.about',compact('about_us','whychooses','testimonials','banners','aboutexperiences','abouthowweworks','aboutfaqs'));
 });
 Route::get('eventlist', function () {
-    return view('frontend.sections.eventlist');
+    $events = EventDetail::all(); // Retrieve all events from the 'eventdetails' table
+    return view('frontend.sections.eventlist',compact('events'));
 });
+Route::get('/allevent/{id}', [EventController::class, 'show'])->name('event.details');
+Route::get('allevent', function () {
+    $eventdetails = Eventdetail::latest()->get();
+    $eventfaqs = EventFAQ::latest()->get();
+    $event = Event::findOrFail($id);
+
+    return view('frontend.sections.allevent',compact('eventdetails','eventfaqs','event'));
+});
+
+Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
+Route::get('/service/{id}', [ServiceController::class, 'show']);
+
+
 Route::get('blog', function () {
-    return view('frontend.sections.blog');
+    $blogbanners = BlogBanner::latest()->get();
+    $blogPosts = BlogPost::latest()->get();
+    
+
+    return view('frontend.sections.blog',compact('blogbanners','blogPosts'));
 });
+Route::get('/blog-post/{id}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('eventdetails', function () {
     return view('frontend.sections.eventdetails');
 });
@@ -54,7 +98,10 @@ Route::get('dieticians', function () {
     return view('frontend.sections.dieticians');
 });
 Route::get('contact', function () {
-    return view('frontend.sections.contact');
+    $contactbanners = Contactbanner::latest()->get();
+    $contactdetails = ContactDetail::latest()->get();
+
+    return view('frontend.sections.contact',compact('contactbanners','contactdetails'));
 });
 Route::get('influencer', function () {
     return view('frontend.sections.influencer');
@@ -69,7 +116,8 @@ Route::get('astro', function () {
     return view('frontend.sections.astro');
 });
 Route::get('blog-post', function () {
-    return view('frontend.sections.blog-post');
+    $blogbanners = BlogBanner::latest()->get();
+    return view('frontend.sections.blog-post',compact('blogbanners'));
 });
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');

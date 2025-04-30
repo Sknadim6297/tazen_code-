@@ -48,8 +48,8 @@
                                                 <div class="row gy-3">
                                                     <!-- Description / Section Heading -->
                                                     <div class="col-md-12">
-                                                        <label for="description" class="form-label">FAQ Section Description</label>
-                                                        <textarea name="description" id="description" class="form-control" rows="3" required></textarea>
+                                                        <label for="faq_description" class="form-label">FAQ Section Description</label>
+                                                        <textarea name="faq_description" id="faq_description" class="form-control" rows="3" required></textarea>
                                                     </div>
                                     
                                                     <!-- FAQ Table -->

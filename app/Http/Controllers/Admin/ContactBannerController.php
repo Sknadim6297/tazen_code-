@@ -62,24 +62,65 @@ class ContactBannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+    $contactbanner = ContactBanner::findOrFail($id);
+    return view('admin.contactbanner.edit', compact('contactbanner'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, $id)
+{
+    $contactbanner = ContactBanner::findOrFail($id);
+
+    $request->validate([
+        'heading' => 'required',
+        'sub_heading' => 'nullable',
+        'banner_image' => 'nullable|image',
+        'status' => 'required'
+    ]);
+
+    $contactbanner->heading = $request->heading;
+    $contactbanner->sub_heading = $request->sub_heading;
+    $contactbanner->status = $request->status;
+
+    // Check if a new image is uploaded
+    if ($request->hasFile('banner_image')) {
+        // Delete old image
+        if (file_exists(public_path('uploads/contactbanner/' . $contactbanner->banner_image))) {
+            unlink(public_path('uploads/contactbanner/' . $contactbanner->banner_image));
+        }
+
+        $file = $request->file('banner_image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('uploads/contactbanner/'), $filename);
+        $contactbanner->banner_image = $filename;
     }
+
+    $contactbanner->save();
+
+    return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner updated successfully!');
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($id)
+{
+    $contactbanner = ContactBanner::findOrFail($id);
+
+    // Delete banner image
+    if (file_exists(public_path('uploads/contactbanner/' . $contactbanner->banner_image))) {
+        unlink(public_path('uploads/contactbanner/' . $contactbanner->banner_image));
     }
+
+    $contactbanner->delete();
+
+    return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner deleted successfully!');
+}
+
 }

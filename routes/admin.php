@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\AboutFAQController;
 use App\Http\Controllers\Admin\ServiceDetailsController;
 use App\Http\Controllers\Admin\EventFAQController;
 use App\Http\Controllers\Admin\LogoController;
+use App\Http\Controllers\Admin\MCQController;
+use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\AllEventController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -24,41 +27,46 @@ Route::middleware(['auth:admin'])->group(function () {
         return view('admin.index');
     })->name('dashboard');
 
-Route::resource('banners', BannerController::class);
-Route::resource('service', ServiceController::class);
-Route::resource('contactbanner', ContactBannerController::class);
-Route::resource('contactdetails', ContactDetailController::class);
-Route::resource('blogposts', BlogPostController::class);
-Route::resource('blogbanners', BlogBannerController::class);
-Route::resource('eventdetails', EventDetailsController::class);
-Route::resource('aboutexperiences', AboutExperienceController::class);
-Route::resource('abouthowweworks', AboutHowWeWorkController::class);
-Route::resource('aboutfaq', AboutFAQController::class);
-Route::resource('service-details',ServiceDetailsController::class);
-Route::resource('eventfaq', EventFAQController::class);
-Route::resource('logo', LogoController::class);
 
-Route::get('/admin/banner', [BannerController::class, 'index'])->name('admin.banner.index');
+    Route::resource('banners', BannerController::class);
+    Route::resource('service', ServiceController::class);
+    Route::resource('contactbanner', ContactBannerController::class);
+    Route::resource('contactdetails', ContactDetailController::class);
+    Route::resource('blogposts', BlogPostController::class);
+    Route::resource('blogbanners', BlogBannerController::class);
+    Route::resource('eventdetails', EventDetailsController::class);
+    Route::resource('aboutexperiences', AboutExperienceController::class);
+    Route::resource('abouthowweworks', AboutHowWeWorkController::class);
+    Route::resource('aboutfaq', AboutFAQController::class);
+    Route::resource('service-details', ServiceDetailsController::class);
+    Route::resource('eventfaq', EventFAQController::class);
+    Route::resource('logo', LogoController::class);
+    Route::resource('blogs', BlogController::class);
+    Route::resource('allevents', AllEventController::class);
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('whychoose', [WhychooseController::class, 'index'])->name('admin.whychoose.index');
-    Route::post('whychoose', [WhychooseController::class, 'store'])->name('whychoose.store');
-    Route::get('whychoose/{id}/edit', [WhychooseController::class, 'edit'])->name('whychoose.edit');
-    Route::put('whychoose/{id}', [WhychooseController::class, 'update'])->name('whychoose.update');
-});
+    Route::get('/admin/banner', [BannerController::class, 'index'])->name('admin.banner.index');
 
-Route::resource('whychoose', WhychooseController::class);
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('whychoose', [WhychooseController::class, 'index'])->name('admin.whychoose.index');
+        Route::post('whychoose', [WhychooseController::class, 'store'])->name('whychoose.store');
+        Route::get('whychoose/{id}/edit', [WhychooseController::class, 'edit'])->name('whychoose.edit');
+        Route::put('whychoose/{id}', [WhychooseController::class, 'update'])->name('whychoose.update');
+    });
 
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    Route::get('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'index'])->name('testimonial.index');
-    Route::post('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'store'])->name('testimonial.store');
-});
+    Route::resource('whychoose', WhychooseController::class);
 
-Route::resource('testimonial', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonial');
+    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+        Route::get('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'index'])->name('testimonial.index');
+        Route::post('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'store'])->name('testimonial.store');
+    });
+
+    Route::resource('testimonial', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonial');
+
 
 
     Route::resource('banner', BannerController::class);
     Route::resource('service', ServiceController::class);
     Route::resource('manage-professional', ManageProfessionalController::class);
+    Route::resource('mcq',MCQController::class);
+    
 });
-

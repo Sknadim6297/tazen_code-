@@ -30,26 +30,27 @@ class BannerController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'heading' => 'required|string|max:255',
-            'sub_heading' => 'nullable|string|max:255',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+{
+    $request->validate([
+        'heading' => 'required|string|max:255',
+        'sub_heading' => 'nullable|string|max:255',
+        'banner_video' => 'nullable|mimes:mp4,avi,mov,wmv|max:51200', // max 50MB
+    ]);
 
-        $data = $request->only(['heading', 'sub_heading', 'status']);
+    $data = $request->only(['heading', 'sub_heading', 'status']);
 
-        // Handle image upload
-        if ($request->hasFile('banner_image')) {
-            $imageName = time() . '.' . $request->banner_image->extension();
-            $request->banner_image->move(public_path('uploads/banners'), $imageName);
-            $data['banner_image'] = 'uploads/banners/' . $imageName;
-        }
-
-        Banner::create($data);
-
-        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+    // Handle video upload
+    if ($request->hasFile('banner_video')) {
+        $videoName = time() . '.' . $request->banner_video->extension();
+        $request->banner_video->move(public_path('uploads/banners'), $videoName);
+        $data['banner_video'] = 'uploads/banners/' . $videoName;
     }
+
+    Banner::create($data);
+
+    return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
+}
+
 
 
     /**
@@ -63,24 +64,44 @@ class BannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $banner = Banner::findOrFail($id);
+        return view('admin.banner.edit', compact('banner'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $banner = Banner::findOrFail($id);
 
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'banner_video' => 'nullable|mimes:mp4,avi,mov|max:20480',
+        ]);
+
+        $data = $request->only('heading', 'sub_heading', 'status');
+
+        if ($request->hasFile('banner_video')) {
+            $video = $request->file('banner_video');
+            $videoPath = $video->store('banners', 'public');
+            $data['banner_video'] = 'storage/' . $videoPath;
+        }
+
+        $banner->update($data);
+
+        return redirect()->route('admin.banner.index')->with('success', 'Banner updated successfully.');
+    }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $banner = Banner::findOrFail($id);
+        $banner->delete();
+
+        return redirect()->route('admin.banner.index')->with('success', 'Banner deleted successfully.');
     }
 }

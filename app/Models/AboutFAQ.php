@@ -9,14 +9,15 @@ class AboutFAQ extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'faq_description', 
-        'question1', 
-        'answer1', 
-        'question2', 
-        'answer2', 
-        'question3', 
-        'answer3', 
-        'question4', 
-        'answer4'
+        'faq_description',
+        'question1',
+        'answer1',
+        'question2',
+        'answer2',
+        'question3',
+        'answer3',
+        'question4',
+        'answer4',
     ];
+    
 }

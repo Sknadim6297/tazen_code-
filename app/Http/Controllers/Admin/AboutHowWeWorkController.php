@@ -48,7 +48,7 @@ class AboutHowWeWorkController extends Controller
 
         AboutHowWeWork::create($request->all());
 
-        return redirect()->route('abouthowweworks.index')->with('success', 'Data saved successfully!');
+        return redirect()->route('admin.abouthowweworks.index')->with('success', 'Data saved successfully!');
     }
 
     /**
