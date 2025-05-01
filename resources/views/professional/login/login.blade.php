@@ -68,7 +68,6 @@
 				<button type="submit" class="btn_1 full-width">Login to Tazen</button>
 				<div class="text-center add_top_10">New to Tazen? <strong><a href="{{ route('professional.register') }}">Sign up!</a></strong></div>
 			</form>
-			
 			<div class="copy">© Tazen</div>
 		</aside>
 	</div>
@@ -81,8 +80,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 	<script>
-	$('#loginForm').submit(function(e) {
+$('#loginForm').submit(function(e) {
     e.preventDefault();
+
+    var $submitBtn = $(this).find('button[type="submit"]');
+    $submitBtn.prop('disabled', true); 
 
     $.ajax({
         url: "{{ route('professional.store') }}",
@@ -90,6 +92,7 @@
         data: $(this).serialize(),
         success: function(response) {
             toastr.success(response.message);
+
             setTimeout(function() {
                 window.location.href = "{{ route('home') }}";
             }, 1500);
@@ -100,12 +103,21 @@
                 $.each(errors, function(key, value) {
                     toastr.error(value[0]);
                 });
+            } else if (xhr.status === 403) {
+                toastr.error(xhr.responseJSON.message || "Your account is not approved yet.");
+            } else if (xhr.status === 401) {
+                toastr.error(xhr.responseJSON.message || "Invalid credentials. Please try again.");
             } else {
-                toastr.error(xhr.responseJSON.message || "Something went wrong");
+
+                toastr.error(xhr.responseJSON.message || "Something went wrong. Please try again.");
             }
+        },
+        complete: function() {
+            $submitBtn.prop('disabled', false); 
         }
     });
 });
+
 
 
 	</script>
