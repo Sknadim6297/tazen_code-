@@ -393,7 +393,6 @@ a {
     font-size: 14px;
     cursor: pointer;
     margin-left: 15px;
-    font-family: 'Roboto Serif', serif;
 }
 
 .card-header .card-action button:hover {
@@ -495,7 +494,6 @@ a {
     background-color: #f5f7fb;
     font-size: 14px;
     transition: all 0.3s;
-    font-family: 'Roboto Serif', serif;
 }
 
 .form-control:focus {
@@ -517,7 +515,6 @@ textarea.form-control {
     cursor: pointer;
     transition: all 0.3s;
     border: none;
-    font-family: 'Roboto Serif', serif;
 }
 
 .btn-primary {

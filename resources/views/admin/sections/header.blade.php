@@ -27,7 +27,6 @@
             <div class="header-element mx-lg-0 mx-2">
                 <a aria-label="Hide Sidebar" class="sidemenu-toggle header-link" data-bs-toggle="sidebar" href="javascript:void(0);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon menu-btn" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5h12M4 12h16M4 19h8" color="currentColor"/></svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon menu-btn-close" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m18 6l-6 6m0 0l-6 6m6-6l6 6m-6-6L6 6" color="currentColor"/></svg>
                 </a>
             </div>
             <!-- End::header-element -->
@@ -60,81 +59,6 @@
             </li>
             <!-- End::header-element -->
 
-            <!-- Start::header-element -->
-            <li class="header-element country-selector dropdown">
-                <!-- Start::header-link|dropdown-toggle -->
-                <a href="javascript:void(0);" class="header-link dropdown-toggle" data-bs-auto-close="outside" data-bs-toggle="dropdown">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M7 8.38h4.5m5.5 0h-2.5m-3 0h3m-3 0V7m3 1.38c-.527 1.886-1.632 3.669-2.893 5.236M8.393 17c1.019-.937 2.17-2.087 3.214-3.384m0 0c-.643-.754-1.543-1.973-1.8-2.525m1.8 2.525l1.929 2.005"/><path d="M2.5 12c0-4.478 0-6.718 1.391-8.109S7.521 2.5 12 2.5c4.478 0 6.718 0 8.109 1.391S21.5 7.521 21.5 12c0 4.478 0 6.718-1.391 8.109S16.479 21.5 12 21.5c-4.478 0-6.718 0-8.109-1.391S2.5 16.479 2.5 12"/></g></svg>
-                </a>
-                <!-- End::header-link|dropdown-toggle -->
-                <ul class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/us_flag.jpg" alt="img">
-                            </span>
-                            English
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/spain_flag.jpg" alt="img" >
-                            </span>
-                            español
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/french_flag.jpg" alt="img" >
-                            </span>
-                            français
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/uae_flag.jpg" alt="img" >
-                            </span>
-                            عربي
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/germany_flag.jpg" alt="img" >
-                            </span>
-                            Deutsch
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/china_flag.jpg" alt="img" >
-                            </span>
-                            中国人
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/italy_flag.jpg" alt="img" >
-                            </span>
-                            Italiano
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);">
-                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                <img src="assets/images/flags/russia_flag.jpg" alt="img" >
-                            </span>
-                            Русский
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <!-- End::header-element -->
 
             <!-- Start::header-element -->
             <li class="header-element header-theme-mode">
@@ -155,199 +79,6 @@
             </li>
             <!-- End::header-element -->
 
-            <!-- Start::header-element -->
-            <li class="header-element cart-dropdown dropdown">
-                <!-- Start::header-link|dropdown-toggle -->
-                <a href="javascript:void(0);" class="header-link dropdown-toggle" data-bs-auto-close="outside" data-bs-toggle="dropdown">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M8 16h7.263c4.488 0 5.17-2.82 5.998-6.93c.239-1.187.358-1.78.071-2.175s-.837-.395-1.938-.395H6"/><path d="M8 16L5.379 3.515A2 2 0 0 0 3.439 2H2.5m6.38 14h-.411C7.105 16 6 17.151 6 18.571a.42.42 0 0 0 .411.429H17.5"/><circle cx="10.5" cy="20.5" r="1.5"/><circle cx="17.5" cy="20.5" r="1.5"/></g></svg>
-                    <span class="badge bg-primary rounded-pill header-icon-badge" id="cart-icon-badge">6</span>
-                </a>
-                <!-- End::header-link|dropdown-toggle -->
-                <!-- Start::main-header-dropdown -->
-                <div class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
-                    <div class="p-3">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <p class="mb-0 fs-16">Cart Items</p>
-                            <span class="badge bg-secondary fs-12 rounded-pill" id="cart-data">6 Items</span>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <ul class="list-unstyled mb-0" id="header-cart-items-scroll">
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/1.jpg" alt="Wireless Headphones">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">Wireless Headphones</a>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Black</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$120</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/2.jpg" alt="Smartwatch">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">Smart Fitness Watch</a>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Silver</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$199</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/5.jpg" alt="Gaming Laptop">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">Modern Laptop</a><span class="fs-9 ms-1 fw-medium text-success"><i class="ri-discount-percent-line fs-13"></i> 20off</span>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Black</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$1500</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/7.jpg" alt="Bluetooth Speaker">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">Portable Bluetooth Speaker</a>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Blue</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$85</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/8.jpg" alt="Fitness Tracker">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">Fitness Tracker</a>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Pink</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$45</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-item">
-                            <div class="d-flex align-items-center cart-dropdown-item gap-3">
-                                <div class="lh-1">
-                                    <span class="avatar avatar-md bg-gray-300">
-                                        <img src="assets/images/ecommerce/jpg/3.jpg" alt="DSLR Camera">
-                                    </span>
-                                </div>
-                                <div class="flex-fill">
-                                    <div class="d-flex align-items-center justify-content-between mb-0">
-                                        <div class="mb-0 fs-13 fw-medium">
-                                            <a href="cart.html">DSLR Camera</a>
-                                            <div class="fs-11 mt-1 d-flex gap-2 flex-wrap">
-                                                <div class="text-default"><span class="text-primary">Qty :</span> 1</div>
-                                                <div class="text-default"><span class="text-muted op-5">|</span></div>
-                                                <div class="text-default"><span class="text-secondary">Color :</span> Black</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <a href="javascript:void(0);" class="text-pink pe-2"><i class="ri-heart-line"></i></a>
-                                            <a href="javascript:void(0);" class="header-cart-remove dropdown-item-close"><i class="ri-delete-bin-line"></i></a>
-                                            <h6 class="fw-semibold mb-0 mt-2">$799</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                    <div class="p-3 empty-header-item border-top">
-                        <div class="text-center d-grid">
-                            <a href="checkout.html" class="btn btn-primary btn-wave">Proceed to checkout</a>
-                        </div>
-                    </div>
-                    <div class="p-5 empty-item d-none">
-                        <div class="text-center">
-                            <span class="avatar avatar-xl avatar-rounded bg-primary-transparent">
-                                <i class="ri-shopping-cart-2-line fs-2"></i>
-                            </span>
-                            <h6 class="fw-medium mb-1 mt-3">Your Cart is Empty</h6>
-                            <span class="mb-3 fw-normal fs-13 d-block">Add some items to make it happy :)</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- End::main-header-dropdown -->
-            </li>
-            <!-- End::header-element -->
 
             <!-- Start::header-element -->
             <li class="header-element notifications-dropdown d-xl-block d-none dropdown">
@@ -481,16 +212,6 @@
             </li>
             <!-- End::header-element -->
 
-            <!-- Start::header-element -->
-            <li class="header-element header-fullscreen">
-                <!-- Start::header-link -->
-                <a onclick="openFullscreen();" href="javascript:void(0);" class="header-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" class=" full-screen-open header-link-icon" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m12.567 7.934l2.742.1c.407.015.73.35.73.758v2.615m-5.5 2.027l5.044-5.018M2 17c0-1.886 0-2.828.586-3.414S4.114 13 6 13h1c1.886 0 2.828 0 3.414.586S11 15.114 11 17v1c0 1.886 0 2.828-.586 3.414S8.886 22 7 22H6c-1.886 0-2.828 0-3.414-.586S2 19.886 2 18zm0-8.5v2M14 2h-4m12 12v-4m-8.5 12h2M2.06 5.5c.154-1.066.453-1.821 1.036-2.404S4.434 2.214 5.5 2.06m13 0c1.066.154 1.821.453 2.404 1.036c.582.583.882 1.338 1.036 2.404m0 13c-.154 1.066-.454 1.821-1.036 2.404c-.583.582-1.338.882-2.404 1.036" color="currentColor"/></svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="full-screen-close header-link-icon d-none" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M2 10.002c.029-3.414.218-5.296 1.46-6.537C4.924 2 7.282 2 11.997 2s7.073 0 8.538 1.465S22 7.287 22 12.003c0 4.715 0 7.073-1.465 8.537c-1.241 1.242-3.123 1.431-6.537 1.46"/><path d="M4.999 13c-1.17.035-1.868.165-2.351.648s-.613 1.18-.648 2.35M8.001 13c1.17.035 1.868.165 2.351.648s.613 1.18.648 2.35m0 3.003c-.035 1.17-.165 1.868-.648 2.351s-1.18.613-2.35.648m-3.003 0c-1.17-.035-1.868-.165-2.351-.648s-.613-1.18-.648-2.35m14.413-7.996l-2.903-.066c-.432-.01-.777-.345-.782-.757l-.031-2.644m7.331-3.773l-6.747 6.601"/></g></svg>
-                </a>
-                <!-- End::header-link -->
-            </li>
-            <!-- End::header-element -->
 
             <!-- Start::header-element -->
             <li class="header-element dropdown">
@@ -513,9 +234,6 @@
                         </div>
                     </li>
                     <li><a class="dropdown-item d-flex align-items-center" href="profile.html"><i class="ri-user-line fs-15 me-2 text-gray fw-normal"></i>Profile</a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="mail.html"><i class="ri-chat-1-line fs-15 me-2 text-gray fw-normal"></i>Messages <span class="badge bg-pink ms-auto">02</span></a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="profile.html"><i class="ri-group-line fs-15 me-2 text-gray fw-normal"></i>Friends</a></li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="mail-settings.html"><i class="ri-user-settings-line fs-15 me-2 text-gray fw-normal"></i>Account Settings</a></li>
                     <li> <hr class="dropdown-divider"> </li>
                     <li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.logout') }}"><i class="ri-logout-circle-line fs-15 me-2 text-gray fw-normal"></i>Sign Out</a></li>
                 </ul>

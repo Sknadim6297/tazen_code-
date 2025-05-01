@@ -6,16 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('event_details', function (Blueprint $table) {
+            // Add the column if it doesn't exist
+            if (!Schema::hasColumn('event_details', 'event_id')) {
+                $table->unsignedBigInteger('event_id')->after('id'); // Adjust position as needed
+            }
+
+            // Add the foreign key constraint
             $table->foreign('event_id')
                 ->references('id')
                 ->on('all_events')
-                ->onDelete('cascade'); // optional: delete related event_details if all_events entry is deleted
+                ->onDelete('cascade');
         });
     }
 
@@ -23,6 +26,7 @@ return new class extends Migration
     {
         Schema::table('event_details', function (Blueprint $table) {
             $table->dropForeign(['event_id']);
+            $table->dropColumn('event_id'); // Optional: remove column too
         });
     }
 };

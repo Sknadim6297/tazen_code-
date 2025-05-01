@@ -35,26 +35,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <select class="form-control">
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Free Hand</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="form-control" value="2" min="1"></td>
-                                <td><input type="number" class="form-control" value="1000" min="0" step="100"></td>
-                                <td>2000</td>
-                                <td><input type="text" class="form-control" placeholder="e.g. 1 week"></td>
-                                <td>
-                                    <div class="action-btn" title="Delete rate">
-                                        <i class="fas fa-trash"></i>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Repeat the above <tr> for additional rows -->
+                            <!-- Initially empty -->
                         </tbody>
                     </table>
                 </div>
@@ -74,123 +55,148 @@
 
 @section('scripts')
 <script>
-    // Add new rate row
-document.getElementById('addRateBtn').addEventListener('click', function() {
-    const tbody = document.querySelector('.table tbody');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td>
-            <select class="form-control">
-                <option>Weekly</option>
-                <option>Monthly</option>
-                <option>Quarterly</option>
-                <option selected>Free Hand</option>
-            </select>
-        </td>
-        <td><input type="number" class="form-control" value="1" min="1"></td>
-        <td><input type="number" class="form-control" value="0" min="0" step="100"></td>
-        <td>0</td>
-        <td><input type="text" class="form-control" placeholder="e.g. custom duration"></td>
-        <td>
-            <div class="action-btn" title="Delete rate">
-                <i class="fas fa-trash"></i>
-            </div>
-        </td>
-    `;
-    tbody.appendChild(newRow);
-
-    // Attach event listeners to new row elements
-    const numSessionsInput = newRow.querySelector('td:nth-child(2) input');
-    const ratePerSessionInput = newRow.querySelector('td:nth-child(3) input');
-    const finalRateCell = newRow.querySelector('td:nth-child(4)');
-    
-    const calculateFinalRate = () => {
-        const numSessions = parseInt(numSessionsInput.value) || 0;
-        const ratePerSession = parseInt(ratePerSessionInput.value) || 0;
-        finalRateCell.textContent = (numSessions * ratePerSession).toLocaleString();
-    };
-
-    numSessionsInput.addEventListener('input', calculateFinalRate);
-    ratePerSessionInput.addEventListener('input', calculateFinalRate);
-
-    // Recalculate final rate for newly added row
-    calculateFinalRate(); // Ensure that new row shows correct initial value
-});
-
-// Delete row functionality with event delegation
-document.querySelector('.table tbody').addEventListener('click', function(e) {
-    if (e.target && e.target.closest('.action-btn')) {
-        const rowToDelete = e.target.closest('tr');
-        rowToDelete.remove();
+document.addEventListener('DOMContentLoaded', function() {
+    const sessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand']; 
+    let selectedSessionTypes = [];
+    function updateDropdownOptions() {
+        const allSelects = document.querySelectorAll('.session-type');
+        allSelects.forEach(select => {
+            select.querySelectorAll('option').forEach(option => {
+                option.disabled = false;
+            });
+            select.querySelectorAll('option').forEach(option => {
+                if (selectedSessionTypes.includes(option.value) && !option.selected) {
+                    option.disabled = true;
+                }
+            });
+        });
     }
-});
 
-$('#rateForm').submit(function(e) {
-    e.preventDefault();
+    function calculateFinalRate(row) {
+        const numSessions = parseInt(row.querySelector('td:nth-child(2) input').value) || 0;
+        const ratePerSession = parseInt(row.querySelector('td:nth-child(3) input').value) || 0;
+        const finalRateInput = row.querySelector('td:nth-child(4) input');
+        finalRateInput.value = numSessions * ratePerSession;
+    }
 
-    let rateData = [];
-
-    // Iterate through each row in the table and collect the data
-    $('#rateForm .table tbody tr').each(function() {
-        let row = $(this);
-
-        let sessionType = row.find('td:nth-child(1) select').val();
-        let numSessions = parseInt(row.find('td:nth-child(2) input').val()) || 0;
-        let ratePerSession = parseInt(row.find('td:nth-child(3) input').val()) || 0;
-        let finalRate = parseFloat(row.find('td:nth-child(4)').text()) || 0;  
-        let duration = row.find('td:nth-child(5) input').val();
-
-        if (finalRate === 0) {
-            finalRate = numSessions * ratePerSession; // Simple calculation
+    document.getElementById('addRateBtn').addEventListener('click', function() {
+        if (selectedSessionTypes.length >= 4) {
+            toastr.error('You can only add up to 4 different session types.');
+            return;
         }
+        const tbody = document.querySelector('.table tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>
+                <select class="form-control session-type">
+                    <option value="">Select Session Type</option>
+                    <option>One Time</option>
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Free Hand</option>
+                </select>
+            </td>
+            <td><input type="number" class="form-control" value="1" min="1"></td>
+            <td><input type="number" class="form-control" value="0" min="0" step="100"></td>
+            <td><input type="number" class="form-control final-rate" name="final_rate[]" readonly></td>
+            <td><input type="text" class="form-control" placeholder="e.g. custom duration"></td>
+            <td>
+                <div class="action-btn" title="Delete rate">
+                    <i class="fas fa-trash"></i>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(newRow);
 
-        // Ensure we are sending the correct data format (array of objects)
-        rateData.push({
-            session_type: sessionType,
-            num_sessions: numSessions,
-            rate_per_session: ratePerSession,
-            final_rate: finalRate,  // Send as a number
-            duration: duration
+        const numSessionsInput = newRow.querySelector('td:nth-child(2) input');
+        const ratePerSessionInput = newRow.querySelector('td:nth-child(3) input');
+        const finalRateInput = newRow.querySelector('td:nth-child(4) input');
+        const sessionTypeSelect = newRow.querySelector('.session-type');
+        numSessionsInput.addEventListener('input', function() {
+            calculateFinalRate(newRow);
+        });
+        ratePerSessionInput.addEventListener('input', function() {
+            calculateFinalRate(newRow);
+        });
+
+        sessionTypeSelect.addEventListener('change', function() {
+            const selectedType = sessionTypeSelect.value;
+            if (selectedType && !selectedSessionTypes.includes(selectedType)) {
+                selectedSessionTypes.push(selectedType);
+            }
+            updateDropdownOptions();
+        });
+
+        calculateFinalRate(newRow);
+        updateDropdownOptions(); // Update all dropdowns
+    });
+
+    // Row deletion
+    document.querySelector('.table tbody').addEventListener('click', function(e) {
+        if (e.target && e.target.closest('.action-btn')) {
+            const rowToDelete = e.target.closest('tr');
+            const sessionTypeToDelete = rowToDelete.querySelector('.session-type').value;
+            rowToDelete.remove();
+            selectedSessionTypes = selectedSessionTypes.filter(type => type !== sessionTypeToDelete);
+            updateDropdownOptions();
+        }
+    });
+
+    // Submit form via AJAX
+    document.getElementById('rateForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let rateData = [];
+        document.querySelectorAll('.table tbody tr').forEach(row => {
+            let sessionType = row.querySelector('td:nth-child(1) select').value;
+            let numSessions = parseInt(row.querySelector('td:nth-child(2) input').value) || 0;
+            let ratePerSession = parseInt(row.querySelector('td:nth-child(3) input').value) || 0;
+            let finalRate = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;  
+            let duration = row.querySelector('td:nth-child(5) input').value;
+
+            rateData.push({
+                session_type: sessionType,
+                num_sessions: numSessions,
+                rate_per_session: ratePerSession,
+                final_rate: finalRate,
+                duration: duration
+            });
+        });
+
+        let postData = {
+            professional_id: "{{ Auth::guard('professional')->id() }}", 
+            rateData: rateData, 
+            _token: $('meta[name="csrf-token"]').attr('content') 
+        };
+
+        // AJAX request
+        $.ajax({
+            url: "{{ route('professional.rate.store') }}",
+            type: "POST",
+            data: postData,
+            success: function(response) {
+                if (response.status) {
+                    toastr.success(response.message);
+                    $('#rateForm')[0].reset();
+                    setTimeout(() => {
+                        window.location.href = "{{ route('professional.rate.index') }}";
+                    }, 1500);
+                } else {
+                    toastr.error(response.message || "Something went wrong");
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    $.each(errors, function(key, value) {
+                        toastr.error(value[0]);
+                    });
+                } else {
+                    toastr.error(xhr.responseJSON.message || "An unexpected error occurred");
+                }
+            }
         });
     });
-
-    // Add professional_id to the postData object
-    let postData = {
-        professional_id: "{{ Auth::guard('professional')->id() }}", // Dynamically add the professional_id
-        rateData: rateData, // Directly sending the rateData array
-        _token: $('meta[name="csrf-token"]').attr('content') // Include CSRF token
-    };
-
-    // AJAX request
-    $.ajax({
-        url: "{{ route('professional.rate.store') }}",
-        type: "POST",
-        data: postData, // Send data as a regular object
-        success: function(response) {
-            if (response.status) {
-                toastr.success(response.message);
-                $('#rateForm')[0].reset(); // Reset the form
-                setTimeout(() => {
-                    window.location.href = "{{ route('professional.dashboard') }}";
-                }, 1500);
-            } else {
-                toastr.error(response.message || "Something went wrong");
-            }
-        },
-        error: function(xhr) {
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                $.each(errors, function(key, value) {
-                    toastr.error(value[0]);
-                });
-            } else {
-                toastr.error(xhr.responseJSON.message || "An unexpected error occurred");
-            }
-        }
-    });
 });
-
-
-
 </script>
 @endsection

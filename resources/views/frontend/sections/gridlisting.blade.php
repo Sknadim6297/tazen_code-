@@ -16,20 +16,20 @@
         </div>
         <!-- /page_header -->
         <div class="row">
-            @foreach($profiles as $profile)
+            @foreach($professionals as $professional)
                 <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
                     <div class="strip">
                         <figure>
                             <a href="#0" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="{{ asset($profile->photo ?? 'img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $profile->first_name }}">
-                            <a href="" class="strip_info">
+                            <img src="{{ asset($professional->profile->photo ?? 'img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}">
+                            <a href="{{ route('professionals.details', ['id' => $professional->id]) }}" class="strip_info">
                                 <div class="item_title">
-                                    <h3>{{ $profile->first_name }} {{ $profile->last_name }}</h3>
-                                    <p class="about">{{ $profile->bio }}</p>
-                                    <small>From ₹{{ number_format($profile->starting_price, 2) }}</small><br>
-                                    <small>{{ $profile->specialization }}</small>
+                                    <h3>{{ $professional->name }}</h3>
+                                    <p class="about">{{ $professional->bio }}</p>
+                                    <small>From ₹{{ number_format($professional->profile->starting_price ?? 0, 2)   }}</small>
+                                    <small>{{ $professional->profile->specialization }}</small>
                                 </div>
-                            </a>
+                                </a>
                         </figure>
                         <ul>
                             <li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Available Appointment"><i class="icon-users"></i></a></li>
@@ -39,7 +39,9 @@
                                 <div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
                             </li>
                         </ul>
+                    </a>
                     </div>
+                
                 </div>
             @endforeach
         </div>

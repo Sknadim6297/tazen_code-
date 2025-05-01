@@ -32,6 +32,12 @@
 		body {
 			font-family: "Poppins";
 		}
+       .form-step {
+        display: none;
+     }
+    .form-step.active {
+        display: block;
+    }
 	</style>
 </head>
 
@@ -45,34 +51,93 @@
 					<a href="#0" class="social_bt google">Register with Google</a>
 				</div>
             <div class="divider"><span>Or</span></div>
-			<form id="registerForm">
+			<form id="registerForm" enctype="multipart/form-data">
 				@csrf
-				<div class="form-group">
-					<input class="form-control" type="text" name="first_name" placeholder="First Name" required>
-					<i class="icon_pencil-edit"></i>
+			
+				{{-- Step 1 - Basic Info --}}
+				<div class="form-step step-1 active">
+					<h4>Step 1 – Basic Info</h4>
+					<div class="form-group">
+						<input class="form-control" type="text" name="first_name" placeholder="First Name" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="last_name" placeholder="Last Name" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="email" name="email" placeholder="Email" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="password" name="password" placeholder="Password" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="password" name="password_confirmation" placeholder="Confirm Password" required>
+					</div>
+					<button type="button" class="btn_1 full-width next-btn">Next Step</button>
 				</div>
-				<div class="form-group">
-					<input class="form-control" type="text" name="last_name" placeholder="Last Name" required>
-					<i class="icon_pencil-edit"></i>
+			
+				{{-- Step 2 - Professional Info --}}
+				<div class="form-step step-2">
+					<h4>Step 2 – Professional Info</h4>
+					<div class="form-group">
+						<input class="form-control" type="text" name="phone" placeholder="Phone Number" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="specialization" placeholder="Specialization" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="experience" placeholder="Experience" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="starting_price" placeholder="Starting Price" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="address" placeholder="Address" required>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" name="education" placeholder="Education" required>
+					</div>
+					<div class="form-group">
+						<textarea class="form-control" name="comments" placeholder="Comments"></textarea>
+					</div>
+					<div class="form-group">
+						<textarea class="form-control" name="bio" placeholder="Short Bio" required></textarea>
+					</div>
+					<div style="display: flex; gap: 10px;">
+					<button type="button" class="btn_1 full-width prev-btn">Previous</button>
+					<button type="button" class="btn_1 full-width next-btn">Next Step</button>
 				</div>
-				<div class="form-group">
-					<input class="form-control" type="email" name="email" placeholder="Email" required>
-					<i class="icon_mail_alt"></i>
 				</div>
-				<div class="form-group">
-					<input class="form-control" type="password" name="password" id="password1" placeholder="Password" required>
-					<i class="icon_lock_alt"></i>
+			
+				{{-- Step 3 - Document Uploads --}}
+				<div class="form-step step-3">
+					<h4>Step 3 – Document Uploads</h4>
+					<div class="form-group">
+						<label>Qualification Document</label>
+						<input class="form-control" type="file" name="qualification_document" required>
+					</div>
+					<div class="form-group">
+						<label>Aadhaar Card</label>
+						<input class="form-control" type="file" name="aadhaar_card" required>
+					</div>
+					<div class="form-group">
+						<label>PAN Card</label>
+						<input class="form-control" type="file" name="pan_card" required>
+					</div>
+					<div class="form-group">
+						<label>Profile Photo</label>
+						<input class="form-control" type="file" name="profile_photo" required>
+					</div>
+					<div>
+						<label for="gallery">Upload Gallery Images</label>
+						<input class="form-control" type="file" name="gallery[]" multiple>
+					</div>
+					<div style="display: flex; gap: 10px; margin-top: 10px;">
+					<button type="button" class="btn_1 full-width prev-btn">Previous</button>
+					<button type="submit" class="btn_1 full-width">Submit</button>
 				</div>
-				<div class="form-group">
-					<input class="form-control" type="password" name="password_confirmation" id="password2" placeholder="Confirm Password" required>
-					<i class="icon_lock_alt"></i>
-				</div>
-				<div id="pass-info" class="clearfix"></div>
-				<button type="submit" class="btn_1 rounded full-width">Register Now!</button>
-				<div class="text-center add_top_10">
-					Already have an account? <strong><a href="{{ route('professional.login') }}">Sign In</a></strong>
 				</div>
 			</form>
+			
 			
 			<div class="copy">© Tazen</div>
 		</aside>
@@ -89,13 +154,18 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
-$('#registerForm').submit(function(e) {
+	
+	$('#registerForm').submit(function(e) {
     e.preventDefault();
+
+    var formData = new FormData(this); 
 
     $.ajax({
         url: "{{ route('professional.register.submit') }}",
         type: "POST",
-        data: $(this).serialize(),
+        data: formData,
+        processData: false, 
+        contentType: false, 
         headers: {
             "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
         },
@@ -105,7 +175,6 @@ $('#registerForm').submit(function(e) {
                 setTimeout(function() {
                     window.location.href = "{{ route('professional.login') }}";
                 }, 1500);
-             
             } else {
                 toastr.error(response.message);
             }
@@ -122,6 +191,7 @@ $('#registerForm').submit(function(e) {
         }
     });
 });
+
 	</script>
 	<script>
 		@if (session('success'))
@@ -140,5 +210,27 @@ $('#registerForm').submit(function(e) {
 			toastr.info("{{ session('info') }}");
 		@endif
 	</script>
+	<script>
+    $(document).ready(function () {
+        let currentStep = 1;
+
+        $('.next-btn').click(function () {
+            if (currentStep < 3) {
+                $('.form-step').removeClass('active');
+                currentStep++;
+                $('.step-' + currentStep).addClass('active');
+            }
+        });
+
+        $('.prev-btn').click(function () {
+            if (currentStep > 1) {
+                $('.form-step').removeClass('active');
+                currentStep--;
+                $('.step-' + currentStep).addClass('active');
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

@@ -1,4 +1,7 @@
 @extends('admin.layouts.layout')
+@section('style')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" />
+@endsection
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
@@ -38,13 +41,16 @@
                                         <th scope="col">Sl.No</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
+                                        <th scope="col">Status</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
-                                
                                 <tbody>
                                     @foreach ($professionals as $professional)
+                                      {{-- @php
+                                      print_r($professional->toArray());
+                                   @endphp --}}
                                     <tr class="professional-list">
                                         <td class="professional-checkbox">
                                             <input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="...">
@@ -54,15 +60,25 @@
                                             
                                         </td>
                                         <td>
-                                            <span class="fw-medium">{{ $professional->name }}</span>
+                                            <span class="fw-medium">{{ $professional->name}}</span>
                                         </td>
                                         <td>
                                             <span class="fw-medium">{{ $professional->email }}</span>
                                         </td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($professional->created_at)->format('d-m-Y') }}
-                                        </td>
+                                            @if($professional->status == 'accepted')
+                                              <span class="badge bg-success">Approved</span>
+                                          @elseif($professional->status == 'pending')
+                                              <span class="badge bg-warning">Pending</span>
+                                      </td>
+                                          @elseif($professional->status == 'rejected')
+                                              <span class="badge bg-danger">Rejected</span>
+                                          @endif
+                                      </td>
                                         <td>
+                                            <span class="fw-medium">{{ $professional->created_at->format('d M, Y') }}</span>
+                                        </td>
+                                        <td class="">
                                             <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
                                                 <i class="ri-eye-line"></i>
                                             </a>
@@ -106,4 +122,8 @@
 
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 @endsection

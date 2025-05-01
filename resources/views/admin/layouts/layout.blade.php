@@ -26,7 +26,9 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/libs/flatpickr/flatpickr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/libs/@tarekraafat/autocomplete.js/css/autoComplete.css') }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.0.0/sweetalert2.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @yield('styles')
 </head>    
     
@@ -49,11 +51,29 @@
                 </div>
             </div>
         </div>
-
+        </div>
+        <script>
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+        
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+        
+            @if (session('warning'))
+                toastr.warning("{{ session('warning') }}");
+            @endif
+        
+            @if (session('info'))
+                toastr.info("{{ session('info') }}");
+            @endif
+        </script>
         {{-- @include('admin.sections.footer') --}}
 
-        @yield('scripts')
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
         <script src="{{ asset('admin/assets/libs/@popperjs/core/umd/popper.min.js') }}"></script>
         <script src="{{ asset('admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('admin/assets/js/defaultmenu.js') }}"></script>
@@ -68,7 +88,7 @@
         <script src="{{ asset('admin/assets/js/analytics-dashboard.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom-switcher.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom.js') }}"></script>
-    </div>
+        @yield('scripts')
 </body>
 
 </html>
