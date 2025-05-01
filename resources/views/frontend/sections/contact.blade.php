@@ -5,50 +5,57 @@
 @section('content')
 
 <main>
-    <div class="hero_single inner_pages contact-page">
+    @foreach ($contactbanners as $banner)
+    <div class="hero_single inner_pages contact-page" style="background: url('{{ asset($banner->banner_image) }}') center center/cover no-repeat;">
+
         <div class="opacity-mask" data-opacity-mask="rgba(0, 0, 0, 0.6)">
             <div class="container">
+                
                 <div class="row justify-content-center">
                     <div class="col-xl-9 col-lg-10 col-md-8">
-                        <h1>Contact Tazen</h1>
-                        <p>A successful contact experience</p>
+                        <h1>{{ $banner->heading }}</h1>
+                        <p>{{ $banner->sub_heading }}</p>
                     </div>
                 </div>
+               
                 <!-- /row -->
             </div>
         </div>
     </div>
+    @endforeach
     <!-- /hero_single -->
 
     <div class="bg_gray">
         <div class="container margin_60_40">
+            @foreach($contactdetails as $detail)
             <div class="row justify-content-center">
                 <div class="col-lg-4">
                     <div class="box_contacts">
-                        <i class="icon_lifesaver"></i>
-                        <h2>Help Center</h2>
-                        <a href="#0">+91-9605008040</a> - <a href="#0">help@Tazen.com</a>
-                        <small>MON to FRI 9am-6pm SAT 9am-2pm</small>
+                        <i class="{{ $detail->icon1 }}"></i>
+                        <h2>{{ $detail->heading1 }}</h2>
+                        <a href="#0">{{ $detail->sub_heading1 }}</a>
+                        <small>{{ $detail->description1 }}</small>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="box_contacts">
-                        <i class="icon_pin_alt"></i>
-                        <h2>Address</h2>
-                        <div>2, Andheri West , Mumbai, Maharashtra, India</div>
-                        <small>MON to FRI 9am-6pm SAT 9am-2pm</small>
+                        <i class="{{ $detail->icon2 }}"></i>
+                        <h2>{{ $detail->heading2 }}</h2>
+                        <div>{{ $detail->sub_heading2 }}</div>
+                        <small>{{ $detail->description2 }}</small>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="box_contacts">
-                        <i class="icon_cloud-upload_alt"></i>
-                        <h2>Submissions</h2>
-                        <a href="#0">+91-9605008040</a> - <a href="#0">info@Tazen.com</a>
-                        <small>MON to FRI 9am-6pm SAT 9am-2pm</small>
+                        <i class="{{ $detail->icon3 }}"></i>
+                        <h2>{{ $detail->heading3 }}</h2>
+                        <a href="#0">{{ $detail->sub_heading3 }}</a>
+                        <small>{{ $detail->description3 }}</small>
                     </div>
                 </div>
             </div>
             <!-- /row -->
+            @endforeach
         </div>
         <!-- /container -->
     </div>

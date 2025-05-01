@@ -46,41 +46,46 @@
                                     
                                             <div class="modal-body px-4">
                                                 <div class="row gy-3">
+                                                    {{-- Section Heading --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="section_heading" class="form-label">Section Heading</label>
+                                                        <input type="text" class="form-control" name="section_heading" id="section_heading" placeholder="Enter Section Heading" required>
+                                                    </div>
+                                    
                                                     {{-- Section Sub Heading --}}
                                                     <div class="col-xl-12">
                                                         <label for="section_sub_heading" class="form-label">Section Sub Heading</label>
-                                                        <input type="text" class="form-control" name="section_sub_heading" id="section_sub_heading" placeholder="Enter Section Sub Heading">
+                                                        <input type="text" class="form-control" name="section_sub_heading" id="section_sub_heading" placeholder="Enter Section Sub Heading" required>
                                                     </div>
                                     
-                                                    {{-- Cards 1 to 5 --}}
+                                                    {{-- Cards --}}
                                                     @for ($i = 1; $i <= 6; $i++)
                                                         <div class="col-xl-12 mt-4">
                                                             <h6>Card {{ $i }}</h6>
                                                         </div>
                                     
+                                                        {{-- Card Mini Heading --}}
                                                         <div class="col-xl-6">
-                                                            <label for="card{{ $i }}" class="form-label">Card {{ $i }} Title</label>
-                                                            <input type="text" class="form-control" name="card{{ $i }}" id="card{{ $i }}" placeholder="Enter Card Title">
+                                                            <label for="card{{ $i }}_mini_heading" class="form-label">Card {{ $i }} Mini Heading</label>
+                                                            <input type="text" class="form-control" name="card{{ $i }}_mini_heading" id="card{{ $i }}_mini_heading" placeholder="Enter Mini Heading" required>
                                                         </div>
                                     
+                                                        {{-- Card Heading --}}
                                                         <div class="col-xl-6">
-                                                            <label for="mini_heading{{ $i }}" class="form-label">Mini Heading</label>
-                                                            <input type="text" class="form-control" name="mini_heading{{ $i }}" id="mini_heading{{ $i }}" placeholder="Enter Mini Heading">
+                                                            <label for="card{{ $i }}_heading" class="form-label">Card {{ $i }} Heading</label>
+                                                            <input type="text" class="form-control" name="card{{ $i }}_heading" id="card{{ $i }}_heading" placeholder="Enter Heading" required>
                                                         </div>
                                     
+                                                        {{-- Card Icon --}}
                                                         <div class="col-xl-6">
-                                                            <label for="heading{{ $i }}" class="form-label">Heading</label>
-                                                            <input type="text" class="form-control" name="heading{{ $i }}" id="heading{{ $i }}" placeholder="Enter Heading">
+                                                            <label for="card{{ $i }}_icon" class="form-label">Card {{ $i }} Icon Name</label>
+                                                            <input type="text" class="form-control" name="card{{ $i }}_icon" id="card{{ $i }}_icon" placeholder="Enter Icon Class Name" required>
                                                         </div>
                                     
-                                                        <div class="col-xl-6">
-                                                            <label for="icon_name{{ $i }}" class="form-label">Icon Name</label>
-                                                            <input type="text" class="form-control" name="icon_name{{ $i }}" id="icon_name{{ $i }}" placeholder="Enter Icon Class Name">
-                                                        </div>
-                                    
+                                                        {{-- Card Description --}}
                                                         <div class="col-xl-12">
-                                                            <label for="description{{ $i }}" class="form-label">Description</label>
-                                                            <textarea class="form-control" name="description{{ $i }}" id="description{{ $i }}" rows="3" placeholder="Enter Description"></textarea>
+                                                            <label for="card{{ $i }}_description" class="form-label">Card {{ $i }} Description</label>
+                                                            <textarea class="form-control" name="card{{ $i }}_description" id="card{{ $i }}_description" rows="3" placeholder="Enter Description" required></textarea>
                                                         </div>
                                                     @endfor
                                                 </div>
@@ -92,6 +97,7 @@
                                             </div>
                                         </div>
                                     </form>
+                                    
                                                                       
                                 </div>
                             </div>
@@ -99,109 +105,102 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Section Heading</th>
-                                        <th>Section Sub Heading</th>
-
-                                        {{-- Card 1 --}}
-                                        <th>Card 1 Mini Heading</th>
-                                        <th>Card 1 Heading</th>
-                                        <th>Card 1 Icon</th>
-                                        <th>Card 1 Description</th>
-
-                                        {{-- Card 2 --}}
-                                        <th>Card 2 Mini Heading</th>
-                                        <th>Card 2 Heading</th>
-                                        <th>Card 2 Icon</th>
-                                        <th>Card 2 Description</th>
-
-                                        {{-- Card 3 --}}
-                                        <th>Card 3 Mini Heading</th>
-            <th>Card 3 Heading</th>
-            <th>Card 3 Icon</th>
-            <th>Card 3 Description</th>
-
-            {{-- Card 4 --}}
-            <th>Card 4 Mini Heading</th>
-            <th>Card 4 Heading</th>
-            <th>Card 4 Icon</th>
-            <th>Card 4 Description</th>
-
-            {{-- Card 5 --}}
-            <th>Card 5 Mini Heading</th>
-            <th>Card 5 Heading</th>
-            <th>Card 5 Icon</th>
-            <th>Card 5 Description</th>
-
-            {{-- Card 6 --}}
-            <th>Card 6 Mini Heading</th>
-            <th>Card 6 Heading</th>
-            <th>Card 6 Icon</th>
-            <th>Card 6 Description</th>
-
-            <th>Actions</th>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Section Heading</th>
+                                        <th scope="col">Section Sub Heading</th>
+                                        <th scope="col">Card 1 Title</th>
+                                        <th scope="col">Card 1 Mini Heading</th>
+                                        <th scope="col">Card 1 Heading</th>
+                                        <th scope="col">Card 1 Icon</th>
+                                        <th scope="col">Card 1 Description</th>
+                                        <th scope="col">Card 2 Title</th>
+                                        <th scope="col">Card 2 Mini Heading</th>
+                                        <th scope="col">Card 2 Heading</th>
+                                        <th scope="col">Card 2 Icon</th>
+                                        <th scope="col">Card 2 Description</th>
+                                        <th scope="col">Card 3 Title</th>
+                                        <th scope="col">Card 3 Mini Heading</th>
+                                        <th scope="col">Card 3 Heading</th>
+                                        <th scope="col">Card 3 Icon</th>
+                                        <th scope="col">Card 3 Description</th>
+                                        <th scope="col">Card 4 Title</th>
+                                        <th scope="col">Card 4 Mini Heading</th>
+                                        <th scope="col">Card 4 Heading</th>
+                                        <th scope="col">Card 4 Icon</th>
+                                        <th scope="col">Card 4 Description</th>
+                                        <th scope="col">Card 5 Title</th>
+                                        <th scope="col">Card 5 Mini Heading</th>
+                                        <th scope="col">Card 5 Heading</th>
+                                        <th scope="col">Card 5 Icon</th>
+                                        <th scope="col">Card 5 Description</th>
+                                        <th scope="col">Card 6 Title</th>
+                                        <th scope="col">Card 6 Mini Heading</th>
+                                        <th scope="col">Card 6 Heading</th>
+                                        <th scope="col">Card 6 Icon</th>
+                                        <th scope="col">Card 6 Description</th>
+                                        <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($whychoose as $item)
+                                    @foreach ($whychooses as $whychoose)
                                     <tr>
-                                        <td>{{ $item->id }}</td>
-                                        <td>{{ $item->section_heading }}</td>
-                                        <td>{{ $item->section_sub_heading }}</td>
+                                        <th scope="row">{{ $loop->iteration }}</th>
+                                        <td>{{ $whychoose->section_heading }}</td>
+                                        <td>{{ $whychoose->section_sub_heading }}</td>
                             
-                                        {{-- Card 1 --}}
-                                        <td>{{ $item->card1_mini_heading }}</td>
-                                        <td>{{ $item->card1_heading }}</td>
-                                        <td>{{ $item->card1_icon }}</td>
-                                        <td>{{ $item->card1_description }}</td>
+                                        <td>{{ $whychoose->card1_title }}</td>
+                                        <td>{{ $whychoose->card1_mini_heading }}</td>
+                                        <td>{{ $whychoose->card1_heading }}</td>
+                                        <td>{{ $whychoose->card1_icon }}</td>
+                                        <td>{{ $whychoose->card1_description }}</td>
                             
-                                        {{-- Card 2 --}}
-                                        <td>{{ $item->card2_mini_heading }}</td>
-                                        <td>{{ $item->card2_heading }}</td>
-                                        <td>{{ $item->card2_icon }}</td>
-                                        <td>{{ $item->card2_description }}</td>
+                                        <td>{{ $whychoose->card2_title }}</td>
+                                        <td>{{ $whychoose->card2_mini_heading }}</td>
+                                        <td>{{ $whychoose->card2_heading }}</td>
+                                        <td>{{ $whychoose->card2_icon }}</td>
+                                        <td>{{ $whychoose->card2_description }}</td>
                             
-                                        {{-- Card 3 --}}
-                                        <td>{{ $item->card3_mini_heading }}</td>
-                                        <td>{{ $item->card3_heading }}</td>
-                                        <td>{{ $item->card3_icon }}</td>
-                                        <td>{{ $item->card3_description }}</td>
+                                        <td>{{ $whychoose->card3_title }}</td>
+                                        <td>{{ $whychoose->card3_mini_heading }}</td>
+                                        <td>{{ $whychoose->card3_heading }}</td>
+                                        <td>{{ $whychoose->card3_icon }}</td>
+                                        <td>{{ $whychoose->card3_description }}</td>
                             
-                                        {{-- Card 4 --}}
-                                        <td>{{ $item->card4_mini_heading }}</td>
-                                        <td>{{ $item->card4_heading }}</td>
-                                        <td>{{ $item->card4_icon }}</td>
-                                        <td>{{ $item->card4_description }}</td>
+                                        <td>{{ $whychoose->card4_title }}</td>
+                                        <td>{{ $whychoose->card4_mini_heading }}</td>
+                                        <td>{{ $whychoose->card4_heading }}</td>
+                                        <td>{{ $whychoose->card4_icon }}</td>
+                                        <td>{{ $whychoose->card4_description }}</td>
                             
-                                        {{-- Card 5 --}}
-                                        <td>{{ $item->card5_mini_heading }}</td>
-                                        <td>{{ $item->card5_heading }}</td>
-                                        <td>{{ $item->card5_icon }}</td>
-                                        <td>{{ $item->card5_description }}</td>
+                                        <td>{{ $whychoose->card5_title }}</td>
+                                        <td>{{ $whychoose->card5_mini_heading }}</td>
+                                        <td>{{ $whychoose->card5_heading }}</td>
+                                        <td>{{ $whychoose->card5_icon }}</td>
+                                        <td>{{ $whychoose->card5_description }}</td>
                             
-                                        {{-- Card 6 --}}
-                                        <td>{{ $item->card6_mini_heading }}</td>
-                                        <td>{{ $item->card6_heading }}</td>
-                                        <td>{{ $item->card6_icon }}</td>
-                                        <td>{{ $item->card6_description }}</td>
+                                        <td>{{ $whychoose->card6_title }}</td>
+                                        <td>{{ $whychoose->card6_mini_heading }}</td>
+                                        <td>{{ $whychoose->card6_heading }}</td>
+                                        <td>{{ $whychoose->card6_icon }}</td>
+                                        <td>{{ $whychoose->card6_description }}</td>
                             
                                         <td>
-                                            {{-- Action Buttons --}}
-                                            <a href="{{ route('admin.whychoose.edit', $item->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                            <form action="{{ route('admin.whychoose.destroy', $item->id) }}" method="POST" style="display:inline-block;">
+                                            <!-- Actions: Edit / Delete buttons -->
+                                            <a href="{{ route('admin.whychoose.edit', $whychoose->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                                            <form action="{{ route('admin.whychoose.destroy', $whychoose->id) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-sm btn-danger">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
                                             </form>
                                         </td>
                                     </tr>
                                     @endforeach
-                            
                                 </tbody>
                             </table>
+                            
                         </div>
                     </div>
                     <div class="card-footer border-top-0">

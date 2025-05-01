@@ -32,24 +32,35 @@ class BlogBannerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validate the form data
+        $validated = $request->validate([
             'heading' => 'required|string|max:255',
-            'subheading' => 'required|string|max:255',
+            'subheading' => 'nullable|string|max:255', // Optional field
             'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-
-        // Handle file upload
-        $imagePath = $request->file('banner_image')->store('public/blog_banners');
-
-        // Create the new blog banner
+    
+        // Handle the image upload
+        if ($request->hasFile('banner_image')) {
+            $imagePath = $request->file('banner_image')->store('blog_banners', 'public');
+        }
+    
+        // Ensure subheading is not null
+        $subheading = $validated['subheading'] ?? ''; // Assign empty string if subheading is not provided
+    
+        // Create the new blog banner entry
         BlogBanner::create([
-            'heading' => $request->heading,
-            'subheading' => $request->subheading,
-            'banner_image' => $imagePath,
+            'heading' => $validated['heading'],
+            'subheading' => $subheading, // Make sure subheading is always set
+            'banner_image' => $imagePath ?? null, // Handle image upload
         ]);
-
-        return redirect()->route('admin.blogbanners.index')->with('success', 'Blog Banner Created Successfully!');
+    
+        // Redirect or return success response
+        return redirect()->route('admin.blogbanners.index')->with('success', 'Blog Banner added successfully!');
     }
+    
+    
+
+
 
     /**
      * Display the specified resource.

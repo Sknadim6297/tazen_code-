@@ -43,7 +43,7 @@ class EventFAQController extends Controller
 
         EventFAQ::create($request->all());
 
-        return redirect()->route('eventfaq.index')->with('success', 'Event FAQ added successfully.');
+        return redirect()->route('admin.eventfaq.index')->with('success', 'Event FAQ added successfully.');
     }
 
     /**

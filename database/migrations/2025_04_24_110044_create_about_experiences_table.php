@@ -12,25 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('about_experiences', function (Blueprint $table) {
-        $table->id();
-        $table->string('section_heading')->nullable();
-        $table->string('section_subheading')->nullable();
-        $table->string('content_heading')->nullable();
-        $table->string('content_subheading')->nullable();
-
-        $table->string('experience_heading1')->nullable();
-        $table->integer('experience_percentage1')->nullable();
-        $table->text('description1')->nullable();
-
-        $table->string('experience_heading2')->nullable();
-        $table->integer('experience_percentage2')->nullable();
-        $table->text('description2')->nullable();
-
-        $table->string('experience_heading3')->nullable();
-        $table->integer('experience_percentage3')->nullable();
-        $table->text('description3')->nullable();
-
-        $table->timestamps();
+            $table->id();
+    
+            $table->string('section_heading')->nullable();
+            $table->string('section_subheading')->nullable();
+            $table->string('content_heading')->nullable();
+            $table->string('content_subheading')->nullable();
+        
+            for ($i = 1; $i <= 3; $i++) {
+                $table->string("experience_heading{$i}")->nullable();
+                $table->integer("experience_percentage{$i}")->nullable();
+                $table->text("description{$i}")->nullable();
+            }
+        
+            $table->timestamps();
         });
     }
 

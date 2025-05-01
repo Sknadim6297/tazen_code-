@@ -63,24 +63,49 @@ class ContactDetailController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function edit($id)
     {
-        //
+    $contactdetail = ContactDetail::findOrFail($id);
+    return view('admin.contactdetails.edit', compact('contactdetail'));
     }
+
+    public function update(Request $request, $id)
+    {
+    $validated = $request->validate([
+        'icon1' => 'required|string',
+        'heading1' => 'required|string',
+        'sub_heading1' => 'nullable|string',
+        'description1' => 'nullable|string',
+        'icon2' => 'required|string',
+        'heading2' => 'required|string',
+        'sub_heading2' => 'nullable|string',
+        'description2' => 'nullable|string',
+        'icon3' => 'required|string',
+        'heading3' => 'required|string',
+        'sub_heading3' => 'nullable|string',
+        'description3' => 'nullable|string',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    $contactdetail = ContactDetail::findOrFail($id);
+    $contactdetail->update($validated);
+
+    return redirect()->route('admin.contactdetails.index')->with('success', 'Contact details updated successfully.');
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+    $contactdetail = ContactDetail::findOrFail($id);
+    $contactdetail->delete();
+
+    return redirect()->route('admin.contactdetails.index')->with('success', 'Contact details deleted successfully.');
     }
+
 }

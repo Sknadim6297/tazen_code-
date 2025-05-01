@@ -9,10 +9,11 @@
 			<div id="hero_video">
 				<div class="opacity-mask d-flex align-items-center" data-opacity-mask="rgba(0, 0, 0, 0.2)">
 					<div class="container">
+						@foreach($banners as $banner)
 						<div class="row justify-content-md-start">
 							<div class="col-xl-8 col-lg-10 col-md-8">
-								<h1 class="text-start">Find a Professional</h1>
-								<p class="text-start">Book a Consultation by Appointment, Chat or Video call</p>
+								<h1 class="text-start">{{ $banner->heading }}</h1>
+								<p class="text-start">{{ $banner->sub_heading }}</p>
 								<form>
 									<div class="d-flex justify-content-md-start">
 										<div class="row g-0 custom-search-input">
@@ -39,6 +40,7 @@
 									</div>
 								</form>
 							</div>
+							@endforeach
 						</div>
 					</div>
 				</div>
@@ -96,97 +98,99 @@
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
+								@foreach($mcqs as $mcq)
 								<form id="mcqForm">
 									<!-- Question 1 -->
 									<div class="question active" id="question1">
-										<h6>Question 1: What is your primary reason for booking this service?</h6>
+										<h6>Question 1: {{ $mcq->question1 }}</h6>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q1" id="q1a" value="Personal development">
-											<label class="form-check-label" for="q1a">Personal development</label>
+											<label class="form-check-label" for="q1a">{{ $mcq->option1_a }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q1" id="q1b" value="Professional growth">
-											<label class="form-check-label" for="q1b">Professional growth</label>
+											<label class="form-check-label" for="q1b">{{ $mcq->option1_b }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q1" id="q1c" value="Health reasons">
-											<label class="form-check-label" for="q1c">Health reasons</label>
+											<label class="form-check-label" for="q1c">{{ $mcq->option1_c }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q1" id="q1d" value="Other">
-											<label class="form-check-label" for="q1d">Other</label>
+											<label class="form-check-label" for="q1d">{{ $mcq->option1_d }}</label>
 										</div>
 									</div>
 									
 									<!-- Question 2 -->
 									<div class="question" id="question2">
-										<h6>Question 2: How did you hear about our services?</h6>
+										<h6>Question 2: {{ $mcq->question2 }}</h6>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q2" id="q2a" value="Social media">
-											<label class="form-check-label" for="q2a">Social media</label>
+											<label class="form-check-label" for="q2a">{{ $mcq->option2_a }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q2" id="q2b" value="Friend/Family">
-											<label class="form-check-label" for="q2b">Friend/Family</label>
+											<label class="form-check-label" for="q2b">{{ $mcq->option2_b }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q2" id="q2c" value="Online search">
-											<label class="form-check-label" for="q2c">Online search</label>
+											<label class="form-check-label" for="q2c">{{ $mcq->option2_c }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q2" id="q2d" value="Other">
-											<label class="form-check-label" for="q2d">Other</label>
+											<label class="form-check-label" for="q2d">{{ $mcq->option2_d }}</label>
 										</div>
 									</div>
 									
 									<!-- Question 3 -->
 									<div class="question" id="question3">
-										<h6>Question 3: What is your preferred method of consultation?</h6>
+										<h6>Question 3: {{ $mcq->question3 }}</h6>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q3" id="q3a" value="In-person">
-											<label class="form-check-label" for="q3a">In-person</label>
+											<label class="form-check-label" for="q3a">{{ $mcq->option3_a }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q3" id="q3b" value="Video call">
-											<label class="form-check-label" for="q3b">Video call</label>
+											<label class="form-check-label" for="q3b">{{ $mcq->option3_b }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q3" id="q3c" value="Phone call">
-											<label class="form-check-label" for="q3c">Phone call</label>
+											<label class="form-check-label" for="q3c">{{ $mcq->option3_c }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q3" id="q3d" value="No preference">
-											<label class="form-check-label" for="q3d">No preference</label>
+											<label class="form-check-label" for="q3d">{{ $mcq->option3_d }}</label>
 										</div>
 									</div>
 									
 									<!-- Question 4 -->
 									<div class="question" id="question4">
-										<h6>Question 4: How soon would you like to schedule the service?</h6>
+										<h6>Question 4:{{ $mcq->question4 }}</h6>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q4" id="q4a" value="Within a week">
-											<label class="form-check-label" for="q4a">Within a week</label>
+											<label class="form-check-label" for="q4a">{{ $mcq->option4_a }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q4" id="q4b" value="Within a month">
-											<label class="form-check-label" for="q4b">Within a month</label>
+											<label class="form-check-label" for="q4b">{{ $mcq->option4_b }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q4" id="q4c" value="Not sure yet">
-											<label class="form-check-label" for="q4c">Not sure yet</label>
+											<label class="form-check-label" for="q4c">{{ $mcq->option4_c }}</label>
 										</div>
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="q4" id="q4d" value="Just exploring options">
-											<label class="form-check-label" for="q4d">Just exploring options</label>
+											<label class="form-check-label" for="q4d">{{ $mcq->option4_d }}</label>
 										</div>
 									</div>
 									
 									<!-- Question 5 -->
 									<div class="question" id="question5">
-										<h6>Question 5: Any specific preferences or additional information?</h6>
+										<h6>Question 5: {{ $mcq->question5 }}</h6>
 										<textarea name="q5" class="form-control" rows="3"></textarea>
 									</div>
 								</form>
+								@endforeach
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -315,27 +319,24 @@
 
 		<section class=" home-about-section py-5" style="background-color: #FFF2E1;">
 			<div class="container">
+				@foreach($about_us as $aboutus)
 				<div class="row">
 					<div class="col-lg-6">
 						<div class="about-inside-content">
 							<small>--- About Us ---</small>
 							<div class="main-about-content">
-								<h1>Explore Our Services And Boost Your Online Presence</h1>
-								<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-									Ipsum has been the industry’s standard dummy text ever since the 1500s, when an
-									unknown printer took a galley of type and scrambled it to make a type specimen book.
-									It has survived not only five centuries, but also the leap into electronic
-									typesetting, remaining essentially unchanged.</p>
+								<h1>{{ $aboutus->heading }}</h1>
+								<p>{{ $aboutus->description }}</p>
 
 								<div class="list-data-div">
 									<ul>
 										<li>
 											<i class="fa fa-check"></i>
-											<span>Lorem Ipsum is simply dummy text of the printing.</span>
+											<span>{{ $aboutus->line1 }}</span>
 										</li>
 										<li>
 											<i class="fa fa-check"></i>
-											<span>Lorem Ipsum is simply dummy text of the printing.</span>
+											<span>{{ $aboutus->line2 }}</span>
 										</li>
 									</ul>
 
@@ -350,27 +351,30 @@
 					</div>
 					<div class="col-lg-6 position-relative d-flex align-item-center  justify-content-md-center">
 						<div class="right-img">
-							<img src="img/new-icons/about-home-picture.png" alt="">
+							<img src="{{ asset('storage/' . $aboutus->image) }}" alt="">
 						</div>
 						<div class="ab-count d-flex justify-content-center align-items-center flex-column text-center">
 							<div class="d-flex align-items-center justify-content-center">
-								<h2 class="count">12</h2>
+								<h2 class="count">{{ $aboutus->year_of_experience }}</h2>
 								<h2>+</h2>
 							</div>
 							<p>years of experience</p>
 						</div>
 					</div>
+					@endforeach
 				</div>
 			</div>
 		</section>
 
 
 		<section class="bg-light fun-facts-cards py-5">
+			@foreach ($whychooses as $whychoose)
 			<div class="container">
+				
 				<div class="main_title center">
 					<span><em></em></span>
-					<h2>Why Choose Us</h2>
-					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
+					<h2>{{ $whychoose->section_heading }}</h2>
+					<p>{{ $whychoose->section_sub_heading }}</p>
 				</div>
 			</div>
 			<div class="container my-5">
@@ -382,16 +386,15 @@
 
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card1_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-brain-circuit"></i>
+											<i class="{{ $whychoose->card1_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>CUSTOMIZED SOLUTIONS</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card1_heading }}</h3>
+										<p>{{ $whychoose->card1_description }}</p>
 									</div>
 
 								</div>
@@ -400,16 +403,15 @@
 								<div class="card card-two funfact-card">
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card2_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-lightbulb-on"></i>
+											<i class="{{ $whychoose->card2_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>ROI-DRIVEN APPROACH</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card2_heading }}</h3>
+										<p>{{ $whychoose->card2_description }}</p>
 									</div>
 								</div>
 							</div>
@@ -417,16 +419,15 @@
 								<div class="card card-three funfact-card">
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card3_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-swatchbook"></i>
+											<i class="{{ $whychoose->card3_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>CREATIVE SOLUTION</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card3_heading }}</h3>
+										<p>{{ $whychoose->card3_description }}</p>
 									</div>
 								</div>
 							</div>
@@ -438,16 +439,15 @@
 								<div class="card card-three funfact-card">
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card4_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-people-group"></i>
+											<i class="{{ $whychoose->card4_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>EXPERT TEAM</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card4_heading }}</h3>
+										<p>{{ $whychoose->card4_description }}</p>
 									</div>
 								</div>
 							</div>
@@ -455,16 +455,15 @@
 								<div class="card card-one funfact-card">
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card5_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-brain-circuit"></i>
+											<i class="{{ $whychoose->card5_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>CUSTOMIZED SOLUTIONS</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card5_heading }}</h3>
+										<p>{{ $whychoose->card5_description }}</p>
 									</div>
 								</div>
 							</div>
@@ -472,16 +471,15 @@
 								<div class="card card-two funfact-card">
 									<div class="icon-content">
 										<div class="text col-lg-6">
-											<p>Lorem, ipsum.</p>
+											<p>{{ $whychoose->card6_mini_heading }}</p>
 										</div>
 										<div class="icon col-lg-6">
-											<i class="fa-solid fa-brain-circuit"></i>
+											<i class="{{ $whychoose->card6_icon }}"></i>
 										</div>
 									</div>
 									<div class="text-content">
-										<h3>ROI-DRIVEN APPROACH</h3>
-										<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-											Lorem Ipsum has been the industry’s standard dummy text ever.</p>
+										<h3>{{ $whychoose->card6_heading }}</h3>
+										<p>{{ $whychoose->card6_description }}</p>
 									</div>
 								</div>
 							</div>
@@ -489,6 +487,7 @@
 					</div>
 				</div>
 			</div>
+			@endforeach
 		</section>
 
 
@@ -664,41 +663,49 @@
 
 		<div class="bg_gray">
 			<div class="container margin_60_40 how">
+				@foreach($howworks as $howwork)
 				<div class="main_title center">
 					<span><em></em></span>
 					<h2>How does it work?</h2>
-					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
+					<p>{{ $howwork->section_sub_heading }}</p>
 				</div>
 				<div class="row justify-content-center align-items-center add_bottom_45">
 					<div class="col-lg-5">
 						<div class="box_about">
 							<strong>1</strong>
-							<h3>Search for a Professional</h3>
-							<p>Search over 12.000 verifyed professionals that match your criteria.</p>
+							<h3>{{ $howwork->heading1 }}</h3>
+							<p>{{ $howwork->description1 }}</p>
 							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
 								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_1 lazy">
 						</div>
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
 						<figure><img
-								src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="img/services-pic/about_1.png" alt="" class="img-fluid lazy" width="180"
-								height="180"></figure>
+							src="{{ asset('storage/'.$howwork->image1) }}" 
+							data-src="{{ asset('storage/'.$howwork->image1) }}"  
+							alt="How it works"
+							class="img-fluid lazy"
+							width="180"
+							height="180">
+						</figure>
 					</div>
 				</div>
 				<!-- /row -->
 				<div class="row justify-content-center align-items-center add_bottom_45">
 					<div class="col-lg-5 pr-lg-5 text-center d-none d-lg-block">
 						<figure><img
-								src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="img/services-pic/about_2.png" alt="" class="img-fluid lazy" width="180"
-								height="180"></figure>
+							src="{{ asset('storage/'.$howwork->image2) }}" 
+							data-src="{{ asset('storage/'.$howwork->image2) }}"  
+							alt="How it works"
+							class="img-fluid lazy"
+							width="180"
+							height="180"></figure>
 					</div>
 					<div class="col-lg-5">
 						<div class="box_about">
 							<strong>2</strong>
-							<h3>View Professional Profile</h3>
-							<p>View professional introduction and read reviews from other customers.</p>
+							<h3>{{ $howwork->heading2 }}</h3>
+							<p>{{ $howwork->description2 }}</p>
 							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
 								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_2 lazy">
 						</div>
@@ -709,18 +716,22 @@
 					<div class="col-lg-5">
 						<div class="box_about">
 							<strong>3</strong>
-							<h3>Enjoy the Consultation</h3>
-							<p>Connect with your professional booking an appointment, via chat or video call!</p>
+							<h3>{{ $howwork->heading3 }}</h3>
+							<p>{{ $howwork->description3 }}</p>
 						</div>
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
 						<figure><img
-								src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="img/services-pic/group.png" alt="" class="img-fluid lazy" width="180"
-								height="180"></figure>
+							src="{{ asset('storage/'.$howwork->image3) }}" 
+							data-src="{{ asset('storage/'.$howwork->image3) }}"  
+							alt="How it works"
+							class="img-fluid lazy"
+							width="180"
+							height="180"></figure>
 					</div>
 				</div>
 				<!-- /row -->
+				@endforeach
 			</div>
 			<!-- /container -->
 		</div>
@@ -898,13 +909,14 @@
 		<!-- ====== 1.10. Testimonials section ====== -->
 		<section class="ttm-row padding_top_zero-section ttm-bgcolor-white clearfix testimonial-new">
 			<div class="container-fluid">
+				@foreach($testimonials as $testimonial)
 				<!-- row -->
 				<div class="row">
 					<div class="col-lg-12 col-md-12 col-sm-12 ttm-box-col-wrapper m-auto">
 						<div class="main_title center">
 							<span><em></em></span>
 							<h2>TESTIMONIALS</h2>
-							<p>More than 10k 5-star reviews</p>
+							<p>{{ $testimonial->section_sub_heading }}</p>
 						</div>
 					</div>
 				</div>
@@ -913,70 +925,70 @@
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box">
 							<div class="testimonial-content bg-lavender mb-15">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description1 }}
 							</div>
 							<div class="testimonial-img bg-blue">
-								<img src="assets/images/testimonial/1.png">
+								<img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
+
 							</div>
 						</div>
 					</div>
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box ">
 							<div class="testimonial-img bg-pink mb-15">
-								<img src="assets/images/testimonial/2.png">
+								<img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
+
 							</div>
 							<div class="testimonial-content bg-green">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description2 }}
 							</div>
 						</div>
 					</div>
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box">
 							<div class="testimonial-content mb-15">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description3 }}
 							</div>
 							<div class="testimonial-img">
-								<img src="assets/images/testimonial/3.png">
+								<img src="{{ asset('storage/'.$testimonial->image3) }}" alt="Testimonial Image">
+
 							</div>
 						</div>
 					</div>
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box ">
 							<div class="testimonial-img bg-green mb-15">
-								<img src="assets/images/testimonial/4.png">
+								<img src="{{ asset('storage/'.$testimonial->image4) }}" alt="Testimonial Image">
 							</div>
 							<div class="testimonial-content bg-pink">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description4 }}
 							</div>
 						</div>
 					</div>
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box">
 							<div class="testimonial-content bg-lavender mb-15">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description1 }}
 							</div>
 							<div class="testimonial-img bg-blue">
-								<img src="assets/images/testimonial/5.png">
+								<img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
+
 							</div>
 						</div>
 					</div>
 					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
 						<div class="testimonial-box">
 							<div class="testimonial-img mb-15 bg-green">
-								<img src="assets/images/testimonial/3.png">
+								<img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
+
 							</div>
 							<div class="testimonial-content bg-pink">
-								Excepteur sint occaecat cupidatat non
-								proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								{{ $testimonial->description2 }}
 							</div>
 						</div>
 					</div>
 				</div>
+				@endforeach
 			</div>
 		</section>
 		<!-- ====== End of 1.10. Testimonials section ====== -->
@@ -985,12 +997,13 @@
 		<!-- blog -->
 		<div class="full-row bg-light py-5 home-blog-section">
 			<div class="container">
+				@foreach($homeblogs as $homeblog)
 				<div class="row heading">
 					<div class="col ">
 						<div class="main_title center ">
 							<span><em></em></span>
 							<h2>Our Recent Blogs</h2>
-							<p>Cum doctus civibus efficiantur in imperdiet deterruisset</p>
+							<p>{{ $homeblog->section_sub_heading }}</p>
 						</div>
 					</div>
 				</div>
@@ -999,7 +1012,8 @@
 						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
 							<a href="blog-post.html">
 								<div class="post-image position-relative overlay-secondary">
-									<img src="img/slides/slide_home_1.jpg" alt="Image not found!">
+									<img src="{{ asset('storage/'.$homeblog->image1) }}" alt="Testimonial Image">
+
 									<!-- <div class="position-absolute xy-center">
 										<div class="overflow-hidden text-center">
 											<a class="text-white first-push-up transation font-large" href="#">+</a>
@@ -1009,13 +1023,11 @@
 							</a>
 							<div class="post-content p-35">
 								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">Our latest development projects
-										by more efficie.</a></h5>
-								<p>Nostra maecenas malesuada vel lobortis sociis mus aliquam tempor etiam ipsum pretium
-									cursus.</p>
+										class="transation text-dark hover-text-primary">{{ $homeblog->heading1 }}</a></h5>
+								<p>{{ $homeblog->description1 }}</p>
 								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>By Robert Haven</span></a>
-									<a href="blog-post.html"><span>Dec 25, 2019</span></a>
+									<a href="blog-post.html"><span>{{ $homeblog->by_whom1 }}</span></a>
+									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
 								</div>
 							</div>
 						</div>
@@ -1024,7 +1036,7 @@
 						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
 							<a href="blog-post.html">
 								<div class="post-image position-relative overlay-secondary">
-									<img src="img/slides/slide_home_2.jpg" alt="Image not found!">
+									<img src="{{ asset('storage/'.$homeblog->image2) }}" alt="Testimonial Image">
 									<!-- <div class="position-absolute xy-center">
 										<div class="overflow-hidden text-center">
 											<a class="text-white first-push-up transation font-large" href="#">+</a>
@@ -1034,13 +1046,11 @@
 							</a>
 							<div class="post-content p-35">
 								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">Cultivating market leadership
-										from the inside.</a></h5>
-								<p>Nostra maecenas malesuada vel lobortis sociis mus aliquam tempor etiam ipsum pretium
-									cursus.</p>
+										class="transation text-dark hover-text-primary">{{ $homeblog->heading2 }}</a></h5>
+								<p>{{ $homeblog->description2 }}</p>
 								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>By Robert Haven</span></a>
-									<a href="blog-post.html"><span>Dec 25, 2019</span></a>
+									<a href="blog-post.html"><span>{{ $homeblog->by_whom2 }}</span></a>
+									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
 								</div>
 							</div>
 						</div>
@@ -1049,7 +1059,7 @@
 						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
 							<a href="blog-post.html">
 								<div class="post-image position-relative overlay-secondary">
-									<img src="img/slides/slide_home_3.jpg" alt="Image not found!">
+									<img src="{{ asset('storage/'.$homeblog->image3) }}" alt="Testimonial Image">
 									<!-- <div class="position-absolute xy-center">
 										<div class="overflow-hidden text-center">
 											<a class="text-white first-push-up transation font-large" href="#">+</a>
@@ -1059,13 +1069,11 @@
 							</a>
 							<div class="post-content p-35">
 								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">We are the next generation of
-										the advertising.</a></h5>
-								<p>Nostra maecenas malesuada vel lobortis sociis mus aliquam tempor etiam ipsum pretium
-									cursus.</p>
+										class="transation text-dark hover-text-primary">{{ $homeblog->heading3 }}</a></h5>
+								<p>{{ $homeblog->description3 }}</p>
 								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>By Robert Haven</span></a>
-									<a href="blog-post.html"><span>Dec 25, 2019</span></a>
+									<a href="blog-post.html"><span>{{ $homeblog->by_whom3 }}</span></a>
+									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
 								</div>
 							</div>
 						</div>
@@ -1076,7 +1084,7 @@
 					<a href="blog.html" class="btn_1 medium">Discover More</a>
 				</div>
 
-
+				@endforeach
 			</div>
 		</div>
 		<!-- end blog  -->

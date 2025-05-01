@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('blog_banners', function (Blueprint $table) {
             $table->id();
-            $table->string('heading');           // Blog banner heading
-            $table->string('subheading');        // Blog banner subheading
-            $table->string('banner_image');      // Banner image path
+            $table->string('heading');
+            $table->string('subheading')->nullable(); // Make it nullable
+            $table->string('banner_image');
+            // $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
 
         });

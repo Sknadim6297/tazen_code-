@@ -42,7 +42,7 @@ class AboutExperienceController extends Controller
 
         AboutExperience::create($validated);
 
-        return redirect()->route('aboutexperiences.index')->with('success', 'About Experience added successfully.');
+        return redirect()->route('admin.aboutexperiences.index')->with('success', 'About Experience added successfully.');
     }
 
     public function show(AboutExperience $aboutexperience)
@@ -78,12 +78,12 @@ class AboutExperienceController extends Controller
 
         $aboutexperience->update($validated);
 
-        return redirect()->route('aboutexperiences.index')->with('success', 'About Experience updated successfully.');
+        return redirect()->route('admin.aboutexperiences.index')->with('success', 'About Experience updated successfully.');
     }
 
     public function destroy(AboutExperience $aboutexperience)
     {
         $aboutexperience->delete();
-        return redirect()->route('aboutexperiences.index')->with('success', 'About Experience deleted successfully.');
+        return redirect()->route('admin.aboutexperiences.index')->with('success', 'About Experience deleted successfully.');
     }
 }

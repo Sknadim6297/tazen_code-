@@ -32,7 +32,7 @@
                             Total Tasks
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Banner</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blog</button>
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
@@ -73,8 +73,8 @@
                                     
                                                     {{-- By Whom --}}
                                                     <div class="col-xl-12">
-                                                        <label for="by_whoom{{ $i }}" class="form-label">By Whom {{ $i }}</label>
-                                                        <input type="text" class="form-control" name="by_whoom{{ $i }}" id="by_whoom{{ $i }}" placeholder="e.g. By Robert Haven Dec 25, 2019">
+                                                        <label for="by_whom{{ $i }}" class="form-label">By Whom {{ $i }}</label>
+                                                        <input type="text" class="form-control" name="by_whom{{ $i }}" id="by_whom{{ $i }}" placeholder="e.g. By Robert Haven Dec 25, 2019">
                                                     </div>
                                                     @endfor
                                                 </div>
@@ -133,7 +133,7 @@
                                             </td>
                                             <td>{{ $homeblog->heading1 }}</td>
                                             <td>{{ $homeblog->description1 }}</td>
-                                            <td>{{ $homeblog->bywhom1 }}</td>
+                                            <td>{{ $homeblog->by_whom1 }}</td>
                                 
                                             <td>
                                                 @if($homeblog->image2)
@@ -142,7 +142,7 @@
                                             </td>
                                             <td>{{ $homeblog->heading2 }}</td>
                                             <td>{{ $homeblog->description2 }}</td>
-                                            <td>{{ $homeblog->bywhom2 }}</td>
+                                            <td>{{ $homeblog->by_whom2 }}</td>
                                 
                                             <td>
                                                 @if($homeblog->image3)
@@ -151,7 +151,7 @@
                                             </td>
                                             <td>{{ $homeblog->heading3 }}</td>
                                             <td>{{ $homeblog->description3 }}</td>
-                                            <td>{{ $homeblog->bywhom3 }}</td>
+                                            <td>{{ $homeblog->by_whom3 }}</td>
                                 
                                             <td>
                                                 <span class="badge bg-{{ $homeblog->status === 'active' ? 'success' : 'danger' }}">

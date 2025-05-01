@@ -29,7 +29,7 @@
 
 <!-- YOUR CUSTOM CSS -->
 <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/new-style.css') }}">
+{{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/new-style.css') }}"> --}}
 {{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/testi.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/listing.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/details.css') }}">
@@ -50,7 +50,7 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/account.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}"> --}}
 {{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}"> --}}
-
+@yield('styles')
 
 	<!-- slick slider css  -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
@@ -202,7 +202,24 @@
 	</style>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-	
+	<style>
+		.item  {
+		  display: block;
+		
+		  height: 400px;
+		  
+		}
+		.owl-stage-outer {
+		 height: 550px;
+		}
+		.owl-carousel .owl-item {
+	 margin: 0 10px 10px 10px; /* Applies margin only on left, right, and bottom */
+ }
+ .owl-carousel .item {
+ position: relative;
+ padding: 0px;
+}
+</style>
 	
 	<style>
 		.question {
@@ -258,6 +275,9 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 
 
 <script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
@@ -508,6 +528,70 @@ function checkSlides(slider, currentSlide) {
 		toastr.info("{{ session('info') }}");
 	@endif
 </script>
+<script>
+	$(document).ready(function () {
+		$('.owl-carousel').owlCarousel({
+			loop: true,
+			margin: 0,
+			autoWidth:true,
+		   nav: false,
+			responsive: {
+				0: {
+					items: 1
+				},
+				600: {
+					items: 3
+				},
+				1000: {
+					items: 3
+				}
+			}
+		});
+	});
+</script>
+<script>
+$(document).ready(function () {
+	$('.gallery-carousal').owlCarousel({
+		loop: true,
+		margin: 10,
+	  
+		autoplay: true,           // Enables autoplay
+		autoplayHoverPause: true, // Pauses autoplay on hover
+		nav: false, 
+		responsive: {
+			0: {
+				items: 1
+			},
+			600: {
+				items: 2
+			},
+			1000: {
+				items: 2
+			}
+		}
+	});
+});
+</script>
+
+
+<script>
+	document.getElementById("read-more").addEventListener("click", function() {
+var fullText = document.getElementById("full-text");
+var shortText = document.getElementById("short-text");
+
+if (fullText.style.display === "none") {
+	fullText.style.display = "inline";
+	shortText.style.display = "none";
+	this.textContent = "Read Less"; // Change link text to "Read Less"
+} else {
+	fullText.style.display = "none";
+	shortText.style.display = "inline";
+	this.textContent = "Read More"; // Change link text back to "Read More"
+}
+});
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 </body>
 
 </html>
