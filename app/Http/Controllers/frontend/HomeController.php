@@ -6,6 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\McqAnswer;
 use App\Models\Profile;
 use App\Models\Service;
+use App\Models\Banner;
+use App\Models\AboutUs;
+use App\Models\Whychoose;
+use App\Models\Testimonial;
+use App\Models\HomeBlog;
+use App\Models\Howworks;
+use App\Models\MCQ;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -15,7 +23,14 @@ class HomeController extends Controller
     public function index()
     {
         $services = Service::latest()->get();
-        return view('frontend.index', compact('services'));
+        $banners = Banner::latest()->get();
+        $about_us = AboutUs::latest()->get();
+        $whychooses = Whychoose::latest()->get();
+        $testimonials = Testimonial::latest()->get();
+        $homeblogs = HomeBlog::latest()->get();
+        $howworks = Howworks::latest()->get();
+        $mcqs = MCQ::latest()->get();
+        return view('frontend.index', compact('services','banners','about_us','whychooses','testimonials','homeblogs','howworks','mcqs'));
     }
 
     public function submitQuestionnaire(Request $request)

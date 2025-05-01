@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceDetails extends Model
 {
     use HasFactory;
+
     protected $fillable = [
+        'service_id',
         'banner_image',
         'banner_heading',
         'banner_sub_heading',
@@ -28,13 +30,16 @@ class ServiceDetails extends Model
         'step3_description',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the service that owns the details.
+     */
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }

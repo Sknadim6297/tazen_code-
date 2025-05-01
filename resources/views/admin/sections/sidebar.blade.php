@@ -119,10 +119,13 @@
                                         <a href="{{ route('admin.admin.testimonial.index') }}" class="side-menu__item">Testimonials Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.homeblog.index') }}" class="side-menu__item">Blog Section</a>
+                                        <a href="{{ route('admin.blogs.index') }}" class="side-menu__item">Blog Section</a>
                                     </li>
                                     <li class="slide">
                                         <a href="{{ route('admin.howworks.index') }}" class="side-menu__item">How It Works Section</a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.mcq.index') }}" class="side-menu__item">MCQ</a>
                                     </li>
                                 </ul>
                             </li>
@@ -177,6 +180,9 @@
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
                                     <li class="slide">
+                                        <a href="{{ route('admin.allevents.index') }}" class="side-menu__item">All Event </a>
+                                    </li>
+                                    <li class="slide">
                                         <a href="{{ route('admin.eventdetails.index') }}" class="side-menu__item">Event Details </a>
                                     </li>
                                     <li class="slide">
@@ -185,7 +191,7 @@
                                 </ul>
                             </li>
                             <li class="slide has-sub">
-<<<<<<< Updated upstream
+
                                 <a href="javascript:void(0);" class="side-menu__item">Service Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
@@ -196,9 +202,9 @@
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
                                 </ul>
-=======
+
                                 <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page</a>
->>>>>>> Stashed changes
+
                             </li>
 
                         </li>

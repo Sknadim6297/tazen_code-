@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Whychoose;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Whychoose;
-
 
 class WhychooseController extends Controller
 {
@@ -14,8 +13,8 @@ class WhychooseController extends Controller
      */
     public function index()
     {
-        $whychoose = Whychoose::all(); // not first(), use all()
-        return view('admin.whychoose.index', compact('whychoose'));
+        $whychooses = Whychoose::all(); // Get all entries
+        return view('admin.whychoose.index', compact('whychooses')); // return view with data
     }
 
     /**
@@ -30,46 +29,45 @@ class WhychooseController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'section_heading' => 'required|string|max:255',
-            'section_sub_heading' => 'nullable|string|max:255',
+{
+    // Validate the incoming data
+    $request->validate([
+        'section_heading' => 'required|string|max:255',
+        'section_sub_heading' => 'required|string|max:255',
+        'card1_mini_heading' => 'required|string|max:255',
+        'card1_heading' => 'required|string|max:255',
+        'card1_icon' => 'required|string|max:255',
+        'card1_description' => 'required|string',
+        'card2_mini_heading' => 'required|string|max:255',
+        'card2_heading' => 'required|string|max:255',
+        'card2_icon' => 'required|string|max:255',
+        'card2_description' => 'required|string',
+        'card3_mini_heading' => 'required|string|max:255',
+        'card3_heading' => 'required|string|max:255',
+        'card3_icon' => 'required|string|max:255',
+        'card3_description' => 'required|string',
+        'card4_mini_heading' => 'required|string|max:255',
+        'card4_heading' => 'required|string|max:255',
+        'card4_icon' => 'required|string|max:255',
+        'card4_description' => 'required|string',
+        'card5_mini_heading' => 'required|string|max:255',
+        'card5_heading' => 'required|string|max:255',
+        'card5_icon' => 'required|string|max:255',
+        'card5_description' => 'required|string',
+        'card6_mini_heading' => 'required|string|max:255',
+        'card6_heading' => 'required|string|max:255',
+        'card6_icon' => 'required|string|max:255',
+        'card6_description' => 'required|string',
+    ]);
 
-            'card1_heading' => 'nullable|string|max:255',
-            'card1_mini_heading' => 'nullable|string|max:255',
-            'card1_icon' => 'nullable|string|max:255',
-            'card1_description' => 'nullable|string',
+    // Create a new entry in the Whychoose table
+    $data = $request->all();
+    Whychoose::create($data);
 
-            'card2_heading' => 'nullable|string|max:255',
-            'card2_mini_heading' => 'nullable|string|max:255',
-            'card2_icon' => 'nullable|string|max:255',
-            'card2_description' => 'nullable|string',
+    // Redirect back with success message
+    return redirect()->route('admin.whychoose.index')->with('success', 'Whychoose section added successfully!');
+}
 
-            'card3_heading' => 'nullable|string|max:255',
-            'card3_mini_heading' => 'nullable|string|max:255',
-            'card3_icon' => 'nullable|string|max:255',
-            'card3_description' => 'nullable|string',
-
-            'card4_heading' => 'nullable|string|max:255',
-            'card4_mini_heading' => 'nullable|string|max:255',
-            'card4_icon' => 'nullable|string|max:255',
-            'card4_description' => 'nullable|string',
-
-            'card5_heading' => 'nullable|string|max:255',
-            'card5_mini_heading' => 'nullable|string|max:255',
-            'card5_icon' => 'nullable|string|max:255',
-            'card5_description' => 'nullable|string',
-
-            'card6_heading' => 'nullable|string|max:255',
-            'card6_mini_heading' => 'nullable|string|max:255',
-            'card6_icon' => 'nullable|string|max:255',
-            'card6_description' => 'nullable|string',
-        ]);
-
-        Whychoose::create($request->all());
-
-        return redirect()->back()->with('success', 'Why Choose section added successfully.');
-    }
 
     /**
      * Display the specified resource.
@@ -84,23 +82,56 @@ class WhychooseController extends Controller
      */
     public function edit($id)
     {
-        $whychoose = Whychoose::findOrFail($id);
+        $whychoose = WhyChoose::findOrFail($id);
         return view('admin.whychoose.edit', compact('whychoose'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Update existing record
+    public function update(Request $request, $id)
     {
-        //
+        $whychoose = WhyChoose::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'section_heading' => 'required|string|max:255',
+            'section_sub_heading' => 'required|string|max:255',
+            // Validate cards
+            'card1_mini_heading' => 'required|string|max:255',
+            'card1_heading' => 'required|string|max:255',
+            'card1_icon' => 'required|string|max:255',
+            'card1_description' => 'required|string',
+            'card2_mini_heading' => 'required|string|max:255',
+            'card2_heading' => 'required|string|max:255',
+            'card2_icon' => 'required|string|max:255',
+            'card2_description' => 'required|string',
+            'card3_mini_heading' => 'required|string|max:255',
+            'card3_heading' => 'required|string|max:255',
+            'card3_icon' => 'required|string|max:255',
+            'card3_description' => 'required|string',
+            'card4_mini_heading' => 'required|string|max:255',
+            'card4_heading' => 'required|string|max:255',
+            'card4_icon' => 'required|string|max:255',
+            'card4_description' => 'required|string',
+            'card5_mini_heading' => 'required|string|max:255',
+            'card5_heading' => 'required|string|max:255',
+            'card5_icon' => 'required|string|max:255',
+            'card5_description' => 'required|string',
+            'card6_mini_heading' => 'required|string|max:255',
+            'card6_heading' => 'required|string|max:255',
+            'card6_icon' => 'required|string|max:255',
+            'card6_description' => 'required|string',
+        ]);
+
+        $whychoose->update($validatedData);
+
+        return redirect()->route('admin.whychoose.index')->with('success', 'Why Choose Us section updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Delete a record
+    public function destroy($id)
     {
-        //
+        $whychoose = WhyChoose::findOrFail($id);
+        $whychoose->delete();
+
+        return redirect()->back()->with('success', 'Why Choose Us section deleted successfully.');
     }
 }

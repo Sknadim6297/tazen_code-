@@ -30,20 +30,21 @@ class HomeBlogController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $data = $request->all();
+{
+    $data = $request->all();
 
-        // Handle 3 images
-        for ($i = 1; $i <= 3; $i++) {
-            if ($request->hasFile("image$i")) {
-                $data["image$i"] = $request->file("image$i")->store('homeblogs', 'public');
-            }
+    // Handle 3 images
+    for ($i = 1; $i <= 3; $i++) {
+        if ($request->hasFile("image$i")) {
+            $data["image$i"] = $request->file("image$i")->store('homeblogs', 'public');
         }
-
-        HomeBlog::updateOrCreate(['id' => 1], $data);
-
-        return redirect()->back()->with('success', 'Home Blog updated successfully!');
     }
+
+    HomeBlog::create($data); // ✅ use create() instead of updateOrCreate()
+
+    return redirect()->back()->with('success', 'Home Blog added successfully!');
+}
+
 
     /**
      * Display the specified resource.

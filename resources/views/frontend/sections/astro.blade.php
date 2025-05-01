@@ -211,43 +211,6 @@
     </div>
 
 
-    <!-- timeline  -->
-    <!-- <div class="bg_gray">
-        <div class="container margin_60_40">
-            <div class="main_title center add_bottom_10">
-                <span><em></em></span>
-                <h2>How does it works?</h2>
-                <p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
-            </div>
-            <div class="row justify-content-md-center how_2">
-                <div class="col-lg-5 text-center">
-                    <figure>
-                        <img src="img/services-pic/timeline-pic-two.png" data-src="img/services-pic/timeline-pic-two.png" alt="" class="img-fluid lazy" width="360" height="380">
-                    </figure>
-                </div>
-                <div class="col-lg-5">
-                   <ul>
-                        <li>
-                            <h3><span>#01.</span> Search for a Professional</h3>
-                            <p>Search over 12.000 verifyed professionals that match your criteria.</p>
-                        </li>
-                        <li>
-                            <h3><span>#02.</span> View Professional Profile</h3>
-                            <p>View professional introduction and read reviews from other customers.</p>
-                        </li>
-                        <li>
-                            <h3><span>#03.</span> Enjoy the Consultation</h3>
-                            <p>Connect with your professional booking an appointment, via chat or video call!</p>
-                        </li>
-                    </ul>
-                    <p class="add_top_30"><a href="#0" class="btn_1">Start Searching</a></p>
-                </div>
-              
-            </div>
-        </div>
-        
-       
-    </div> -->
     <section class="services-counter-section-info py-5" style="background-image: url('img/professionals_photos/astro-bg.jpg');">
         <div class="container my-5">
             <div class="row heading">
