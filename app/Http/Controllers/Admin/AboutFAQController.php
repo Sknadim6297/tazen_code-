@@ -68,24 +68,43 @@ class AboutFAQController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    $faq = AboutFaq::findOrFail($id);
+    return view('admin.aboutfaq.edit', compact('faq'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'faq_description' => 'required|string',
+        'question1' => 'required|string',
+        'answer1' => 'required|string',
+        'question2' => 'nullable|string',
+        'answer2' => 'nullable|string',
+        'question3' => 'nullable|string',
+        'answer3' => 'nullable|string',
+        'question4' => 'nullable|string',
+        'answer4' => 'nullable|string',
+    ]);
+
+    $faq = AboutFaq::findOrFail($id);
+    $faq->update($validated);
+
+    return redirect()->route('admin.aboutfaq.index')->with('success', 'FAQ updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function destroy($id)
+{
+    $faq = AboutFaq::findOrFail($id);
+    $faq->delete();
+
+    return redirect()->route('admin.aboutfaq.index')->with('success', 'FAQ deleted successfully.');
+}
 }

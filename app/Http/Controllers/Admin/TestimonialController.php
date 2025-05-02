@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Testimonial;
+use Illuminate\Support\Facades\Storage;
+
 
 class TestimonialController extends Controller
 {
@@ -13,8 +15,10 @@ class TestimonialController extends Controller
      */
     public function index()
     {
-        $testimonial = Testimonial::first(); // Only one row expected
-        return view('admin.testimonial.index', compact('testimonial'));
+        $testimonials = Testimonial::all();
+    
+    // Check if data is being passed to the view
+    return view('admin.testimonials.index', compact('testimonials'));
     }
 
     /**
@@ -30,19 +34,23 @@ class TestimonialController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $request->validate([
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'description' => 'required|string',
+        ]);
 
-        for ($i = 1; $i <= 4; $i++) {
-            if ($request->hasFile("image$i")) {
-                $data["image$i"] = $request->file("image$i")->store('testimonials', 'public');
-            }
+        $data = [];
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('testimonials', 'public');
         }
 
-        Testimonial::updateOrCreate(['id' => 1], $data);
+        $data['description'] = $request->description;
 
-        return redirect()->back()->with('success', 'Testimonial updated successfully!');
+        Testimonial::create($data);
+
+        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial added successfully.');
     }
-
 
     /**
      * Display the specified resource.
@@ -58,51 +66,42 @@ class TestimonialController extends Controller
     public function edit($id)
     {
         $testimonial = Testimonial::findOrFail($id);
-        return view('admin.testimonial.edit', compact('testimonial'));
+        return view('admin.testimonials.edit', compact('testimonial'));
     }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
     {
         $testimonial = Testimonial::findOrFail($id);
-        
-        // Validate request
+
         $request->validate([
-            'section_sub_heading' => 'required|string|max:255',
-            'image1' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'image2' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'image3' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'image4' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'description1' => 'nullable|string|max:500',
-            'description2' => 'nullable|string|max:500',
-            'description3' => 'nullable|string|max:500',
-            'description4' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'description' => 'required|string',
         ]);
 
-        // Update fields
-        $testimonial->section_sub_heading = $request->section_sub_heading;
-        $testimonial->description1 = $request->description1;
-        $testimonial->description2 = $request->description2;
-        $testimonial->description3 = $request->description3;
-        $testimonial->description4 = $request->description4;
+        $data = [];
 
-        // Handle file uploads
-        for ($i = 1; $i <= 4; $i++) {
-            if ($request->hasFile('image' . $i)) {
-                $imagePath = $request->file('image' . $i)->store('testimonials', 'public');
-                // If image exists already, delete old one
-                if ($testimonial->{'image' . $i}) {
-                    Storage::delete('public/' . $testimonial->{'image' . $i});
-                }
-                $testimonial->{'image' . $i} = $imagePath;
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($testimonial->image) {
+                Storage::disk('public')->delete($testimonial->image);
             }
+
+            $data['image'] = $request->file('image')->store('testimonials', 'public');
+        } else {
+            $data['image'] = $testimonial->image;
         }
 
-        $testimonial->save();
+        $data['description'] = $request->description;
 
-        return redirect()->route('admin.admin.testimonial.index')->with('success', 'Testimonial updated successfully!');
+        $testimonial->update($data);
+
+        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial updated successfully.');
     }
+
+
     /**
      * Remove the specified resource from storage.
      */
@@ -110,15 +109,12 @@ class TestimonialController extends Controller
     {
         $testimonial = Testimonial::findOrFail($id);
 
-        // Delete images if exist
-        for ($i = 1; $i <= 4; $i++) {
-            if ($testimonial->{'image' . $i}) {
-                Storage::delete('public/' . $testimonial->{'image' . $i});
-            }
+        if ($testimonial->image) {
+            Storage::disk('public')->delete($testimonial->image);
         }
 
         $testimonial->delete();
 
-        return redirect()->route('admin.admin.testimonial.index')->with('success', 'Testimonial deleted successfully!');
+        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial deleted.');
     }
 }

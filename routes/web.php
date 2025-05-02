@@ -28,6 +28,9 @@ use App\Models\ContactDetail;
 use App\Models\BlogBanner;
 use App\Models\BlogPost;
 use App\Models\Blog;
+use App\Http\Controllers\Admin\MCQController;
+use App\Models\Service;
+use App\Models\Event;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -59,11 +62,20 @@ Route::get('about', function () {
 });
 Route::get('eventlist', function () {
     $events = EventDetail::all(); // Retrieve all events from the 'eventdetails' table
-    return view('frontend.sections.eventlist',compact('events'));
+    $services = Service::latest()->get();
+    return view('frontend.sections.eventlist',compact('events','services'));
 });
-Route::get('/allevent/{id}', [EventController::class, 'show'])->name('event.details');
+Route::get('/allevent/{id}', function ($id) {
+    $event = Event::with('eventDetails')->findOrFail($id);
+    //  dd($event);
+    $services = Service::all();
+    $eventfaqs = EventFAQ::latest()->get();
+
+    return view('frontend.sections.allevent', compact('event','services','eventfaqs'));
+})->name('event.details');
 Route::get('allevent', function () {
-    $eventdetails = Eventdetail::latest()->get();
+    $eventdetails = Eventdetail:: with('event')->latest()->get();
+    dd($eventdetails);
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
@@ -77,11 +89,34 @@ Route::get('/service/{id}', [ServiceController::class, 'show']);
 Route::get('blog', function () {
     $blogbanners = BlogBanner::latest()->get();
     $blogPosts = BlogPost::latest()->get();
+    $services = Service::latest()->get();
+    $latestBlogs = BlogPost::latest()->take(3)->get();
+    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
+    ->groupBy('category')
+    ->get();
     
 
-    return view('frontend.sections.blog',compact('blogbanners','blogPosts'));
+    return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts'));
 });
-Route::get('/blog-post/{id}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog-post/{id}', function ($id) {
+    // Fetch the blog by ID
+    $blogPost = DB::table('blog_posts')->where('id', $id)->first();
+    $relatedBlog = DB::table('blogs')->where('id', $blogPost->blog_id)->first();
+    $latestBlogs = BlogPost::latest()->take(3)->get();
+    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
+    ->groupBy('category')
+    ->get();
+
+    // Optional: Handle case where blog doesn't exist
+    if (!$blogPost) {
+        abort(404, 'Blog not found');
+    }
+
+    // Fetch latest services
+    $services = Service::latest()->get();
+
+    return view('frontend.sections.blog-post', compact('blogPost', 'services','relatedBlog','latestBlogs','categoryCounts'));
+})->name('blog.show');
 Route::get('eventdetails', function () {
     return view('frontend.sections.eventdetails');
 });
@@ -117,6 +152,7 @@ Route::get('astro', function () {
 });
 Route::get('blog-post', function () {
     $blogbanners = BlogBanner::latest()->get();
+    
     return view('frontend.sections.blog-post',compact('blogbanners'));
 });
 
@@ -146,9 +182,6 @@ Route::middleware(['auth:user'])->group(function () {
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
 Route::post('/admin/banners', [BannerController::class, 'store'])->name('admin.banner.store');
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('testimonial', App\Http\Controllers\Admin\TestimonialController::class);
-});
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('homeblog', \App\Http\Controllers\Admin\HomeBlogController::class);
@@ -165,3 +198,12 @@ Route::post('professional/store', [ProfessionalController::class, 'store'])->nam
 Route::get('professional/logout', [ProfessionalController::class, 'logout'])->name('professional.logout');
 Route::get('professional/register', [ProfessionalController::class, 'registerForm'])->name('professional.register');
 Route::post('professional/register', [ProfessionalController::class, 'register'])->name('professional.register.submit');
+
+
+// Route::get('/get-mcqs/{service_id}', [ServiceController::class, 'getMcqs']);
+Route::post('/submit-mcq', [MCQController::class, 'store'])->name('submit.mcq');
+Route::get('/get-mcq-questions/{serviceId}', [HomeController::class, 'getServiceQuestions']);
+
+
+
+

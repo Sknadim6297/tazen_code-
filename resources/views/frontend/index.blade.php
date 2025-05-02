@@ -2,6 +2,8 @@
 @extends('layouts.layout')
 @section('styles')
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
+   <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
 @endsection
 @section('content')
 	<main>
@@ -81,7 +83,7 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-												<button class="btn_1 book-now-btn" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+												<button class="btn btn-primary book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
 											</div>
 										</div>
 									</div>
@@ -90,6 +92,7 @@
 						</div>
 					</div>
 				</div>
+			
 				<div id="mcqModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-dialog-centered" role="document">
 						<div class="modal-content">
@@ -97,220 +100,40 @@
 								<h5 class="modal-title">Service Questionnaire</h5>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
+				
 							<div class="modal-body">
-								@foreach($mcqs as $mcq)
-								<form id="mcqForm">
-									<!-- Question 1 -->
-									<div class="question active" id="question1">
-										<h6>Question 1: {{ $mcq->question1 }}</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1a" value="Personal development">
-											<label class="form-check-label" for="q1a">{{ $mcq->option1_a }}</label>
+								<form id="mcqForm" method="POST" action="{{ route('submit.mcq') }}">
+									@csrf
+				
+									<!-- Loop through MCQs -->
+									@foreach ($mcqs as $index => $mcq)
+										<div class="question" id="question{{ $index + 1 }}">
+											<h6>Question {{ $index + 1 }}: {{ $mcq->question }}</h6>
+				
+											@foreach (['answer1', 'answer2', 'answer3', 'answer4'] as $opt)
+												<div class="form-check">
+													<input class="form-check-input" type="radio" name="q{{ $index + 1 }}" id="q{{ $index + 1 }}{{ $opt }}" value="{{ $mcq->$opt }}" required>
+													<label class="form-check-label" for="q{{ $index + 1 }}{{ $opt }}">{{ $mcq->$opt }}</label>
+												</div>
+											@endforeach
 										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1b" value="Professional growth">
-											<label class="form-check-label" for="q1b">{{ $mcq->option1_b }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1c" value="Health reasons">
-											<label class="form-check-label" for="q1c">{{ $mcq->option1_c }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1d" value="Other">
-											<label class="form-check-label" for="q1d">{{ $mcq->option1_d }}</label>
-										</div>
-									</div>
-									
-									<!-- Question 2 -->
-									<div class="question" id="question2">
-										<h6>Question 2: {{ $mcq->question2 }}</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2a" value="Social media">
-											<label class="form-check-label" for="q2a">{{ $mcq->option2_a }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2b" value="Friend/Family">
-											<label class="form-check-label" for="q2b">{{ $mcq->option2_b }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2c" value="Online search">
-											<label class="form-check-label" for="q2c">{{ $mcq->option2_c }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2d" value="Other">
-											<label class="form-check-label" for="q2d">{{ $mcq->option2_d }}</label>
-										</div>
-									</div>
-									
-									<!-- Question 3 -->
-									<div class="question" id="question3">
-										<h6>Question 3: {{ $mcq->question3 }}</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3a" value="In-person">
-											<label class="form-check-label" for="q3a">{{ $mcq->option3_a }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3b" value="Video call">
-											<label class="form-check-label" for="q3b">{{ $mcq->option3_b }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3c" value="Phone call">
-											<label class="form-check-label" for="q3c">{{ $mcq->option3_c }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3d" value="No preference">
-											<label class="form-check-label" for="q3d">{{ $mcq->option3_d }}</label>
-										</div>
-									</div>
-									
-									<!-- Question 4 -->
-									<div class="question" id="question4">
-										<h6>Question 4:{{ $mcq->question4 }}</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4a" value="Within a week">
-											<label class="form-check-label" for="q4a">{{ $mcq->option4_a }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4b" value="Within a month">
-											<label class="form-check-label" for="q4b">{{ $mcq->option4_b }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4c" value="Not sure yet">
-											<label class="form-check-label" for="q4c">{{ $mcq->option4_c }}</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4d" value="Just exploring options">
-											<label class="form-check-label" for="q4d">{{ $mcq->option4_d }}</label>
-										</div>
-									</div>
-									
-									<!-- Question 5 -->
-									<div class="question" id="question5">
-										<h6>Question 5: {{ $mcq->question5 }}</h6>
-										<textarea name="q5" class="form-control" rows="3"></textarea>
-									</div>
+									@endforeach
 								</form>
-								@endforeach
 							</div>
+				
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-								<button type="button" class="btn btn-primary" id="prevBtn" style="display:none;">Previous</button>
+								<button type="button" class="btn btn-primary" id="prevBtn" style="display: none;">Previous</button>
 								<button type="button" class="btn btn-primary" id="nextBtn">Next</button>
-								<button type="button" class="btn btn-success" id="submitBtn" style="display:none;">Submit</button>
+								<button type="button" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
 							</div>
 						</div>
 					</div>
 				</div>
 				
 
-				<!-- Modal Structure -->
-				<div id="mcqModal" class="modal fade" tabindex="-1" role="dialog">
-					<div class="modal-dialog" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title">Questionnaire</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="modal-body">
-								<form id="mcqForm">
-									<!-- Question 1 -->
-									<div class="question active" id="question1">
-										<h6>Question 1: What is your primary reason for booking this service?</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1a" value="a">
-											<label class="form-check-label" for="q1a">Personal development</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1b" value="b">
-											<label class="form-check-label" for="q1b">Professional growth</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1c" value="c">
-											<label class="form-check-label" for="q1c">Health reasons</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q1" id="q1d" value="d">
-											<label class="form-check-label" for="q1d">Other</label>
-										</div>
-									</div>
 
-									<!-- Question 2 -->
-									<div class="question" id="question2">
-										<h6>Question 2: How did you hear about our services?</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2a" value="a">
-											<label class="form-check-label" for="q2a">Social media</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2b" value="b">
-											<label class="form-check-label" for="q2b">Friend/Family</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2c" value="c">
-											<label class="form-check-label" for="q2c">Online search</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q2" id="q2d" value="d">
-											<label class="form-check-label" for="q2d">Other</label>
-										</div>
-									</div>
-
-									<!-- Question 3 -->
-									<div class="question" id="question3">
-										<h6>Question 3: What is your preferred method of consultation?</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3a" value="a">
-											<label class="form-check-label" for="q3a">In-person</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3b" value="b">
-											<label class="form-check-label" for="q3b">Video call</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3c" value="c">
-											<label class="form-check-label" for="q3c">Phone call</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q3" id="q3d" value="d">
-											<label class="form-check-label" for="q3d">No preference</label>
-										</div>
-									</div>
-
-									<!-- Question 4 -->
-									<div class="question" id="question4">
-										<h6>Question 4: How soon would you like to schedule the service?</h6>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4a" value="a">
-											<label class="form-check-label" for="q4a">Within a week</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4b" value="b">
-											<label class="form-check-label" for="q4b">Within a month</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4c" value="c">
-											<label class="form-check-label" for="q4c">Not sure yet</label>
-										</div>
-										<div class="form-check">
-											<input class="form-check-input" type="radio" name="q4" id="q4d" value="d">
-											<label class="form-check-label" for="q4d">Just exploring options</label>
-										</div>
-									</div>
-								</form>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-								<button type="button" class="btn btn-primary" id="prevBtn"
-									style="display:none;">Previous</button>
-								<button type="button" class="btn btn-primary" id="nextBtn">Next</button>
-								<button type="button" class="btn btn-success" id="submitBtn"
-									style="display:none;">Submit</button>
-							</div>
-						</div>
-					</div>
-				</div>
+				
                 </main>
 
 			</div>
@@ -738,353 +561,127 @@
 		<!-- /bg_gray -->
 
 
-		<!-- testimonials start  -->
-		<!-- TESTIMONIALS -->
-
-
-
-		<!-- <section id="slider " class="py-5">
-			<div class="container">
-				<div class="row heading">
-					<div class="col ">
-						<div class="main_title center ">
-							<span><em></em></span>
-							<h2>Our Testimonials</h2>
-							<p>Great People Colaborate with us</p>
-						</div>
-					</div>
-				</div>
-				<div class="slider">
-					<div class="owl-carousel testimonial-carousal">
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-1.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-2.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-3.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-4.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-5.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-						<div class="slider-card container" id="openPopups">
-							<div class="d-flex main-content align-item-center mb-4">
-								<img src="img/slides/testimonials/img-6.jpg" alt="">
-								<div
-									class="information ms-4 d-flex flex-column justify-content-center align-item-center ">
-									<h5>Elem santiago</h5>
-									<small>abc pvt. ltd.</small>
-								</div>
-							</div>
-							<hr>
-
-							<p class="mb-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit placeat
-								accusamus doloribus, ipsam non repellendus maxime nesciunt repudiandae voluptatem
-								provident.
-							</p>
-							<div class="rating">
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-solid fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-								<i class="fa-regular fa-star"></i>
-							</div>
-						</div>
-
-
-
-					</div>
-				</div>
-			</div>
-		</section> -->
 		<!-- ====== 1.10. Testimonials section ====== -->
 		<section class="ttm-row padding_top_zero-section ttm-bgcolor-white clearfix testimonial-new">
 			<div class="container-fluid">
-				@foreach($testimonials as $testimonial)
-				<!-- row -->
+				<!-- Static heading and subheading -->
 				<div class="row">
 					<div class="col-lg-12 col-md-12 col-sm-12 ttm-box-col-wrapper m-auto">
 						<div class="main_title center">
 							<span><em></em></span>
 							<h2>TESTIMONIALS</h2>
-							<p>{{ $testimonial->section_sub_heading }}</p>
+							<p>What our clients say about us</p>
 						</div>
 					</div>
 				</div>
-				<div class="row slick_slider "
-					data-slick='{"slidesToShow":4, "slidesToScroll": 1, "arrows":false, "autoplay":true, "dots":false, "infinite":true, "responsive":[{"breakpoint":1199,"settings": {"slidesToShow": 3}},{"breakpoint":992,"settings":{"slidesToShow": 2}},{"breakpoint":767,"settings":{"slidesToShow": 2}}, {"breakpoint":600,"settings":{"slidesToShow": 1}}]}'>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box">
-							<div class="testimonial-content bg-lavender mb-15">
-								{{ $testimonial->description1 }}
-							</div>
-							<div class="testimonial-img bg-blue">
-								<img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box ">
-							<div class="testimonial-img bg-pink mb-15">
-								<img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
-
-							</div>
-							<div class="testimonial-content bg-green">
-								{{ $testimonial->description2 }}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box">
-							<div class="testimonial-content mb-15">
-								{{ $testimonial->description3 }}
-							</div>
-							<div class="testimonial-img">
-								<img src="{{ asset('storage/'.$testimonial->image3) }}" alt="Testimonial Image">
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box ">
-							<div class="testimonial-img bg-green mb-15">
-								<img src="{{ asset('storage/'.$testimonial->image4) }}" alt="Testimonial Image">
-							</div>
-							<div class="testimonial-content bg-pink">
-								{{ $testimonial->description4 }}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box">
-							<div class="testimonial-content bg-lavender mb-15">
-								{{ $testimonial->description1 }}
-							</div>
-							<div class="testimonial-img bg-blue">
-								<img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-						<div class="testimonial-box">
-							<div class="testimonial-img mb-15 bg-green">
-								<img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
-
-							</div>
-							<div class="testimonial-content bg-pink">
-								{{ $testimonial->description2 }}
+		
+				<div class="row slick_slider"
+					 data-slick='{"slidesToShow":4,"slidesToScroll":1,"arrows":false,"autoplay":true,"dots":false,"infinite":true,"responsive":[{"breakpoint":1199,"settings":{"slidesToShow":3}},{"breakpoint":992,"settings":{"slidesToShow":2}},{"breakpoint":767,"settings":{"slidesToShow":2}},{"breakpoint":600,"settings":{"slidesToShow":1}}]}'>
+					
+					@php
+						$totalSlides = 6; // Total slides to display
+						$testimonialCount = count($testimonials);
+					@endphp
+		
+					@for($i = 0; $i < $totalSlides; $i++)
+						<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
+							<div class="testimonial-box">
+								@php
+									$isEven = $i % 2 === 0;
+								@endphp
+		
+								@if($i < $testimonialCount)
+									{{-- Real testimonial --}}
+									@php $t = $testimonials[$i]; @endphp
+									@if($isEven)
+										<div class="testimonial-content bg-lavender mb-15">
+											{{ $t->description }}
+										</div>
+										<div class="testimonial-img bg-blue">
+											<img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
+										</div>
+									@else
+										<div class="testimonial-img bg-pink mb-15">
+											<img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
+										</div>
+										<div class="testimonial-content bg-green">
+											{{ $t->description }}
+										</div>
+									@endif
+								@else
+									{{-- Dummy testimonial --}}
+									@if($isEven)
+										<div class="testimonial-content bg-lavender mb-15">
+											This is a sample testimonial. Excellent service and support!
+										</div>
+										<div class="testimonial-img bg-blue">
+											<img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
+										</div>
+									@else
+										<div class="testimonial-img bg-pink mb-15">
+											<img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
+										</div>
+										<div class="testimonial-content bg-green">
+											This is a sample testimonial. Highly recommended!
+										</div>
+									@endif
+								@endif
 							</div>
 						</div>
-					</div>
+					@endfor
+		
 				</div>
-				@endforeach
 			</div>
 		</section>
+		
+		
+		
+		
 		<!-- ====== End of 1.10. Testimonials section ====== -->
 		<!-- END OF TESTIMONIALS -->
 		<!-- testimonials end  -->
 		<!-- blog -->
 		<div class="full-row bg-light py-5 home-blog-section">
 			<div class="container">
-				@foreach($homeblogs as $homeblog)
 				<div class="row heading">
 					<div class="col ">
 						<div class="main_title center ">
 							<span><em></em></span>
 							<h2>Our Recent Blogs</h2>
-							<p>{{ $homeblog->section_sub_heading }}</p>
+							<p>Explore our blogs</p>
 						</div>
 					</div>
 				</div>
 				<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
-					<div class="col-sm-12">
-						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-							<a href="blog-post.html">
-								<div class="post-image position-relative overlay-secondary">
-									<img src="{{ asset('storage/'.$homeblog->image1) }}" alt="Testimonial Image">
-
-									<!-- <div class="position-absolute xy-center">
-										<div class="overflow-hidden text-center">
-											<a class="text-white first-push-up transation font-large" href="#">+</a>
-										</div>
-									</div> -->
-								</div>
-							</a>
-							<div class="post-content p-35">
-								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">{{ $homeblog->heading1 }}</a></h5>
-								<p>{{ $homeblog->description1 }}</p>
-								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>{{ $homeblog->by_whom1 }}</span></a>
-									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
+					@foreach ($blogs as $blog)
+						<div class="col-sm-12">
+							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
+								<a href="{{ url('/blog/' . $blog->id) }}">
+									<div class="post-image position-relative overlay-secondary">
+										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid">
+									</div>
+								</a>
+								<div class="post-content p-35">
+									<h5 class="d-block font-400 mb-3">
+										<a href="{{ url('/blog/' . $blog->id) }}" class="transation text-dark hover-text-primary">
+											{{ $blog->title }}
+										</a>
+									</h5>
+									<p>{{ $blog->description_short }}</p>
+									<div class="post-meta text-uppercase">
+										<a href="#"><span>{{ $blog->created_by }}</span></a>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-							<a href="blog-post.html">
-								<div class="post-image position-relative overlay-secondary">
-									<img src="{{ asset('storage/'.$homeblog->image2) }}" alt="Testimonial Image">
-									<!-- <div class="position-absolute xy-center">
-										<div class="overflow-hidden text-center">
-											<a class="text-white first-push-up transation font-large" href="#">+</a>
-										</div>
-									</div> -->
-								</div>
-							</a>
-							<div class="post-content p-35">
-								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">{{ $homeblog->heading2 }}</a></h5>
-								<p>{{ $homeblog->description2 }}</p>
-								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>{{ $homeblog->by_whom2 }}</span></a>
-									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-sm-12">
-						<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-							<a href="blog-post.html">
-								<div class="post-image position-relative overlay-secondary">
-									<img src="{{ asset('storage/'.$homeblog->image3) }}" alt="Testimonial Image">
-									<!-- <div class="position-absolute xy-center">
-										<div class="overflow-hidden text-center">
-											<a class="text-white first-push-up transation font-large" href="#">+</a>
-										</div>
-									</div> -->
-								</div>
-							</a>
-							<div class="post-content p-35">
-								<h5 class="d-block font-400 mb-3"><a href="blog-post.html"
-										class="transation text-dark hover-text-primary">{{ $homeblog->heading3 }}</a></h5>
-								<p>{{ $homeblog->description3 }}</p>
-								<div class="post-meta text-uppercase">
-									<a href="blog-post.html"><span>{{ $homeblog->by_whom3 }}</span></a>
-									{{-- <a href="blog-post.html"><span>Dec 25, 2019</span></a> --}}
-								</div>
-							</div>
-						</div>
-					</div>
+					@endforeach
 				</div>
+				
 
 				<div class="button-div">
 					<a href="blog.html" class="btn_1 medium">Discover More</a>
 				</div>
 
-				@endforeach
 			</div>
 		</div>
 		<!-- end blog  -->
@@ -1191,5 +788,9 @@
 			showQuestion(currentQuestion);
 		});
 	</script>
+	<script>
+
+</script>
+
 	
  @endsection
