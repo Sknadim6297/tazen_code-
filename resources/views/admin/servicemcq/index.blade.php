@@ -29,68 +29,90 @@
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
                         <div class="card-title">
-                            Total Tasks
+                            Add only 5 MCQ questions per service
                         </div>
+                        @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        @endif
+
+                        @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        @endif
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create About Us</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Testimonials</button>
                             <!-- Start::add task modal -->
+                            
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <form action="{{ route('admin.aboutus.store') }}" method="POST" enctype="multipart/form-data">
+                                    {{-- Show Success or Error Messages --}}
+                                    
+                                    <form action="{{ route('admin.servicemcq.store') }}" method="POST">
                                         @csrf
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h6 class="modal-title">Add About Us Info</h6>
+                                                <h6 class="modal-title">Add MCQ Question for Service</h6>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                     
                                             <div class="modal-body px-4">
                                                 <div class="row gy-3">
-                                                    {{-- Heading --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="heading" class="form-label">Heading</label>
-                                                        <input type="text" class="form-control" id="heading" name="heading" placeholder="Enter Heading" required>
-                                                    </div>
                                     
-                                                    {{-- Year of Experience --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="year_of_experience" class="form-label">Year of Experience</label>
-                                                        <input type="number" class="form-control" id="year_of_experience" name="year_of_experience" placeholder="Enter Years of Experience" required>
-                                                    </div>
-                                    
-                                                    {{-- Description --}}
+                                                    {{-- Service Name Dropdown --}}
                                                     <div class="col-xl-12">
-                                                        <label for="description" class="form-label">Description</label>
-                                                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter Description" required></textarea>
+                                                        <label for="service_id" class="form-label">Select Service</label>
+                                                        <select name="service_id" id="service_id" class="form-control" required>
+                                                            <option value="">-- Select a Service --</option>
+                                                            @foreach($services as $service)
+                                                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                     
-                                                    {{-- Line 1 --}}
+                                                    {{-- One Question and 4 Answers --}}
+                                                    <div class="col-xl-12 mt-4">
+                                                        <label class="form-label">Question</label>
+                                                        <input type="text" class="form-control" name="question" placeholder="Enter Question" required>
+                                                    </div>
+                                    
                                                     <div class="col-xl-6">
-                                                        <label for="line1" class="form-label">Line 1</label>
-                                                        <input type="text" class="form-control" id="line1" name="line1" placeholder="Enter Line 1">
+                                                        <label class="form-label">Answer 1</label>
+                                                        <input type="text" class="form-control" name="answer1" placeholder="Answer 1" required>
                                                     </div>
                                     
-                                                    {{-- Line 2 --}}
                                                     <div class="col-xl-6">
-                                                        <label for="line2" class="form-label">Line 2</label>
-                                                        <input type="text" class="form-control" id="line2" name="line2" placeholder="Enter Line 2">
+                                                        <label class="form-label">Answer 2</label>
+                                                        <input type="text" class="form-control" name="answer2" placeholder="Answer 2" required>
                                                     </div>
                                     
-                                                    {{-- Image --}}
-                                                    <div class="col-xl-12">
-                                                        <label for="image" class="form-label">Upload Image</label>
-                                                        <input type="file" class="form-control" name="image" id="image" accept="image/*">
+                                                    <div class="col-xl-6">
+                                                        <label class="form-label">Answer 3</label>
+                                                        <input type="text" class="form-control" name="answer3" placeholder="Answer 3" required>
                                                     </div>
+                                    
+                                                    <div class="col-xl-6">
+                                                        <label class="form-label">Answer 4</label>
+                                                        <input type="text" class="form-control" name="answer4" placeholder="Answer 4" required>
+                                                    </div>
+                                    
                                                 </div>
                                             </div>
                                     
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">Add</button>
+                                                <button type="submit" class="btn btn-primary">Save</button>
                                             </div>
                                         </div>
                                     </form>
-                                                                       
+                                    
+                                    
+                                    
+                                                                      
                                 </div>
                             </div>
                         </div>
@@ -101,46 +123,38 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Heading</th>
-                                        <th>Description</th>
-                                        <th>Line 1</th>
-                                        <th>Line 2</th>
-                                        <th>Year of Experience</th>
-                                        <th>Image</th>
-                                        <th>Created At</th>
+                                        <th>Service Name</th>
+                                        <th>Question</th>
+                                        <th>Answer 1</th>
+                                        <th>Answer 2</th>
+                                        <th>Answer 3</th>
+                                        <th>Answer 4</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 
                                 <tbody>
-                                    @foreach ($aboutuses as $key => $about)
+                                    @foreach($servicemcqs as $index => $mcq)
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>{{ $about->heading }}</td>
-                                            <td>{{ $about->description }}</td>
-                                            <td>{{ $about->line1 }}</td>
-                                            <td>{{ $about->line2 }}</td>
-                                            <td>{{ $about->year_of_experience }} years</td>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $mcq->service->name ?? 'N/A' }}</td>
+                                            <td>{{ $mcq->question }}</td>
+                                            <td>{{ $mcq->answer1 }}</td>
+                                            <td>{{ $mcq->answer2 }}</td>
+                                            <td>{{ $mcq->answer3 }}</td>
+                                            <td>{{ $mcq->answer4 }}</td>
                                             <td>
-                                                @if ($about->image)
-                                                    <img src="{{ asset('uploads/aboutus/' . $about->image) }}" alt="About Image" style="height: 60px;">
-                                                @else
-                                                    N/A
-                                                @endif
-                                            </td>
-                                            <td>{{ $about->created_at->format('d M Y') }}</td>
-                                            <td>
-                                                <a href="{{ route('admin.aboutus.edit', $about->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                                <form action="{{ route('admin.aboutus.destroy', $about->id) }}" method="POST" style="display:inline;">
+                                                <a href="{{ route('admin.servicemcq.edit', $mcq->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                
+                                                <form action="{{ route('admin.servicemcq.destroy', $mcq->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                                    <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-sm btn-danger">Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                
                                 
                             </table>
                         </div>

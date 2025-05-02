@@ -31,7 +31,7 @@
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="details-event">
-                            <h3>{{ $event->event_name }}</h3>
+                            <h3>{{ $event->eventDetails->heading }}</h3>
                             <p>{{ $event->event_type }}</p>
                         </div>
                     </div>

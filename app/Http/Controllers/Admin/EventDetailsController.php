@@ -15,8 +15,10 @@ class EventDetailsController extends Controller
         $eventdetails = EventDetail::latest()->get();
         $allevents = AllEvent::latest()->get(); // Fetch all events
         $events = EventDetail::with('event')->get();
+        
+        
 
-        return view('admin.eventdetails.index', compact('eventdetails','allevents'));
+        return view('admin.eventdetails.index', compact('eventdetails','allevents','events'));
     }
 
     public function create()

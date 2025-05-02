@@ -1,3 +1,9 @@
+@extends('admin.layouts.layout')
+@section('content')
+<div class="main-content app-content">
+   
+</div>
+@endsection
 @extends('professional.layout.layout')
 
 @section('styles')

@@ -13,6 +13,7 @@ class EventController extends Controller
     public function show($id)
     {
         $event = Event::findOrFail($id); // Fetch event by ID
+        dd($event);
         $eventfaqs = EventFAQ::latest()->get();
         
         return view('frontend.sections.allevent', compact('event','eventfaqs')); // Pass event to view
