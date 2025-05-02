@@ -4,25 +4,12 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description"
-		content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
+	<meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
 	<meta name="author" content="Ansonika">
-	<title>Find a Professional and Book a Consultation by Appointment, Chat or Video call</title>
+	<title>Tazen</title>
 
-	<!-- Favicons-->
-	<link rel="shortcut icon" href="img/favicon.jpg" type="image/x-icon">
-	<link rel="apple-touch-icon" type="image/x-icon" href="img/apple-touch-icon-57x57-precomposed.png">
-	<link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="img/apple-touch-icon-72x72-precomposed.png">
-	<link rel="apple-touch-icon" type="image/x-icon" sizes="114x114"
-		href="img/apple-touch-icon-114x114-precomposed.png">
-	<link rel="apple-touch-icon" type="image/x-icon" sizes="144x144"
-		href="img/apple-touch-icon-144x144-precomposed.png">
-	<!-- font awasome  -->
+	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css">
-	<!-- BASE CSS -->
-	<link href="{{ asset('frontend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
-<link href="{{ asset('frontend/assets/css/style.css') }}" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/form.css') }}">
 
 <!-- SPECIFIC CSS -->
 <link href="{{ asset('frontend/assets/css/home.css') }}" rel="stylesheet">
@@ -55,153 +42,23 @@
 	<!-- slick slider css  -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
-	<!-- Include Owl Carousel CSS and JS -->
-	<link rel="stylesheet"
-		href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-	<link rel="stylesheet"
-		href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 
+	<!-- Project CSS -->
+	<link href="{{ asset('frontend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/style.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/form.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/home.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/new-style.css') }}" rel="stylesheet">
+	<link href="{{ asset('frontend/assets/css/layout.css') }}" rel="stylesheet">
 
+	@yield('styles')
 
-	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-		body {
-			font-family: "Poppins";
-		}
-	</style>
-
-
-
-	<style>
-		.service-container .card {
-			position: relative;
-			/* cursor: pointer; */
-			border-radius: 12px;
-		}
-
-
-		.service-container .card .card-body {
-			height: 420px;
-			/* position: relative; */
-			cursor: pointer;
-		}
-
-		.service-container .card .info {
-			position: absolute;
-			bottom: 0;
-			left: 0;
-			background: transparent;
-			width: 100%;
-			/* text-align: right; */
-			padding: 6px;
-
-			border-top: 0;
-			border-bottom: 0;
-			opacity: 1;
-			/* transition: 0.3s ease; */
-		}
-
-		.service-container .card .info .content-discover {
-			display: flex;
-			border-radius: 6px;
-			background: #ffffff;
-
-		}
-
-		.service-container .card .info .content-discover .l {
-			text-align: start;
-			width: 60%;
-			align-content: center;
-		}
-
-		.service-container .card .info .content-discover .r {
-			margin-right: 8px;
-			text-align: end;
-			width: 40%;
-		}
-
-		/* .service-container .card:hover .info{
-
-	opacity: 1;
-   transition: 0.3s ease;
-   bottom: 0px;
-
-  } */
-
-		.service-container .card .info .text-dark {
-			text-transform: uppercase;
-			font-size: 15px !important;
-			font-weight: 550;
-			margin-bottom: 0px;
-		}
-
-		.service-container .card .one {
-			background-image: url(img/professionals_photos/seven-services/career-consultant.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .two {
-			background-image: url(img/professionals_photos/seven-services/interior-design-service.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .three {
-			background-image: url(img/services-pic/astro-service.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .four {
-			background-image: url(img/services-pic/yoga-consult.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .five {
-			background-image: url(img/services-pic/stylish-consutant.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .six {
-			background-image: url(img/professionals_photos/seven-services/Influencer-consulating.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .seven {
-			background-image: url(img/professionals_photos/seven-services/psychology-consulting.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-
-		.service-container .card .eight {
-			background-image: url(img/professionals_photos/seven-services/food-dietician.jpg);
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			border-radius: 12px;
-		}
-	</style>
+	<!-- Bootstrap Bundle -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 	<style>
 		.item  {
 		  display: block;
@@ -266,52 +123,31 @@
 </head>
 
 <body>
+
 	@include('frontend.sections.header')
-          @yield('content')
+
+	@yield('content')
+
 	@include('frontend.sections.footer')
 
-      @yield('script')
+	@yield('script')
+
+	<!-- External JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
-
-
-<script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/common_func.js') }}"></script>
-<script src="{{ asset('frontend/assets/validate.js') }}"></script>
-
-<!-- SPECIFIC SCRIPTS -->
-<script src="{{ asset('frontend/assets/js/modernizr.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/video_header.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/job-career-business.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/main_map_scripts.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/specific_listing.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/sticky_sidebar.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/datepicker_func_1.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/datepicker.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/specific_detail.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/details.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/isotope.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/isotope.pkgd.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/slick.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/owl2.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/custom2.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/aos.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/swiper-bundle.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/swiper.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/waypoints.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/slide-two.js') }}"></script>
-<script src="{{ asset('frontend/assets/js/jquery.cookiebar.js') }}"></script>
-
-
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
-
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+	<!-- Project JS -->
+	<script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/common_func.js') }}"></script>
+	<script src="{{ asset('frontend/assets/validate.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/sticky_sidebar.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/datepicker_func_1.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/datepicker.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/specific_detail.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/jquery.cookiebar.js') }}"></script>
 	<script>
 		$(document).ready(function () {
 			$('.slick_slider').slick();
@@ -678,6 +514,4 @@ if (fullText.style.display === "none") {
 	
 	
 </body>
-
 </html>
-
