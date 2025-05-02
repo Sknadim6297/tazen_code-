@@ -2,6 +2,10 @@
 @section('styles')
    <link rel="preload" href="{{ asset('frontend/assets/css/detail-page.css') }}" as="style">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/detail-page.css') }}">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
     <style>
         	/* Appointment Types Container */
 		.appointment_types {
@@ -234,7 +238,6 @@
                                         <div class="indent_title_in">
                                             <i class="icon_document_alt"></i>
                                             <h3>Services</h3>
-                                            <p>Mussum ipsum cacilds, vidis litro abertis.</p>
                                         </div>
                                         <div class="wrapper_indent">
                                             <p>Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Nullam mollis. Phasellus hendrerit.</p>
@@ -242,7 +245,7 @@
                                             <div class="services_list clearfix">
                                                 <ul>
                                                     <li>Cardiological examination with ECG <strong><small>from</small> $80</strong></li>
-                                                    <li>Echocardiogram <strong><small>from</small> 110$</strong></li>
+                                                    <li>Echocardiogram <strong><small>from</small> $110</strong></li>
                                                     <li>Electrocardiogram or ECG <strong><small>from</small> $95</strong></li>
                                                 </ul>
                                             </div>
@@ -577,9 +580,11 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- /type -->
-                        <input type="text" id="datepicker_field">
-                        <div id="DatePicker"></div>
+                        <div class="form-group">
+                        <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none" />
+                        <div id="calendarDiv"></div>
+                        </div>
+
                         <div class="dropdown time">
                             <a href="#" data-bs-toggle="dropdown">Hour <span id="selected_time"></span></a>
                             <div class="dropdown-menu">
@@ -624,6 +629,7 @@
             </div>
             @endsection
             @section('script')
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     // const professionalName=document.getElementById('professional_name');
@@ -650,7 +656,7 @@
     const selectedTimeRadio = document.querySelector('input[name="time"]:checked');
     const timeSlot = selectedTimeRadio ? selectedTimeRadio.value : null;
     const planType = selectedPlanInput.value;
-    const bookingDate = document.getElementById('datepicker_field').value;
+    const bookingDate = document.getElementById('rangeInput').value;
 
     const professionalName = document.getElementById('professional_name').textContent.trim();
     const professionalAddress = document.getElementById('professional_address').textContent.trim();
@@ -666,26 +672,25 @@
         time_slot: timeSlot,
     });
     
-
     if (!planType) {
-        alert('Please select a consultation plan.');
+        toastr.error('Please select a consultation plan.');
         return;
     }
 
     if (!bookingDate) {
-        alert('Please select a booking date.');
+        toastr.error('Please select a booking date.');
         return;
     }
 
     if (!timeSlot) {
-        alert('Please select a time slot.');
+        toastr.error('Please select a time slot.');
         return;
     }
 
     fetch("{{ route('user.booking.session.store') }}", {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
@@ -734,7 +739,45 @@
         }
     });
 
-
             </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let enabledDates = @json($enabledDates);
+        function formatLocalDate(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - offset * 60 * 1000);
+            return localDate.toISOString().split('T')[0];
+        }
+    
+        flatpickr("#calendarDiv", {
+            inline: true,
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: [
+                function (date) {
+                    const dateString = formatLocalDate(date);
+                    return !enabledDates.includes(dateString) || date.getDay() === 0; 
+                }
+            ],
+    
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+                const date = dayElem.dateObj;
+                const dateString = formatLocalDate(date);
+    
+                if (enabledDates.includes(dateString) && date.getDay() !== 0) {
+                    dayElem.style.backgroundColor = '#28a745';
+                    dayElem.style.color = 'white';
+                }
+            },
+    
+            onChange: function (selectedDates, dateStr, instance) {
+                document.getElementById('rangeInput').value = dateStr;
+            }
+        });
+    });
+    </script>
+
             @endsection
             

@@ -32,8 +32,6 @@
                             <th>Description</th>
                             <th>Tags</th>
                             <th>Client Requirements</th>
-                            <th>Most Requested Services</th>
-                            <th>Most Requested Services Upto Price</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -53,8 +51,6 @@
         <td>{{ Str::limit($service->description, 50) }}</td>
         <td>{{ $service->tags }}</td>
         <td>{{ $service->requirements }}</td>
-        <td>{{ $service->most_requested_services }}</td>
-        <td>{{ $service->most_requested_services_upto_price }}</td>
         <td>
             <div style="display: flex; gap: 10px;">
         
