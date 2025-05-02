@@ -25,40 +25,29 @@
                         <div class="card-title">Edit Testimonial</div>
                     </div>
                     <div class="card-body p-4">
-                        <form action="{{ route('admin.admin.testimonial.update', $testimonial->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.testimonials.update', $testimonial->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
                             <div class="row gy-3">
-                                <!-- Section Sub Heading -->
-                                <div class="col-xl-12">
-                                    <label for="section_sub_heading" class="form-label">Section Sub Heading</label>
-                                    <input type="text" class="form-control" name="section_sub_heading" id="section_sub_heading" value="{{ old('section_sub_heading', $testimonial->section_sub_heading) }}" placeholder="Enter Sub Heading">
+                                <!-- Image -->
+                                <div class="col-xl-6">
+                                    <label for="image" class="form-label">Image</label>
+                                    <input type="file" class="form-control" name="image" id="image">
+                                    @if($testimonial->image)
+                                        <img src="{{ asset('storage/' . $testimonial->image) }}" width="100" class="mt-2">
+                                    @endif
                                 </div>
 
-                                <!-- Testimonial Fields -->
-                                @for ($i = 1; $i <= 4; $i++)
-                                    <div class="col-xl-12 mt-4">
-                                        <h6>Testimonial {{ $i }}</h6>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <label for="image{{ $i }}" class="form-label">Image {{ $i }}</label>
-                                        <input type="file" class="form-control" name="image{{ $i }}" id="image{{ $i }}">
-                                        @if($testimonial->{'image'.$i})
-                                            <img src="{{ asset('storage/' . $testimonial->{'image' . $i}) }}" width="100" class="mt-2">
-                                        @endif
-                                    </div>
-
-                                    <div class="col-xl-12">
-                                        <label for="description{{ $i }}" class="form-label">Description {{ $i }}</label>
-                                        <textarea class="form-control" name="description{{ $i }}" id="description{{ $i }}" rows="3" placeholder="Enter Description">{{ old('description' . $i, $testimonial->{'description' . $i}) }}</textarea>
-                                    </div>
-                                @endfor
+                                <!-- Description -->
+                                <div class="col-xl-12">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" id="description" rows="3" placeholder="Enter Description" required>{{ old('description', $testimonial->description) }}</textarea>
+                                </div>
                             </div>
 
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <div class="modal-footer mt-4">
+                                <a href="{{ route('admin.testimonials.index') }}" class="btn btn-light">Cancel</a>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </div>
                         </form>

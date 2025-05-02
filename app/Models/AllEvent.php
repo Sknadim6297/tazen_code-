@@ -16,4 +16,8 @@ class AllEvent extends Model
         'short_description',
         'starting_fees',
     ];
+    public function eventDetails()
+{
+    return $this->belongsTo(AllEvent::class, 'event_id');
+}
 }

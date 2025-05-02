@@ -7,5 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
+    use HasFactory;
+
     protected $table = 'event_details';
+
+    public function eventDetails()
+    {
+        return $this->belongsTo(AllEvent::class, 'event_id');
+    }
 }

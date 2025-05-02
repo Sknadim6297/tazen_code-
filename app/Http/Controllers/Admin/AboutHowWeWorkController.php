@@ -62,24 +62,47 @@ class AboutHowWeWorkController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    $howwework = AboutHowWeWork::findOrFail($id);
+    return view('admin.abouthowweworks.edit', compact('howwework'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'section_heading' => 'required|string',
+        'section_sub_heading' => 'nullable|string',
+        'content_heading' => 'nullable|string',
+        'content_sub_heading' => 'nullable|string',
+
+        'step1_heading' => 'nullable|string',
+        'step1_description' => 'nullable|string',
+        'step2_heading' => 'nullable|string',
+        'step2_description' => 'nullable|string',
+        'step3_heading' => 'nullable|string',
+        'step3_description' => 'nullable|string',
+        'step4_heading' => 'nullable|string',
+        'step4_description' => 'nullable|string',
+    ]);
+
+    $howwework = AboutHowWeWork::findOrFail($id);
+    $howwework->update($validated);
+
+    return redirect()->route('admin.abouthowweworks.index')->with('success', 'How We Work updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function destroy($id)
+{
+    $howwework = AboutHowWeWork::findOrFail($id);
+    $howwework->delete();
+
+    return redirect()->route('admin.abouthowweworks.index')->with('success', 'How We Work deleted successfully.');
+}
 }

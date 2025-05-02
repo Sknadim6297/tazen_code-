@@ -98,24 +98,52 @@ class ServiceDetailsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
+    public function edit($id)
+{
+    $serviceDetail = ServiceDetails::findOrFail($id);
+    $services = Service::all();
+    return view('admin.service-details.edit', compact('serviceDetail', 'services'));
+}
+
+public function update(Request $request, $id)
+{
+    $detail = ServiceDetail::findOrFail($id);
+
+    $detail->service_id = $request->service_id;
+    $detail->banner_heading = $request->banner_heading;
+    $detail->banner_sub_heading = $request->banner_sub_heading;
+    $detail->about_heading = $request->about_heading;
+    $detail->about_subheading = $request->about_subheading;
+    $detail->about_description = $request->about_description;
+    $detail->how_it_works_subheading = $request->how_it_works_subheading;
+    $detail->content_heading = $request->content_heading;
+    $detail->content_sub_heading = $request->content_sub_heading;
+
+    for ($i = 1; $i <= 3; $i++) {
+        $detail->{'step'.$i.'_heading'} = $request->{'step'.$i.'_heading'};
+        $detail->{'step'.$i.'_description'} = $request->{'step'.$i.'_description'};
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+    // Handle file uploads
+    foreach (['banner_image', 'about_image', 'background_image'] as $field) {
+        if ($request->hasFile($field)) {
+            $detail->$field = $request->file($field)->store('uploads/services', 'public');
+        }
     }
+
+    $detail->save();
+    return redirect()->back()->with('success', 'Service details updated successfully.');
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function destroy($id)
+{
+    $detail = ServiceDetail::findOrFail($id);
+    $detail->delete();
+    return redirect()->back()->with('success', 'Service details deleted successfully.');
+}
+
 }

@@ -19,6 +19,10 @@ use App\Http\Controllers\Admin\LogoController;
 use App\Http\Controllers\Admin\MCQController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\AllEventController;
+use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\ServiceMCQController;
+
+
 use App\Http\Controllers\Admin\ProfessionalRequestedController;
 use App\Http\Controllers\frontend\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -57,12 +61,9 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::resource('whychoose', WhychooseController::class);
 
-    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-        Route::get('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'index'])->name('testimonial.index');
-        Route::post('/testimonial', [\App\Http\Controllers\Admin\TestimonialController::class, 'store'])->name('testimonial.store');
-    });
-
-    Route::resource('testimonial', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonial');
+    Route::resource('testimonials', TestimonialController::class);
+    Route::get('/admin/testimonials', [TestimonialController::class, 'index'])->name('admin.testimonials.index');
+    Route::resource('servicemcq', ServiceMCQController::class);
 
 
 

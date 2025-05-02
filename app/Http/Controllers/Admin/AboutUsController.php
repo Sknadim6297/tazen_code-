@@ -39,10 +39,11 @@ class AboutUsController extends Controller
         return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry created successfully.');
     }
 
-    public function edit(AboutUs $aboutus)
-    {
-        return view('admin.aboutus.edit', compact('aboutus'));
-    }
+    public function edit($id)
+{
+    $about = AboutUs::findOrFail($id);
+    return view('admin.aboutus.edit', compact('about'));
+}
 
     public function update(Request $request, AboutUs $aboutus)
     {
@@ -64,9 +65,13 @@ class AboutUsController extends Controller
         return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry updated successfully.');
     }
 
-    public function destroy(AboutUs $aboutus)
-    {
-        $aboutus->delete();
-        return redirect()->route('admin.aboutus.index')->with('success', 'About Us entry deleted successfully.');
+    public function destroy($id)
+{
+    $about = AboutUs::findOrFail($id);
+    if ($about->image && file_exists(public_path('uploads/aboutus/' . $about->image))) {
+        unlink(public_path('uploads/aboutus/' . $about->image));
     }
+    $about->delete();
+    return back()->with('success', 'Deleted successfully.');
+}
 }

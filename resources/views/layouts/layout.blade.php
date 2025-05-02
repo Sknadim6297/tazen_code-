@@ -428,5 +428,90 @@ if (fullText.style.display === "none") {
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+	let currentQuestion = 1;
+	const totalQuestions = 5;
+	
+	function showQuestion(num) {
+		$('.question').hide();
+		$('#question' + num).show();
+	
+		$('#prevBtn').toggle(num > 1);
+		$('#nextBtn').toggle(num < totalQuestions);
+		$('#submitBtn').toggle(num === totalQuestions);
+	}
+	
+	$('.book-now-btn').on('click', function () {
+		const serviceId = $(this).data('service-id');
+	
+		// Reset navigation
+		currentQuestion = 1;
+	
+		$.ajax({
+			url: `/get-mcqs/${serviceId}`,
+			method: 'GET',
+			success: function (mcq) {
+				if (mcq) {
+					// Fill the questions
+					$('#question1 h6').text('Question 1: ' + mcq.question1);
+					$('#q1a').next().text(mcq.option1_a);
+					$('#q1b').next().text(mcq.option1_b);
+					$('#q1c').next().text(mcq.option1_c);
+					$('#q1d').next().text(mcq.option1_d);
+	
+					$('#question2 h6').text('Question 2: ' + mcq.question2);
+					$('#q2a').next().text(mcq.option2_a);
+					$('#q2b').next().text(mcq.option2_b);
+					$('#q2c').next().text(mcq.option2_c);
+					$('#q2d').next().text(mcq.option2_d);
+	
+					$('#question3 h6').text('Question 3: ' + mcq.question3);
+					$('#q3a').next().text(mcq.option3_a);
+					$('#q3b').next().text(mcq.option3_b);
+					$('#q3c').next().text(mcq.option3_c);
+					$('#q3d').next().text(mcq.option3_d);
+	
+					$('#question4 h6').text('Question 4: ' + mcq.question4);
+					$('#q4a').next().text(mcq.option4_a);
+					$('#q4b').next().text(mcq.option4_b);
+					$('#q4c').next().text(mcq.option4_c);
+					$('#q4d').next().text(mcq.option4_d);
+	
+					$('#question5 h6').text('Question 5: ' + mcq.question5);
+					$('#mcqForm textarea[name="q5"]').val('');
+	
+					showQuestion(currentQuestion);
+				}
+			}
+		});
+	});
+	
+	$('#nextBtn').on('click', function () {
+		if (currentQuestion < totalQuestions) {
+			currentQuestion++;
+			showQuestion(currentQuestion);
+		}
+	});
+	
+	$('#prevBtn').on('click', function () {
+		if (currentQuestion > 1) {
+			currentQuestion--;
+			showQuestion(currentQuestion);
+		}
+	});
+	
+	$('#submitBtn').on('click', function () {
+		// You can handle form submission here
+		alert('Form submitted!');
+		$('#mcqModal').modal('hide');
+	});
+	$.get('/get-mcq-questions/' + serviceId, function(data) {
+    // fill the modal content with MCQ questions
+    $('#mcqModal .modal-body').html(data);
+    $('#mcqModal').modal('show');
+});
+	</script>
+	
+	
 </body>
 </html>

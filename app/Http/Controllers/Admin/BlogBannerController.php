@@ -73,24 +73,59 @@ class BlogBannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    $banner = BlogBanner::findOrFail($id);
+    return view('admin.blogbanners.edit', compact('banner'));
+}
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, $id)
+{
+    $banner = BlogBanner::findOrFail($id);
+
+    $validated = $request->validate([
+        'heading' => 'required|string|max:255',
+        'subheading' => 'nullable|string|max:255',
+        // 'status' => 'required|in:active,inactive',
+        'banner_image' => 'nullable|image|max:2048',
+    ]);
+
+    if ($request->hasFile('banner_image')) {
+        // Optionally delete old image
+        if ($banner->banner_image && file_exists(public_path('uploads/blog_banners/' . $banner->banner_image))) {
+            unlink(public_path('uploads/blog_banners/' . $banner->banner_image));
+        }
+
+        $imageName = time() . '.' . $request->banner_image->extension();
+        $request->banner_image->move(public_path('uploads/blog_banners'), $imageName);
+        $validated['banner_image'] = $imageName;
     }
+
+    $banner->update($validated);
+
+    return redirect()->route('admin.blogbanners.index')->with('success', 'Banner updated successfully!');
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($id)
+{
+    $banner = BlogBanner::findOrFail($id);
+
+    // Delete the image
+    if ($banner->banner_image && file_exists(public_path('uploads/blog_banners/' . $banner->banner_image))) {
+        unlink(public_path('uploads/blog_banners/' . $banner->banner_image));
     }
+
+    $banner->delete();
+
+    return redirect()->route('admin.blogbanners.index')->with('success', 'Banner deleted successfully!');
+}
+
 }

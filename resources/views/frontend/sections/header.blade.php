@@ -53,42 +53,31 @@
             </li> -->
 
             <li class="submenu">
-                <a href="#0" class="show-submenu">Listing</a>
-                <ul>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/work-life-balance.png') }}" alt="">
-                        <a href="{{ url('/job') }}">Job, Career and Business</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/interior-designer.png') }}" alt="">
-                        <a href="{{ url('/interiordesign') }}">Interior Designer</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/horoscope.png') }}" alt="">
-                        <a href="{{ url('/astro') }}">Astrologer/Priest</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/cardio.png') }}" alt="">
-                        <a href="{{ url('/fitness') }}">Fitness Yoga Zumba Weight Training</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/designer.png') }}" alt="">
-                        <a href="{{ url('/stylist') }}">Style / Image Consultant</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/influencer.png') }}" alt="">
-                        <a href="{{ url('/influencer') }}">Influencers for Business</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/psychologist.png') }}" alt="">
-                        <a href="{{ url('/pshychology') }}">Psychologist</a>
-                    </li>
-                    <li>
-                        <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/dieticians.png') }}" alt="">
-                        <a href="{{ url('/dieticians') }}">Dieticians</a>
-                    </li>
-                </ul>
+    <a href="#0" class="show-submenu">Listing</a>
+    <ul>
+        @foreach ($services as $service)
+            @php
+                $icons = [
+                    1 => 'work-life-balance.png',
+                    2 => 'interior-designer.png',
+                    3 => 'horoscope.png',
+                    4 => 'cardio.png',
+                    5 => 'designer.png',
+                    6 => 'influencer.png',
+                    7 => 'psychologist.png',
+                    8 => 'dieticians.png',
+                ];
+                $icon = $icons[$service->id] ?? 'default.png';
+            @endphp
+            <li>
+                <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/' . $icon) }}" alt="{{ $service->name }}">
+                <a href="{{ url('/service/' . $service->id) }}">{{ $service->name }}</a>
             </li>
+        @endforeach
+    </ul>
+</li>
+
+            
 
 
                 <!-- <li class="submenu">
