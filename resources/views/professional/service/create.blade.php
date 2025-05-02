@@ -110,16 +110,7 @@
                 <label for="serviceRequirements">Client Requirements</label>
                 <textarea name="serviceRequirements" id="serviceRequirements" class="form-control" placeholder="List any requirements clients should know before booking" rows="3"></textarea>
             </div>
-         <div style="display: flex; gap: 20px;">
-            <div class="form-group">
-                <label for="MostServiceName">Most requested services *</label>
-                <input type="text" name="MostServiceName[]" class="form-control" placeholder="Enter service name" required>
-            </div>
-            <div class="form-group">
-                <label for="servicePrice">Most requested services upto price *</label>
-                <input type="text" name="servicePrice[]" class="form-control" placeholder="Enter price" required>
-            </div>
-         </div>
+    
             <div class="form-actions">
                 <button type="button" class="btn btn-outline">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Service</button>
