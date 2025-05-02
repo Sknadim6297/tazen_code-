@@ -41,39 +41,32 @@
                         <h4>Latest Post</h4>
                     </div>
                     <ul class="comments-list">
+                        @foreach($latestBlogs as $latestBlog)
                         <li>
                             <div class="alignleft">
-                                <a href="#0"><img src="img/blog-5.jpg" alt=""></a>
+                                <a href="{{ route('blog.show', $latestBlog->id) }}">
+                                    <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
+                                </a>
                             </div>
-                            <small>Category - 11.08.2016</small>
-                            <h3><a href="#" title="">Verear qualisque ex minimum...</a></h3>
+                            <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
+                            <p><b>{{ $latestBlog->blog->title }}</b></p>
+                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
                         </li>
-                        <li>
-                            <div class="alignleft">
-                                <a href="#0"><img src="img/blog-6.jpg" alt=""></a>
-                            </div>
-                            <small>Category - 11.08.2016</small>
-                            <h3><a href="#" title="">Verear qualisque ex minimum...</a></h3>
-                        </li>
-                        <li>
-                            <div class="alignleft">
-                                <a href="#0"><img src="img/blog-4.jpg" alt=""></a>
-                            </div>
-                            <small>Category - 11.08.2016</small>
-                            <h3><a href="#" title="">Verear qualisque ex minimum...</a></h3>
-                        </li>
+                        @endforeach
                     </ul>
                 </div>
-                <!-- /widget -->
-                <div class="widget">
+                
+                 <!-- /widget -->
+                 <div class="widget">
                     <div class="widget-title">
                         <h4>Categories</h4>
                     </div>
                     <ul class="cats">
-                        <li><a href="#">Dermatology <span>(12)</span></a></li>
-                        <li><a href="#">Consulting <span>(21)</span></a></li>
-                        <li><a href="#">Treatments <span>(44)</span></a></li>
-                        <li><a href="#">Personal care <span>(31)</span></a></li>
+                        @foreach($categoryCounts as $category)
+                            <li>
+                                <a href="#">{{ $category->category }} <span>({{ $category->post_count }})</span></a>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
                 <!-- /widget -->
@@ -82,15 +75,12 @@
                         <h4>Popular Tags</h4>
                     </div>
                     <div class="tags">
-                        <a href="#">Lawyer</a>
-                        <a href="#">Accounting</a>
-                        <a href="#">Consulting</a>
-                        <a href="#">Doctors</a>
-                        <a href="#">Best Offers</a>
-                        <a href="#">Languages</a>
-                        <a href="#">Teach</a>
+                        @foreach($categoryCounts as $category)
+                            <a href="#">{{ $category->category }}</a>
+                        @endforeach
                     </div>
                 </div>
+                
                 <!-- /widget -->
             </aside>
             <!-- /aside -->
@@ -99,11 +89,11 @@
             <div class="col-lg-9">
                 <div class="singlepost">
                     <figure><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></figure>
-                    <h1>{{ $blogPost->title }}</h1>
+                    <h1>{{ $relatedBlog->title }}</h1>
                     <div class="postmeta">
                         <ul>
                             <li><a href="#"><i class="icon_folder-alt"></i> {{ $blogPost->category }}</a></li>
-                            <li><i class="icon_calendar"></i> {{ $blogPost->created_at->format('d/m/Y') }}</li>
+                            <li><i class="icon_calendar"></i> {{ $blogPost->published_at }}</li>
                             <li><a href="#"><i class="icon_pencil-edit"></i> {{ $blogPost->author_name }}</a></li>
                             <li><a href="#"><i class="icon_comment_alt"></i> ({{ $blogPost->comment_count ?? 0 }}) Comments</a></li>
                         </ul>

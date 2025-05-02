@@ -60,24 +60,51 @@ class AboutBannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+    $banner = AboutBanner::findOrFail($id);
+    return view('admin.about-banner.edit', compact('banner'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+    $banner = AboutBanner::findOrFail($id);
+
+    $data = $request->validate([
+        'heading' => 'required|string',
+        'sub_heading' => 'nullable|string',
+        // 'status' => 'required|in:active,inactive',
+        'banner_image' => 'nullable|image',
+    ]);
+
+    if ($request->hasFile('banner_image')) {
+        if ($banner->banner_image && file_exists(public_path('uploads/banners/' . $banner->banner_image))) {
+            unlink(public_path('uploads/banners/' . $banner->banner_image));
+        }
+        $filename = time() . '.' . $request->banner_image->extension();
+        $request->banner_image->move(public_path('uploads/banners'), $filename);
+        $data['banner_image'] = $filename;
     }
+
+    $banner->update($data);
+    return redirect()->back()->with('success', 'Banner updated successfully.');
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+    $banner = AboutBanner::findOrFail($id);
+    if ($banner->banner_image && file_exists(public_path('uploads/banners/' . $banner->banner_image))) {
+        unlink(public_path('uploads/banners/' . $banner->banner_image));
+    }
+    $banner->delete();
+    return redirect()->back()->with('success', 'Banner deleted successfully.');
     }
 }

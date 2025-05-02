@@ -116,7 +116,7 @@
                                         <a href="{{ route('admin.whychoose.index') }}" class="side-menu__item">Why Choose us Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.admin.testimonial.index') }}" class="side-menu__item">Testimonials Section</a>
+                                        <a href="{{ route('admin.testimonials.index') }}" class="side-menu__item">Testimonials Section</a>
                                     </li>
                                     <li class="slide">
                                         <a href="{{ route('admin.blogs.index') }}" class="side-menu__item">Blog Section</a>
@@ -125,7 +125,7 @@
                                         <a href="{{ route('admin.howworks.index') }}" class="side-menu__item">How It Works Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.mcq.index') }}" class="side-menu__item">MCQ</a>
+                                        <a href="{{ route('admin.servicemcq.index') }}" class="side-menu__item">MCQ</a>
                                     </li>
                                 </ul>
                             </li>
@@ -203,7 +203,7 @@
                                     </li>
                                 </ul>
 
-                                <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page</a>
+                                
 
                             </li>
 

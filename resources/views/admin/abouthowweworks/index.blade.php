@@ -130,11 +130,12 @@
                                             <td>{{ $item->step4_description }}</td>
                                             <td>
                                                 <a href="{{ route('admin.abouthowweworks.edit', $item->id) }}" class="btn btn-warning">Edit</a>
-                                                <form action="{{ route('admin.abouthowweworks.destroy', $item->id) }}" method="POST" style="display:inline-block;">
+                                                <form action="{{ route('admin.abouthowweworks.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger">Delete</button>
                                                 </form>
+                                                
                                             </td>
                                         </tr>
                                     @endforeach

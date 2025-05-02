@@ -11,7 +11,9 @@ class AllEventController extends Controller
 {
     public function index()
     {
-    $allevents = Allevent::all(); // Fetch all events
+    $allevents = Allevent::all();
+     // Fetch all events
+    // $events = EventPost::with('eventDetails')->get();
     return view('admin.allevents.index', compact('allevents'));
     }
 

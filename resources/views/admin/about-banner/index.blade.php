@@ -122,13 +122,14 @@
                                                 <a href="{{ route('admin.about-banner.edit', $banner->id) }}" class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
-                                                <form action="{{ route('admin.about-banner.destroy', $banner->id) }}" method="POST" style="display:inline;">
+                                                <form action="{{ route('admin.about-banner.destroy', $banner->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this banner?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
                                                         <i class="ri-delete-bin-5-line"></i>
                                                     </button>
                                                 </form>
+                                                
                                             </td>
                                         </tr>
                                     @endforeach

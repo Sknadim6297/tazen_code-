@@ -123,7 +123,7 @@
                                                 <a href="{{ route('admin.service.edit', $service->id) }}" class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
-                                                <form action="{{ route('admin.service.destroy', $service->id) }}" method="POST" style="display:inline;">
+                                                <form action="{{ route('admin.service.destroy', $service->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this service?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
