@@ -66,6 +66,30 @@
 		  height: 400px;
 		  
 		}
+		/* Success toast */
+.toast-success {
+    background-color: #51A351 !important;
+    color: #fff !important;
+}
+
+/* Error toast */
+.toast-error {
+    background-color: #BD362F !important;
+    color: #fff !important;
+}
+
+/* Info toast */
+.toast-info {
+    background-color: #2F96B4 !important;
+    color: #fff !important;
+}
+
+/* Warning toast */
+.toast-warning {
+    background-color: #F89406 !important;
+    color: #fff !important;
+}
+
 		.owl-stage-outer {
 		 height: 550px;
 		}

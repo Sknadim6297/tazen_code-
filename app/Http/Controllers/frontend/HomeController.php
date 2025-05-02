@@ -20,7 +20,8 @@ use App\Models\HomeBlog;
 use App\Models\Howworks;
 use App\Models\ServiceMCQ;
 use App\Models\Blog;
-
+use App\Models\MCQ;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,8 @@ class HomeController extends Controller
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
         return view('frontend.index', compact('services','banners','about_us','whychooses','testimonials','homeblogs','howworks','mcqs','blogs'));
+        $mcqs = MCQ::latest()->get();
+        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs'));
     }
 
 //     public function getServiceQuestions($serviceId)
@@ -106,16 +109,61 @@ public function showServiceQuestions($serviceId)
         $professionals = Professional::with('profile')->where('status', 'accepted')->latest()->get();
         return view('frontend.sections.gridlisting', compact('professionals'));
     }
+
+
     public function professionalsDetails($id)
     {
         $profile = Profile::with('professional')->where('professional_id', $id)->first();
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
-        $services = ProfessionalService::where('professional_id', $id)->with('professional')->get();
+        $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
         $rates = Rate::where('professional_id', $id)->with('professional')->get();
 
-        // dd($profiles, $availabilities, $services, $rates);
-        return view('frontend.sections.professional-details', compact('profile', 'availabilities', 'services', 'rates'));
+        $enabledDates = [];
+
+        // Map weekday string to ISO (1 = Monday, ..., 7 = Sunday)
+        $dayMap = [
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
+            'sun' => 7,
+        ];
+
+        foreach ($availabilities as $availability) {
+            try {
+                $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            $year = Carbon::now()->year;
+
+            $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
+            $end = $start->copy()->endOfMonth();
+            $period = CarbonPeriod::create($start, $end);
+            $decoded = json_decode($availability->weekdays);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded);
+            }
+
+            // Convert to ISO weekdays
+            $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
+            $isoDays = array_filter($isoDays);
+
+            foreach ($period as $date) {
+                if (in_array($date->dayOfWeekIso, $isoDays)) {
+                    $enabledDates[] = $date->toDateString();
+                }
+            }
+        }
+        // dd($enabledDates);
+
+        return view('frontend.sections.professional-details', compact('profile', 'availabilities', 'services', 'rates', 'enabledDates'));
     }
+
+
 
     // public function getAvailabilitySlots(Request $request)
     // {
@@ -142,17 +190,30 @@ public function showServiceQuestions($serviceId)
         $request->validate([
             'professional_id' => 'required|exists:professionals,id',
             'plan_type' => 'required|string',
-            'booking_date' => 'required|date',
+            'booking_date' => 'required|string',
             'time_slot' => 'required|string',
         ]);
+
+        $dates = explode(',', $request->booking_date);
+        foreach ($dates as $date) {
+            if (!strtotime(trim($date))) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid booking date format.'
+                ], 422);
+            }
+        }
+
         session([
             'booking_data' => $request->only('professional_id', 'plan_type', 'booking_date', 'time_slot')
         ]);
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
+            'message' => 'Booking saved successfully!'
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -160,7 +221,7 @@ public function showServiceQuestions($serviceId)
         $validated = $request->validate([
             'professional_id' => 'required|exists:professionals,id',
             'plan_type' => 'required|string',
-            'booking_date' => 'required|date_format:d/m/Y', // Assuming date comes in `d/m/Y` format from frontend
+            'booking_date' => 'required|date_format:d/m/Y',
             'time_slot' => 'required|string',
             'name' => 'required|string',
             'email' => 'required|email',
