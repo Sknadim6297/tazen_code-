@@ -1,11 +1,117 @@
 @extends('professional.layout.layout')
-
-@section('style')
+@section('styles')
 <style>
-    /* Add any additional custom styles here */
+    .content-wrapper {
+        padding: 30px;
+        background-color: #f7f9fc;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-title h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .breadcrumb {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        gap: 10px;
+        font-size: 14px;
+        color: #7f8c8d;
+    }
+
+    .breadcrumb li.active {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .add-profile-form {
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #34495e;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="file"],
+    textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+
+    .form-group.col-2 {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .form-group.col-2 > div {
+        flex: 1;
+    }
+
+    .form-group.col-full {
+        width: 100%;
+    }
+
+    img {
+        margin-top: 10px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background-color: #2980b9;
+        border: none;
+        padding: 12px 24px;
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #1c6690;
+    }
+
+    @media (max-width: 768px) {
+        .form-group.col-2 {
+            flex-direction: column;
+        }
+    }
 </style>
 @endsection
-
 @section('content')
 <div class="content-wrapper">
     <div class="page-header">
@@ -36,7 +142,7 @@
                         $gallery = is_array($profile->gallery) ? $profile->gallery : json_decode($profile->gallery, true);
                     @endphp
                     @foreach($gallery as $img)
-                        <img src="{{ asset('upload/gallery/'.$img) }}" alt="Gallery Image" width="80">
+                        <img src="{{ asset($img) }}" alt="Gallery Image" width="80">
                     @endforeach
                 @endif
             </div>

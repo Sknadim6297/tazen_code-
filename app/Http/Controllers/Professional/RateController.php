@@ -14,7 +14,10 @@ class RateController extends Controller
      */
     public function index()
     {
-        //
+        $rates = Rate::where('professional_id', Auth::guard('professional')->id())->get();
+        $rateCount = Rate::where('professional_id', auth()->guard('professional')->id())->count();
+  
+        return view('professional.rate.index', compact('rates', 'rateCount'));
     }
 
     /**
@@ -22,6 +25,7 @@ class RateController extends Controller
      */
     public function create()
     {
+       
         return view('professional.rate.create');
     }
 
@@ -75,7 +79,8 @@ class RateController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $rates = Rate::findOrFail($id);
+        return view('professional.rate.edit', compact('rates'));
     }
 
     /**

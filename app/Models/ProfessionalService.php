@@ -9,9 +9,24 @@ class ProfessionalService extends Model
 {
     use HasFactory;
 
-    public function professional()
-{
-    return $this->belongsTo(Professional::class);
-}
+    protected $fillable = [
+        'service_name',
+        'category',
+        'duration',
+        'description',
+        'features',
+        'tags',
+        'requirements',
+        'image_path',
+        'professional_id', 
+    ];
 
+    // Define relationships
+    public function professional()
+    {
+        return $this->belongsTo(Professional::class);
+    }
+    protected $casts = [
+        'features' => 'array',
+    ];
 }

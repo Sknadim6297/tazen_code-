@@ -28,9 +28,6 @@ use App\Models\ContactDetail;
 use App\Models\BlogBanner;
 use App\Models\BlogPost;
 use App\Models\Blog;
-use App\Http\Controllers\Admin\MCQController;
-use App\Models\Service;
-use App\Models\Event;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -58,28 +55,19 @@ Route::get('about', function () {
     $abouthowweworks = AboutHowWeWork::latest()->get();
     $aboutfaqs = AboutFAQ::latest()->get();
 
-    return view('frontend.sections.about',compact('about_us','whychooses','testimonials','banners','aboutexperiences','abouthowweworks','aboutfaqs'));
+    return view('frontend.sections.about', compact('about_us', 'whychooses', 'testimonials', 'banners', 'aboutexperiences', 'abouthowweworks', 'aboutfaqs'));
 });
 Route::get('eventlist', function () {
     $events = EventDetail::all(); // Retrieve all events from the 'eventdetails' table
-    $services = Service::latest()->get();
-    return view('frontend.sections.eventlist',compact('events','services'));
+    return view('frontend.sections.eventlist',compact('events'));
 });
-Route::get('/allevent/{id}', function ($id) {
-    $event = Event::with('eventDetails')->findOrFail($id);
-    //  dd($event);
-    $services = Service::all();
-    $eventfaqs = EventFAQ::latest()->get();
-
-    return view('frontend.sections.allevent', compact('event','services','eventfaqs'));
-})->name('event.details');
+Route::get('/allevent/{id}', [EventController::class, 'show'])->name('event.details');
 Route::get('allevent', function () {
-    $eventdetails = Eventdetail:: with('event')->latest()->get();
-    dd($eventdetails);
+    $eventdetails = Eventdetail::latest()->get();
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
-    return view('frontend.sections.allevent',compact('eventdetails','eventfaqs','event'));
+    return view('frontend.sections.allevent', compact('eventdetails', 'eventfaqs', 'event'));
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
@@ -89,14 +77,9 @@ Route::get('/service/{id}', [ServiceController::class, 'show']);
 Route::get('blog', function () {
     $blogbanners = BlogBanner::latest()->get();
     $blogPosts = BlogPost::latest()->get();
-    $services = Service::latest()->get();
-    $latestBlogs = BlogPost::latest()->take(3)->get();
-    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
-    ->groupBy('category')
-    ->get();
     
 
-    return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts'));
+    return view('frontend.sections.blog',compact('blogbanners','blogPosts'));
 });
 Route::get('/blog-post/{id}', function ($id) {
     // Fetch the blog by ID
@@ -136,7 +119,7 @@ Route::get('contact', function () {
     $contactbanners = Contactbanner::latest()->get();
     $contactdetails = ContactDetail::latest()->get();
 
-    return view('frontend.sections.contact',compact('contactbanners','contactdetails'));
+    return view('frontend.sections.contact', compact('contactbanners', 'contactdetails'));
 });
 Route::get('influencer', function () {
     return view('frontend.sections.influencer');
@@ -152,7 +135,6 @@ Route::get('astro', function () {
 });
 Route::get('blog-post', function () {
     $blogbanners = BlogBanner::latest()->get();
-    
     return view('frontend.sections.blog-post',compact('blogbanners'));
 });
 
@@ -177,6 +159,7 @@ Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin
 Route::post('/submit-questionnaire', [HomeController::class, 'submitQuestionnaire'])->name('submitQuestionnaire');
 Route::middleware(['auth:user'])->group(function () {
     Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
+    Route::get("professionals/details/{id}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');

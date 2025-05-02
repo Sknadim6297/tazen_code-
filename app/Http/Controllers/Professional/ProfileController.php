@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
+use App\Models\Professional;
 use App\Models\Profile;
 use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -16,7 +18,8 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $profiles = Profile::with('professional')->get();
+        $professionalId = Auth::guard('professional')->id();
+        $profiles = Profile::where('professional_id', $professionalId)->with('professional')->get();
         return view('professional.profile.show-profile', compact('profiles'));
     }
 
@@ -30,7 +33,8 @@ class ProfileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+
+    public function store(Request $request, string $id)
     {
         $data = $request->validate([
             'firstName' => 'required|string',
@@ -51,8 +55,45 @@ class ProfileController extends Controller
             'panCard' => 'nullable|file',
         ]);
 
-        $profile = new Profile();
-        $profile->professional_id = Auth::guard('professional')->id();
+        $profile = Profile::findOrFail($id);
+        $professionalId = Auth::guard('professional')->id();
+
+        // Delete & update photo
+        if ($request->hasFile('photo') && $profile->photo) {
+            Storage::disk('public')->delete($profile->photo);
+            $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
+        }
+
+        // Delete & update gallery
+        if ($request->hasFile('gallery')) {
+            if ($profile->gallery) {
+                foreach (json_decode($profile->gallery, true) as $img) {
+                    Storage::disk('public')->delete($img);
+                }
+            }
+            $profile->gallery = json_encode($this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery'));
+        }
+
+        // Delete & update qualification document
+        if ($request->hasFile('qualificationDocument') && $profile->qualification_document) {
+            Storage::disk('public')->delete($profile->qualification_document);
+            $profile->qualification_document = $this->uploadImage($request, 'qualificationDocument', 'uploads/profiles/documents');
+        }
+
+        // Delete & update aadhaar
+        if ($request->hasFile('aadhaarCard') && $profile->aadhaar_card) {
+            Storage::disk('public')->delete($profile->aadhaar_card);
+            $profile->aadhaar_card = $this->uploadImage($request, 'aadhaarCard', 'uploads/profiles/identity');
+        }
+
+        // Delete & update pan
+        if ($request->hasFile('panCard') && $profile->pan_card) {
+            Storage::disk('public')->delete($profile->pan_card);
+            $profile->pan_card = $this->uploadImage($request, 'panCard', 'uploads/profiles/identity');
+        }
+
+        // Update other fields
+        $profile->professional_id = $professionalId;
         $profile->first_name = $data['firstName'];
         $profile->last_name = $data['lastName'];
         $profile->email = $data['email'];
@@ -64,18 +105,16 @@ class ProfileController extends Controller
         $profile->education = $data['education'] ?? null;
         $profile->comments = $data['comments'] ?? null;
         $profile->bio = $data['bio'] ?? null;
-
-
-        $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
-        $profile->gallery = json_encode($this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery'));
-        $profile->qualification_document = $this->uploadImage($request, 'qualificationDocument', 'uploads/profiles/documents');
-        $profile->aadhaar_card = $this->uploadImage($request, 'aadhaarCard', 'uploads/profiles/identity');
-        $profile->pan_card = $this->uploadImage($request, 'panCard', 'uploads/profiles/identity');
-
         $profile->save();
 
-        return response()->json(['success' => true, 'message' => 'Profile saved successfully!']);
+        // Update Professional name also
+        $professional = Professional::findOrFail($professionalId);
+        $professional->name = $data['firstName'] . ' ' . $data['lastName'];
+        $professional->save();
+
+        return response()->json(['success' => true, 'message' => 'Profile and name updated successfully!']);
     }
+
 
     /**
      * Display the specified resource.

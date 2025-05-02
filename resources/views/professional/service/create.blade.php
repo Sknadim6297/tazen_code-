@@ -1,7 +1,7 @@
 @extends('professional.layout.layout')
 
-@section('style')
-
+@section('styles')
+   <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
 @endsection
 
 @section('content')
@@ -110,7 +110,16 @@
                 <label for="serviceRequirements">Client Requirements</label>
                 <textarea name="serviceRequirements" id="serviceRequirements" class="form-control" placeholder="List any requirements clients should know before booking" rows="3"></textarea>
             </div>
-    
+         <div style="display: flex; gap: 20px;">
+            <div class="form-group">
+                <label for="MostServiceName">Most requested services *</label>
+                <input type="text" name="MostServiceName[]" class="form-control" placeholder="Enter service name" required>
+            </div>
+            <div class="form-group">
+                <label for="servicePrice">Most requested services upto price *</label>
+                <input type="text" name="servicePrice[]" class="form-control" placeholder="Enter price" required>
+            </div>
+         </div>
             <div class="form-actions">
                 <button type="button" class="btn btn-outline">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Service</button>
@@ -139,7 +148,7 @@ $('#serviceForm').submit(function(e) {
                 toastr.success(response.message);
                 form.reset();
                 setTimeout(() => {
-                    window.location.href = "{{ route('professional.dashboard') }}";
+                    window.location.href = "{{ route('professional.service.index') }}";
                 }, 1500);
             } else {
                 toastr.error(response.message || "Something went wrong");
