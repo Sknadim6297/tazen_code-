@@ -9,10 +9,7 @@ class Testimonial extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'section_sub_heading',
-        'image1', 'description1',
-        'image2', 'description2',
-        'image3', 'description3',
-        'image4', 'description4',
+        'image',
+        'description',
     ];
 }

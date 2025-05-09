@@ -1,6 +1,7 @@
 @extends('layouts.layout')
 @section('styles')
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
+   <link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}">
 @endsection
 @section('content')
 

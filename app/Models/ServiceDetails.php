@@ -42,4 +42,5 @@ class ServiceDetails extends Model
     {
         return $this->belongsTo(Service::class);
     }
+    
 }
