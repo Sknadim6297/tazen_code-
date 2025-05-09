@@ -48,7 +48,8 @@
                             </li>
                         
                             <li class="slide has-sub">
-                                <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">Manage Professional</a>
+                                <a href="{{ route('admin.professional.requests') }}" class="side-menu__item">Manage Professional</a>
+                                <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professional</a>
                                 <a href="javascript:void(0);" class="side-menu__item">Professional Billing</a>
                             </li>
                         </ul>
@@ -84,10 +85,10 @@
                             </li>
                         
                             <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item">One Time</a>
-                                <a href="javascript:void(0);" class="side-menu__item">Monthly</a>
-                                <a href="javascript:void(0);" class="side-menu__item">Quaterly</a>
-                                <a href="javascript:void(0);" class="side-menu__item">Free Hand</a>
+                                <a href="{{ route('admin.onetime') }}" class="side-menu__item">One Time</a>
+                                <a href="{{ route('admin.monthly') }}" class="side-menu__item">Monthly</a>
+                                <a href="{{ route('admin.freehand') }}" class="side-menu__item">Free Hand</a>
+                                <a href="{{ route('admin.quaterly') }}" class="side-menu__item">Quarterly</a>
                             </li>
                         </ul>
                     </li>
@@ -191,7 +192,6 @@
                                 </ul>
                             </li>
                             <li class="slide has-sub">
-
                                 <a href="javascript:void(0);" class="side-menu__item">Service Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
                                 <ul class="slide-menu child2">
@@ -202,13 +202,17 @@
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
                                 </ul>
+<<<<<<< HEAD
 
                                 
 
+=======
+>>>>>>> 07d366e8dabf3beb4e492b931c5c9a98236ead28
                             </li>
 
-                        </li>
-                    </ul>
+                        </ul>
+                    </li>
+                </ul>
                 </li>
                     
                     <!-- End::slide -->

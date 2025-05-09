@@ -130,7 +130,7 @@ Route::get('allevent', function () {
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
-    return view('frontend.sections.allevent',compact('eventdetails','eventfaqs','event'));
+    return view('frontend.sections.allevent', compact('eventdetails', 'eventfaqs', 'event'));
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
@@ -159,7 +159,7 @@ Route::get('blog', function (Request $request) {
     
 
     return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts','search'));
-})->name('blog.index');;
+})->name('blog.index');
 Route::get('/blog-post/{id}', function ($id) {
     // Fetch the blog by ID
     $blogPost = DB::table('blog_posts')->where('id', $id)->first();
@@ -241,6 +241,7 @@ Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin
 Route::post('/submit-questionnaire', [HomeController::class, 'submitQuestionnaire'])->name('submitQuestionnaire');
 Route::middleware(['auth:user'])->group(function () {
     Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
+    Route::get("professionals/details/{id}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');

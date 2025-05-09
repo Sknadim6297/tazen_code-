@@ -45,7 +45,7 @@
                         </div>
                         @endif
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create MCQ</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Testimonials</button>
                             <!-- Start::add task modal -->
                             
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">

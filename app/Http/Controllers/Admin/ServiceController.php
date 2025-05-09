@@ -75,35 +75,27 @@ class ServiceController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        $service = Service::findOrFail($id);
-    
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'status' => 'required|in:active,inactive',
-        ]);
-    
-        $data = [
-            'name' => $request->name,
-            'status' => $request->status,
-        ];
-    
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($service->image && \File::exists(public_path($service->image))) {
-                \File::delete(public_path($service->image));
-            }
-    
-            // Upload new image using the trait
-            $data['image'] = $this->uploadImage($request, 'image', 'uploads/services');
+{
+    $service = Service::findOrFail($id);
+
+    $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($service->image && \Storage::disk('public')->exists($service->image)) {
+            \Storage::disk('public')->delete($service->image);
         }
-    
-        $service->update($data);
-    
-        return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');
+        $data['image'] = $request->file('image')->store('services', 'public');
     }
     
+
+    $service->update($data);
+    return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.
