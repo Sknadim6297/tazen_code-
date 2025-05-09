@@ -5,6 +5,7 @@ use App\Models\BlogBanner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BlogBannerController extends Controller
 {
@@ -87,29 +88,33 @@ class BlogBannerController extends Controller
 {
     $banner = BlogBanner::findOrFail($id);
 
+    // Validate the form data
     $validated = $request->validate([
         'heading' => 'required|string|max:255',
         'subheading' => 'nullable|string|max:255',
-        // 'status' => 'required|in:active,inactive',
-        'banner_image' => 'nullable|image|max:2048',
+        'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
+    // Ensure subheading is always set
+    $validated['subheading'] = $validated['subheading'] ?? '';
+
+    // Handle new image upload and delete old image
     if ($request->hasFile('banner_image')) {
-        // Optionally delete old image
-        if ($banner->banner_image && file_exists(public_path('uploads/blog_banners/' . $banner->banner_image))) {
-            unlink(public_path('uploads/blog_banners/' . $banner->banner_image));
+        // Delete old image if it exists in storage
+        if ($banner->banner_image && Storage::disk('public')->exists($banner->banner_image)) {
+            Storage::disk('public')->delete($banner->banner_image);
         }
 
-        $imageName = time() . '.' . $request->banner_image->extension();
-        $request->banner_image->move(public_path('uploads/blog_banners'), $imageName);
-        $validated['banner_image'] = $imageName;
+        // Store new image in 'blog_banners' directory
+        $imagePath = $request->file('banner_image')->store('blog_banners', 'public');
+        $validated['banner_image'] = $imagePath;
     }
 
+    // Update the banner
     $banner->update($validated);
 
     return redirect()->route('admin.blogbanners.index')->with('success', 'Banner updated successfully!');
 }
-
 
     /**
      * Remove the specified resource from storage.

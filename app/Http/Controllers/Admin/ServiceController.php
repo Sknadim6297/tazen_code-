@@ -91,6 +91,7 @@ class ServiceController extends Controller
         }
         $data['image'] = $request->file('image')->store('services', 'public');
     }
+    
 
     $service->update($data);
     return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');

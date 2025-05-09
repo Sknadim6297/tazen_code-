@@ -41,9 +41,8 @@ class BannerController extends Controller
 
     // Handle video upload
     if ($request->hasFile('banner_video')) {
-        $videoName = time() . '.' . $request->banner_video->extension();
-        $request->banner_video->move(public_path('uploads/banners'), $videoName);
-        $data['banner_video'] = 'uploads/banners/' . $videoName;
+        $videoPath = $request->file('banner_video')->store('banners', 'public');
+        $data['banner_video'] = $videoPath; // only save 'banners/video.mp4'
     }
 
     Banner::create($data);
@@ -85,9 +84,8 @@ class BannerController extends Controller
         $data = $request->only('heading', 'sub_heading', 'status');
 
         if ($request->hasFile('banner_video')) {
-            $video = $request->file('banner_video');
-            $videoPath = $video->store('banners', 'public');
-            $data['banner_video'] = 'storage/' . $videoPath;
+            $videoPath = $request->file('banner_video')->store('banners', 'public');
+            $data['banner_video'] = $videoPath;
         }
 
         $banner->update($data);

@@ -33,4 +33,5 @@ class BlogPost extends Model
     {
         return $this->belongsTo(Blog::class, 'blog_id');  // Define the relationship
     }
+    
 }

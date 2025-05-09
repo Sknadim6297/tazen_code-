@@ -66,84 +66,21 @@
                         <h4><a href="#filter_1" data-bs-toggle="collapse" class="opened">Categories</a></h4>
                         <div class="collapse show" id="filter_1">
                             <ul>
+                                @foreach($categories as $cat)
                                 <li>
-                                    <label class="container_check">Psychologist<small>12</small>
-                                        <input type="checkbox">
+                                    <label class="container_check">{{ $cat }}
+                                        <input type="checkbox" name="category" value="{{ $cat }}" 
+                                            {{ $category == $cat ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['category' => $cat]) }}'">
                                         <span class="checkmark"></span>
                                     </label>
                                 </li>
-                                <li>
-                                    <label class="container_check">Dermatologist <small>24</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Cardiologist <small>23</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">General Medicine <small>11</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Gynecologist <small>18</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Autoimmune Deseas <small>12</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Pediatrician <small>15</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
-                        <!-- /filter_type -->
                     </div>
                     <!-- /filter_type -->
-                    <div class="filter_type">
-                        <h4><a href="#filter_2" data-bs-toggle="collapse" class="closed">Rating</a></h4>
-                        <div class="collapse" id="filter_2">
-                            <ul>
-                                <li>
-                                    <label class="container_check">Superb 9+ <small>06</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Very Good 8+ <small>12</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Good 7+ <small>17</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">Pleasant 6+ <small>43</small>
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    
                     <!-- /filter_type -->
                     <div class="filter_type">
                         <h4><a href="#filter_3" data-bs-toggle="collapse" class="closed">Distance</a></h4>
@@ -157,31 +94,47 @@
                         <h4><a href="#filter_4" data-bs-toggle="collapse" class="closed">Price</a></h4>
                         <div class="collapse" id="filter_4">
                             <ul>
-                                    <li>
-                                        <label class="container_check">$0 — $50<small>11</small>
-                                          <input type="checkbox">
-                                          <span class="checkmark"></span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <label class="container_check">$50 — $100<small>08</small>
-                                          <input type="checkbox">
-                                          <span class="checkmark"></span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <label class="container_check">$100 — $150<small>05</small>
-                                          <input type="checkbox">
-                                          <span class="checkmark"></span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <label class="container_check">$150 — $200<small>18</small>
-                                          <input type="checkbox">
-                                          <span class="checkmark"></span>
-                                        </label>
-                                    </li>
-                                </ul>
+                                <li>
+                                    <label class="container_check">₹100 — ₹200
+                                        <input type="checkbox" name="price_range" value="100-200"
+                                            {{ $price_range == '100-200' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '100-200']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹200 — ₹300
+                                        <input type="checkbox" name="price_range" value="200-300"
+                                            {{ $price_range == '200-300' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '200-300']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹300 — ₹400
+                                        <input type="checkbox" name="price_range" value="300-400"
+                                            {{ $price_range == '300-400' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '300-400']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹400 — ₹500
+                                        <input type="checkbox" name="price_range" value="400-500"
+                                            {{ $price_range == '400-500' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '400-500']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹500 — ₹1000
+                                        <input type="checkbox" name="price_range" value="500-1000"
+                                            {{ $price_range == '500-1000' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '500-1000']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <!-- /filter_type -->
@@ -193,16 +146,16 @@
 
             <div class="col-lg-9 listing-area mt_15 mb_30">
                 <ul class="campain-upper-list li">
-                    <li><a href="">Today</a></li>
-                    <li><a href="">Tomorrow</a></li>
-                    <li><a href="">This weekend</a></li>
-                     <li><a href="">Mental Health</a></li>
-                </ul>
+                    <li><a href="{{ route('event.list', ['filter' => 'today']) }}">Today</a></li>
+                    <li><a href="{{ route('event.list', ['filter' => 'tomorrow']) }}">Tomorrow</a></li>
+                    <li><a href="{{ route('event.list', ['filter' => 'weekend']) }}">This weekend</a></li>
+                </ul>                
                 <div class="row grid_sidebar">
                     <!-- Display Total Event Count -->
                     
                 
                     <!-- Loop through each event and display details -->
+                    @if($events->count())
                     @foreach($events as $event)
                         <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
                             <div class="featured-imagebox featured-imagebox-blog style2">
@@ -221,7 +174,7 @@
                                         <h3><a href="{{ route('event.details', $event->id) }}">{{ $event->event->heading }}</a></h3>
                                     </div>
                                     <div class="featured-desc">
-                                        <p>{{ $event->event->short_description }}</p>
+                                        <p>{{ \Illuminate\Support\Str::words($event->event->short_description, 6, '...') }}</p>
                                     </div>
                                     <div class="ttm-blogbox-footer-readmore">
                                         <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark">
@@ -232,6 +185,9 @@
                             </div>
                         </div>
                     @endforeach
+                    @else
+                    <p>No event available for the selected filter.</p>
+                    @endif
                 </div>
                 <!-- /row -->
                 <div class="pagination_fg">

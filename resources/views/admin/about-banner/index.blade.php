@@ -55,7 +55,7 @@
                                                     {{-- Banner Sub Heading --}}
                                                     <div class="col-xl-6">
                                                         <label for="sub_heading" class="form-label">Sub Heading</label>
-                                                        <input type="text" class="form-control" id="sub_heading" name="sub_heading" placeholder="Enter Sub Heading">
+                                                        <input type="text" class="form-control" id="sub_heading" name="sub_heading">
                                                     </div>
                                     
                                                     {{-- Banner Image --}}
@@ -104,7 +104,7 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $banner->heading }}</td>
-                                            <td>{{ $banner->sub_heading }}</td>
+                                            <td>{{ $banner->subheading }}</td>
                                             <td>
                                                 @if($banner->banner_image)
                                                     <img src="{{ asset('storage/' . $banner->banner_image) }}" alt="Banner Image" style="max-width: 100px; height: auto;">
