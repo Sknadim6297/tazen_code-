@@ -1,10 +1,6 @@
 <footer class="footer mt-auto py-3 bg-white text-center">
     <div class="container">
-        <span class="text-muted"> Copyright &copy; <span id="year"></span> <a
-                href="javascript:void(0);" class="text-dark fw-medium">Meno</a>.
-            Designed with <span class="bi bi-heart-fill text-danger"></span> by <a  href="https://spruko.com/" target="_blank">
-                <span class="fw-medium text-primary">Spruko</span>
-            </a> All
+        <span class="text-muted"> Copyright &copy; <span id="year"></span> All
             rights
             reserved
         </span>

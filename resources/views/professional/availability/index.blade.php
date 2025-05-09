@@ -62,14 +62,11 @@
                                         <a href="{{ route('professional.availability.edit', $item->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('professional.availability.destroy', $item->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this availability?');">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <a href="javascript:void(0)" data-url="{{  route('professional.availability.destroy', $item->id)  }}" class="btn btn-sm btn-outline-warning delete-item" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
