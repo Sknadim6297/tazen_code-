@@ -5,7 +5,7 @@
         <!-- Start::main-sidebar-header -->
         <div class="main-sidebar-header">
             <a href="index-2.html" class="header-logo">
-                <img src="assets/images/brand-logos/desktop-logo.png" alt="logo" class="desktop-logo">
+                <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-logo">
                 <img src="assets/images/brand-logos/toggle-dark.png" alt="logo" class="toggle-dark">
                 <img src="assets/images/brand-logos/desktop-dark.png" alt="logo" class="desktop-dark">
                 <img src="assets/images/brand-logos/toggle-logo.png" alt="logo" class="toggle-logo">
@@ -116,7 +116,7 @@
                                         <a href="{{ route('admin.whychoose.index') }}" class="side-menu__item">Why Choose us Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.admin.testimonial.index') }}" class="side-menu__item">Testimonials Section</a>
+                                        <a href="{{ route('admin.testimonials.index') }}" class="side-menu__item">Testimonials Section</a>
                                     </li>
                                     <li class="slide">
                                         <a href="{{ route('admin.blogs.index') }}" class="side-menu__item">Blog Section</a>
@@ -125,7 +125,7 @@
                                         <a href="{{ route('admin.howworks.index') }}" class="side-menu__item">How It Works Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.mcq.index') }}" class="side-menu__item">MCQ</a>
+                                        <a href="{{ route('admin.servicemcq.index') }}" class="side-menu__item">MCQ</a>
                                     </li>
                                 </ul>
                             </li>
@@ -203,7 +203,7 @@
                                     </li>
                                 </ul>
 
-                                <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Page</a>
+                                
 
                             </li>
 

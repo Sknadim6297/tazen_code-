@@ -4,8 +4,7 @@
 @section('content')
  <div class="main-content app-content">
                 <div class="container-fluid">
-
-                    	
+                    
                     <!-- Start::page-header -->
                     <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
                         <div>

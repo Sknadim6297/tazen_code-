@@ -118,8 +118,8 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $about->heading }}</td>
                                             <td>{{ $about->description }}</td>
-                                            <td>{{ $about->line_1 }}</td>
-                                            <td>{{ $about->line_2 }}</td>
+                                            <td>{{ $about->line1 }}</td>
+                                            <td>{{ $about->line2 }}</td>
                                             <td>{{ $about->year_of_experience }} years</td>
                                             <td>
                                                 @if ($about->image)

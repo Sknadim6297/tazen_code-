@@ -55,7 +55,7 @@
                                                     {{-- Banner Sub Heading --}}
                                                     <div class="col-xl-6">
                                                         <label for="sub_heading" class="form-label">Sub Heading</label>
-                                                        <input type="text" class="form-control" id="sub_heading" name="sub_heading" placeholder="Enter Sub Heading">
+                                                        <input type="text" class="form-control" id="sub_heading" name="sub_heading">
                                                     </div>
                                     
                                                     {{-- Banner Image --}}
@@ -104,7 +104,7 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $banner->heading }}</td>
-                                            <td>{{ $banner->sub_heading }}</td>
+                                            <td>{{ $banner->subheading }}</td>
                                             <td>
                                                 @if($banner->banner_image)
                                                     <img src="{{ asset('storage/' . $banner->banner_image) }}" alt="Banner Image" style="max-width: 100px; height: auto;">
@@ -122,13 +122,14 @@
                                                 <a href="{{ route('admin.about-banner.edit', $banner->id) }}" class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
-                                                <form action="{{ route('admin.about-banner.destroy', $banner->id) }}" method="POST" style="display:inline;">
+                                                <form action="{{ route('admin.about-banner.destroy', $banner->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this banner?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger-light btn-icon ms-1 btn-sm task-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
                                                         <i class="ri-delete-bin-5-line"></i>
                                                     </button>
                                                 </form>
+                                                
                                             </td>
                                         </tr>
                                     @endforeach

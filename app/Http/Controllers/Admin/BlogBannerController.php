@@ -5,6 +5,7 @@ use App\Models\BlogBanner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BlogBannerController extends Controller
 {
@@ -73,24 +74,63 @@ class BlogBannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    $banner = BlogBanner::findOrFail($id);
+    return view('admin.blogbanners.edit', compact('banner'));
+}
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, $id)
+{
+    $banner = BlogBanner::findOrFail($id);
+
+    // Validate the form data
+    $validated = $request->validate([
+        'heading' => 'required|string|max:255',
+        'subheading' => 'nullable|string|max:255',
+        'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
+
+    // Ensure subheading is always set
+    $validated['subheading'] = $validated['subheading'] ?? '';
+
+    // Handle new image upload and delete old image
+    if ($request->hasFile('banner_image')) {
+        // Delete old image if it exists in storage
+        if ($banner->banner_image && Storage::disk('public')->exists($banner->banner_image)) {
+            Storage::disk('public')->delete($banner->banner_image);
+        }
+
+        // Store new image in 'blog_banners' directory
+        $imagePath = $request->file('banner_image')->store('blog_banners', 'public');
+        $validated['banner_image'] = $imagePath;
     }
+
+    // Update the banner
+    $banner->update($validated);
+
+    return redirect()->route('admin.blogbanners.index')->with('success', 'Banner updated successfully!');
+}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($id)
+{
+    $banner = BlogBanner::findOrFail($id);
+
+    // Delete the image
+    if ($banner->banner_image && file_exists(public_path('uploads/blog_banners/' . $banner->banner_image))) {
+        unlink(public_path('uploads/blog_banners/' . $banner->banner_image));
     }
+
+    $banner->delete();
+
+    return redirect()->route('admin.blogbanners.index')->with('success', 'Banner deleted successfully!');
+}
+
 }

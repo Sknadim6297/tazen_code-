@@ -36,38 +36,27 @@
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <form action="{{ route('admin.admin.testimonial.store') }}" method="POST" enctype="multipart/form-data">
+                                    <form action="{{ route('admin.testimonials.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h6 class="modal-title">Add Testimonial Section</h6>
+                                                <h6 class="modal-title">Add Testimonial</h6>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                     
                                             <div class="modal-body px-4">
                                                 <div class="row gy-3">
-                                                    {{-- Section Sub Heading --}}
-                                                    <div class="col-xl-12">
-                                                        <label for="section_sub_heading" class="form-label">Section Sub Heading</label>
-                                                        <input type="text" class="form-control" name="section_sub_heading" id="section_sub_heading" placeholder="Enter Sub Heading">
+                                    
+                                                    <div class="col-xl-6">
+                                                        <label for="image" class="form-label">Image</label>
+                                                        <input type="file" class="form-control" name="image" id="image" required>
                                                     </div>
                                     
-                                                    {{-- Image and Description Cards --}}
-                                                    @for ($i = 1; $i <= 4; $i++)
-                                                        <div class="col-xl-12 mt-4">
-                                                            <h6>Testimonial {{ $i }}</h6>
-                                                        </div>
+                                                    <div class="col-xl-12">
+                                                        <label for="description" class="form-label">Description</label>
+                                                        <textarea class="form-control" name="description" id="description" rows="3" placeholder="Enter Description" required></textarea>
+                                                    </div>
                                     
-                                                        <div class="col-xl-6">
-                                                            <label for="image{{ $i }}" class="form-label">Image {{ $i }}</label>
-                                                            <input type="file" class="form-control" name="image{{ $i }}" id="image{{ $i }}">
-                                                        </div>
-                                    
-                                                        <div class="col-xl-12">
-                                                            <label for="description{{ $i }}" class="form-label">Description {{ $i }}</label>
-                                                            <textarea class="form-control" name="description{{ $i }}" id="description{{ $i }}" rows="3" placeholder="Enter Description"></textarea>
-                                                        </div>
-                                                    @endfor
                                                 </div>
                                             </div>
                                     
@@ -76,9 +65,7 @@
                                                 <button type="submit" class="btn btn-primary">Save</button>
                                             </div>
                                         </div>
-                                    </form>
-                                    
-                                                                      
+                                    </form>                                                                  
                                 </div>
                             </div>
                         </div>
@@ -86,51 +73,41 @@
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table text-nowrap">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
-                                        <th>#</th>
-                                        <th>Section Sub Heading</th>
-                                        @for ($i = 1; $i <= 4; $i++)
-                                        <th>Image {{ $i }}</th>
-                                        <th>Description {{ $i }}</th>
-                                        @endfor
-                                        <th>Action</th>
+                                        <th style="border: 1px solid #dee2e6;">#</th>
+                                        <th style="border: 1px solid #dee2e6;">Image</th>
+                                        <th style="border: 1px solid #dee2e6;">Description</th>
+                                        <th style="border: 1px solid #dee2e6;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if ($testimonial)
-                                    <tr>
-                                        <td>1</td>
-                                        <td>{{ $testimonial->section_sub_heading }}</td>
-                            
-                                        @for ($i = 1; $i <= 4; $i++)
-                                            <td>
-                                                @if ($testimonial->{'image'.$i})
-                                                <img src="{{ asset('storage/' . $testimonial->{'image' . $i}) }}" width="100">
+                                    @forelse ($testimonials as $index => $testimonial)
+                                        <tr>
+                                            <td style="border: 1px solid #dee2e6;">{{ $index + 1 }}</td>
+                                            <td style="border: 1px solid #dee2e6;">
+                                                @if ($testimonial->image)
+                                                    <img src="{{ asset('storage/' . $testimonial->image) }}" width="100">
                                                 @else
                                                     N/A
                                                 @endif
                                             </td>
-                                            <td>{{ $testimonial->{'description'.$i} }}</td>
-                                        @endfor
-                            
-                                        <td>
-                                            <a href="{{ route('admin.admin.testimonial.edit', $testimonial->id) }}" class="btn btn-sm btn-info">Edit</a>
-                            
-                                            <form action="{{ route('admin.admin.testimonial.destroy', $testimonial->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @else
-                                    <tr>
-                                        <td colspan="11" class="text-center">No data available</td>
-                                    </tr>
-                                @endif
-                            
-                                </tbody>
+                                            <td style="border: 1px solid #dee2e6;">{{ $testimonial->description ?? 'N/A' }}</td>
+                                            <td style="border: 1px solid #dee2e6;">
+                                                <a href="{{ route('admin.testimonials.edit', $testimonial->id) }}" class="btn btn-sm btn-info">Edit</a>
+                                                <form action="{{ route('admin.testimonials.destroy', $testimonial->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center" style="border: 1px solid #dee2e6;">No testimonials found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>                                
                             </table>
                         </div>
                     </div>

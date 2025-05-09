@@ -77,11 +77,7 @@
                                                 <button type="submit" class="btn btn-primary">Save FAQ</button>
                                             </div>
                                         </div>
-                                    </form>
-                                    
-                                    
-                                    
-                                                                       
+                                    </form>                                                                      
                                 </div>
                             </div>
                         </div>
