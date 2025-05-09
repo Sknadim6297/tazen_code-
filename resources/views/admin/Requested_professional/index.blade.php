@@ -79,13 +79,18 @@
                                                     <button class="btn btn-success btn-sm approve-btn" data-id="{{ $professional->id }}" data-url="{{ route('admin.professional.requests.approve', $professional->id) }}" data-bs-toggle="tooltip" title="Accept">
                                                         <i class="fas fa-check"></i> Accept
                                                     </button>
-                                                    <a href="{{ route('admin.manage-professional.destroy', $professional->id) }}" 
-                                                       class="btn btn-danger btn-sm" 
-                                                       data-bs-toggle="tooltip" 
-                                                       title="Reject"
-                                                       onclick="return confirm('Are you sure you want to reject this professional?');">
-                                                        <i class="fas fa-times"></i> Reject
-                                                    </a>
+                                                  <!-- Reject Button -->
+<button type="button"
+        class="btn btn-danger btn-sm reject-btn"
+        data-id="{{ $professional->id }}"
+        data-name="{{ $professional->name }}"
+        data-url="{{ route('admin.professional.requests.reject', $professional->id) }}"
+        data-bs-toggle="modal"
+        data-bs-target="#rejectModal"
+        title="Reject">
+    <i class="fas fa-times"></i> Reject
+</button>
+    
                                                     <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
                                                         <i class="fas fa-eye"></i> View
 
@@ -129,17 +134,38 @@
             </div>
         </div>
         <!--End::row-2 -->
-
-
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="rejectForm" method="POST">
+            @csrf
+            <input type="hidden" name="_method" value="POST">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Rejection Reason</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong id="professionalName"></strong> rejected for which reason?</p>
+                    <div class="form-group">
+                        <textarea name="reason" id="reason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-    $(document).on('click', '.approve-btn', function(e) {
+  $(document).on('click', '.approve-btn', function(e) {
     e.preventDefault();
 
     var button = $(this);
@@ -150,26 +176,92 @@
         type: 'POST',
         url: url,
         data: {
-            _token: '{{ csrf_token() }}'
+            _token: '{{ csrf_token() }}',
+            id: id
         },
         success: function(response) {
-           toster.success(response.message);
-            setTimeout(function() {
-                window.location.reload(); 
-            }, 1500);
+            if(response.status === 'success') {
+                toastr.success(response.message); 
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                toastr.error("Something went wrong! Please try again.");
+            }
         },
         error: function(xhr) {
             if (xhr.status === 422) {
                 let errors = xhr.responseJSON.errors;
                 $.each(errors, function(key, value) {
-                    toastr.error(value[0]);
+                    toastr.error(value[0]); 
                 });
-            } else{
+            } else {
                 toastr.error(xhr.responseJSON.message || "Something went wrong. Please try again.");
             }
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const rejectButtons = document.querySelectorAll('.reject-btn');
+    const form = document.getElementById('rejectForm');
+    const reasonField = document.getElementById('reason');
+    const nameField = document.getElementById('professionalName');
+    let currentUrl = ''; 
+
+    // Trigger reject modal with correct professional info
+    rejectButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const url = this.getAttribute('data-url');
+
+            currentUrl = url;
+            form.setAttribute('action', url);
+            nameField.textContent = name;
+            reasonField.value = ''; // Clear previous reason
+        });
+    });
+
+    // Handle AJAX Submit
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch(currentUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                toastr.success(data.message);
+
+                // Close modal after success
+                const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+                rejectModal.hide();
+
+                // Optionally reload page to update UI
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                toastr.error(data.message || 'Something went wrong!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('Server error occurred!');
+        });
+    });
+});
+
+
 
 </script>
 @endsection

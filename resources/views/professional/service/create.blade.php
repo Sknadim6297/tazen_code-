@@ -2,6 +2,51 @@
 
 @section('styles')
    <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
+
+   <style>
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap; 
+}
+.checkbox-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    margin-right: 10px; 
+}
+
+.checkbox-item input[type="checkbox"]:not([disabled]):checked {
+    background-color: green;
+    border-color: green;
+}
+
+
+.checkbox-item input[type="checkbox"]:disabled {
+    background-color: red;
+    border-color: red;
+    cursor: not-allowed; /* Show that it's not clickable */
+}
+
+/* Optional: Add a little fade effect to disabled checkboxes */
+.checkbox-item input[type="checkbox"]:disabled {
+    opacity: 0.5;
+}
+
+/* Label styling */
+.checkbox-item {
+    display: flex;
+    flex-direction: column; /* Added to stack label text below checkbox */
+    font-size: 14px;
+}
+
+   </style>
 @endsection
 
 @section('content')
@@ -30,17 +75,15 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="serviceCategory">Category *</label>
-                        <select name="serviceCategory" id="serviceCategory" class="form-control" required>
+                        <label for="serviceCategory">Service Category *</label>
+                        <select name="serviceId" id="serviceCategory" class="form-control" required>
                             <option value="">Select Category</option>
-                            <option value="consulting">Consulting</option>
-                            <option value="coaching">Coaching</option>
-                            <option value="training">Training</option>
-                            <option value="therapy">Therapy</option>
-                            <option value="other">Other</option>
+                            @foreach($services as $service)
+                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                            @endforeach
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="serviceDuration">Duration *</label>
                         <select name="serviceDuration" id="serviceDuration" class="form-control" required>
@@ -88,12 +131,13 @@
                                 <input type="checkbox" name="features[]" value="in-person"> In-Person
                             </label>
                             <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="group"> Group Sessions
+                                <input type="checkbox" name="features[]" value="group" disabled> Group Sessions
                             </label>
                             <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="recorded"> Recorded Sessions
+                                <input type="checkbox" name="features[]" value="recorded" disabled> Recorded Sessions
                             </label>
                         </div>
+                        
                     </div>
                 </div>
     

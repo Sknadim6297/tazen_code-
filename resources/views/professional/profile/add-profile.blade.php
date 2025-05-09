@@ -148,12 +148,8 @@
             </div>
             <div class="form-group col-2">
                 <div>
-                    <label for="firstName">First Name</label>
-                    <input type="text" id="firstName" name="firstName" value="{{ old('firstName', $profile->first_name) }}" required>
-                </div>
-                <div>
-                    <label for="lastName">Last Name</label>
-                    <input type="text" id="lastName" name="lastName" value="{{ old('lastName', $profile->last_name) }}" required>
+                    <label for="Name">Name</label>
+                    <input type="text" id="name" name="name" value="{{ old('name', $profile->professional->name ?? 'N/A' ) }}" required>
                 </div>
             </div>
             <div class="form-group col-full">
@@ -231,10 +227,11 @@ $('#profileForm').submit(function(e) {
     e.preventDefault();
     let form = this;
     let formData = new FormData(form);
+    formData.append('_method', 'PUT'); 
 
     $.ajax({
         url: "{{ route('professional.profile.update', ['profile' => $profile->id]) }}", 
-        method: "POST",
+        method: "POST", 
         data: formData,
         contentType: false, 
         processData: false, 
@@ -243,11 +240,13 @@ $('#profileForm').submit(function(e) {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
-            if (response.success) {
+            console.log(response);
+            
+            if (response.status === 'success') {
                 toastr.success(response.message);
                 form.reset();
                 setTimeout(function() {
-                    window.location.href = "{{ route('professional.dashboard') }}";
+                    window.location.href = "{{ route('professional.profile.index') }}";
                 }, 1500);
             } else {
                 toastr.error(response.message || "Something went wrong");
@@ -265,5 +264,6 @@ $('#profileForm').submit(function(e) {
         }
     });
 });
+
 </script>
 @endsection

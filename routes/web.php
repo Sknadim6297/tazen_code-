@@ -52,7 +52,7 @@ Route::get('gridlisting', function () {
     return view('frontend.sections.gridlisting');
 });
 Route::get('professionaldetails', function () {
-    return view('frontend.sections.professional-details');
+    return view('frontend.sections.professional-details')->name('professionals.details');
 });
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
@@ -124,13 +124,13 @@ Route::get('/allevent/{id}', function ($id) {
 
     return view('frontend.sections.allevent', compact('event','services','eventfaqs'));
 })->name('event.details');
-Route::get('allevent', function () {
+Route::get('allevent', function ($id) {
     $eventdetails = Eventdetail:: with('event')->latest()->get();
     // dd($eventdetails);
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
-    return view('frontend.sections.allevent', compact('eventdetails', 'eventfaqs', 'event'));
+    return view('frontend.sections.allevent',compact('eventdetails','eventfaqs','event'));
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
@@ -198,8 +198,6 @@ Route::get('contact', function () {
     $contactbanners = Contactbanner::latest()->get();
     $contactdetails = ContactDetail::latest()->get();
     $services = Service::latest()->get();
-
-
     return view('frontend.sections.contact',compact('contactbanners','contactdetails','services'));
 });
 Route::get('influencer', function () {
@@ -268,7 +266,3 @@ Route::post('professional/register', [ProfessionalController::class, 'register']
 // Route::get('/get-mcqs/{service_id}', [ServiceController::class, 'getMcqs']);
 Route::post('/submit-mcq', [MCQController::class, 'store'])->name('submit.mcq');
 Route::get('/get-mcq-questions/{serviceId}', [HomeController::class, 'getServiceQuestions']);
-
-
-
-

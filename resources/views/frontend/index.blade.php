@@ -85,7 +85,13 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-												<button class="btn btn-primary book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+														<button class="btn btn-primary book-now" 
+														data-service-id="{{ $service->id }}" 
+														data-bs-toggle="modal" 
+														data-bs-target="#mcqModal">
+														Book Now
+													</button>
+											
 											</div>
 										</div>
 									</div>
@@ -106,7 +112,7 @@
 							<div class="modal-body">
 								<form id="mcqForm" method="POST" action="{{ route('submit.mcq') }}">
 									@csrf
-				
+									<input type="hidden" name="service_id" id="selected_service_id">
 									<!-- Loop through MCQs -->
 									@foreach ($mcqs as $index => $mcq)
 										<div class="question" id="question{{ $index + 1 }}">
@@ -662,14 +668,12 @@
 				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
 				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
 			}
-
 			nextBtn.addEventListener("click", function () {
 				if (currentQuestion < questions.length - 1) {
 					currentQuestion++;
 					showQuestion(currentQuestion);
 				}
 			});
-
 			prevBtn.addEventListener("click", function () {
 				if (currentQuestion > 0) {
 					currentQuestion--;
@@ -719,10 +723,9 @@
 				});
 			});
 		});
-	</script>
-	<script>
-
-</script>
+		</script>
+		
+	
 
 	
  @endsection
