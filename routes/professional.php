@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Professional\AvailabilityController;
+use App\Http\Controllers\Professional\BillingController;
+use App\Http\Controllers\Professional\BookingController;
 use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\ServiceController;
@@ -15,4 +17,6 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::resource('service', ServiceController::class);
     Route::resource('rate', RateController::class);
     Route::resource('availability', AvailabilityController::class);
+    Route::resource('booking', BookingController::class);
+    Route::resource('billing', BillingController::class);
 });

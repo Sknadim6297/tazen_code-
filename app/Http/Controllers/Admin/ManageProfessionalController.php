@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Availability;
 use App\Models\Professional;
+use App\Models\ProfessionalService;
 use App\Models\Profile;
+use App\Models\Rate;
 use Illuminate\Http\Request;
 
 class ManageProfessionalController extends Controller
@@ -14,7 +17,7 @@ class ManageProfessionalController extends Controller
      */
     public function index()
     {
-        $professionals = Professional::with('profiles')->get();
+        $professionals = Professional::latest()->get();
         return view('admin.manage-professional.index', compact('professionals'));
     }
 
@@ -39,8 +42,12 @@ class ManageProfessionalController extends Controller
      */
     public function show(string $id)
     {
-        $profiles = Profile::with('professional')->get();
-        return view('admin.manage-professional.show', compact('profiles'));
+        $profiles = Profile::where('professional_id', $id)->with('professional')->get();
+        $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
+        $services = ProfessionalService::where('professional_id', $id)->with('professional')->get();
+        $rates = Rate::where('professional_id', $id)->with('professional')->get();
+
+        return view('admin.manage-professional.show', compact('profiles', 'availabilities', 'services', 'rates'));
     }
 
     /**
@@ -48,7 +55,8 @@ class ManageProfessionalController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $professional = Professional::findOrFail($id);
+        return view('admin.manage-professional.edit', compact('professional'));
     }
 
     /**

@@ -52,7 +52,7 @@
                 </ul>
             </li> -->
 
-<li class="submenu">
+            <li class="submenu">
     <a href="#0" class="show-submenu">Listing</a>
     <ul>
         @foreach ($services as $service)
@@ -71,7 +71,7 @@
             @endphp
             <li>
                 <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/' . $icon) }}" alt="{{ $service->name }}">
-                <a href="{{ route('service.show', $service->id) }}">{{ $service->name }}</a>
+                <a href="{{ url('/service/' . $service->id) }}">{{ $service->name }}</a>
             </li>
         @endforeach
     </ul>

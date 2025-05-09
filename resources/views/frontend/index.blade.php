@@ -104,12 +104,22 @@
 							</div>
 				
 							<div class="modal-body">
-								<form id="mcqForm" method="POST" action="{{ route('submitQuestionnaire') }}">
+								<form id="mcqForm" method="POST" action="{{ route('submit.mcq') }}">
 									@csrf
-									<input type="hidden" name="service_id" id="service_id">
-									<div id="questionsContainer">
-										<!-- Questions will be loaded here dynamically -->
-									</div>
+				
+									<!-- Loop through MCQs -->
+									@foreach ($mcqs as $index => $mcq)
+										<div class="question" id="question{{ $index + 1 }}">
+											<h6>Question {{ $index + 1 }}: {{ $mcq->question }}</h6>
+				
+											@foreach (['answer1', 'answer2', 'answer3', 'answer4'] as $opt)
+												<div class="form-check">
+													<input class="form-check-input" type="radio" name="q{{ $index + 1 }}" id="q{{ $index + 1 }}{{ $opt }}" value="{{ $mcq->$opt }}" required>
+													<label class="form-check-label" for="q{{ $index + 1 }}{{ $opt }}">{{ $mcq->$opt }}</label>
+												</div>
+											@endforeach
+										</div>
+									@endforeach
 								</form>
 							</div>
 				
@@ -524,17 +534,17 @@
 					</div>
 				</div>
 				<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
-					@foreach ($blogs->take(3) as $blog)
+					@foreach ($blogs as $blog)
 						<div class="col-sm-12">
 							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-								<a href="{{ route('blog.index') }}">
-									<div class="post-image position-relative overlay-secondary" style="height: 200px; overflow: hidden;">
-										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+								<a href="{{ url('/blog/' . $blog->id) }}">
+									<div class="post-image position-relative overlay-secondary">
+										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid">
 									</div>
 								</a>
 								<div class="post-content p-35">
 									<h5 class="d-block font-400 mb-3">
-										<a href="{{ route('blog.index') }}" class="transation text-dark hover-text-primary">
+										<a href="{{ url('/blog/' . $blog->id) }}" class="transation text-dark hover-text-primary">
 											{{ $blog->title }}
 										</a>
 									</h5>

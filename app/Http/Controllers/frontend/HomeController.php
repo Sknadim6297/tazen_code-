@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Availability;
+use App\Models\Booking;
 use App\Models\McqAnswer;
+use App\Models\Professional;
+use App\Models\ProfessionalService;
 use App\Models\Profile;
+use App\Models\Rate;
+use Carbon\Carbon;
 use App\Models\Service;
 use App\Models\Banner;
 use App\Models\AboutUs;
@@ -99,8 +105,8 @@ public function showServiceQuestions($serviceId)
     }
     public function professionals()
     {
-        $profiles = Profile::latest()->get();
-        return view('frontend.sections.gridlisting', compact('profiles'));
+        $professionals = Professional::with('profile')->where('status', 'accepted')->latest()->get();
+        return view('frontend.sections.gridlisting', compact('professionals'));
     }
 
     public function getServiceQuestions($id)

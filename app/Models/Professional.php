@@ -12,10 +12,11 @@ class Professional extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password'];
 
-    public function profiles()
+    public function profile()
     {
-        return $this->hasMany(Profile::class, 'professional_id', 'id');
+        return $this->hasOne(Profile::class, 'professional_id', 'id');
     }
+    
     public function professionalServices()
     {
         return $this->hasMany(ProfessionalService::class);
@@ -24,4 +25,5 @@ class Professional extends Authenticatable
     {
         return $this->hasMany(Rate::class);
     }
+    
 }

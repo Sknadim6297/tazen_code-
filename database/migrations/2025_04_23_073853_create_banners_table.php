@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('heading');
             $table->string('sub_heading')->nullable();
-            $table->string('banner_video')->nullable(); // video path instead of image
+            $table->string('banner_video')->nullable(); 
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
 

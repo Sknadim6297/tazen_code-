@@ -1,24 +1,182 @@
 @extends('layouts.layout')
 @section('styles')
-   {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
+   <link rel="preload" href="{{ asset('frontend/assets/css/detail-page.css') }}" as="style">
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/detail-page.css') }}">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+    <style>
+        	/* Appointment Types Container */
+		.appointment_types {
+			background: #fff;
+			border-radius: 10px;
+			box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+			margin-bottom: 25px;
+			overflow: hidden;
+		}
+		
+		/* Tab Navigation */
+		.appointment_types .nav-tabs {
+			border-bottom: 2px solid #f0f0f0;
+			padding: 0 15px;
+			padding-bottom: 10px;
+		}
+		
+		.appointment_types .nav-link {
+			border: none;
+			color: #6c757d;
+			font-weight: 600;
+			padding: 12px 15px;
+			position: relative;
+			transition: all 0.3s ease;
+			font-size: 14px;
+		}
+		
+		.appointment_types .nav-link:hover {
+			color: #00a6eb;
+			background: transparent;
+		}
+		
+		.appointment_types .nav-link.active {
+			color: #00a6eb;
+			background: transparent;
+		}
+		
+		.appointment_types .nav-link.active:after {
+			content: '';
+			position: absolute;
+			bottom: -2px;
+			left: 0;
+			width: 100%;
+			height: 2px;
+			background: #00a6eb;
+		}
+		
+		/* Tab Content */
+		.appointment_types .tab-content {
+			padding: 20px;
+		}
+		
+		.appointment-details {
+			text-align: center;
+		}
+		
+		.appointment-details h4 {
+			color: #2a2a2a;
+			font-weight: 700;
+			margin-bottom: 15px;
+			font-size: 18px;
+		}
+		
+		.appointment-details p {
+			color: #6c757d;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+		
+		.appointment-features {
+			text-align: left;
+			margin: 0 auto 20px;
+			padding: 0;
+			max-width: 280px;
+		}
+		
+		.appointment-features li {
+			list-style: none;
+			padding: 8px 0;
+			color: #555;
+			font-size: 14px;
+			position: relative;
+			padding-left: 25px;
+		}
+		
+		.appointment-features i {
+			color: #00a6eb;
+			position: absolute;
+			left: 0;
+			top: 10px;
+		}
+		
+		.price {
+			background: #f8f9fa;
+			padding: 15px;
+			border-radius: 8px;
+			margin: 20px 0;
+		}
+		
+		.price strong {
+			color: #00a6eb;
+			font-size: 22px;
+			font-weight: 700;
+			display: block;
+		}
+		
+		.price small, .price-range small {
+			color: #6c757d;
+			font-size: 13px;
+		}
+		
+		.select-plan {
+			background: #00a6eb;
+			border: none;
+			transition: all 0.3s ease;
+			padding: 12px 15px;
+			font-weight: 600;
+		}
+		
+		.select-plan:hover {
+			background: #0088c6;
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(0, 166, 235, 0.3);
+		}
+		
+		/* Selected Plan Display */
+		#selected-plan-display {
+			background: #f0f9ff;
+			border-left: 4px solid #00a6eb;
+			color: #2a2a2a;
+			animation: fadeIn 0.5s ease;
+		}
+		
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		
+		/* Responsive Adjustments */
+		@media (max-width: 768px) {
+			.appointment_types .nav-link {
+				padding: 10px 8px;
+				font-size: 13px;
+			}
+			
+			.appointment-details h4 {
+				font-size: 16px;
+			}
+			
+			.price strong {
+				font-size: 20px;
+			}
+		}
+    </style>
 @endsection
 @section('content')
-
-<main class="bg_color">
-    <div class="container margin_detail">
+    <div class="container margin_detail" style="margin-top: 100px;">
         <div class="row">
             <div class="col-xl-8 col-lg-7">
                 <div class="box_general">
                      <div>
-                        <img src="img/detail_2.jpg" alt="" class="img-fluid" width="990" height="450">
+                        <img src="{{ asset($profile->photo) }}" alt="" class="img-fluid" width="990" height="300">
                     </div>
                     <div class="main_info_wrapper">
                         <div class="main_info clearfix">
                             <div class="user_desc">
-                                <h3>Dr. Maria Cornfield</h3>
-                                <p>27 Old Gloucester St, 4530 - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get directions</a></p>
+                                <h3 id="professional_name">{{ $profile->first_name }} {{ $profile->last_name }}</h3>
+
+                                <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get dir ections</a></p>
                                 <ul class="tags no_margin">
-                                    <li><a href="#0">Pediatrician</a></li>
+                                    <li><a href="#0">{{ $profile->specialization }}</a></li>
                                     <li><a href="#0">Piscologist</a></li>
                                     <li><a href="#0">Researcher</a></li>
                                 </ul>
@@ -33,12 +191,22 @@
                         <!-- /main_info_wrapper -->
                         <hr>
                         <h4>About me</h4>
-                        <p>Tincidunt intellegam mel ne, an eam menandri invenire euripidis. Ea quo utroque forensibus eloquentiam. Nam ad option iisque verterem, sed nemore menandri ex. Pri ei solet eripuit, et nam decore tacimates persequeris. Te nec duis corpora persequeris, vix ubique graece intellegat ea. In pro <strong>euismod molestie</strong>, eam sonet doming offendit ut.</p>
-                        <div class="content_more">
-                            <p>Lorem ipsum dolor sit amet, an sea eius elitr persius. Voluptaria inciderint qui in. No tollit aliquid reformidans mei, nec illum sensibus id, at has esse admodum adipisci. Et has maiestatis scriptorem. Et aeque iudico oblique ius.</p>
-                        </div>
-                        <!-- /content_more -->
-                        <a href="#0" class="show_hide" data-content="toggle-text">Read More</a>
+
+                        @php
+                            $bioText = strip_tags($profile->bio); 
+                            $limit = 250;
+                        @endphp
+                        
+                        @if(strlen($bioText) > $limit)
+                            <p id="bio-short">{{ Str::limit($bioText, $limit, '...') }}</p>
+                            <div id="bio-full" style="display: none;">
+                                {!! $profile->bio !!}
+                            </div>
+                            <a href="javascript:void(0)" class="show_hide" id="toggle-bio">Read More</a>
+                        @else
+                            <p>{!! $profile->bio !!}</p>
+                        @endif
+                        
                     </div>
                     <!-- /main_info -->
                 </div>
@@ -70,7 +238,6 @@
                                         <div class="indent_title_in">
                                             <i class="icon_document_alt"></i>
                                             <h3>Services</h3>
-                                            <p>Mussum ipsum cacilds, vidis litro abertis.</p>
                                         </div>
                                         <div class="wrapper_indent">
                                             <p>Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Nullam mollis. Phasellus hendrerit.</p>
@@ -78,7 +245,7 @@
                                             <div class="services_list clearfix">
                                                 <ul>
                                                     <li>Cardiological examination with ECG <strong><small>from</small> $80</strong></li>
-                                                    <li>Echocardiogram <strong><small>from</small> 110$</strong></li>
+                                                    <li>Echocardiogram <strong><small>from</small> $110</strong></li>
                                                     <li>Electrocardiogram or ECG <strong><small>from</small> $95</strong></li>
                                                 </ul>
                                             </div>
@@ -302,47 +469,31 @@
                                         </a>
                                     </h5>
                                 </div>
-                                <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
-                                    <div class="card-body">
-                                        <div class="gallery-container">
-                                            <div class="row">
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/1.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/1.jpg" class="img-fluid rounded" alt="Clinic Photo 1">
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/2.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/2.jpg" class="img-fluid rounded" alt="Clinic Photo 2">
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/3.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/3.jpg" class="img-fluid rounded" alt="Clinic Photo 3">
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/4.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/4.jpg" class="img-fluid rounded" alt="Clinic Photo 4">
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/5.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/5.jpg" class="img-fluid rounded" alt="Clinic Photo 5">
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-4 col-sm-6 mb-4">
-                                                    <a href="img/gallery/6.jpg" class="gallery-item" data-fancybox="gallery">
-                                                        <img src="img/gallery/6.jpg" class="img-fluid rounded" alt="Clinic Photo 6">
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div class="text-center mt-3">
-                                                <p>Our state-of-the-art facilities and comfortable environment</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                @php
+                                $galleryImages = json_decode($profile->gallery, true);
+                                @endphp
+                        @if(!empty($galleryImages))
+                            <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
+                            <div class="card-body">
+                                  <div class="gallery-container">
+                               <div class="row">
+                            @foreach($galleryImages as $image)
+                            <div class="col-md-4 col-sm-6 mb-4">
+                            <a href="{{ asset($image) }}" class="gallery-item" data-fancybox="gallery">
+                                <img src="{{ asset($image) }}" class="img-fluid rounded" alt="Clinic Photo">
+                            </a>
+                        </div>
+                    @endforeach
+
+                </div>
+                <div class="text-center mt-3">
+                    <p>Our state-of-the-art facilities and comfortable environment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
                             </div>
                             <!-- /Gallery tab -->
                             
@@ -358,99 +509,55 @@
                 <div class="box_booking appointment_types">
                     <div class="tabs">
                         <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="one-time-tab" data-bs-toggle="tab" href="#one-time" role="tab">One-time</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="monthly-tab" data-bs-toggle="tab" href="#monthly" role="tab">Monthly</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="quarterly-tab" data-bs-toggle="tab" href="#quarterly" role="tab">Quarterly</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="freehand-tab" data-bs-toggle="tab" href="#freehand" role="tab">Free-hand</a>
-                            </li>
+                            @foreach($rates as $rate)
+                                @php
+                                    $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
+                                @endphp
+                                <li class="nav-item">
+                                    <a class="nav-link @if($loop->first) active @endif" id="{{ $safeId }}-tab" data-bs-toggle="tab" href="#{{ $safeId }}" role="tab">{{ ucfirst($rate->session_type) }}</a>
+                                </li>
+                            @endforeach
                         </ul>
                         
                         <div class="tab-content">
-                            <!-- One-time Tab -->
-                            <div class="tab-pane fade show active" id="one-time" role="tabpanel" aria-labelledby="one-time-tab">
-                                <div class="appointment-details">
-                                    <h4>One-time Consultation</h4>
-                                    <p>Single consultation session with the doctor for immediate concerns.</p>
-                                    <ul class="appointment-features">
-                                        <li><i class="icon_check_alt2"></i> 30-45 minute session</li>
-                                        <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
-                                        <li><i class="icon_check_alt2"></i> Follow-up recommendations</li>
-                                    </ul>
-                                    <div class="price">
-                                        <strong>Rs. 2,500</strong>
-                                        <small>per session</small>
+                            @foreach($rates as $rate)
+                                @php
+                                    $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
+                                @endphp
+                                <div class="tab-pane fade @if($loop->first) show active @endif" id="{{ $safeId }}" role="tabpanel" aria-labelledby="{{ $safeId }}-tab">
+                                    <div class="appointment-details">
+                                        <h4>{{ ucfirst($rate->session_type) }} Consultation</h4>
+                                        <p>{{ $rate->professional->bio }}</p>
+                                        <ul class="appointment-features">
+                                            <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
+                                            <li><i class="icon_check_alt2"></i> {{ $rate->duration }} per session</li>
+                                            <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
+                                        </ul>
+                                        <div class="price">
+                                     @php
+                                    $perText = match (strtolower($rate->session_type)) {
+                                         'free hand' => 'per session',
+                                            'weekly' => 'per week',
+                                            'monthly' => 'per month',
+                                                'quarterly' => 'per 3 months', 
+                                                default => 'per session',
+                                                          };
+                                             @endphp
+
+                                        
+                                            <strong>Rs. {{ number_format($rate->final_rate, 2) }}</strong>
+                                            <small>{{ $perText }}</small>
+                                        </div>
+                                        
+                                        <button class="btn_1 full-width select-plan" data-plan="{{ $safeId }}">Select {{ ucfirst($rate->session_type) }}</button>
                                     </div>
-                                    <button class="btn_1 full-width select-plan" data-plan="one-time">Select One-time</button>
                                 </div>
-                            </div>
-                            
-                            <!-- Monthly Tab -->
-                            <div class="tab-pane fade" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-                                <div class="appointment-details">
-                                    <h4>Monthly Package</h4>
-                                    <p>Regular monthly checkups for ongoing treatment and monitoring.</p>
-                                    <ul class="appointment-features">
-                                        <li><i class="icon_check_alt2"></i> 4 sessions per month</li>
-                                        <li><i class="icon_check_alt2"></i> 24/7 priority support</li>
-                                        <li><i class="icon_check_alt2"></i> Medication management</li>
-                                        <li><i class="icon_check_alt2"></i> Progress tracking</li>
-                                    </ul>
-                                    <div class="price">
-                                        <strong>Rs. 8,000</strong>
-                                        <small>per month (20% savings)</small>
-                                    </div>
-                                    <button class="btn_1 full-width select-plan" data-plan="monthly">Select Monthly</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Quarterly Tab -->
-                            <div class="tab-pane fade" id="quarterly" role="tabpanel" aria-labelledby="quarterly-tab">
-                                <div class="appointment-details">
-                                    <h4>Quarterly Package</h4>
-                                    <p>Comprehensive 3-month treatment plan for chronic conditions.</p>
-                                    <ul class="appointment-features">
-                                        <li><i class="icon_check_alt2"></i> 12 sessions over 3 months</li>
-                                        <li><i class="icon_check_alt2"></i> Complete health assessment</li>
-                                        <li><i class="icon_check_alt2"></i> Diet & lifestyle planning</li>
-                                        <li><i class="icon_check_alt2"></i> Emergency consultations</li>
-                                        <li><i class="icon_check_alt2"></i> Lab test discounts</li>
-                                    </ul>
-                                    <div class="price">
-                                        <strong>Rs. 21,000</strong>
-                                        <small>per quarter (30% savings)</small>
-                                    </div>
-                                    <button class="btn_1 full-width select-plan" data-plan="quarterly">Select Quarterly</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Free-hand Tab -->
-                            <div class="tab-pane fade" id="freehand" role="tabpanel" aria-labelledby="freehand-tab">
-                                <div class="appointment-details">
-                                    <h4>Free-hand Consultation</h4>
-                                    <p>Customizable consultation package tailored to your needs.</p>
-                                    <ul class="appointment-features">
-                                        <li><i class="icon_check_alt2"></i> Choose number of sessions</li>
-                                        <li><i class="icon_check_alt2"></i> Flexible scheduling</li>
-                                        <li><i class="icon_check_alt2"></i> Mix of in-person and virtual</li>
-                                        <li><i class="icon_check_alt2"></i> Personalized package</li>
-                                    </ul>
-                                    <div class="price-range">
-                                        <strong>Starting from Rs. 2,000</strong>
-                                        <small>per session (bulk discounts available)</small>
-                                    </div>
-                                    <button class="btn_1 full-width select-plan" data-plan="freehand">Select Free-hand</button>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
+                        
                     </div>
                 </div>
+                
                 <!-- /Appointment Type Tabs -->
             
                 <div class="box_booking mobile_fixed">
@@ -473,102 +580,204 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- /type -->
-                        <input type="text" id="datepicker_field">
-                        <div id="DatePicker"></div>
+                        <div class="form-group">
+                        <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none" />
+                        <div id="calendarDiv"></div>
+                        </div>
+
                         <div class="dropdown time">
                             <a href="#" data-bs-toggle="dropdown">Hour <span id="selected_time"></span></a>
                             <div class="dropdown-menu">
                                 <div class="dropdown-menu-content">
-                                    <div class="radio_select">
-                                        <ul>
-                                            <li>
-                                                <input type="radio" id="time_1" name="time" value="12.00pm to 12.30pm">
-                                                <label for="time_1">12.00<small>pm to</small>12.30<small>pm</small></label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" id="time_2" name="time" value="1.00pm to 1.30pm">
-                                                <label for="time_2">1.00<small>pm to</small>1.30<small>pm</small></label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" id="time_3" name="time" value="1.30pm to 2.00pm">
-                                                <label for="time_3">1.30<small>pm to</small>2.00<small>pm</small></label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" id="time_4" name="time" value="2.00pm to 2.30pm">
-                                                <label for="time_4">2.00<small>pm to</small>2.30<small>pm</small></label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" id="time_5" name="time" value="2.30pm to 3.00pm">
-                                                <label for="time_5">2.30<small>pm to</small>3.00<small>pm</small></label>
-                                            </li>
-                                            <li>
-                                                <input type="radio" id="time_6" name="time" value="3.00pm to 3.30pm">
-                                                <label for="time_6">3.00<small>pm to</small>3.30<small>pm</small></label>
-                                            </li>
-                                        </ul>
+                                    <div class="radio_select" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                        @foreach($availabilities as $availability)
+                                            @foreach($availability->slots as $slot)
+                                                <div style="flex: 0 0 auto;">
+                                                    <input type="radio"
+                                                           id="time_{{ $slot->id }}"
+                                                           data-id="{{ $slot->id }}"
+                                                           name="time"
+                                                           value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }} {{ $slot->start_period }} to {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }} {{ $slot->end_period }}"
+                                                           class="time-slot"
+                                                           data-start="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }}"
+                                                           data-start-period="{{ $slot->start_period }}"
+                                                           data-end="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }}"
+                                                           data-end-period="{{ $slot->end_period }}">
+                                                    <label for="time_{{ $slot->id }}">
+                                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }}
+                                                        <small>{{ strtoupper($slot->start_period) }}</small> -
+                                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }}
+                                                        <small>{{ strtoupper($slot->end_period) }}</small>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        @endforeach
                                     </div>
-                                    <!-- /time_select -->
                                 </div>
                             </div>
                         </div>
+                        
                         <!-- /dropdown -->
-                        <a href="booking.html" class="btn_1 full-width booking">Book Now</a>
+                        <a href="javascript:void(0);" class="btn_1 full-width booking">Book Now</a>
                     </div>
                 </div>
-                <!-- /box_booking -->
-                <div class="btn_reserve_fixed"><a href="#0" class="btn_1 full-width booking">Book Now</a></div>
                 <ul class="share-buttons">
                     <li><a class="fb-share" href="#0"><i class="social_facebook"></i> Share</a></li>
                     <li><a class="twitter-share" href="#0"><i class="social_twitter"></i> Share</a></li>
                     <li><a class="gplus-share" href="#0"><i class="social_googleplus"></i> Share</a></li>
                 </ul>
             </div>
-            
+            @endsection
+            @section('script')
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
             <script>
-            // JavaScript to handle plan selection
-            document.addEventListener('DOMContentLoaded', function() {
-                const planButtons = document.querySelectorAll('.select-plan');
-                const selectedPlanDisplay = document.getElementById('selected-plan-display');
-                const selectedPlanText = document.getElementById('selected-plan-text');
-                const selectedPlanInput = document.getElementById('selected_plan');
-                
-                planButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const plan = this.getAttribute('data-plan');
-                        let planName = '';
-                        
-                        switch(plan) {
-                            case 'one-time':
-                                planName = 'One-time Consultation (Rs. 2,500)';
-                                break;
-                            case 'monthly':
-                                planName = 'Monthly Package (Rs. 8,000)';
-                                break;
-                            case 'quarterly':
-                                planName = 'Quarterly Package (Rs. 21,000)';
-                                break;
-                            case 'freehand':
-                                planName = 'Free-hand Consultation (Starting from Rs. 2,000)';
-                                break;
-                        }
-                        
-                        selectedPlanText.textContent = planName;
-                        selectedPlanInput.value = plan;
-                        selectedPlanDisplay.style.display = 'block';
-                        
-                        // Scroll to booking section
-                        document.querySelector('.box_booking.mobile_fixed').scrollIntoView({
-                            behavior: 'smooth'
+                document.addEventListener('DOMContentLoaded', function () {
+                    // const professionalName=document.getElementById('professional_name');
+                    // const professionalAddress=document.getElementById('professional_address');
+                    const planButtons = document.querySelectorAll('.select-plan');
+                    const selectedPlanDisplay = document.getElementById('selected-plan-display');
+                    const selectedPlanText = document.getElementById('selected-plan-text');
+                    const selectedPlanInput = document.getElementById('selected_plan');
+            
+                    // Plan selection
+                    planButtons.forEach(button => {
+                        button.addEventListener('click', function () {
+                            const plan = this.getAttribute('data-plan');
+                            selectedPlanInput.value = plan;
+                            selectedPlanText.textContent = plan + ' Consultation';
+                            selectedPlanDisplay.style.display = 'block';
+                            selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
                         });
                     });
-                });
-            });
-            </script>
-        </div>
-        <!-- /row -->
-    </div>
-    <!-- /container -->
-</main>
+            
+                    document.querySelector('.booking').addEventListener('click', function (e) {
+    e.preventDefault();
 
-@endsection
+    const selectedTimeRadio = document.querySelector('input[name="time"]:checked');
+    const timeSlot = selectedTimeRadio ? selectedTimeRadio.value : null;
+    const planType = selectedPlanInput.value;
+    const bookingDate = document.getElementById('rangeInput').value;
+
+    const professionalName = document.getElementById('professional_name').textContent.trim();
+    const professionalAddress = document.getElementById('professional_address').textContent.trim();
+
+    const professionalId = {{ json_encode($profile->professional->id ?? null) }};
+
+    console.log( {
+        professional_name: professionalName,
+        professional_address: professionalAddress,
+        professional_id: professionalId,
+        plan_type: planType,
+        booking_date: bookingDate,
+        time_slot: timeSlot,
+    });
+    
+    if (!planType) {
+        toastr.error('Please select a consultation plan.');
+        return;
+    }
+
+    if (!bookingDate) {
+        toastr.error('Please select a booking date.');
+        return;
+    }
+
+    if (!timeSlot) {
+        toastr.error('Please select a time slot.');
+        return;
+    }
+
+    fetch("{{ route('user.booking.session.store') }}", {
+        method: 'POST',
+        headers: {
+             'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            professional_name: professionalName,
+            professional_address: professionalAddress,
+            professional_id: professionalId,
+            plan_type: planType,
+            booking_date: bookingDate,
+            time_slot: timeSlot,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            toastr.success(data.message);
+            setTimeout(() => {
+                window.location.href = "{{ route('user.booking') }}";
+            }, 1000);
+        } else {
+            toastr.error(data.message || 'Something went wrong.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        toastr.error('Server error. Please try again later.');
+    });
+});});
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const bioShort = document.getElementById("bio-short");
+        const bioFull = document.getElementById("bio-full");
+        const toggleBtn = document.getElementById("toggle-bio");
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+                if (bioFull.style.display === "none") {
+                    bioShort.style.display = "none";
+                    bioFull.style.display = "block";
+                    toggleBtn.textContent = "Read Less";
+                } else {
+                    bioShort.style.display = "block";
+                    bioFull.style.display = "none";
+                    toggleBtn.textContent = "Read More";
+                }
+            });
+        }
+    });
+
+            </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let enabledDates = @json($enabledDates);
+        function formatLocalDate(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - offset * 60 * 1000);
+            return localDate.toISOString().split('T')[0];
+        }
+    
+        flatpickr("#calendarDiv", {
+            inline: true,
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: [
+                function (date) {
+                    const dateString = formatLocalDate(date);
+                    return !enabledDates.includes(dateString) || date.getDay() === 0; 
+                }
+            ],
+    
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+                const date = dayElem.dateObj;
+                const dateString = formatLocalDate(date);
+    
+                if (enabledDates.includes(dateString) && date.getDay() !== 0) {
+                    dayElem.style.backgroundColor = '#28a745';
+                    dayElem.style.color = 'white';
+                }
+            },
+    
+            onChange: function (selectedDates, dateStr, instance) {
+                document.getElementById('rangeInput').value = dateStr;
+            }
+        });
+    });
+    </script>
+
+            @endsection
+            

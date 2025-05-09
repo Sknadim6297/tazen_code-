@@ -1,7 +1,7 @@
 @extends('professional.layout.layout')
 
-@section('style')
-
+@section('styles')
+   <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
 @endsection
 
 @section('content')
@@ -139,7 +139,7 @@ $('#serviceForm').submit(function(e) {
                 toastr.success(response.message);
                 form.reset();
                 setTimeout(() => {
-                    window.location.href = "{{ route('professional.dashboard') }}";
+                    window.location.href = "{{ route('professional.service.index') }}";
                 }, 1500);
             } else {
                 toastr.error(response.message || "Something went wrong");
