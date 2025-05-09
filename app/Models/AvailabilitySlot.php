@@ -12,9 +12,7 @@ class AvailabilitySlot extends Model
     protected $fillable = [
         'availability_id',
         'start_time',
-        'start_period',
         'end_time',
-        'end_period',
     ];
 
     public function availability()

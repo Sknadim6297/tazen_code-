@@ -18,13 +18,17 @@ class ProfessionalService extends Model
         'tags',
         'requirements',
         'image_path',
-        'professional_id', 
+        'professional_id',
     ];
 
     // Define relationships
     public function professional()
     {
         return $this->belongsTo(Professional::class);
+    }
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
     }
     protected $casts = [
         'features' => 'array',

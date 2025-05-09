@@ -47,14 +47,10 @@
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('professional.rate.edit', $rate->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
+                                        </a>     
+                                        <a href="javascript:void(0)" data-url="{{  route('professional.rate.destroy', $rate->id)  }}" class="btn btn-sm btn-outline-warning delete-item" title="Delete">
+                                            <i class="fas fa-trash"></i>
                                         </a>
-                                        <form action="{{ route('professional.rate.destroy', $rate->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this rate?');">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -66,8 +62,6 @@
                     </tbody>
                 </table>
             </div>
-            
-            
         </div>
     </div>
 </div>
