@@ -45,7 +45,8 @@
                 </div>
             @endforeach
         </div>
-
+        
+        
     <!-- /row -->
     <div class="pagination_fg">
         <a href="#">&laquo;</a>

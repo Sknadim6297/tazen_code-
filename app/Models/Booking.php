@@ -10,15 +10,29 @@ class Booking extends Model
     use HasFactory;
 
     // Define the fillable fields for mass assignment
-    protected $fillable = ['user_id', 'professional_id', 'plan_type', 'booking_date', 'time_slot',
-        'customer_name', 'customer_email', 'customer_phone', 'session_type', 'month', 'days', 'meeting_link'];
+    protected $fillable = [
+        'user_id',
+        'professional_id',
+        'plan_type',
+        'booking_date',
+        'time_slot',
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'session_type',
+        'month',
+        'days',
+        'meeting_link',
+        'professional_documents',
+        'remarks',
+    ];
 
     /**
      * Get the customer that owns the booking.
      */
     public function customer()
     {
-        return $this->belongsTo(User::class, 'user_id'); 
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -27,5 +41,10 @@ class Booking extends Model
     public function professional()
     {
         return $this->belongsTo(Professional::class, 'professional_id');
+    }
+
+    public function timedates()
+    {
+        return $this->hasMany(BookingTimedate::class, 'booking_id');
     }
 }
