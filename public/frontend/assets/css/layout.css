@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+   .service-container .card {
+			position: relative;
+			/* cursor: pointer; */
+			border-radius: 12px;
+		}
+
+
+		.service-container .card .card-body {
+			height: 420px;
+			/* position: relative; */
+			cursor: pointer;
+		}
+
+		.service-container .card .info {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			background: transparent;
+			width: 100%;
+			/* text-align: right; */
+			padding: 6px;
+
+			border-top: 0;
+			border-bottom: 0;
+			opacity: 1;
+			/* transition: 0.3s ease; */
+		}
+
+		.service-container .card .info .content-discover {
+			display: flex;
+			border-radius: 6px;
+			background: #ffffff;
+
+		}
+
+		.service-container .card .info .content-discover .l {
+			text-align: start;
+			width: 60%;
+			align-content: center;
+		}
+
+		.service-container .card .info .content-discover .r {
+			margin-right: 8px;
+			text-align: end;
+			width: 40%;
+		}
+
+		/* .service-container .card:hover .info{
+
+	opacity: 1;
+   transition: 0.3s ease;
+   bottom: 0px;
+
+  } */
+
+		.service-container .card .info .text-dark {
+			text-transform: uppercase;
+			font-size: 15px !important;
+			font-weight: 550;
+			margin-bottom: 0px;
+		}
+
+		.service-container .card .one {
+			background-image: url(img/professionals_photos/seven-services/career-consultant.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .two {
+			background-image: url(img/professionals_photos/seven-services/interior-design-service.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .three {
+			background-image: url(img/services-pic/astro-service.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .four {
+			background-image: url(img/services-pic/yoga-consult.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .five {
+			background-image: url(img/services-pic/stylish-consutant.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .six {
+			background-image: url(img/professionals_photos/seven-services/Influencer-consulating.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .seven {
+			background-image: url(img/professionals_photos/seven-services/psychology-consulting.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+
+		.service-container .card .eight {
+			background-image: url(img/professionals_photos/seven-services/food-dietician.jpg);
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 12px;
+		}
+		body {
+			font-family: "Poppins";
+		}
+        .question {
+			display: none;
+		}
+		.question.active {
+			display: block;
+		}
+		.form-check {
+			margin-bottom: 10px;
+		}
+		.card-body {
+			height: 200px;
+			background-size: cover;
+			background-position: center;
+		}
+		.one { background-color: #f8d7da; }
+		.two { background-color: #d1e7dd; }
+		.three { background-color: #cfe2ff; }
+		.four { background-color: #fff3cd; }
+		.five { background-color: #e2e3e5; }
+		.six { background-color: #d9f2f9; }
+		.seven { background-color: #f8d7da; }
+		.eight { background-color: #d1e7dd; }
+		.btn_1 {
+			background: #4e63d7;
+			color: #fff;
+			padding: 8px 20px;
+			border-radius: 30px;
+			border: none;
+			text-decoration: none;
+			display: inline-block;
+		}
+		.btn_1:hover {
+			background: #3a4eb3;
+			color: #fff;
+		}
+		.content-discover {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
