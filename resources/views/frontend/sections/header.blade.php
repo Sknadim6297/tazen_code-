@@ -1,7 +1,7 @@
 <header class="header clearfix element_to_stick">
     <div class="container-fluid">
         <div id="logo">
-            <a href="index-3.html">
+            <a href="{{ url('/') }}">
                 <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_normal">
                 <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_sticky">
             </a>

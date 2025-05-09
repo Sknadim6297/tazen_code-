@@ -11,4 +11,8 @@ class Service extends Model
 
     protected $fillable = ['name', 'image', 'status'];
 
+    public function detail()
+    {
+        return $this->hasOne(ServiceDetails::class, 'service_id');
+    }
 }
