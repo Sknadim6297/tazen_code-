@@ -202,12 +202,6 @@
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
                                 </ul>
-<<<<<<< HEAD
-
-                                
-
-=======
->>>>>>> 07d366e8dabf3beb4e492b931c5c9a98236ead28
                             </li>
 
                         </ul>

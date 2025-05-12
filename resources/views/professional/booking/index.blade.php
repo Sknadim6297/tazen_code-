@@ -99,6 +99,74 @@
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+    .search-container {
+        background: #f5f7fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .search-form .form-group {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-form label {
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .search-form input[type="text"],
+    .search-form input[type="date"] {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-buttons button,
+    .search-buttons a {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
 </style>
 @endsection
 
@@ -113,6 +181,30 @@
             <li class="active">All Bookings</li>
         </ul>
     </div>
+   <div class="search-container">
+    <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
+        <div class="form-group">
+            <label for="search_name">Search</label>
+            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
+        </div>
+
+        <div class="form-group">
+            <label for="search_date_from">From Date</label>
+            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+        </div>
+
+        <div class="form-group">
+            <label for="search_date_to">To Date</label>
+            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+        </div>
+
+        <div class="search-buttons">
+            <button type="submit" class="btn-success">Search</button>
+            <a href="{{ route('professional.booking.index') }}" class="btn-secondary">Reset</a>
+        </div>
+    </form>
+</div>
+
 
     <div class="card">
         <div class="card-body">
@@ -160,7 +252,8 @@
 
                                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
-                                <td>{{ $booking->created_at }}</td>
+                          <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
+
                                 <td>
                                     <a href="{{ $booking->meeting_link }}" target="_blank" class="btn btn-link">Join</a>
                                 </td>
