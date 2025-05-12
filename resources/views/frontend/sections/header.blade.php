@@ -1,13 +1,9 @@
 <header class="header clearfix element_to_stick">
     <div class="container-fluid">
         <div id="logo">
-<<<<<<< Updated upstream
-            <a href="{{ url('/') }}">
-=======
             <a href="{{ url('/') }}" title="Tazen">
                 {{-- <img src="{{ asset('frontend/assets/img/logo.svg') }}" width="120" height="35" alt="" class="logo_normal"> --}}
                 {{-- <img src="{{ asset('frontend/assets/img/logo_sticky.svg') }}" width="120" height="35" alt="" class="logo_sticky"> --}}
->>>>>>> Stashed changes
                 <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_normal">
                 <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_sticky">
             </a>

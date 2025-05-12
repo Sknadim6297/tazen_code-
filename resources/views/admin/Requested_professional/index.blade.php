@@ -5,36 +5,57 @@
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
-
-            
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">All  Professionals</h1>
-                <div class="">
+                <h1 class="page-title fw-medium fs-18 mb-2">Manage Professionals</h1>
+                <div>
                     <nav>
                         <ol class="breadcrumb mb-0">
-                     
-                            <li class="breadcrumb-item"><a href="javascript:void(0);"> Professional</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Manage Professionals</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Professional</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Manage Professional</li>
                         </ol>
                     </nav>
                 </div>
             </div>
+           <form action="{{ route('admin.professional.requests') }}" method="GET" class="d-flex gap-2">
+           <div class="col-xl-6">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                    <input type="date" class="form-control"  placeholder="Choose Start Date" name="start_date" id="start_date">
+                    <span class="input-group-text">to</span>
+                    <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
+                </div>
+            </div>
         </div>
-        <!-- Page Header Close -->
-        <!-- Start::row-2 -->
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-xl-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+           
+        </div>
+
+        <!-- Professionals Table -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
                         <div class="card-title">
-                            Total  Professionals
+                            Total Professionals
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap">
+                            <table class="table text-nowrap" id="professionalsTable">
                                 <thead>
                                     <tr>
                                         <th><input class="form-check-input check-all" type="checkbox" id="all-professionals" aria-label="..."></th>
@@ -46,56 +67,27 @@
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
-                                
                                 <tbody>
                                     @forelse ($requestedProfessionals as $professional)
-                                        <tr class="professional-list">
-                                            <td class="professional-checkbox">
-                                                <input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="...">
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium">{{ $loop->iteration }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium">{{ $professional->name }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium">{{ $professional->email }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium">{{ $professional->created_at }}</span>
-                                            </td>
+                                        <tr>
+                                            <td><input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="..."></td>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $professional->name }}</td>
+                                            <td>{{ $professional->email }}</td>
+                                            <td>{{ $professional->created_at }}</td>
                                             <td>
                                                 @if($professional->status == 'approved')
                                                     <span class="badge bg-success">Approved</span>
                                                 @elseif($professional->status == 'pending')
                                                     <span class="badge bg-warning">Pending</span>
-                                                @elseif($professional->status == 'rejected')
+                                                @else
                                                     <span class="badge bg-danger">Rejected</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                <div class="d-flex gap-2 items-center">
-                                                    <button class="btn btn-success btn-sm approve-btn" data-id="{{ $professional->id }}" data-url="{{ route('admin.professional.requests.approve', $professional->id) }}" data-bs-toggle="tooltip" title="Accept">
-                                                        <i class="fas fa-check"></i> Accept
-                                                    </button>
-                                                  <!-- Reject Button -->
-<button type="button"
-        class="btn btn-danger btn-sm reject-btn"
-        data-id="{{ $professional->id }}"
-        data-name="{{ $professional->name }}"
-        data-url="{{ route('admin.professional.requests.reject', $professional->id) }}"
-        data-bs-toggle="modal"
-        data-bs-target="#rejectModal"
-        title="Reject">
-    <i class="fas fa-times"></i> Reject
-</button>
-    
-                                                    <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
-                                                        <i class="fas fa-eye"></i> View
-
-                                                    </a>
-                                                </div>
+                                                <button class="btn btn-success btn-sm approve-btn" data-id="{{ $professional->id }}" data-url="{{ route('admin.professional.requests.approve', $professional->id) }}">Accept</button>
+                                                <button class="btn btn-danger btn-sm reject-btn" data-id="{{ $professional->id }}" data-name="{{ $professional->name }}" data-url="{{ route('admin.professional.requests.reject', $professional->id) }}" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject</button>
+                                                <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-primary btn-sm">View</a>
                                             </td>
                                         </tr>
                                     @empty
@@ -108,32 +100,18 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-                                
-                                
                             </table>
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0 float-end">
-                                <li class="page-item disabled">
-                                    <a class="page-link">Previous</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
-                                <li class="page-item active" aria-current="page">
-                                    <a class="page-link" href="javascript:void(0);">2</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="javascript:void(0);">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
+                        <!-- Pagination (if needed) -->
                     </div>
                 </div>
             </div>
         </div>
-        <!--End::row-2 -->
+    </div>
+</div>
+
 <!-- Rejection Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -200,7 +178,10 @@
             }
         }
     });
-});
+    
+}
+);
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const rejectButtons = document.querySelectorAll('.reject-btn');
@@ -209,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const nameField = document.getElementById('professionalName');
     let currentUrl = ''; 
 
-    // Trigger reject modal with correct professional info
     rejectButtons.forEach(button => {
         button.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
@@ -219,11 +199,10 @@ document.addEventListener('DOMContentLoaded', function () {
             currentUrl = url;
             form.setAttribute('action', url);
             nameField.textContent = name;
-            reasonField.value = ''; // Clear previous reason
+            reasonField.value = ''; 
         });
     });
 
-    // Handle AJAX Submit
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
@@ -242,11 +221,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.status === 'success') {
                 toastr.success(data.message);
 
-                // Close modal after success
                 const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
                 rejectModal.hide();
 
-                // Optionally reload page to update UI
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
@@ -259,9 +236,20 @@ document.addEventListener('DOMContentLoaded', function () {
             toastr.error('Server error occurred!');
         });
     });
+    
 });
+</script>
+<script>
+    flatpickr("#start_date", {
+      dateFormat: "d-m-Y",  
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
 
-
-
+   flatpickr("#end_date", {
+      dateFormat: "d-m-Y", 
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
 </script>
 @endsection
