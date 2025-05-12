@@ -71,6 +71,7 @@
         <script src="{{ asset('admin/assets/js/analytics-dashboard.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom-switcher.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom.js') }}"></script>
+        <script src="{{ asset('admin/assets/js/date&time_pickers.js') }}"></script>
 
         <script>
             @if (session('success'))

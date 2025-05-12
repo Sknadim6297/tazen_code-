@@ -1,16 +1,11 @@
 <?php
 
-
-// routes/user.php
-
-use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\frontend\HomeController;
 use App\Http\Controllers\frontend\LoginController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\frontend\HomeController;
 
 
 
@@ -31,7 +26,7 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('/booking/success', [HomeController::class, 'success'])->name('booking.success');
     Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('booking.session.store');
-    
+
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::post('/set-service', [HomeController::class, 'setServiceSession'])->name('service.save');

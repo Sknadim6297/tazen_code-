@@ -1,8 +1,8 @@
 (function () {
     "use strict";
-    
+
     /* To choose date */
-    flatpickr("#date", {disableMobile: true});
+    flatpickr("#date", { disableMobile: true });
 
     /* To choose date and time */
     flatpickr("#datetime", {
@@ -10,7 +10,17 @@
         dateFormat: "Y-m-d H:i",
         disableMobile: true
     });
+    flatpickr("#start_date", {
+      dateFormat: "d-m-Y",  
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
 
+   flatpickr("#end_date", {
+      dateFormat: "d-m-Y", 
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
     /* For Human Friendly dates */
     flatpickr("#humanfrienndlydate", {
         altInput: true,
@@ -19,12 +29,6 @@
         disableMobile: true
     });
 
-    /* For Date Range Picker */
-    flatpickr("#daterange", {
-        mode: "range",
-        dateFormat: "Y-m-d",
-        disableMobile: true
-    });
 
     /* For Time Picker */
     flatpickr("#timepikcr", {
