@@ -171,6 +171,8 @@
         @php
             $totalSessions = $booking->timedates->count();
             $sessionsTaken = $booking->timedates->where('status', '!=', 'pending')->count();
+
+            // Sessions remaining (count of 'pending' timedates)
             $sessionsRemaining = $totalSessions - $sessionsTaken;
         @endphp
 

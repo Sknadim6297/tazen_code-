@@ -48,7 +48,7 @@
                                 <li>Your email: <span>{{ Auth::guard('user')->user()->email ?? 'N/A' }}</span></li>
                             </ul>
                             <hr>
-                            <h6>Enter contact number for the booking</h6>
+                            <h6>Personal Details</h6>
 <div class="form-group add_bottom_15">
     <input type="tel" class="form-control" id="phone" placeholder="Phone" maxlength="10" pattern="\d{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
     <i class="icon_phone"></i>
