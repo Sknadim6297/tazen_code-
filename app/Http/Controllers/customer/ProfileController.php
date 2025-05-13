@@ -86,7 +86,6 @@ class ProfileController extends Controller
             if ($profile->profile_image && file_exists(public_path($profile->profile_image))) {
                 unlink(public_path($profile->profile_image));
             }
-
             $file = $request->file('profile_image');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/profiles'), $filename);

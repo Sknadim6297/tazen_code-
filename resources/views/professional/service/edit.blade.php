@@ -180,8 +180,4 @@
     });
     </script>
     
-<<<<<<< Updated upstream
 @endsection
-=======
-@endsection
->>>>>>> Stashed changes

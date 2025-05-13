@@ -119,22 +119,29 @@
 	</script>
 	
 	<script>
-		@if (session('success'))
-			toastr.success("{{ session('success') }}");
-		@endif
-	
-		@if (session('error'))
-			toastr.error("{{ session('error') }}");
-		@endif
-	
-		@if (session('warning'))
-			toastr.warning("{{ session('warning') }}");
-		@endif
-	
-		@if (session('info'))
-			toastr.info("{{ session('info') }}");
-		@endif
-	</script>
+toastr.options = {
+    "positionClass": "toast-top-center",
+    "timeOut": "3000",
+    "closeButton": true,
+    "progressBar": true
+};
+
+@if (session('success'))
+    toastr.success("{{ session('success') }}");
+@endif
+
+@if (session('error'))
+    toastr.error("{{ session('error') }}");
+@endif
+
+@if (session('warning'))
+    toastr.warning("{{ session('warning') }}");
+@endif
+
+@if (session('info'))
+    toastr.info("{{ session('info') }}");
+@endif
+</script>
 	
 </body>
 </html>

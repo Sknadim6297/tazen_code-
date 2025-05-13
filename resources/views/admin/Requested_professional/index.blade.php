@@ -55,52 +55,99 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap" id="professionalsTable">
-                                <thead>
-                                    <tr>
-                                        <th><input class="form-check-input check-all" type="checkbox" id="all-professionals" aria-label="..."></th>
-                                        <th scope="col">Sl.No</th>
-                                        <th scope="col">Professional Name</th>
-                                        <th scope="col">Email</th>
-                                        <th scope="col">Created At</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($requestedProfessionals as $professional)
-                                        <tr>
-                                            <td><input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="..."></td>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $professional->name }}</td>
-                                            <td>{{ $professional->email }}</td>
-                                            <td>{{ $professional->created_at }}</td>
-                                            <td>
-                                                @if($professional->status == 'approved')
-                                                    <span class="badge bg-success">Approved</span>
-                                                @elseif($professional->status == 'pending')
-                                                    <span class="badge bg-warning">Pending</span>
-                                                @else
-                                                    <span class="badge bg-danger">Rejected</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-success btn-sm approve-btn" data-id="{{ $professional->id }}" data-url="{{ route('admin.professional.requests.approve', $professional->id) }}">Accept</button>
-                                                <button class="btn btn-danger btn-sm reject-btn" data-id="{{ $professional->id }}" data-name="{{ $professional->name }}" data-url="{{ route('admin.professional.requests.reject', $professional->id) }}" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject</button>
-                                                <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-primary btn-sm">View</a>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center">
-                                                <div class="py-4">
-                                                    <h5 class="mb-0 text-muted">No Pending Professionals Found.</h5>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                         <table class="table text-nowrap">
+    <thead>
+        <tr>
+            <th><input class="form-check-input check-all" type="checkbox" id="all-professionals" aria-label="..."></th>
+            <th scope="col">Sl.No</th>
+            <th scope="col">Professional Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+            <th scope="col">Reason of rejection</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        @forelse ($requestedProfessionals as $professional)
+            <tr class="professional-list">
+                <td class="professional-checkbox">
+                    <input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="...">
+                </td>
+                <td>
+                    <span class="fw-medium">{{ $loop->iteration }}</span>
+                </td>
+                <td>
+                    <span class="fw-medium">{{ $professional->name }}</span>
+                </td>
+                <td>
+                    <span class="fw-medium">{{ $professional->email }}</span>
+                </td>
+                <td>
+                    <span class="fw-medium">{{ $professional->created_at }}</span>
+                </td>
+                <td>
+                    @if($professional->status == 'approved')
+                        <span class="badge bg-success">Approved</span>
+                    @elseif($professional->status == 'pending')
+                        <span class="badge bg-warning">Pending</span>
+                    @elseif($professional->status == 'rejected')
+                        <span class="badge bg-danger">Rejected</span>
+                    @endif
+                </td>
+                <td>
+                    @if($professional->professionalRejection->first())
+                        <span class="badge bg-danger">Rejected</span>
+                    @else
+                        <span class="badge bg-primary">New Application</span>
+                    @endif
+                </td>
+             <td>
+
+    @if($professional->professionalRejection->first())
+        <span class="fw-medium">{{ $professional->professionalRejection->first()->reason }}</span>
+    @else
+        <span class="fw-medium">New application - No reason</span>
+    @endif
+</td>
+
+                <td>
+                    <div class="d-flex gap-2 items-center">
+                        <button class="btn btn-success btn-sm approve-btn" data-id="{{ $professional->id }}" data-url="{{ route('admin.professional.requests.approve', $professional->id) }}" data-bs-toggle="tooltip" title="Accept">
+                            <i class="fas fa-check"></i> Accept
+                        </button>
+                        <!-- Reject Button -->
+                        <button type="button"
+                                class="btn btn-danger btn-sm reject-btn"
+                                data-id="{{ $professional->id }}"
+                                data-name="{{ $professional->name }}"
+                                data-url="{{ route('admin.professional.requests.reject', $professional->id) }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectModal"
+                                title="Reject">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    
+                        <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" class="text-center">
+                    <div class="py-4">
+                        <h5 class="mb-0 text-muted">No Pending Professionals Found.</h5>
+                    </div>
+                </td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
@@ -181,7 +228,6 @@
     
 }
 );
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const rejectButtons = document.querySelectorAll('.reject-btn');

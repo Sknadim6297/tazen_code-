@@ -180,13 +180,17 @@
                     <div class="main_info_wrapper">
                         <div class="main_info clearfix">
                             <div class="user_desc">
-                                <h3 id="professional_name">{{ $profile->first_name }} {{ $profile->last_name }}</h3>
+                                <h3 id="professional_name">{{ $profile->name }}</h3>
 
                                 <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get dir ections</a></p>
                                 <ul class="tags no_margin">
-                                    <li><a href="#0">{{ $services->tags   }}</a></li>
+    @if($services && $services->tags)
+        <li><a href="#0">{{ $services->tags }}</a></li>
+    @else
+        <li>No tags available</li> 
+    @endif
+</ul>
 
-                                </ul>
                             </div>
                             <div class="score_in">
                                 <div class="rating">
@@ -326,7 +330,8 @@
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
                                         <h3>Educational background</h3>
-                                        <p>{{ $requestedService->education_statement }}</p>
+                                      <p>{{ $requestedService->education_statement ?? 'No education statement available.' }}</p>
+
                                     </div>
                                     <div class="wrapper_indent add_bottom_25">
                                         <ul class="bullets">
@@ -805,7 +810,6 @@
                 list.appendChild(item);
             });
         });
-
         const bookingDataInput = document.getElementById('booking_data_json');
         if (bookingDataInput) {
             bookingDataInput.value = JSON.stringify(selectedBookings);
@@ -814,7 +818,6 @@
         console.warn('Selected time list element not found!');
     }
 }
-
 
 
         // Handle plan selection
