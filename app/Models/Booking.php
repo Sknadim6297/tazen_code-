@@ -47,4 +47,8 @@ class Booking extends Model
     {
         return $this->hasMany(BookingTimedate::class, 'booking_id');
     }
+    public function customerProfile()
+    {
+        return $this->belongsTo(CustomerProfile::class, 'user_id');
+    }
 }
