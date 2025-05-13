@@ -12,11 +12,35 @@ use Illuminate\Support\Facades\Mail;
 
 class ProfessionalRequestedController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $requestedProfessionals = Professional::with('professionalRejection')->where('status', 'pending')->get();
+        $query = Professional::where('status', 'pending');
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Date range filter
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Fetch filtered professionals
+        $requestedProfessionals = $query->latest()->get();
+
         return view('admin.Requested_professional.index', compact('requestedProfessionals'));
     }
+
+
+
+
     public function approve(Request $request, $id)
     {
         $professional = Professional::findOrFail($id);

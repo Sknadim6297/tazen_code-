@@ -2,6 +2,56 @@
 
 @section('styles')
 <style>
+    /* Style for the slider container */
+.status-slider {
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+/* Hide the checkbox but keep its functionality */
+.status-checkbox {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none; /* Prevent clicking the checkbox directly */
+}
+
+/* The slider */
+.status-slider .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 30px;
+    transition: 0.4s;
+}
+
+/* The knob (toggle button) */
+.status-slider .slider:before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+
+/* When the checkbox is checked, move the knob to the right */
+.status-checkbox:checked + .slider {
+    background-color: #4CAF50;
+}
+
+.status-checkbox:checked + .slider:before {
+    transform: translateX(30px);
+}
+
     .content-wrapper {
         background-color: #f8f9fa;
         padding: 20px;
@@ -99,6 +149,74 @@
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+    .search-container {
+        background: #f5f7fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .search-form .form-group {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-form label {
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .search-form input[type="text"],
+    .search-form input[type="date"] {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-buttons button,
+    .search-buttons a {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
 </style>
 @endsection
 
@@ -113,6 +231,30 @@
             <li class="active">All Bookings</li>
         </ul>
     </div>
+   <div class="search-container">
+    <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
+        <div class="form-group">
+            <label for="search_name">Search</label>
+            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
+        </div>
+
+        <div class="form-group">
+            <label for="search_date_from">From Date</label>
+            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+        </div>
+
+        <div class="form-group">
+            <label for="search_date_to">To Date</label>
+            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+        </div>
+
+        <div class="search-buttons">
+            <button type="submit" class="btn-success">Search</button>
+            <a href="{{ route('professional.booking.index') }}" class="btn-secondary">Reset</a>
+        </div>
+    </form>
+</div>
+
 
     <div class="card">
         <div class="card-body">
@@ -160,7 +302,8 @@
 
                                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
-                                <td>{{ $booking->created_at }}</td>
+                          <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
+
                                 <td>
                                     <a href="{{ $booking->meeting_link }}" target="_blank" class="btn btn-link">Join</a>
                                 </td>
@@ -216,8 +359,9 @@
                 <tr>
                     <th>Date</th>
                     <th>Time Slot</th>
+                      <th>Remarks</th>
                     <th>Status</th>
-                    <th>Action</th>
+                  
                 </tr>
             </thead>
             <tbody></tbody>
@@ -254,16 +398,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <tr>
                                     <td>${item.date}</td>
                                     <td>${slot}</td>
-                                    <td>
-                                        <select class="status-select" data-row="${index}">
-                                            <option value="Pending" ${item.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                            <option value="Scheduled" ${item.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
-                                            <option value="Complete" ${item.status === 'Complete' ? 'selected' : ''}>Complete</option>
-                                        </select>
+                                     <td>
+                                        <input type="text" class="form-control" value="${item.remarks || ''}" placeholder="Remarks">
                                     </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm">Update</button>
-                                    </td>
+                                  <td>
+    <div class="status-slider" data-row="${index}">
+        <input type="checkbox" class="status-checkbox" ${item.status === 'Complete' ? 'checked' : ''}>
+        <span class="slider"></span>
+    </div>
+</td>
+                                   
                                 </tr>
                             `;
                         });
@@ -289,6 +433,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+document.querySelectorAll('.status-checkbox').forEach((checkbox) => {
+    checkbox.addEventListener('change', function() {
+        let rowIndex = this.closest('.status-slider').getAttribute('data-row');
+        let newStatus = this.checked ? 'Complete' : 'Pending';
+
+        alert(`Row ${rowIndex}: Status changed to ${newStatus}`);
+    });
+});
 
 
 </script>

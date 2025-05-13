@@ -187,7 +187,7 @@
     @if($services && $services->tags)
         <li><a href="#0">{{ $services->tags }}</a></li>
     @else
-        <li>No tags available</li> <!-- Optional: You can display a message or handle it however you'd like -->
+        <li>No tags available</li> 
     @endif
 </ul>
 
@@ -294,46 +294,46 @@
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
                                         <h3>Professional statement</h3>
-                                        <p>{{ $requestedService->professional_statement ?? 'No statement provided.' }}</p>
+                                        <p>{{ $requestedService->statement ?? 'No statement provided.' }}</p>
                                     </div>
                                     <div class="wrapper_indent">
                                         <h6>Specializations</h6>
-                                 <div class="row">
-    @php
-        $chunks = [];
-        if (!empty($specializations) && is_array($specializations)) {
-            $chunks = array_chunk($specializations, max(1, ceil(count($specializations)/2)));
-        }
-    @endphp
+                                        <div class="row">
+                                           @php
+    $chunks = [];
+    if (!empty($specializations) && count($specializations) > 0) {
+        $chunks = array_chunk($specializations, ceil(count($specializations) / 2));
+    }
+@endphp
 
-    @if(!empty($chunks))
-        @foreach($chunks as $chunk)
-            <div class="col-lg-6">
-                <ul class="bullets">
-                    @foreach($chunk as $item)
-                        <li>{{ $item }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endforeach
-    @else
-        <div class="col-12">
-            <p>No specializations available.</p>
+@if(!empty($chunks))
+    @foreach($chunks as $chunk)
+        <div class="col-lg-6">
+            <ul class="bullets">
+                @foreach($chunk as $item)
+                    <li>{{ $item }}</li>
+                @endforeach
+            </ul>
         </div>
-    @endif
-</div>
+    @endforeach
+@else
+    <div class="col-12">
+        <p>No specializations available at the moment.</p>
+    </div>
+@endif
 
+                                        </div>
                                     </div>
                                     <hr>
                             
                                     {{-- Education --}}
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
-                                        <h3>Education</h3>
-                                        <p>Education background of the professional.</p>
+                                        <h3>Educational background</h3>
+                                      <p>{{ $requestedService->education_statement ?? 'No education statement available.' }}</p>
+
                                     </div>
                                     <div class="wrapper_indent add_bottom_25">
-                                        <h6>Curriculum</h6>
                                         <ul class="bullets">
                                             @foreach($education['college_name'] as $i => $college)
                                                 @if(!empty($college) || !empty($education['degree'][$i]))
@@ -575,7 +575,7 @@
                                             <p>{{ $rate->professional->bio }}</p>
                                             <ul class="appointment-features">
                                                 <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
-                                                <li><i class="icon_check_alt2"></i> {{ $rate->duration }} per session</li>
+                                                <li><i class="icon_check_alt2"></i> {{ $rate->duration }} min per session</li>
                                                 <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
                                             </ul>
                                             <div class="price">
@@ -642,36 +642,35 @@
                                     <div class="radio_select d-flex flex-wrap gap-2">
                                         @foreach($availabilities as $availability)
                                             @php $weekdays = json_decode($availability->weekdays, true); @endphp
-                        
-                                            @if(is_array($weekdays))
-                                                @foreach($availability->slots as $slot)
-                                                    @foreach($weekdays as $day)
-                                                        @php
-                                                            $weekday = strtolower($day);
-                                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i');
-                                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i');
-                                                        @endphp
-                        
-                                                        <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
-                                                            <input type="radio"
-                                                                   id="time_{{ $slot->id }}_{{ $weekday }}"
-                                                                   name="time"
-                                                                   class="time-slot"
-                                                                   data-id="{{ $slot->id }}"
-                                                                   value="{{ $startTime }} {{ $slot->start_period }} to {{ $endTime }} {{ $slot->end_period }}"
-                                                                   data-start="{{ $startTime }}"
-                                                                   data-start-period="{{ $slot->start_period }}"
-                                                                   data-end="{{ $endTime }}"
-                                                                   data-end-period="{{ $slot->end_period }}">
-                        
-                                                            <label for="time_{{ $slot->id }}_{{ $weekday }}">
-                                                                {{ $startTime }} <small>{{ strtoupper($slot->start_period) }}</small> -
-                                                                {{ $endTime }} <small>{{ strtoupper($slot->end_period) }}</small>
-                                                            </label>
-                                                        </div>
-                                                    @endforeach
-                                                @endforeach
-                                            @endif
+                        @if(is_array($weekdays))
+    @foreach($availability->slots as $slot)
+        @foreach($weekdays as $day)
+            @php
+                $weekday = strtolower($day);
+                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
+                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
+            @endphp
+
+            <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
+                <input type="radio"
+                       id="time_{{ $slot->id }}_{{ $weekday }}"
+                       name="time"
+                       class="time-slot"
+                       data-id="{{ $slot->id }}"
+                       value="{{ $startTime }} to {{ $endTime }}"
+                       data-start="{{ $startTime }}"
+                       data-start-period="{{ strtoupper($slot->start_period) }}"
+                       data-end="{{ $endTime }}"
+                       data-end-period="{{ strtoupper($slot->end_period) }}">
+
+                <label for="time_{{ $slot->id }}_{{ $weekday }}">
+                    {{ $startTime }} - {{ $endTime }}
+                </label>
+            </div>
+        @endforeach
+    @endforeach
+@endif
+
                                         @endforeach
                                     </div>
                                 </div>
@@ -791,12 +790,21 @@
                 }
             });
         });
-        function updateSelectedTimeList() {
+      function updateSelectedTimeList() {
     const list = document.getElementById('selected-time-list');
-    if (list) { // Ensure the element exists
+    if (list) {
         list.innerHTML = '';
-        Object.entries(selectedBookings).forEach(([date, times]) => {
-            times.forEach(time => {
+
+        // Sort the dates first
+        const sortedDates = Object.keys(selectedBookings).sort();
+
+        sortedDates.forEach(date => {
+            // Sort times within each date
+            const sortedTimes = selectedBookings[date].slice().sort((a, b) => {
+                return new Date(`1970-01-01T${a}`) - new Date(`1970-01-01T${b}`);
+            });
+
+            sortedTimes.forEach(time => {
                 const item = document.createElement('li');
                 item.textContent = `${date} - ${time}`;
                 list.appendChild(item);

@@ -57,24 +57,39 @@ class EventFAQController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    $faq = EventFAQ::findOrFail($id);
+    return view('admin.eventfaq.edit', compact('faq'));
+}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+public function update(Request $request, $id)
+{
+    $faq = EventFAQ::findOrFail($id);
+    $request->validate([
+        'question1' => 'required|string',
+        'answer1' => 'required|string',
+        'question2' => 'required|string',
+        'answer2' => 'required|string',
+        'question3' => 'required|string',
+        'answer3' => 'required|string',
+        'question4' => 'required|string',
+        'answer4' => 'required|string',
+    ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    $faq->update($request->only([
+        'question1', 'answer1', 'question2', 'answer2',
+        'question3', 'answer3', 'question4', 'answer4'
+    ]));
+
+    return redirect()->route('admin.eventfaq.index')->with('success', 'FAQ updated successfully!');
+}
+
+public function destroy($id)
+{
+    $faq = EventFAQ::findOrFail($id);
+    $faq->delete();
+
+    return redirect()->route('admin.eventfaq.index')->with('success', 'FAQ deleted successfully!');
+}
 }
