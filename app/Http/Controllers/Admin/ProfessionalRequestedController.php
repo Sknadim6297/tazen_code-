@@ -44,7 +44,12 @@ class ProfessionalRequestedController extends Controller
     public function approve(Request $request, $id)
     {
         $professional = Professional::findOrFail($id);
+
         $professional->status = 'accepted';
+        $RejectedUser = ProfessionalRejection::where('professional_id', $professional->id)->first();
+        if ($RejectedUser) {
+            $RejectedUser->delete();
+        }
         $professional->save();
 
         // Send email

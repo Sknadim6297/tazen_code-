@@ -668,6 +668,7 @@
 				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
 				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
 			}
+		
 			nextBtn.addEventListener("click", function () {
 				if (currentQuestion < questions.length - 1) {
 					currentQuestion++;
@@ -722,6 +723,8 @@
 					console.error("Validation or Server Error:", error);
 				});
 			});
+		
+			showQuestion(currentQuestion);
 		});
 		</script>
 		

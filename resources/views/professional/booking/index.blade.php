@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <td>${item.date}</td>
                                     <td>${slot}</td>
                                      <td>
-                                        <input type="text" class="form-control" value="${item.remarks || ''}" placeholder="Remarks">
+                              <input type="text" class="form-control" value="${item.remarks || ''}" placeholder="Remarks">
                                     </td>
                                   <td>
     <div class="status-slider" data-row="${index}">

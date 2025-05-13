@@ -180,13 +180,23 @@
                     <div class="main_info_wrapper">
                         <div class="main_info clearfix">
                             <div class="user_desc">
-                                <h3 id="professional_name">{{ $profile->first_name }} {{ $profile->last_name }}</h3>
+                                <h3 id="professional_name">{{ $profile->name }}</h3>
 
                                 <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get dir ections</a></p>
                                 <ul class="tags no_margin">
+<<<<<<< HEAD
+    @if($services && $services->tags)
+        <li><a href="#0">{{ $services->tags }}</a></li>
+    @else
+        <li>No tags available</li> <!-- Optional: You can display a message or handle it however you'd like -->
+    @endif
+</ul>
+
+=======
                                     <li><a href="#0">{{ $services->tags   }}</a></li>
 
                                 </ul>
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                             </div>
                             <div class="score_in">
                                 <div class="rating">
@@ -290,6 +300,37 @@
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
                                         <h3>Professional statement</h3>
+<<<<<<< HEAD
+                                        <p>{{ $requestedService->professional_statement ?? 'No statement provided.' }}</p>
+                                    </div>
+                                    <div class="wrapper_indent">
+                                        <h6>Specializations</h6>
+                                 <div class="row">
+    @php
+        $chunks = [];
+        if (!empty($specializations) && is_array($specializations)) {
+            $chunks = array_chunk($specializations, max(1, ceil(count($specializations)/2)));
+        }
+    @endphp
+
+    @if(!empty($chunks))
+        @foreach($chunks as $chunk)
+            <div class="col-lg-6">
+                <ul class="bullets">
+                    @foreach($chunk as $item)
+                        <li>{{ $item }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+    @else
+        <div class="col-12">
+            <p>No specializations available.</p>
+        </div>
+    @endif
+</div>
+
+=======
                                         <p>{{ $requestedService->statement ?? 'No statement provided.' }}</p>
                                     </div>
                                     <div class="wrapper_indent">
@@ -319,16 +360,25 @@
 @endif
 
                                         </div>
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                                     </div>
                                     <hr>
                             
                                     {{-- Education --}}
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
+<<<<<<< HEAD
+                                        <h3>Education</h3>
+                                        <p>Education background of the professional.</p>
+                                    </div>
+                                    <div class="wrapper_indent add_bottom_25">
+                                        <h6>Curriculum</h6>
+=======
                                         <h3>Educational background</h3>
                                         <p>{{ $requestedService->education_statement }}</p>
                                     </div>
                                     <div class="wrapper_indent add_bottom_25">
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                                         <ul class="bullets">
                                             @foreach($education['college_name'] as $i => $college)
                                                 @if(!empty($college) || !empty($education['degree'][$i]))
@@ -570,7 +620,11 @@
                                             <p>{{ $rate->professional->bio }}</p>
                                             <ul class="appointment-features">
                                                 <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
+<<<<<<< HEAD
+                                                <li><i class="icon_check_alt2"></i> {{ $rate->duration }} per session</li>
+=======
                                                 <li><i class="icon_check_alt2"></i> {{ $rate->duration }} min per session</li>
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                                                 <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
                                             </ul>
                                             <div class="price">
@@ -637,6 +691,38 @@
                                     <div class="radio_select d-flex flex-wrap gap-2">
                                         @foreach($availabilities as $availability)
                                             @php $weekdays = json_decode($availability->weekdays, true); @endphp
+<<<<<<< HEAD
+                        
+                                            @if(is_array($weekdays))
+                                                @foreach($availability->slots as $slot)
+                                                    @foreach($weekdays as $day)
+                                                        @php
+                                                            $weekday = strtolower($day);
+                                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i');
+                                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i');
+                                                        @endphp
+                        
+                                                        <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
+                                                            <input type="radio"
+                                                                   id="time_{{ $slot->id }}_{{ $weekday }}"
+                                                                   name="time"
+                                                                   class="time-slot"
+                                                                   data-id="{{ $slot->id }}"
+                                                                   value="{{ $startTime }} {{ $slot->start_period }} to {{ $endTime }} {{ $slot->end_period }}"
+                                                                   data-start="{{ $startTime }}"
+                                                                   data-start-period="{{ $slot->start_period }}"
+                                                                   data-end="{{ $endTime }}"
+                                                                   data-end-period="{{ $slot->end_period }}">
+                        
+                                                            <label for="time_{{ $slot->id }}_{{ $weekday }}">
+                                                                {{ $startTime }} <small>{{ strtoupper($slot->start_period) }}</small> -
+                                                                {{ $endTime }} <small>{{ strtoupper($slot->end_period) }}</small>
+                                                            </label>
+                                                        </div>
+                                                    @endforeach
+                                                @endforeach
+                                            @endif
+=======
                         @if(is_array($weekdays))
     @foreach($availability->slots as $slot)
         @foreach($weekdays as $day)
@@ -666,6 +752,7 @@
     @endforeach
 @endif
 
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                                         @endforeach
                                     </div>
                                 </div>
@@ -785,6 +872,14 @@
                 }
             });
         });
+<<<<<<< HEAD
+        function updateSelectedTimeList() {
+    const list = document.getElementById('selected-time-list');
+    if (list) { // Ensure the element exists
+        list.innerHTML = '';
+        Object.entries(selectedBookings).forEach(([date, times]) => {
+            times.forEach(time => {
+=======
       function updateSelectedTimeList() {
     const list = document.getElementById('selected-time-list');
     if (list) {
@@ -800,12 +895,16 @@
             });
 
             sortedTimes.forEach(time => {
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
                 const item = document.createElement('li');
                 item.textContent = `${date} - ${time}`;
                 list.appendChild(item);
             });
         });
+<<<<<<< HEAD
+=======
 
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
         const bookingDataInput = document.getElementById('booking_data_json');
         if (bookingDataInput) {
             bookingDataInput.value = JSON.stringify(selectedBookings);
@@ -816,7 +915,10 @@
 }
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> cfb3851440f6a75f4ff068d3df4ab69ecd7b33fe
         // Handle plan selection
         const planButtons = document.querySelectorAll('.select-plan');
 const selectedPlanDisplay = document.getElementById('selected-plan-display');
