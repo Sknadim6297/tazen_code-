@@ -5,7 +5,7 @@
         <!-- Start::main-sidebar-header -->
         <div class="main-sidebar-header">
             <a href="index-2.html" class="header-logo">
-                <img src="assets/images/brand-logos/desktop-logo.png" alt="logo" class="desktop-logo">
+                <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-logo">
                 <img src="assets/images/brand-logos/toggle-dark.png" alt="logo" class="toggle-dark">
                 <img src="assets/images/brand-logos/desktop-dark.png" alt="logo" class="desktop-dark">
                 <img src="assets/images/brand-logos/toggle-logo.png" alt="logo" class="toggle-logo">
@@ -67,7 +67,7 @@
                             </li>
                         
                             <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item">Manage Customer</a>
+                                <a href="{{ route('admin.manage-customer.index') }}" class="side-menu__item">Manage Customer</a>
                                 <a href="javascript:void(0);" class="side-menu__item">Customer Billing</a>
                             </li>
                         </ul>
@@ -202,12 +202,6 @@
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
                                 </ul>
-<<<<<<< HEAD
-
-                                
-
-=======
->>>>>>> 07d366e8dabf3beb4e492b931c5c9a98236ead28
                             </li>
 
                         </ul>

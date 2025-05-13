@@ -9,25 +9,82 @@ use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    public function oneTimeBooking()
+    public function oneTimeBooking(Request $request)
     {
-        $bookings = Booking::where('plan_type', 'one_time')->with('professional')->get();
+        $query = Booking::where('plan_type', 'one-time');
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            })
+                ->orWhereHas('professional', function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', '%' . $searchTerm . '%');
+                });
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Fetch the bookings
+        $bookings = $query->latest()->get();
+
         return view('admin.booking.onetime', compact('bookings'));
     }
-    public function freeHandBooking()
+
+    public function freeHandBooking(Request $request)
     {
-        $bookings = Booking::where('plan_type', 'free_hand')->with('professional')->get();
+        $query = Booking::where('plan_type', 'free_hand')->with('professional', 'timedates');
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+        $bookings = $query->latest()->get();
         return view('admin.booking.freehand', compact('bookings'));
     }
-    public function monthlyBooking()
+
+    public function monthlyBooking(Request $request)
     {
-        $bookings = Booking::where('plan_type', 'monthly')->with('professional')->get();
+        $query = Booking::where('plan_type', 'monthly')->with('professional', 'timedates', 'customerProfile');
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Fetch the bookings
+        $bookings = $query->latest()->get();
         return view('admin.booking.monthly', compact('bookings'));
     }
-    public function quaterlyBooking()
+
+    public function quarterlyBooking(Request $request)
     {
-        $bookings = Booking::where('plan_type', 'quaterly')->with('professional')->get();
-        return view('admin.booking.quaterly', compact('bookings'));
+        $query = Booking::where('plan_type', 'quarterly')->with('professional');
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Fetch the bookings
+        $bookings = $query->latest()->get();
+        return view('admin.booking.quarterly', compact('bookings'));
     }
 
     public function updateLink(Request $request, $id)

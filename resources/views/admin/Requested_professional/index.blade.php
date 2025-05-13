@@ -5,31 +5,52 @@
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
-
-            
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">All  Professionals</h1>
-                <div class="">
+                <h1 class="page-title fw-medium fs-18 mb-2">Manage Professionals</h1>
+                <div>
                     <nav>
                         <ol class="breadcrumb mb-0">
-                     
-                            <li class="breadcrumb-item"><a href="javascript:void(0);"> Professional</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Manage Professionals</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Professional</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Manage Professional</li>
                         </ol>
                     </nav>
                 </div>
             </div>
+           <form action="{{ route('admin.professional.requests') }}" method="GET" class="d-flex gap-2">
+           <div class="col-xl-6">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                    <input type="date" class="form-control"  placeholder="Choose Start Date" name="start_date" id="start_date">
+                    <span class="input-group-text">to</span>
+                    <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
+                </div>
+            </div>
         </div>
-        <!-- Page Header Close -->
-        <!-- Start::row-2 -->
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-xl-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+           
+        </div>
+
+        <!-- Professionals Table -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
                         <div class="card-title">
-                            Total  Professionals
+                            Total Professionals
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -130,21 +151,7 @@
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0 float-end">
-                                <li class="page-item disabled">
-                                    <a class="page-link">Previous</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
-                                <li class="page-item active" aria-current="page">
-                                    <a class="page-link" href="javascript:void(0);">2</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="javascript:void(0);">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
+                        <!-- Pagination (if needed) -->
                     </div>
                 </div>
             </div>
@@ -216,7 +223,9 @@
             }
         }
     });
-});
+    
+}
+);
 
 document.addEventListener('DOMContentLoaded', function () {
     const rejectButtons = document.querySelectorAll('.reject-btn');
@@ -275,9 +284,20 @@ document.addEventListener('DOMContentLoaded', function () {
             toastr.error('Server error occurred!');
         });
     });
+    
 });
+</script>
+<script>
+    flatpickr("#start_date", {
+      dateFormat: "d-m-Y",  
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
 
-
-
+   flatpickr("#end_date", {
+      dateFormat: "d-m-Y", 
+      altInput: true,  
+      altFormat: "d-m-Y", 
+   });
 </script>
 @endsection
