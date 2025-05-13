@@ -1,7 +1,7 @@
  <!-- Sidebar -->
  <div class="sidebar">
     <div class="sidebar-header">
-        <img src="../images/tazen_logo-01-removebg-preview.png" alt="Logo" class="sidebar-logo">
+        <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" style="align-items: center; justify-content: center; display: flex;" height="100">
     </div> 
 
     <div class="sidebar-menu">
@@ -29,7 +29,10 @@
             <i class="fas fa-clock"></i>
             <span>Add Availability</span>
         </a>
-
+        <a href="{{ route('professional.requested_services.index') }}" class="menu-item">
+            <i class="fas fa-dollar-sign"></i>
+            <span>Other Information</span>
+        </a>
         <div class="menu-title">Bookings</div>
         <a href="{{ route('professional.booking.index') }}" class="menu-item">
             <i class="fas fa-list"></i>

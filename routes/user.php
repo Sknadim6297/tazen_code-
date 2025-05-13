@@ -3,6 +3,9 @@
 
 // routes/user.php
 
+use App\Http\Controllers\customer\AppointmentController;
+use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\frontend\HomeController;
 use App\Http\Controllers\frontend\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -21,12 +24,17 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/store', [HomeController::class, 'store'])->name('booking.store');
 
 
+
     Route::get('/booking/success', [HomeController::class, 'success'])->name('booking.success');
     Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('booking.session.store');
-    // Add profile route
-    Route::get('add-profile', function () {
-        return view('customer.add-profile.index');
-    })->name('add-profile');
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::post('/set-service', [HomeController::class, 'setServiceSession'])->name('service.save');
+    Route::resource('all-appointment', AppointmentController::class);
+    Route::resource('upcoming-appointment', UpcomingAppointmentController::class);
+
+    Route::get('appointments/{id}/details', [AppointmentController::class, 'showDetails'])->name('appointment.details');
+
+    Route::resource('profile', ProfileController::class);
 });

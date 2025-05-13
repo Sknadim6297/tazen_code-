@@ -8,8 +8,7 @@ class Profile extends Model
 {
     protected $fillable = [
         'professional_id',
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'phone',
         'specialization',
@@ -17,14 +16,16 @@ class Profile extends Model
         'starting_price',
         'address',
         'education',
-        'comments',
+        'education2', 
         'bio',
+        'comments',
         'photo',
         'gallery',
         'qualification_document',
         'aadhaar_card',
         'pan_card',
     ];
+    
 
     protected $casts = [
         'gallery' => 'array',

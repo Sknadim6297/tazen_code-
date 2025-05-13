@@ -11,7 +11,7 @@ class BookingController extends Controller
 {
     public function oneTimeBooking()
     {
-        $bookings = Booking::where('plan_type', 'one-time')->with('professional')->get();
+        $bookings = Booking::where('plan_type', 'one_time')->with('professional')->get();
         return view('admin.booking.onetime', compact('bookings'));
     }
     public function freeHandBooking()
@@ -41,5 +41,23 @@ class BookingController extends Controller
         $booking->save();
 
         return redirect()->back()->with('success', 'Meeting link updated successfully!');
+    }
+    public function show($id)
+    {
+        $booking = Booking::with('timedates')->find($id);
+
+        if (!$booking) {
+            return response()->json(['error' => 'Booking not found'], 404);
+        }
+
+        return response()->json([
+            'dates' => $booking->timedates->map(function ($td) {
+                return [
+                    'date' => $td->date,
+                    'time_slot' => explode(',', $td->time_slot),
+                    'status' => $td->status ?? 'Pending',
+                ];
+            })
+        ]);
     }
 }

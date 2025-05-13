@@ -3,8 +3,10 @@
 use App\Http\Controllers\Professional\AvailabilityController;
 use App\Http\Controllers\Professional\BillingController;
 use App\Http\Controllers\Professional\BookingController;
+use App\Http\Controllers\Professional\ProfessionalController;
 use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
+use App\Http\Controllers\Professional\RequestedServiceController;
 use App\Http\Controllers\Professional\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +21,12 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::resource('availability', AvailabilityController::class);
     Route::resource('booking', BookingController::class);
     Route::resource('billing', BillingController::class);
+    Route::resource('requested_services', RequestedServiceController::class);
+    Route::get('rejected', [ProfessionalController::class, 'rejectedPage'])->name('rejected.view');
+    Route::post('/re-submit', [ProfessionalController::class, 'reSubmit'])->name('register.re-submit');
+    Route::get('/pending', [ProfessionalController::class, 'pendingPage'])->name('pending.view');
+
+    Route::get('bookings/{id}/details', [BookingController::class, 'details']);
+
+    Route::post('/bookings/{booking}/upload-documents', [BookingController::class, 'uploadDocuments'])->name('doc.upload');
 });

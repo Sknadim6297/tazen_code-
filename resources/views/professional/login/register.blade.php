@@ -67,6 +67,9 @@
 						<input class="form-control" type="email" name="email" placeholder="Email" required>
 					</div>
 					<div class="form-group">
+						<input class="form-control" type="text" name="phone" placeholder="Phone Number" required>
+					</div>
+					<div class="form-group">
 						<input class="form-control" type="password" name="password" placeholder="Password" required>
 					</div>
 					<div class="form-group">
@@ -78,36 +81,68 @@
 				{{-- Step 2 - Professional Info --}}
 				<div class="form-step step-2">
 					<h4>Step 2 – Professional Info</h4>
-					<div class="form-group">
-						<input class="form-control" type="text" name="phone" placeholder="Phone Number" required>
-					</div>
+				
+					<!-- Specialization Input -->
 					<div class="form-group">
 						<input class="form-control" type="text" name="specialization" placeholder="Specialization" required>
 					</div>
+				
+				<!-- Experience Input -->
+<div class="form-group">
+    <select class="form-control" name="experience" required>
+        <option value="" disabled selected>Select Experience</option>
+        <option value="0-2">0-2 years</option>
+        <option value="2-4">2-4 years</option>
+        <option value="4-6">4-6 years</option>
+        <option value="6-8">6-8 years</option>
+        <option value="8-10">8-10 years</option>
+        <option value="10+">10+ years</option>
+    </select>
+</div>
+
+	<!-- Starting Price Input -->
 					<div class="form-group">
-						<input class="form-control" type="text" name="experience" placeholder="Experience" required>
+						<input class="form-control" type="text" name="starting_price" placeholder="Price per session (Rs.)" required>
 					</div>
+				
+					<!-- Location Dropdown -->
 					<div class="form-group">
-						<input class="form-control" type="text" name="starting_price" placeholder="Starting Price" required>
+						<select class="form-control" name="address" required >
+							<option value="">Select Location</option>
+							<option value="Mumbai">Mumbai</option>
+							<option value="Kolkata">Kolkata</option>
+							<option value="Delhi">Delhi</option>
+							<option value="Bangalore">Bangalore</option>
+							<option value="Chennai">Chennai</option>
+							<option value="Hyderabad">Hyderabad</option>
+							<option value="Pune">Pune</option>
+							<option value="Ahmedabad">Ahmedabad</option>
+							<option value="Surat">Surat</option>
+							<option value="Jaipur">Jaipur</option>
+						</select>
 					</div>
-					<div class="form-group">
-						<input class="form-control" type="text" name="address" placeholder="Address" required>
-					</div>
+				
+					<!-- Education 1 Input -->
 					<div class="form-group">
 						<input class="form-control" type="text" name="education" placeholder="Education" required>
 					</div>
+				
+					<!-- Education 2 Input -->
 					<div class="form-group">
-						<textarea class="form-control" name="comments" placeholder="Comments"></textarea>
+						<input class="form-control" type="text" name="education2" placeholder="Additional Education" required>
 					</div>
+				
+					<!-- Bio Textarea -->
 					<div class="form-group">
 						<textarea class="form-control" name="bio" placeholder="Short Bio" required></textarea>
 					</div>
+				
+					<!-- Navigation Buttons -->
 					<div style="display: flex; gap: 10px;">
-					<button type="button" class="btn_1 full-width prev-btn">Previous</button>
-					<button type="button" class="btn_1 full-width next-btn">Next Step</button>
+						<button type="button" class="btn_1 full-width prev-btn">Previous</button>
+						<button type="button" class="btn_1 full-width next-btn">Next Step</button>
+					</div>
 				</div>
-				</div>
-			
 				{{-- Step 3 - Document Uploads --}}
 				<div class="form-step step-3">
 					<h4>Step 3 – Document Uploads</h4>

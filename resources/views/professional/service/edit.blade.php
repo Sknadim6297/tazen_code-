@@ -1,11 +1,4 @@
-@extends('admin.layouts.layout')
-@section('content')
-<div class="main-content app-content">
-   
-</div>
-@endsection
 @extends('professional.layout.layout')
-
 @section('styles')
 <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
 @endsection
@@ -35,19 +28,18 @@
                     </div>
         
                     <div class="form-group">
-                        <label for="serviceCategory">Category *</label>
-                        <select name="serviceCategory" id="serviceCategory" class="form-control" required>
+                        <label for="serviceCategory">Service Category *</label>
+                        <select name="serviceId" id="serviceCategory" class="form-control" required>
                             <option value="">Select Category</option>
-                            @php
-                                $categories = ['consulting', 'coaching', 'training', 'therapy', 'other'];
-                            @endphp
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat }}" {{ (old('serviceCategory', $service->category ?? '') == $cat) ? 'selected' : '' }}>
-                                    {{ ucfirst($cat) }}
+                            @foreach($services as $cat)
+                                <option value="{{ $cat->id }}" 
+                                    {{ (old('serviceId', $service->service_id ?? '') == $cat->id) ? 'selected' : '' }}>
+                                    {{ ucfirst($cat->name) }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
+                    
         
                     <div class="form-group">
                         <label for="serviceDuration">Duration *</label>
@@ -138,51 +130,54 @@
 @endsection
 @section('scripts')
 <script>
-$(document).ready(function() {
-    $('#serviceForm').submit(function(e) {
-    e.preventDefault();
-    let form = this;
-    let formData = new FormData(form);
+    $(document).ready(function() {
+        $('#serviceForm').submit(function(e) {
+            e.preventDefault();
+    
+            let form = this;
+            let formData = new FormData(form);
 
-    // Log form data for debugging
-    for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-    }
+            formData.append('_method', 'PUT');
 
-    $.ajax({
-        url: "{{ route('professional.service.update', $service->id) }}",
-        type: "PUT",
-        data: formData,
-        contentType: false,
-        processData: false,
-        cache: false,
-        headers: {
-            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            if (response.success) {
-                toastr.success(response.message);
-                form.reset();
-                setTimeout(() => {
-                    window.location.href = "{{ route('professional.service.index') }}";
-                }, 1500);
-            } else {
-                toastr.error(response.message || "Something went wrong");
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
             }
-        },
-        error: function(xhr) {
-            console.log(xhr);  // Inspect this to see error details
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                $.each(errors, function(key, value) {
-                    toastr.error(value[0]);
-                });
-            } else {
-                toastr.error(xhr.responseJSON.message || "An unexpected error occurred");
-            }
-        }
+    
+            $.ajax({
+                url: "{{ route('professional.service.update', $service->id) }}",
+                type: "POST", 
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        form.reset();
+                        setTimeout(() => {
+                            window.location.href = "{{ route('professional.service.index') }}";
+                        }, 1500);
+                    } else {
+                        toastr.error(response.message || "Something went wrong");
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(key, value) {
+                            toastr.error(value[0]);
+                        });
+                    } else {
+                        toastr.error(xhr.responseJSON.message || "An unexpected error occurred");
+                    }
+                }
+            });
+        });
     });
-});
-    });
-</script>
+    </script>
+    
 @endsection

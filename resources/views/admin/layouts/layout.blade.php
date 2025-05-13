@@ -52,23 +52,6 @@
             </div>
         </div>
         </div>
-        <script>
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
-        
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
-        
-            @if (session('warning'))
-                toastr.warning("{{ session('warning') }}");
-            @endif
-        
-            @if (session('info'))
-                toastr.info("{{ session('info') }}");
-            @endif
-        </script>
         {{-- @include('admin.sections.footer') --}}
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -88,6 +71,24 @@
         <script src="{{ asset('admin/assets/js/analytics-dashboard.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom-switcher.js') }}"></script>
         <script src="{{ asset('admin/assets/js/custom.js') }}"></script>
+
+        <script>
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+        
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+        
+            @if (session('warning'))
+                toastr.warning("{{ session('warning') }}");
+            @endif
+        
+            @if (session('info'))
+                toastr.info("{{ session('info') }}");
+            @endif
+        </script>
         @yield('scripts')
 </body>
 

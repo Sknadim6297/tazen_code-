@@ -10,13 +10,18 @@ class Professional extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password'];
-
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'phone',
+        'status',
+    ];
     public function profile()
     {
         return $this->hasOne(Profile::class, 'professional_id', 'id');
     }
-    
+
     public function professionalServices()
     {
         return $this->hasMany(ProfessionalService::class);
@@ -25,5 +30,8 @@ class Professional extends Authenticatable
     {
         return $this->hasMany(Rate::class);
     }
-    
+    public function professionalRejection()
+    {
+        return $this->hasMany(ProfessionalRejection::class);
+    }
 }
