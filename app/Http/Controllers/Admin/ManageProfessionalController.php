@@ -15,11 +15,42 @@ class ManageProfessionalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $professionals = Professional::latest()->get();
-        return view('admin.manage-professional.index', compact('professionals'));
+   public function index(Request $request)
+{
+    // If the request is AJAX
+    if ($request->ajax()) {
+        $searchTerm = $request->input('search');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Build the query based on filters
+        $professionals = Professional::query();
+
+        if ($searchTerm) {
+            $professionals = $professionals->where(function($query) use ($searchTerm) {
+                $query->where('name', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($startDate && $endDate) {
+            $professionals = $professionals->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Fetch filtered professionals
+        $professionals = $professionals->latest()->paginate(10);
+
+        return response()->json([
+            'professionals' => $professionals->toArray(),
+        ]);
     }
+
+    // Return the view for initial page load
+    $professionals = Professional::latest()->paginate(10);
+    return view('admin.manage-professional.index', compact('professionals'));
+}
+
+
 
     /**
      * Show the form for creating a new resource.

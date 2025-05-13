@@ -31,7 +31,10 @@ use App\Models\Blog;
 use App\Http\Controllers\Admin\MCQController;
 use App\Models\Service;
 use App\Models\Event;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\AllEvent;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,25 +62,71 @@ Route::get('about', function () {
     $aboutexperiences = AboutExperience::latest()->get();
     $abouthowweworks = AboutHowWeWork::latest()->get();
     $aboutfaqs = AboutFAQ::latest()->get();
-
-    return view('frontend.sections.about',compact('about_us','whychooses','testimonials','banners','aboutexperiences','abouthowweworks','aboutfaqs'));
-});
-Route::get('eventlist', function () {
-    $events = EventDetail::all(); // Retrieve all events from the 'eventdetails' table
     $services = Service::latest()->get();
-    return view('frontend.sections.eventlist',compact('events','services'));
+
+    return view('frontend.sections.about',compact('services','about_us','whychooses','testimonials','banners','aboutexperiences','abouthowweworks','aboutfaqs'));
 });
+Route::get('/eventlist', function (Request $request) {
+    $filter = $request->query('filter');
+    $category = $request->query('category');
+    $price_range = $request->query('price_range');
+
+    $events = EventDetail::with('event'); // Eager load event relation
+
+    $events = $events->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+        if ($filter == 'today') {
+            $query->whereDate('date', Carbon::today()->toDateString());
+        } elseif ($filter == 'tomorrow') {
+            $query->whereDate('date', Carbon::tomorrow()->toDateString());
+        } elseif ($filter == 'weekend') {
+            $startOfWeekend = Carbon::now()->next(Carbon::SATURDAY)->startOfDay();
+            $endOfWeekend = Carbon::now()->next(Carbon::SUNDAY)->endOfDay();
+            $query->whereBetween('date', [$startOfWeekend, $endOfWeekend]);
+        }
+        
+        if ($category) {
+            $query->where('mini_heading', $category);
+        }
+
+        if ($price_range) {
+            switch ($price_range) {
+                case '100-200':
+                    $query->whereBetween('starting_fees', [100, 200]);
+                    break;
+                case '200-300':
+                    $query->whereBetween('starting_fees', [200, 300]);
+                    break;
+                case '300-400':
+                    $query->whereBetween('starting_fees', [300, 400]);
+                    break;
+                case '400-500':
+                    $query->whereBetween('starting_fees', [400, 500]);
+                    break;
+                case '500-1000':
+                    $query->whereBetween('starting_fees', [500, 1000]);
+                    break;
+            }
+        }
+    });
+
+    $events = $events->latest()->get(); // Order by latest
+    $services = Service::latest()->get();
+    
+    // Get unique categories for the filter
+    $categories = AllEvent::distinct()->pluck('mini_heading');
+    
+    return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range'));
+})->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
     $event = Event::with('eventDetails')->findOrFail($id);
-    //  dd($event);
     $services = Service::all();
     $eventfaqs = EventFAQ::latest()->get();
 
     return view('frontend.sections.allevent', compact('event','services','eventfaqs'));
 })->name('event.details');
-Route::get('allevent', function () {
+Route::get('allevent', function ($id) {
     $eventdetails = Eventdetail:: with('event')->latest()->get();
-    dd($eventdetails);
+    // dd($eventdetails);
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
@@ -85,10 +134,11 @@ Route::get('allevent', function () {
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
-Route::get('/service/{id}', [ServiceController::class, 'show']);
+Route::get('/service/{id}', [ServiceController::class, 'show'])->name('service.show');
+Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
 
-Route::get('blog', function () {
+Route::get('blog', function (Request $request) {
     $blogbanners = BlogBanner::latest()->get();
     $blogPosts = BlogPost::latest()->get();
     $services = Service::latest()->get();
@@ -96,10 +146,20 @@ Route::get('blog', function () {
     $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
     ->groupBy('category')
     ->get();
+    $search = $request->input('search');
+
+    $blogPosts = BlogPost::with('blog')
+        ->when($search, function ($query, $search) {
+            return $query->whereHas('blog', function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%');
+            });
+        })
+        ->latest()
+        ->get(); // or paginate() if needed
     
 
-    return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts'));
-});
+    return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts','search'));
+})->name('blog.index');
 Route::get('/blog-post/{id}', function ($id) {
     // Fetch the blog by ID
     $blogPost = DB::table('blog_posts')->where('id', $id)->first();
@@ -137,8 +197,8 @@ Route::get('dieticians', function () {
 Route::get('contact', function () {
     $contactbanners = Contactbanner::latest()->get();
     $contactdetails = ContactDetail::latest()->get();
-
-    return view('frontend.sections.contact',compact('contactbanners','contactdetails'));
+    $services = Service::latest()->get();
+    return view('frontend.sections.contact',compact('contactbanners','contactdetails','services'));
 });
 Route::get('influencer', function () {
     return view('frontend.sections.influencer');

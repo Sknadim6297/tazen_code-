@@ -1,9 +1,6 @@
 <?php
 
-
-// routes/user.php
-
-use App\Http\Controllers\customer\AppointmentController;
+use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\frontend\HomeController;
@@ -11,10 +8,12 @@ use App\Http\Controllers\frontend\LoginController;
 use Illuminate\Support\Facades\Route;
 
 
+
 Route::middleware(['auth:user'])->group(function () {
     Route::get('dashboard', function () {
         return view('customer.index');
     })->name('dashboard');
+    Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
