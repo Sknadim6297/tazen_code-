@@ -34,7 +34,7 @@ class BookingController extends Controller
 
     public function freeHandBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'free_hand')->with('professional');
+        $query = Booking::where('plan_type', 'free_hand')->with('professional', 'timedates');
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -51,7 +51,7 @@ class BookingController extends Controller
 
     public function monthlyBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'monthly')->with('professional');
+        $query = Booking::where('plan_type', 'monthly')->with('professional', 'timedates', 'customerProfile');
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {

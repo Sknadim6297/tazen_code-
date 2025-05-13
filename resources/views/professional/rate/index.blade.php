@@ -42,7 +42,7 @@
                                 <td>{{ $rate->num_sessions }}</td>
                                 <td>₹{{ number_format($rate->rate_per_session, 2) }}</td>
                                 <td>₹{{ number_format($rate->final_rate, 2) }}</td>
-                                <td>{{ $rate->duration }}</td>
+                                <td>{{ $rate->duration }} min</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('professional.rate.edit', $rate->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">

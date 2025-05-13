@@ -99,7 +99,16 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><input type="number" class="form-control" value="1" min="1"></td>
             <td><input type="number" class="form-control" value="0" min="0" step="100"></td>
             <td><input type="number" class="form-control final-rate" name="final_rate[]" readonly></td>
-            <td><input type="text" class="form-control" placeholder="e.g. custom duration"></td>
+           <td>
+    <select class="form-control" id="durationSelect" onchange="toggleCustomDuration()">
+        <option value="30">30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60" selected>60 minutes</option>
+        <option value="90">90 minutes</option>
+        <option value="120">2 hours</option>
+
+    </select>
+</td>
             <td>
                 <div class="action-btn" title="Delete rate">
                     <i class="fas fa-trash"></i>
@@ -152,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let numSessions = parseInt(row.querySelector('td:nth-child(2) input').value) || 0;
             let ratePerSession = parseInt(row.querySelector('td:nth-child(3) input').value) || 0;
             let finalRate = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;  
-            let duration = row.querySelector('td:nth-child(5) input').value;
+             let duration = row.querySelector('td:nth-child(5) select').value;
 
             rateData.push({
                 session_type: sessionType,
