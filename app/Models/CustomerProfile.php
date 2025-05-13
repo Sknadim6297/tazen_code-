@@ -10,6 +10,7 @@ class CustomerProfile extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'phone',
@@ -20,4 +21,8 @@ class CustomerProfile extends Model
         'zip_code',
         'profile_image',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

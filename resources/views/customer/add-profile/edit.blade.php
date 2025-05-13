@@ -85,6 +85,7 @@
     .form-group.col-full {
         width: 100%;
     }
+    
 
     img {
         margin-top: 10px;
@@ -126,14 +127,15 @@
     </div>
 
     <div class="add-profile-form">
-        <form id="profileForm">
+        <form id="profileForm" enctype="multipart/form-data">
             @csrf
             <div class="form-group col-full">
                 <label for="photo">Profile Photo</label>
                 <input type="file" id="profile_image" name="profile_image" accept="image/*">
-                @if($profile->profile_image)
-                    <img src="{{ asset($profile->profile_image) }}" alt="Current Photo" width="100">
-                @endif
+             @if($profile->customerProfile && $profile->customerProfile->profile_image)
+    <img src="{{ asset($profile->customerProfile->profile_image) }}" alt="Current Photo" width="100">
+@endif
+
             </div>
             <div class="form-group col-2">
                 <div>
@@ -145,30 +147,35 @@
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" value="{{ old('email', $profile->email) }}" required>
             </div>
-            <div class="form-group col-2">
-                <div>
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" value="{{ old('phone', $profile->phone) }}">
-                </div>
+         <div class="form-group col-2">
+    <div>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" value="{{ old('phone', $profile->customerProfile ? $profile->customerProfile->phone : '') }}">
+    </div>
+</div>
+
             <div class="form-group col-full">
                 <label for="address">Address</label>
-                <textarea id="address" name="address" rows="3">{{ old('address', $profile->address) }}</textarea>
+                <textarea id="address" name="address" rows="3">{{ old('address', $profile->customerProfile ? $profile->customerProfile->address : '') }}</textarea>
             </div>
-            <div class="form-group col-full">
-                <label for="city">City</label>
-                <input id="city" name="city" rows="3" value="{{ old('city', $profile->city) }}" required>
-            </div>
-            <div class="form-group col-full">
-                <label for="zip_code">Zip Code</label>
-                <input id="zip_code" name="zip_code" rows="3" value="{{ old('zip_code', $profile->zip_code) }}" required>
-            </div>
-            <div class="form-group col-full">
-                <label for="state">State</label>
-                <input id="state" name="state" rows="3" value="{{ old('state', $profile->state) }}" required>
-            </div>
+           <div class="form-group col-2">
+    <div>
+        <label for="city">City</label>
+        <input id="city" name="city" value="{{ old('city', $profile->customerProfile?->city) }}" required>
+    </div>
+    <div>
+        <label for="zip_code">Zip Code</label>
+        <input id="zip_code" name="zip_code" value="{{ old('zip_code', $profile->customerProfile?->zip_code) }}" required>
+    </div>
+    <div>
+        <label for="state">State</label>
+        <input id="state" name="state" value="{{ old('state', $profile->customerProfile?->state) }}" required>
+    </div>
+</div>
+
             <div class="form-group col-full">
                 <label for="notes">Notes</label>
-                <textarea id="notes" name="notes" rows="3">{{ old('notes', $profile->notes) }}</textarea>
+                <textarea id="notes" name="notes" rows="3">{{ old('notes', $profile->customerProfile ? $profile->customerProfile->notes : '') }}</textarea>
             </div>
             <div class="form-group col-full">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Profile</button>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RateController extends Controller
 {
@@ -34,7 +35,8 @@ class RateController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validate the incoming request data
+        $validated = $request->validate([
             'rateData' => 'required|array',
             'rateData.*.session_type' => 'required|string|max:255',
             'rateData.*.num_sessions' => 'required|integer|min:1',
@@ -44,21 +46,35 @@ class RateController extends Controller
         ]);
         $professionalId = Auth::guard('professional')->id();
 
-        foreach ($request->input('rateData') as $rate) {
-            Rate::create([
-                'professional_id' => $professionalId,
-                'session_type' => $rate['session_type'],
-                'num_sessions' => $rate['num_sessions'],
-                'rate_per_session' => $rate['rate_per_session'],
-                'final_rate' => $rate['final_rate'],
-                'duration' => $rate['duration'],
-            ]);
-        }
+        DB::beginTransaction();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Rates added successfully.',
-        ]);
+        try {
+
+            foreach ($request->input('rateData') as $rate) {
+                Rate::create([
+                    'professional_id' => $professionalId,
+                    'session_type' => $rate['session_type'],
+                    'num_sessions' => $rate['num_sessions'],
+                    'rate_per_session' => $rate['rate_per_session'],
+                    'final_rate' => $rate['final_rate'],
+                    'duration' => $rate['duration'],
+                ]);
+            }
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Rates added successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while adding the rates. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
 

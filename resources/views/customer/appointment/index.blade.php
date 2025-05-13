@@ -167,38 +167,41 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($bookings as $key => $booking)
-                    @php
-                        $sessionsTaken = $booking->timedates->where('status', 'pending')->count();
-                        $sessionsRemaining = $booking->total_sessions - $sessionsTaken;
-                        $latestTimedate = $booking->timedates->where('status', 'pending')->first();
-                    @endphp
-                    <tr>
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $latestTimedate ? \Carbon\Carbon::parse($latestTimedate->date)->format('d-m-Y') : '-' }}</td>
-                        <td>{{ $booking->professional->name ?? 'No Professional' }}</td>
-                        <td>{{ $booking->service_name }}</td>
-                        <td>{{ $sessionsTaken }}</td>
-                        <td>{{ $sessionsRemaining }}</td>
-                        <td>{{ $booking->remarks ?? 'No remarks' }}</td>
-                        <td>
-                            @if ($booking->professional_documents)
-                            <a href="{{ asset('storage/' . $booking->professional_documents) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
-                                <img src="{{ asset('images/pdf-icon.png') }}" alt="PDFs" style="width: 20px;">
-                            </a>
-                        @else
-                            No Documents
-                        @endif
-                        
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
-                                View Details
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
+    @foreach ($bookings as $key => $booking)
+        @php
+            $totalSessions = $booking->timedates->count();
+            $sessionsTaken = $booking->timedates->where('status', '!=', 'pending')->count();
+
+            // Sessions remaining (count of 'pending' timedates)
+            $sessionsRemaining = $totalSessions - $sessionsTaken;
+        @endphp
+
+        <tr>
+            <td>{{ $key + 1 }}</td>
+            <td>{{ $booking->timedates->first() ? \Carbon\Carbon::parse($booking->timedates->first()->date)->format('d-m-Y') : '-' }}</td>
+            <td>{{ $booking->professional->name ?? 'No Professional' }}</td>
+            <td>{{ $booking->service_name }}</td>
+            <td>{{ $sessionsTaken }}</td> <!-- Sessions taken -->
+            <td>{{ $sessionsRemaining }}</td> <!-- Sessions remaining -->
+            <td>{{ $booking->remarks ?? 'No remarks' }}</td>
+            <td>
+                @if ($booking->professional_documents)
+                    <a href="{{ asset('storage/' . $booking->professional_documents) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
+                        <img src="{{ asset('images/pdf-icon.png') }}" alt="PDF" style="width: 20px;">
+                    </a>
+                @else
+                    No Documents
+                @endif
+            </td>
+            <td>
+                <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
+                    View Details
+                </button>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
+
         </table>
     </div>
 
