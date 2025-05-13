@@ -67,7 +67,7 @@
                             </li>
                         
                             <li class="slide has-sub">
-                                <a href="javascript:void(0);" class="side-menu__item">Manage Customer</a>
+                                <a href="{{ route('admin.manage-customer.index') }}" class="side-menu__item">Manage Customer</a>
                                 <a href="javascript:void(0);" class="side-menu__item">Customer Billing</a>
                             </li>
                         </ul>

@@ -49,11 +49,11 @@
                             </ul>
                             <hr>
                             <h6>Personal Details</h6>
-
-                            <div class="form-group add_bottom_15">
-                                <input class="form-control" id="phone" placeholder="Phone">
-                                <i class="icon_phone"></i>
-                            </div>
+<div class="form-group add_bottom_15">
+    <input type="tel" class="form-control" id="phone" placeholder="Phone" maxlength="10" pattern="\d{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+    <i class="icon_phone"></i>
+</div>
+    
 
                             <a href="javascript:void(0);" class="btn_1 full-width mb_5 booking">Book Now</a>
                             <a href="#" class="btn_1 full-width outline mb_25">Change Booking</a>

@@ -77,7 +77,8 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                {{ $booking->customer_name }}
+                                                {{ $booking->customer_name }} <br>
+                                            {{-- (    {{ $booking->customerProfile->phone }} ) --}}
                                             </td>
                                             <td>{{ $booking->professional->name }}</td>
                                             <td>{{ $booking->service_name }}</td>
