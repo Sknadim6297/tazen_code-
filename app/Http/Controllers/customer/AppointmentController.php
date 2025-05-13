@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Customer;
+
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
