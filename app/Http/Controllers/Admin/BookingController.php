@@ -99,22 +99,4 @@ class BookingController extends Controller
 
         return redirect()->back()->with('success', 'Meeting link updated successfully!');
     }
-    public function show($id)
-    {
-        $booking = Booking::with('timedates')->find($id);
-
-        if (!$booking) {
-            return response()->json(['error' => 'Booking not found'], 404);
-        }
-
-        return response()->json([
-            'dates' => $booking->timedates->map(function ($td) {
-                return [
-                    'date' => $td->date,
-                    'time_slot' => explode(',', $td->time_slot),
-                    'status' => $td->status ?? 'Pending',
-                ];
-            })
-        ]);
-    }
 }

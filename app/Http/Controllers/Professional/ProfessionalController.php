@@ -81,7 +81,7 @@ class ProfessionalController extends Controller
             'password'              => 'required|min:6|confirmed',
             'phone'                 => 'required|string|max:20',
             'specialization'        => 'required|string|max:255',
-            'experience'            => 'required|string|in:0-2,2-4,4-6,6-8,8-10,10+',
+            'experience'            => 'required|string|max:255',
             'starting_price'        => 'required|string|max:255',
             'address'               => 'required|string|max:500',
             'education'             => 'required|string|max:255',
@@ -111,8 +111,8 @@ class ProfessionalController extends Controller
 
         Profile::create([
             'professional_id'       => $professional->id,
-            'name'                  => $request->first_name . ' ' . $request->last_name,
-            'phone'                 => $request->phone,
+            'first_name'            => $request->first_name,
+            'last_name'             => $request->last_name,
             'email'                  => $request->email,
             'specialization'         => $request->specialization,
             'experience'             => $request->experience,
@@ -181,10 +181,10 @@ class ProfessionalController extends Controller
         ]);
 
         $professional = Professional::findOrFail(Auth::guard('professional')->id());
-        // $RejectedUser = ProfessionalRejection::where('professional_id', $professional->id)->first();
-        // if ($RejectedUser) {
-        //     $RejectedUser->delete();
-        // }
+        $RejectedUser = ProfessionalRejection::where('professional_id', $professional->id)->first();
+        if ($RejectedUser) {
+            $RejectedUser->delete();
+        }
         $profile = Profile::where('professional_id', $professional->id)->first();
 
         $professional->update([

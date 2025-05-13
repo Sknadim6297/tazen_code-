@@ -30,8 +30,4 @@ class Professional extends Authenticatable
     {
         return $this->hasMany(Rate::class);
     }
-    public function professionalRejection()
-    {
-        return $this->hasMany(ProfessionalRejection::class);
-    }
 }

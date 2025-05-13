@@ -1,4 +1,5 @@
 @extends('customer.layout.layout')
+
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/add-profile.css') }}" />
 <style>

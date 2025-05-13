@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\BookingTimedate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -62,30 +61,30 @@ class BookingController extends Controller
      * Display the specified resource.
      */
     public function uploadDocuments(Request $request, $bookingId)
-{
-    $request->validate([
-        'documents.*' => 'mimes:pdf|max:2048',
-    ]);
-    $booking = Booking::findOrFail($bookingId);
+    {
+        $request->validate([
+            'documents.*' => 'mimes:pdf|max:2048',
+        ]);
+        $booking = Booking::findOrFail($bookingId);
 
-    if ($request->hasFile('documents')) {
-        $filePaths = [];
-        if ($booking->professional_documents) {
-            $filePaths = explode(',', $booking->professional_documents);
+        if ($request->hasFile('documents')) {
+            $filePaths = [];
+            if ($booking->professional_documents) {
+                $filePaths = explode(',', $booking->professional_documents);
+            }
+
+            foreach ($request->file('documents') as $file) {
+                $filePath = $file->store('uploads/documents', 'public');
+                $filePaths[] = $filePath;
+            }
+            $booking->professional_documents = implode(',', $filePaths);
+            $booking->save();
+
+            return back()->with('success', 'Documents uploaded successfully!');
         }
 
-        foreach ($request->file('documents') as $file) {
-            $filePath = $file->store('uploads/documents', 'public');
-            $filePaths[] = $filePath;
-        }
-        $booking->professional_documents = implode(',', $filePaths);
-        $booking->save();
-
-        return back()->with('success', 'Documents uploaded successfully!');
+        return back()->with('error', 'No documents were uploaded.');
     }
-
-    return back()->with('error', 'No documents were uploaded.');
-}
 
     /**
      * Show the form for editing the specified resource.
