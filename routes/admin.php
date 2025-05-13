@@ -87,7 +87,5 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::post('/professional/reject/{id}', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
 
-    Route::get('booking/details/{id}', [BookingController::class, 'show'])->name('booking.details');
-
     Route::resource('manage-customer', ManageCustomerController::class);
 });

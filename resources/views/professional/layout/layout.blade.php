@@ -11,16 +11,7 @@
     <link rel="stylesheet" href="{{ asset('professional/assets/css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-   <style>
-.toast-top-center {
-    top: 40px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-}
-</style>
     @yield('styles')
-
 </head>
 <body>
     <div class="app-container">
@@ -45,66 +36,22 @@
 
     @yield('scripts')
     <script>
-toastr.options = {
-    "positionClass": "toast-top-center",
-    "timeOut": "3000",
-    "closeButton": true,
-    "progressBar": true
-};
-
-@if (session('success'))
-    toastr.success("{{ session('success') }}");
-@endif
-
-@if (session('error'))
-    toastr.error("{{ session('error') }}");
-@endif
-
-@if (session('warning'))
-    toastr.warning("{{ session('warning') }}");
-@endif
-
-@if (session('info'))
-    toastr.info("{{ session('info') }}");
-@endif
-</script>
-
-
-@if (session('success'))
-    toastr.success("{{ session('success') }}");
-@endif
-
-@if (session('error'))
-    toastr.error("{{ session('error') }}");
-@endif
-
-@if (session('warning'))
-    toastr.warning("{{ session('warning') }}");
-@endif
-
-@if (session('info'))
-    toastr.info("{{ session('info') }}");
-@endif
-</script>
-
-
-    @if (session('success'))
-        toastr.success("{{ session('success') }}");
-    @endif
-
-    @if (session('error'))
-        toastr.error("{{ session('error') }}");
-    @endif
-
-    @if (session('warning'))
-        toastr.warning("{{ session('warning') }}");
-    @endif
-
-    @if (session('info'))
-        toastr.info("{{ session('info') }}");
-    @endif
-</script>
-
+		@if (session('success'))
+			toastr.success("{{ session('success') }}");
+		@endif
+	
+		@if (session('error'))
+			toastr.error("{{ session('error') }}");
+		@endif
+	
+		@if (session('warning'))
+			toastr.warning("{{ session('warning') }}");
+		@endif
+	
+		@if (session('info'))
+			toastr.info("{{ session('info') }}");
+		@endif
+	</script>
     <script>
         $(document).ready(function() {
             // Toggle sidebar on mobile
