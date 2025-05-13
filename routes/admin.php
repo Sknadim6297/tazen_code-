@@ -71,7 +71,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('service', ServiceController::class);
     Route::resource('manage-professional', ManageProfessionalController::class);
 
-    Route::resource('mcq',MCQController::class);
+    Route::resource('mcq', MCQController::class);
     Route::get('/professional-requests', [ProfessionalRequestedController::class, 'index'])->name('professional.requests');
     Route::post('/professional-requests/{id}/approve', [ProfessionalRequestedController::class, 'approve'])->name('professional.requests.approve');
     Route::get('/professional-requests/{id}/reject', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
@@ -83,4 +83,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/booking/monthly', [BookingController::class, 'monthlyBooking'])->name('monthly');
     Route::get('/booking/quaterly', [BookingController::class, 'quaterlyBooking'])->name('quaterly');
     Route::post('/booking/add-link/{id}', [BookingController::class, 'updateLink'])->name('add-link');
+
+    Route::post('/professional/reject/{id}', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
+
+    Route::get('booking/details/{id}', [BookingController::class, 'show'])->name('booking.details');
+
 });

@@ -56,7 +56,7 @@
                                                 {{ $booking->customer_name }}
                                             </td>
                                             <td>{{ $booking->professional->name }}</td>
-                                            <td>Null</td>
+                                            <td>{{ $booking->service_name }}</td>
                                             <td>Null</td>
                                             <td>{{ $booking->days }} {{ $booking->month }}</td>
                                             <td>{{ $booking->time_slot }}</td>

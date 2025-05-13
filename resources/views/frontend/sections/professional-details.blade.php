@@ -1,11 +1,9 @@
 @extends('layouts.layout')
 @section('styles')
-   <link rel="preload" href="{{ asset('frontend/assets/css/detail-page.css') }}" as="style">
+   {{-- <link rel="preload" href="{{ asset('frontend/assets/css/detail-page.css') }}" as="style"> --}}
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/detail-page.css') }}">
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-
     <style>
         	/* Appointment Types Container */
 		.appointment_types {
@@ -13,9 +11,19 @@
 			border-radius: 10px;
 			box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
 			margin-bottom: 25px;
-			overflow: hidden;
 		}
-		
+        .flatpickr-day.selected {
+        border: 2px solid black !important;
+        box-sizing: border-box;
+    }
+
+    .flatpickr-day:hover {
+        border: 2px solid #000;
+    }
+
+    .flatpickr-day.today {
+        border: 1px solid #ccc;
+    }
 		/* Tab Navigation */
 		.appointment_types .nav-tabs {
 			border-bottom: 2px solid #f0f0f0;
@@ -163,7 +171,7 @@
 @endsection
 @section('content')
     <div class="container margin_detail" style="margin-top: 100px;">
-        <div class="row">
+        <div class="row" style="height: 100vh">
             <div class="col-xl-8 col-lg-7">
                 <div class="box_general">
                      <div>
@@ -172,14 +180,17 @@
                     <div class="main_info_wrapper">
                         <div class="main_info clearfix">
                             <div class="user_desc">
-                                <h3 id="professional_name">{{ $profile->first_name }} {{ $profile->last_name }}</h3>
+                                <h3 id="professional_name">{{ $profile->name }}</h3>
 
                                 <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get dir ections</a></p>
                                 <ul class="tags no_margin">
-                                    <li><a href="#0">{{ $profile->specialization }}</a></li>
-                                    <li><a href="#0">Piscologist</a></li>
-                                    <li><a href="#0">Researcher</a></li>
-                                </ul>
+    @if($services && $services->tags)
+        <li><a href="#0">{{ $services->tags }}</a></li>
+    @else
+        <li>No tags available</li> <!-- Optional: You can display a message or handle it however you'd like -->
+    @endif
+</ul>
+
                             </div>
                             <div class="score_in">
                                 <div class="rating">
@@ -210,8 +221,6 @@
                     </div>
                     <!-- /main_info -->
                 </div>
-                <!-- /box_general -->
-                <div class="box_general">
                     <div class="tabs_detail">
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item">
@@ -233,72 +242,109 @@
                                         </a>
                                     </h5>
                                 </div>
-                                <div id="collapse-A" class="collapse" role="tabpanel" aria-labelledby="heading-A">
-                                    <div class="card-body info_content">
-                                        <div class="indent_title_in">
-                                            <i class="icon_document_alt"></i>
-                                            <h3>Services</h3>
-                                        </div>
-                                        <div class="wrapper_indent">
-                                            <p>Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Nullam mollis. Phasellus hendrerit.</p>
-                                            <h6>Most requested services</h6>
+                                @php
+                                $services = $requestedService && $requestedService->requested_service
+                                            ? json_decode($requestedService->requested_service, true)
+                                            : [];
+                            
+                                $prices = $requestedService && $requestedService->price
+                                            ? json_decode($requestedService->price, true)
+                                            : [];
+                            
+                                $specializations = $requestedService && $requestedService->specializations
+                                            ? json_decode($requestedService->specializations, true)
+                                            : [];
+                            
+                                $education = $requestedService && $requestedService->education
+                                            ? json_decode($requestedService->education, true)
+                                            : ['college_name' => [], 'degree' => []];
+                            @endphp
+                            
+                            <div id="collapse-A" class="collapse" role="tabpanel" aria-labelledby="heading-A">
+                                <div class="card-body info_content">
+                                    {{-- Services --}}
+                                    <div class="indent_title_in">
+                                        <i class="icon_document_alt"></i>
+                                        <h3>Services</h3>
+                                    </div>
+                                    <div class="wrapper_indent">
+                                        @if(!empty($services))
+                                            <p>{{ $requestedService->sub_heading ?? '' }}</p>
+                            
+                                            <h6>Most Requested Services</h6>
                                             <div class="services_list clearfix">
                                                 <ul>
-                                                    <li>Cardiological examination with ECG <strong><small>from</small> $80</strong></li>
-                                                    <li>Echocardiogram <strong><small>from</small> $110</strong></li>
-                                                    <li>Electrocardiogram or ECG <strong><small>from</small> $95</strong></li>
+                                                    @foreach($services as $index => $service)
+                                                        <li>
+                                                            {{ $service }}
+                                                            @if(isset($prices[$index]))
+                                                            <strong><small>from</small> ₹{{ number_format($prices[$index], 2) }}</strong>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
                                                 </ul>
                                             </div>
-                                        </div>
-                                        <!--  End wrapper indent -->
-                                        <hr>
-                                        <div class="indent_title_in">
-                                            <i class="icon_document_alt"></i>
-                                            <h3>Professional statement</h3>
-                                            <p>Mussum ipsum cacilds, vidis litro abertis.</p>
-                                        </div>
-                                        <div class="wrapper_indent">
-                                            <p>Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Nullam mollis. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapi.</p>
-                                            <h6>Specializations</h6>
-                                            <div class="row">
-                                                <div class="col-lg-6">
-                                                    <ul class="bullets">
-                                                        <li>Abdominal Radiology</li>
-                                                        <li>Addiction Psychiatry</li>
-                                                        <li>Adolescent Medicine</li>
-                                                        <li>Cardiothoracic Radiology </li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <ul class="bullets">
-                                                        <li>Abdominal Radiology</li>
-                                                        <li>Addiction Psychiatry</li>
-                                                        <li>Adolescent Medicine</li>
-                                                        <li>Cardiothoracic Radiology </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <!-- /row-->
-                                        </div>
-                                        <!--  End wrapper indent -->
-                                        <hr>
-                                        <div class="indent_title_in">
-                                            <i class="icon_document_alt"></i>
-                                            <h3>Education</h3>
-                                            <p>Mussum ipsum cacilds, vidis litro abertis.</p>
-                                        </div>
-                                        <div class="wrapper_indent add_bottom_25">
-                                            <p>Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Nullam mollis. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapi.</p>
-                                            <h6>Curriculum</h6>
-                                            <ul class="bullets">
-                                                <li><strong>New York Medical College</strong> - Doctor of Medicine</li>
-                                                <li><strong>Montefiore Medical Center</strong> - Residency in Internal Medicine</li>
-                                                <li><strong>New York Medical College</strong> - Master Internal Medicine</li>
-                                            </ul>
-                                        </div>
-                                        <!--  End wrapper indent -->
+                                        @else
+                                            <p>No services available at the moment.</p>
+                                        @endif
+                                    </div>
+                                    <hr>
+                            
+                                    {{-- Specializations --}}
+                                    <div class="indent_title_in">
+                                        <i class="icon_document_alt"></i>
+                                        <h3>Professional statement</h3>
+                                        <p>{{ $requestedService->professional_statement ?? 'No statement provided.' }}</p>
+                                    </div>
+                                    <div class="wrapper_indent">
+                                        <h6>Specializations</h6>
+                                 <div class="row">
+    @php
+        $chunks = [];
+        if (!empty($specializations) && is_array($specializations)) {
+            $chunks = array_chunk($specializations, max(1, ceil(count($specializations)/2)));
+        }
+    @endphp
+
+    @if(!empty($chunks))
+        @foreach($chunks as $chunk)
+            <div class="col-lg-6">
+                <ul class="bullets">
+                    @foreach($chunk as $item)
+                        <li>{{ $item }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+    @else
+        <div class="col-12">
+            <p>No specializations available.</p>
+        </div>
+    @endif
+</div>
+
+                                    </div>
+                                    <hr>
+                            
+                                    {{-- Education --}}
+                                    <div class="indent_title_in">
+                                        <i class="icon_document_alt"></i>
+                                        <h3>Education</h3>
+                                        <p>Education background of the professional.</p>
+                                    </div>
+                                    <div class="wrapper_indent add_bottom_25">
+                                        <h6>Curriculum</h6>
+                                        <ul class="bullets">
+                                            @foreach($education['college_name'] as $i => $college)
+                                                @if(!empty($college) || !empty($education['degree'][$i]))
+                                                    <li><strong>{{ $college }}</strong> - {{ $education['degree'][$i] ?? '' }}</li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 </div>
+                            </div>
+                            
                             </div>
                             <!-- /tab -->
                             <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
@@ -500,67 +546,66 @@
                         </div>
                         <!-- /tab-content -->
                     </div>
-                    <!-- /tabs_detail -->
-                </div>
+
             </div>
             <!-- /col -->
-            <div class="col-xl-4 col-lg-5" id="sidebar_fixed">
+            <div class="col-xl-4 col-lg-5">
                 <!-- Appointment Type Tabs -->
-                <div class="box_booking appointment_types">
-                    <div class="tabs">
-                        <ul class="nav nav-tabs" role="tablist">
-                            @foreach($rates as $rate)
-                                @php
-                                    $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
-                                @endphp
-                                <li class="nav-item">
-                                    <a class="nav-link @if($loop->first) active @endif" id="{{ $safeId }}-tab" data-bs-toggle="tab" href="#{{ $safeId }}" role="tab">{{ ucfirst($rate->session_type) }}</a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        
-                        <div class="tab-content">
-                            @foreach($rates as $rate)
-                                @php
-                                    $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
-                                @endphp
-                                <div class="tab-pane fade @if($loop->first) show active @endif" id="{{ $safeId }}" role="tabpanel" aria-labelledby="{{ $safeId }}-tab">
-                                    <div class="appointment-details">
-                                        <h4>{{ ucfirst($rate->session_type) }} Consultation</h4>
-                                        <p>{{ $rate->professional->bio }}</p>
-                                        <ul class="appointment-features">
-                                            <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
-                                            <li><i class="icon_check_alt2"></i> {{ $rate->duration }} per session</li>
-                                            <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
-                                        </ul>
-                                        <div class="price">
-                                     @php
-                                    $perText = match (strtolower($rate->session_type)) {
-                                         'free hand' => 'per session',
-                                            'weekly' => 'per week',
-                                            'monthly' => 'per month',
-                                                'quarterly' => 'per 3 months', 
-                                                default => 'per session',
-                                                          };
-                                             @endphp
+                    <div class="box_booking appointment_types">
+                        <div class="tabs">
+                            <ul class="nav nav-tabs" role="tablist">
+                                @foreach($rates as $rate)
+                                    @php
+                                        $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
+                                    @endphp
+                                    <li class="nav-item">
+                                        <a class="nav-link @if($loop->first) active @endif" id="{{ $safeId }}-tab" data-bs-toggle="tab" href="#{{ $safeId }}" role="tab">{{ ucfirst($rate->session_type) }}</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                            
+                            <div class="tab-content">
+                                @foreach($rates as $rate)
+                                    @php
+                                        $safeId = strtolower(str_replace(' ', '_', $rate->session_type));
+                                    @endphp
+                                    <div class="tab-pane fade @if($loop->first) show active @endif" id="{{ $safeId }}" role="tabpanel" aria-labelledby="{{ $safeId }}-tab">
+                                        <div class="appointment-details">
+                                            <h4>{{ ucfirst($rate->session_type) }} Consultation</h4>
+                                            <p>{{ $rate->professional->bio }}</p>
+                                            <ul class="appointment-features">
+                                                <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
+                                                <li><i class="icon_check_alt2"></i> {{ $rate->duration }} per session</li>
+                                                <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
+                                            </ul>
+                                            <div class="price">
+                                        @php
+                                        $perText = match (strtolower($rate->session_type)) {
+                                            'free hand' => 'per session',
+                                                'weekly' => 'per week',
+                                                'monthly' => 'per month',
+                                                    'quarterly' => 'per 3 months', 
+                                                    default => 'per session',
+                                                            };
+                                                @endphp
 
-                                        
-                                            <strong>Rs. {{ number_format($rate->final_rate, 2) }}</strong>
-                                            <small>{{ $perText }}</small>
+                                            
+                                                <strong>Rs. {{ number_format($rate->final_rate, 2) }}</strong>
+                                                <small>{{ $perText }}</small>
+                                            </div>
+                                            
+                                            <button class="btn_1 full-width select-plan" data-plan="{{ $safeId }}" data-sessions="{{ $rate->num_sessions }}">Select {{ ucfirst($rate->session_type) }}</button>
                                         </div>
-                                        
-                                        <button class="btn_1 full-width select-plan" data-plan="{{ $safeId }}">Select {{ ucfirst($rate->session_type) }}</button>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
+                            
                         </div>
-                        
                     </div>
-                </div>
                 
                 <!-- /Appointment Type Tabs -->
             
-                <div class="box_booking mobile_fixed">
+                <div class="box_booking">
                     <div class="head">
                         <h3>Booking</h3>
                         <a href="#0" class="close_panel_mobile"><i class="icon_close"></i></a>
@@ -580,42 +625,63 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="form-group">
-                        <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none" />
-                        <div id="calendarDiv"></div>
+                        <div style="display: flex; justify-content: center; margin-top: 20px;">
+                            <div style="padding: 10px; background: #fff; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px;">
+                                <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none;" />
+                                <div id="calendarDiv"></div>
+                            </div>
                         </div>
-
-                        <div class="dropdown time">
-                            <a href="#" data-bs-toggle="dropdown">Hour <span id="selected_time"></span></a>
+                        <div class="dropdown time mt-4">
+                            <a href="#" data-bs-toggle="dropdown">
+                                <div>Hour</div>
+                                <div id="selected_time"></div>
+                            </a>
+                            
                             <div class="dropdown-menu">
                                 <div class="dropdown-menu-content">
-                                    <div class="radio_select" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    <div class="radio_select d-flex flex-wrap gap-2">
                                         @foreach($availabilities as $availability)
-                                            @foreach($availability->slots as $slot)
-                                                <div style="flex: 0 0 auto;">
-                                                    <input type="radio"
-                                                           id="time_{{ $slot->id }}"
-                                                           data-id="{{ $slot->id }}"
-                                                           name="time"
-                                                           value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }} {{ $slot->start_period }} to {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }} {{ $slot->end_period }}"
-                                                           class="time-slot"
-                                                           data-start="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }}"
-                                                           data-start-period="{{ $slot->start_period }}"
-                                                           data-end="{{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }}"
-                                                           data-end-period="{{ $slot->end_period }}">
-                                                    <label for="time_{{ $slot->id }}">
-                                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i') }}
-                                                        <small>{{ strtoupper($slot->start_period) }}</small> -
-                                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i') }}
-                                                        <small>{{ strtoupper($slot->end_period) }}</small>
-                                                    </label>
-                                                </div>
-                                            @endforeach
+                                            @php $weekdays = json_decode($availability->weekdays, true); @endphp
+                        
+                                            @if(is_array($weekdays))
+                                                @foreach($availability->slots as $slot)
+                                                    @foreach($weekdays as $day)
+                                                        @php
+                                                            $weekday = strtolower($day);
+                                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i');
+                                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i');
+                                                        @endphp
+                        
+                                                        <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
+                                                            <input type="radio"
+                                                                   id="time_{{ $slot->id }}_{{ $weekday }}"
+                                                                   name="time"
+                                                                   class="time-slot"
+                                                                   data-id="{{ $slot->id }}"
+                                                                   value="{{ $startTime }} {{ $slot->start_period }} to {{ $endTime }} {{ $slot->end_period }}"
+                                                                   data-start="{{ $startTime }}"
+                                                                   data-start-period="{{ $slot->start_period }}"
+                                                                   data-end="{{ $endTime }}"
+                                                                   data-end-period="{{ $slot->end_period }}">
+                        
+                                                            <label for="time_{{ $slot->id }}_{{ $weekday }}">
+                                                                {{ $startTime }} <small>{{ strtoupper($slot->start_period) }}</small> -
+                                                                {{ $endTime }} <small>{{ strtoupper($slot->end_period) }}</small>
+                                                            </label>
+                                                        </div>
+                                                    @endforeach
+                                                @endforeach
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <ul id="selected-time-list">
+                            <!-- Selected dates and times will be appended here -->
+                        </ul>
+                        
+                        
                         
                         <!-- /dropdown -->
                         <a href="javascript:void(0);" class="btn_1 full-width booking">Book Now</a>
@@ -630,67 +696,169 @@
             @endsection
             @section('script')
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    // const professionalName=document.getElementById('professional_name');
-                    // const professionalAddress=document.getElementById('professional_address');
-                    const planButtons = document.querySelectorAll('.select-plan');
-                    const selectedPlanDisplay = document.getElementById('selected-plan-display');
-                    const selectedPlanText = document.getElementById('selected-plan-text');
-                    const selectedPlanInput = document.getElementById('selected_plan');
-            
-                    // Plan selection
-                    planButtons.forEach(button => {
-                        button.addEventListener('click', function () {
-                            const plan = this.getAttribute('data-plan');
-                            selectedPlanInput.value = plan;
-                            selectedPlanText.textContent = plan + ' Consultation';
-                            selectedPlanDisplay.style.display = 'block';
-                            selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
-                        });
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        let enabledDates = @json($enabledDates);
+        console.log(enabledDates);
+        
+        let selectedBookings = {};
+
+        // Helper function to format the date to local date string
+        function formatLocalDate(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - offset * 60000);
+            return localDate.toISOString().split('T')[0];
+        }
+
+        // Initialize Flatpickr
+        flatpickr("#calendarDiv", {
+            inline: true,
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            enable: enabledDates, 
+            disable: [
+                function (date) {
+                    const dateString = formatLocalDate(date);
+                    return !enabledDates.includes(dateString) || date.getDay() === 0;
+                }
+            ],
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+                const date = dayElem.dateObj;
+                const dateString = formatLocalDate(date);
+                if (enabledDates.includes(dateString) && date.getDay() !== 0) {
+                    dayElem.style.backgroundColor = '#28a745';
+                    dayElem.style.color = 'white';
+                } else {
+                    dayElem.style.backgroundColor = '#ccc'; // Disabled days
+                    dayElem.style.color = '#999';
+                }
+            },
+            onChange: function (selectedDates, dateStr, instance) {
+    const offset = selectedDates.length ? selectedDates[0].getTimezoneOffset() : 0;
+    const selectedDatesLocal = selectedDates.map(d => {
+        return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
+    });
+
+    // Remove unselected dates from selectedBookings
+    Object.keys(selectedBookings).forEach(date => {
+        if (!selectedDatesLocal.includes(date)) {
+            delete selectedBookings[date];
+        }
+    });
+
+    // Hide all slot boxes first
+    document.querySelectorAll('.slot-box').forEach(box => {
+        box.style.display = 'none';
+        box.removeAttribute('data-current-date');
+    });
+
+    // Show slots for last selected date only
+    if (selectedDates.length > 0) {
+        const selectedDateUTC = selectedDates[selectedDates.length - 1];
+        const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
+        const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const weekday = weekdayNames[selectedDate.getDay()];
+        const dateString = selectedDate.toISOString().split('T')[0];
+
+        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
+            box.style.display = 'flex';
+            box.setAttribute('data-current-date', dateString);
+        });
+    }
+
+    updateSelectedTimeList();
+}
+        });
+
+        // Handle slot selection
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('change', function () {
+                const box = this.closest('.slot-box');
+                const currentDate = box.getAttribute('data-current-date');
+                const selectedTime = this.value;
+
+                if (currentDate && selectedTime) {
+                    if (!selectedBookings[currentDate]) {
+                        selectedBookings[currentDate] = [];
+                    }
+                    selectedBookings[currentDate] = [selectedTime];
+                    document.querySelectorAll(`.slot-box[data-current-date="${currentDate}"] .time-slot`).forEach(input => {
+                        input.checked = (input.value === selectedTime);
                     });
-            
-                    document.querySelector('.booking').addEventListener('click', function (e) {
+
+                    updateSelectedTimeList();
+                }
+            });
+        });
+        function updateSelectedTimeList() {
+    const list = document.getElementById('selected-time-list');
+    if (list) { // Ensure the element exists
+        list.innerHTML = '';
+        Object.entries(selectedBookings).forEach(([date, times]) => {
+            times.forEach(time => {
+                const item = document.createElement('li');
+                item.textContent = `${date} - ${time}`;
+                list.appendChild(item);
+            });
+        });
+        const bookingDataInput = document.getElementById('booking_data_json');
+        if (bookingDataInput) {
+            bookingDataInput.value = JSON.stringify(selectedBookings);
+        }
+    } else {
+        console.warn('Selected time list element not found!');
+    }
+}
+
+
+        // Handle plan selection
+        const planButtons = document.querySelectorAll('.select-plan');
+const selectedPlanDisplay = document.getElementById('selected-plan-display');
+const selectedPlanText = document.getElementById('selected-plan-text');
+const selectedPlanInput = document.getElementById('selected_plan');
+let sessionCount = 0; 
+
+planButtons.forEach(button => {
+    button.addEventListener('click', function () {
+        const plan = this.getAttribute('data-plan');
+        sessionCount = parseInt(this.getAttribute('data-sessions')); 
+        selectedPlanInput.value = plan;
+        selectedPlanText.textContent = `${plan} Consultation (Total ${sessionCount} Sessions)`;
+        selectedPlanDisplay.style.display = 'block';
+        selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+// Handle booking submission
+document.querySelector('.booking').addEventListener('click', function (e) {
     e.preventDefault();
 
-    const selectedTimeRadio = document.querySelector('input[name="time"]:checked');
-    const timeSlot = selectedTimeRadio ? selectedTimeRadio.value : null;
     const planType = selectedPlanInput.value;
-    const bookingDate = document.getElementById('rangeInput').value;
+    const bookingData = selectedBookings;
 
-    const professionalName = document.getElementById('professional_name').textContent.trim();
-    const professionalAddress = document.getElementById('professional_address').textContent.trim();
+    // Get the number of dates selected by the user
+    const selectedDatesCount = Object.keys(bookingData).length;
 
-    const professionalId = {{ json_encode($profile->professional->id ?? null) }};
-
-    console.log( {
-        professional_name: professionalName,
-        professional_address: professionalAddress,
-        professional_id: professionalId,
-        plan_type: planType,
-        booking_date: bookingDate,
-        time_slot: timeSlot,
-    });
-    
     if (!planType) {
         toastr.error('Please select a consultation plan.');
         return;
     }
 
-    if (!bookingDate) {
-        toastr.error('Please select a booking date.');
+    if (selectedDatesCount !== sessionCount) {
+        toastr.error(`You need to select  ${sessionCount} dates for this booking.`);
         return;
     }
 
-    if (!timeSlot) {
-        toastr.error('Please select a time slot.');
-        return;
-    }
+    const professionalName = document.getElementById('professional_name').textContent.trim();
+    const professionalAddress = document.getElementById('professional_address').textContent.trim();
+    const professionalId = {{ json_encode($profile->professional->id ?? null) }};
 
+    // Send the booking data to the server
     fetch("{{ route('user.booking.session.store') }}", {
         method: 'POST',
         headers: {
-             'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
@@ -698,8 +866,7 @@
             professional_address: professionalAddress,
             professional_id: professionalId,
             plan_type: planType,
-            booking_date: bookingDate,
-            time_slot: timeSlot,
+            bookings: bookingData,
         })
     })
     .then(res => res.json())
@@ -717,9 +884,9 @@
         console.error(err);
         toastr.error('Server error. Please try again later.');
     });
-});});
+});
 
-    document.addEventListener("DOMContentLoaded", function () {
+        // Toggle Bio functionality
         const bioShort = document.getElementById("bio-short");
         const bioFull = document.getElementById("bio-full");
         const toggleBtn = document.getElementById("toggle-bio");
@@ -739,45 +906,6 @@
         }
     });
 
-            </script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let enabledDates = @json($enabledDates);
-        function formatLocalDate(date) {
-            const offset = date.getTimezoneOffset();
-            const localDate = new Date(date.getTime() - offset * 60 * 1000);
-            return localDate.toISOString().split('T')[0];
-        }
-    
-        flatpickr("#calendarDiv", {
-            inline: true,
-            mode: "multiple",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            disable: [
-                function (date) {
-                    const dateString = formatLocalDate(date);
-                    return !enabledDates.includes(dateString) || date.getDay() === 0; 
-                }
-            ],
-    
-            onDayCreate: function (dObj, dStr, fp, dayElem) {
-                const date = dayElem.dateObj;
-                const dateString = formatLocalDate(date);
-    
-                if (enabledDates.includes(dateString) && date.getDay() !== 0) {
-                    dayElem.style.backgroundColor = '#28a745';
-                    dayElem.style.color = 'white';
-                }
-            },
-    
-            onChange: function (selectedDates, dateStr, instance) {
-                document.getElementById('rangeInput').value = dateStr;
-            }
-        });
-    });
-    </script>
-
-            @endsection
+</script>
+@endsection
             

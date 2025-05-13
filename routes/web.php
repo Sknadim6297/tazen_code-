@@ -28,6 +28,11 @@ use App\Models\ContactDetail;
 use App\Models\BlogBanner;
 use App\Models\BlogPost;
 use App\Models\Blog;
+use App\Http\Controllers\Admin\MCQController;
+use App\Models\Service;
+use App\Models\Event;
+use Illuminate\Support\Facades\DB;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,7 +49,7 @@ Route::get('gridlisting', function () {
     return view('frontend.sections.gridlisting');
 });
 Route::get('professionaldetails', function () {
-    return view('frontend.sections.professional-details');
+    return view('frontend.sections.professional-details')->name('professionals.details');
 });
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
@@ -55,19 +60,28 @@ Route::get('about', function () {
     $abouthowweworks = AboutHowWeWork::latest()->get();
     $aboutfaqs = AboutFAQ::latest()->get();
 
-    return view('frontend.sections.about', compact('about_us', 'whychooses', 'testimonials', 'banners', 'aboutexperiences', 'abouthowweworks', 'aboutfaqs'));
+    return view('frontend.sections.about',compact('about_us','whychooses','testimonials','banners','aboutexperiences','abouthowweworks','aboutfaqs'));
 });
 Route::get('eventlist', function () {
     $events = EventDetail::all(); // Retrieve all events from the 'eventdetails' table
-    return view('frontend.sections.eventlist',compact('events'));
+    $services = Service::latest()->get();
+    return view('frontend.sections.eventlist',compact('events','services'));
 });
-Route::get('/allevent/{id}', [EventController::class, 'show'])->name('event.details');
+Route::get('/allevent/{id}', function ($id) {
+    $event = Event::with('eventDetails')->findOrFail($id);
+    //  dd($event);
+    $services = Service::all();
+    $eventfaqs = EventFAQ::latest()->get();
+
+    return view('frontend.sections.allevent', compact('event','services','eventfaqs'));
+})->name('event.details');
 Route::get('allevent', function () {
-    $eventdetails = Eventdetail::latest()->get();
+    $eventdetails = Eventdetail:: with('event')->latest()->get();
+    dd($eventdetails);
     $eventfaqs = EventFAQ::latest()->get();
     $event = Event::findOrFail($id);
 
-    return view('frontend.sections.allevent', compact('eventdetails', 'eventfaqs', 'event'));
+    return view('frontend.sections.allevent',compact('eventdetails','eventfaqs','event'));
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
@@ -77,9 +91,14 @@ Route::get('/service/{id}', [ServiceController::class, 'show']);
 Route::get('blog', function () {
     $blogbanners = BlogBanner::latest()->get();
     $blogPosts = BlogPost::latest()->get();
+    $services = Service::latest()->get();
+    $latestBlogs = BlogPost::latest()->take(3)->get();
+    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
+    ->groupBy('category')
+    ->get();
     
 
-    return view('frontend.sections.blog',compact('blogbanners','blogPosts'));
+    return view('frontend.sections.blog',compact('blogbanners','blogPosts','services','latestBlogs','categoryCounts'));
 });
 Route::get('/blog-post/{id}', function ($id) {
     // Fetch the blog by ID
@@ -119,7 +138,7 @@ Route::get('contact', function () {
     $contactbanners = Contactbanner::latest()->get();
     $contactdetails = ContactDetail::latest()->get();
 
-    return view('frontend.sections.contact', compact('contactbanners', 'contactdetails'));
+    return view('frontend.sections.contact',compact('contactbanners','contactdetails'));
 });
 Route::get('influencer', function () {
     return view('frontend.sections.influencer');
@@ -135,6 +154,7 @@ Route::get('astro', function () {
 });
 Route::get('blog-post', function () {
     $blogbanners = BlogBanner::latest()->get();
+    
     return view('frontend.sections.blog-post',compact('blogbanners'));
 });
 
@@ -186,7 +206,3 @@ Route::post('professional/register', [ProfessionalController::class, 'register']
 // Route::get('/get-mcqs/{service_id}', [ServiceController::class, 'getMcqs']);
 Route::post('/submit-mcq', [MCQController::class, 'store'])->name('submit.mcq');
 Route::get('/get-mcq-questions/{serviceId}', [HomeController::class, 'getServiceQuestions']);
-
-
-
-
