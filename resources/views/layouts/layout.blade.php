@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
 	<meta name="author" content="Ansonika">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>Tazen</title>
 
 	<!-- Font Awesome -->
@@ -90,16 +91,6 @@
     color: #fff !important;
 }
 
-		.owl-stage-outer {
-		 height: 550px;
-		}
-		.owl-carousel .owl-item {
-	 margin: 0 10px 10px 10px; /* Applies margin only on left, right, and bottom */
- }
- .owl-carousel .item {
- position: relative;
- padding: 0px;
-}
 </style>
 	
 	<style>
@@ -151,8 +142,10 @@
 	@include('frontend.sections.header')
 
 	@yield('content')
-
+	
+	@if (!isset($showFooter) || $showFooter)
 	@include('frontend.sections.footer')
+	@endif
 
 	@yield('script')
 

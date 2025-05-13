@@ -20,7 +20,10 @@ use App\Models\HomeBlog;
 use App\Models\Howworks;
 use App\Models\ServiceMCQ;
 use App\Models\Blog;
+use App\Models\BookingTimedate;
 use App\Models\MCQ;
+use App\Models\ProfessionalOtherInformation;
+use App\Models\RequestedService;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -43,35 +46,32 @@ class HomeController extends Controller
         $mcqs = DB::table('service_m_c_q_s')->get();
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
-        return view('frontend.index', compact('services','banners','about_us','whychooses','testimonials','homeblogs','howworks','mcqs','blogs'));
+        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogs'));
         $mcqs = MCQ::latest()->get();
         return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs'));
     }
 
-//     public function getServiceQuestions($serviceId)
-// {
-//     $questions = DB::table('service_m_c_q_s')
-//                    ->where('service_id', $serviceId)
-//                    ->take(5)
-//                    ->get();
+    //     public function getServiceQuestions($serviceId)
+    // {
+    //     $questions = DB::table('service_m_c_q_s')
+    //                    ->where('service_id', $serviceId)
+    //                    ->take(5)
+    //                    ->get();
 
-//     return view('frontend.partials.mcq_questions', compact('questions'));
-// }
+    //     return view('frontend.partials.mcq_questions', compact('questions'));
+    // }
 
 
-public function showServiceQuestions($serviceId)
-{
-    // Fetch the MCQs specific to the selected service
-    $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
+    public function showServiceQuestions($serviceId)
+    {
+        $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
+        $service = Service::find($serviceId);
 
-    // Fetch other data related to the service, such as service details
-    $service = Service::find($serviceId);
+        return view('frontend.index', compact('mcqs', 'service'));
+    }
 
-    return view('frontend.index', compact('mcqs', 'service'));
-}
     public function submitQuestionnaire(Request $request)
     {
-
         if (!Auth::guard('user')->check()) {
             return response()->json([
                 'success' => false,
@@ -86,6 +86,7 @@ public function showServiceQuestions($serviceId)
             'q3' => 'required|string',
             'q4' => 'required|string',
             'q5' => 'nullable|string',
+            'service_id' => 'required|integer|exists:services,id',
         ]);
 
         // Save answers
@@ -98,29 +99,41 @@ public function showServiceQuestions($serviceId)
         $questionnaire->q5 = $request->input('q5', null);
         $questionnaire->save();
 
+        // Save the selected service ID and service name in the session
+        $selectedServiceId = $request->input('service_id');
+        $service = Service::find($selectedServiceId);
+
+        if ($service) {
+            session([
+                'selected_service_id' => $selectedServiceId,
+                'selected_service_name' => $service->name,
+            ]);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Submitted successfully',
+            'message' => 'Redirecting to booking page',
             'logged_in' => true
         ]);
     }
+
     public function professionals()
     {
+        $services = Service::all();
         $professionals = Professional::with('profile')->where('status', 'accepted')->latest()->get();
-        return view('frontend.sections.gridlisting', compact('professionals'));
+        return view('frontend.sections.gridlisting', compact('professionals', 'services'));
     }
 
 
     public function professionalsDetails($id)
     {
+        $requestedService = ProfessionalOtherInformation::where('professional_id', $id)->first();
         $profile = Profile::with('professional')->where('professional_id', $id)->first();
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
         $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
         $rates = Rate::where('professional_id', $id)->with('professional')->get();
 
         $enabledDates = [];
-
-        // Map weekday string to ISO (1 = Monday, ..., 7 = Sunday)
         $dayMap = [
             'mon' => 1,
             'tue' => 2,
@@ -139,7 +152,6 @@ public function showServiceQuestions($serviceId)
             }
 
             $year = Carbon::now()->year;
-
             $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
             $end = $start->copy()->endOfMonth();
             $period = CarbonPeriod::create($start, $end);
@@ -148,7 +160,6 @@ public function showServiceQuestions($serviceId)
                 $decoded = json_decode($decoded);
             }
 
-            // Convert to ISO weekdays
             $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
             $isoDays = array_filter($isoDays);
 
@@ -158,10 +169,18 @@ public function showServiceQuestions($serviceId)
                 }
             }
         }
-        // dd($enabledDates);
 
-        return view('frontend.sections.professional-details', compact('profile', 'availabilities', 'services', 'rates', 'enabledDates'));
+        return view('frontend.sections.professional-details', compact(
+            'profile',
+            'availabilities',
+            'services',
+            'rates',
+            'enabledDates',
+            'requestedService'
+        ), ['showFooter' => false]);
     }
+
+
 
 
 
@@ -190,63 +209,79 @@ public function showServiceQuestions($serviceId)
         $request->validate([
             'professional_id' => 'required|exists:professionals,id',
             'plan_type' => 'required|string',
-            'booking_date' => 'required|string',
-            'time_slot' => 'required|string',
+            'bookings' => 'required|array|min:1',
         ]);
 
-        $dates = explode(',', $request->booking_date);
-        foreach ($dates as $date) {
-            if (!strtotime(trim($date))) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid booking date format.'
-                ], 422);
+        $bookingData = [];
+
+        foreach ($request->bookings as $date => $slots) {
+            foreach ($slots as $slot) {
+                $bookingData[] = [
+                    'date' => $date,
+                    'time_slot' => $slot,
+                ];
             }
         }
 
-        session([
-            'booking_data' => $request->only('professional_id', 'plan_type', 'booking_date', 'time_slot')
-        ]);
+        session(['booking_data' => [
+            'professional_id' => $request->professional_id,
+            'plan_type' => $request->plan_type,
+            'bookings' => $bookingData,
+        ]]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Booking saved successfully!'
+            'message' => 'Booking saved successfully!',
         ]);
     }
 
 
+
+
     public function store(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
-            'professional_id' => 'required|exists:professionals,id',
-            'plan_type' => 'required|string',
-            'booking_date' => 'required|date_format:d/m/Y',
-            'time_slot' => 'required|string',
-            'name' => 'required|string',
-            'email' => 'required|email',
             'phone' => 'required|string',
         ]);
 
         try {
-            // Convert booking_date to MySQL date format (Y-m-d)
-            $bookingDate = Carbon::createFromFormat('d/m/Y', $validated['booking_date'])->format('Y-m-d');
+            $bookingData = session('booking_data');
 
-            // Create and save the booking data
+            if (!$bookingData || !isset($bookingData['bookings']) || !count($bookingData['bookings'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No bookings data found in the session.'
+                ], 400);
+            }
+
+            // Create a new booking record
             $booking = new Booking();
-            $booking->user_id = Auth::guard('user')->id();
-            $booking->professional_id = $validated['professional_id'];
-            $booking->plan_type = $validated['plan_type'];
-            $booking->booking_date = $bookingDate;
-            $booking->time_slot = $validated['time_slot'];
-            $booking->customer_name = $validated['name'];
-            $booking->customer_email = $validated['email'];
-            $booking->customer_phone = $validated['phone'];
-            $booking->month = Carbon::parse($bookingDate)->format('M');
-            $booking->days = Carbon::parse($bookingDate)->format('d');
+            $booking->user_id = Auth::guard('user')->user()->id;
+            $booking->professional_id = $bookingData['professional_id'];
+            $booking->plan_type = $bookingData['plan_type'];
+            $booking->customer_phone = $request->phone;
+            $booking->service_name = session('selected_service_name');
+            $booking->session_type = 'online';
+            $booking->customer_name = Auth::guard('user')->user()->name;
+            $booking->customer_email = Auth::guard('user')->user()->email;
+            $booking->month = Carbon::parse($bookingData['bookings'][0]['date'])->format('M');
+            $booking->booking_date = Carbon::parse($bookingData['bookings'][0]['date'])->format('Y-m-d');
+            $booking->days = json_encode(array_map(function ($b) {
+                return Carbon::parse($b['date'])->day;
+            }, $bookingData['bookings']));
+            $booking->time_slot = json_encode(array_column($bookingData['bookings'], 'time_slot'));
             $booking->save();
 
-            // Return a success response
+            // Insert into booking_timedates table
+            foreach ($bookingData['bookings'] as $entry) {
+                BookingTimedate::create([
+                    'booking_id' => $booking->id,
+                    'date' => Carbon::parse($entry['date'])->format('Y-m-d'),
+                    'time_slot' => $entry['time_slot'],
+                    'status' => 'pending',
+                ]);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Your booking has been successfully placed.'
@@ -254,13 +289,18 @@ public function showServiceQuestions($serviceId)
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'There was an error placing your booking. Please try again later.'
+                'message' => 'There was an error processing your booking. Please try again later.',
+                'data' => $e->getMessage()
             ], 500);
         }
     }
+
+
+
+
     public function success()
     {
-        return view('customer.booking.success');
+        return view('customer.booking.success', ['showFooter' => false]);
     }
 
     public function getServiceQuestions($id)
@@ -270,6 +310,14 @@ public function showServiceQuestions($serviceId)
             'questions' => ServiceMCQ::where('service_id', $id)->take(5)->get()
         ]);
     }
-    
+    public function setServiceSession(Request $request)
+    {
+        $request->validate([
+            'service_id' => 'required|integer'
+        ]);
 
+        session(['selected_service_id' => $request->service_id]);
+
+        return response()->json(['status' => 'success', 'message' => 'Service ID saved in session']);
+    }
 }

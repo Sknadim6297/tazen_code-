@@ -16,7 +16,7 @@ class RateController extends Controller
     {
         $rates = Rate::where('professional_id', Auth::guard('professional')->id())->get();
         $rateCount = Rate::where('professional_id', auth()->guard('professional')->id())->count();
-  
+
         return view('professional.rate.index', compact('rates', 'rateCount'));
     }
 
@@ -25,7 +25,7 @@ class RateController extends Controller
      */
     public function create()
     {
-       
+
         return view('professional.rate.create');
     }
 
@@ -86,16 +86,34 @@ class RateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'num_sessions' => 'required|integer|min:1',
+            'rate_per_session' => 'required|numeric|min:0',
+            'final_rate' => 'required|numeric|min:0',
+            'duration' => 'required|string',
+        ]);
+
+        $rate = Rate::findOrFail($id);
+        $rate->update($validated);
+
+        return response()->json(['success' => true, 'message' => 'Rate updated successfully.']);
     }
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $rate = Rate::findOrFail($id);
+        $rate->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Rate has been deleted successfully.'
+        ]);
     }
 }

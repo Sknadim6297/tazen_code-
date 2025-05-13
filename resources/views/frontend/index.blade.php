@@ -83,7 +83,13 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-												<button class="btn btn-primary book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+														<button class="btn btn-primary book-now" 
+														data-service-id="{{ $service->id }}" 
+														data-bs-toggle="modal" 
+														data-bs-target="#mcqModal">
+														Book Now
+													</button>
+											
 											</div>
 										</div>
 									</div>
@@ -104,7 +110,7 @@
 							<div class="modal-body">
 								<form id="mcqForm" method="POST" action="{{ route('submit.mcq') }}">
 									@csrf
-				
+									<input type="hidden" name="service_id" id="selected_service_id">
 									<!-- Loop through MCQs -->
 									@foreach ($mcqs as $index => $mcq)
 										<div class="question" id="question{{ $index + 1 }}">
@@ -717,9 +723,19 @@
 			const prevBtn = document.getElementById("prevBtn");
 			const submitBtn = document.getElementById("submitBtn");
 			const form = document.getElementById("mcqForm");
-	
+			const bookButtons = document.querySelectorAll(".book-now");
+			const serviceIdInput = document.getElementById("selected_service_id");
+		
 			let currentQuestion = 0;
-
+		
+			// Set service_id on Book Now click
+			bookButtons.forEach(button => {
+				button.addEventListener("click", function () {
+					const serviceId = this.getAttribute("data-service-id");
+					serviceIdInput.value = serviceId;
+				});
+			});
+		
 			function showQuestion(index) {
 				questions.forEach((q, i) => {
 					q.style.display = i === index ? "block" : "none";
@@ -728,69 +744,69 @@
 				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
 				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
 			}
+		
 			nextBtn.addEventListener("click", function () {
 				if (currentQuestion < questions.length - 1) {
 					currentQuestion++;
 					showQuestion(currentQuestion);
 				}
 			});
-	
+		
 			prevBtn.addEventListener("click", function () {
 				if (currentQuestion > 0) {
 					currentQuestion--;
 					showQuestion(currentQuestion);
 				}
 			});
+		
 			submitBtn.addEventListener("click", function () {
-    const formData = new FormData(form);
-    fetch("{{ route('submitQuestionnaire') }}", {
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            "Accept": "application/json",
-        },
-        body: formData,
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw err;
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            toastr.success("Thanks for your feedback!");
-			setTimeout(() => {
-				window.location.href = "{{ route('professionals') }}";	
-			}, 3000);
-            	
-        }
-    })
-    .catch(error => {
-        if (error.errors) {
-            Object.values(error.errors).forEach(msgArray => {
-                msgArray.forEach(msg => {
-                    toastr.error(msg);
-                });
-            });
-        } else if (error.message) {
-            toastr.error(error.message); 
-        } else {
-            toastr.error("Something went wrong. Please try again.");
-        }
-        console.error("Validation or Server Error:", error);
-    });
-});
-
-
+				const formData = new FormData(form);
+		
+				fetch("{{ route('submitQuestionnaire') }}", {
+					method: "POST",
+					headers: {
+						"X-CSRF-TOKEN": "{{ csrf_token() }}",
+						"Accept": "application/json",
+					},
+					body: formData,
+				})
+				.then(response => {
+					if (!response.ok) {
+						return response.json().then(err => {
+							throw err;
+						});
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data.success) {
+						toastr.success("Thanks for your feedback!");
+						setTimeout(() => {
+							window.location.href = "{{ route('professionals') }}";
+						}, 3000);
+					}
+				})
+				.catch(error => {
+					if (error.errors) {
+						Object.values(error.errors).forEach(msgArray => {
+							msgArray.forEach(msg => {
+								toastr.error(msg);
+							});
+						});
+					} else if (error.message) {
+						toastr.error(error.message);
+					} else {
+						toastr.error("Something went wrong. Please try again.");
+					}
+					console.error("Validation or Server Error:", error);
+				});
+			});
+		
 			showQuestion(currentQuestion);
 		});
-	</script>
-	<script>
-
-</script>
+		</script>
+		
+	
 
 	
  @endsection

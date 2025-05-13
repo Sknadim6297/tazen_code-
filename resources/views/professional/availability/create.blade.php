@@ -1,6 +1,16 @@
+@php
+    $currentMonth = now()->format('n');
+    $months = [
+        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+    ];
+@endphp
+
 @extends('professional.layout.layout')
 
-@section('style')
+@section('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
 .time-slot {
     display: flex;
@@ -8,18 +18,26 @@
     gap: 10px;
     margin-bottom: 10px;
 }
-
 .time-input-group {
     display: flex;
     align-items: center;
     gap: 5px;
 }
-
 .remove-slot-btn {
     background: transparent;
     border: none;
     color: red;
     cursor: pointer;
+}
+.weekday-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.weekday-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 </style>
 @endsection
@@ -27,13 +45,7 @@
 @section('content')
 <div class="content-wrapper">
     <div class="page-header">
-        <div class="page-title">
-            <h3>Add Availability</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Add Availability</li>
-        </ul>
+        <h3>Add Availability</h3>
     </div>
 
     <div class="card">
@@ -43,29 +55,21 @@
         <div class="card-body">
             <form id="availabilityForm">
                 @csrf
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
-                        <label for="avail-month">Select Month</label>
-                        <select id="avail-month" class="form-control" name="month">
+                        <label>Select Month</label>
+                        <select id="avail-month" class="form-control" name="month" required>
                             <option value="">Select Month</option>
-                            <option value="jan">January</option>
-                            <option value="feb">February</option>
-                            <option value="mar">March</option>
-                            <option value="apr">April</option>
-                            <option value="may">May</option>
-                            <option value="jun">June</option>
-                            <option value="jul">July</option>
-                            <option value="aug">August</option>
-                            <option value="sep">September</option>
-                            <option value="oct">October</option>
-                            <option value="nov">November</option>
-                            <option value="dec">December</option>
+                            @foreach($months as $num => $name)
+                                @if($num >= $currentMonth)
+                                    <option value="{{ strtolower(substr($name, 0, 3)) }}">{{ $name }}</option>
+                                @endif
+                            @endforeach
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="session-duration">Session Duration</label>
-                        <select id="session-duration" class="form-control" name="session_duration">
+                        <label>Session Duration</label>
+                        <select class="form-control" name="session_duration" required>
                             <option value="30">30 minutes</option>
                             <option value="45">45 minutes</option>
                             <option value="60" selected>60 minutes</option>
@@ -80,8 +84,7 @@
                     <div class="weekday-group">
                         @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
                         <label class="weekday-label">
-                            <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}">
-                            <span class="checkmark"></span> {{ $dayName }}
+                            <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}"> {{ $dayName }}
                         </label>
                         @endforeach
                     </div>
@@ -89,16 +92,14 @@
 
                 <div class="form-group">
                     <label>Time Slots</label>
-                    <div id="time-slots-container">
-                        <!-- Time slots will be appended here -->
-                    </div>
+                    <div id="time-slots-container"></div>
                     <button type="button" class="btn btn-success" id="addSlotBtn">
-                        <i class="fas fa-plus"></i> Add Another Time Slot
+                        <i class="fas fa-plus"></i> Add more
                     </button>
                 </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline">Cancel</button>
+                <div class="form-actions mt-3">
+                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Save Availability
                     </button>
@@ -110,69 +111,67 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
 
-    // Function to create a new time slot
-    function createTimeSlot() {
-        const timeSlot = document.createElement('div');
-        timeSlot.classList.add('time-slot');
-
-        timeSlot.innerHTML = `
-            <label>From</label>
-            <div class="time-input-group">
-                <input type="time" class="form-control" name="start_time[]">
-                <select class="form-control" name="start_period[]">
-                    <option value="am">AM</option>
-                    <option value="pm">PM</option>
-                </select>
-            </div>
-            <label>To</label>
-            <div class="time-input-group">
-                <input type="time" class="form-control" name="end_time[]">
-                <select class="form-control" name="end_period[]">
-                    <option value="am">AM</option>
-                    <option value="pm">PM</option>
-                </select>
-            </div>
-            <button type="button" class="remove-slot-btn" title="Remove slot">
-                <i class="fas fa-trash"></i>
-            </button>
-        `;
-
-        timeSlotsContainer.appendChild(timeSlot);
+    function initializeFlatpickr() {
+        flatpickr(".timepicker", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "h:i K",
+            time_24hr: false,
+            minuteIncrement: 5,
+            disableMobile: true 
+        });
     }
 
-    // Add initial time slot on page load
+    // Create new time slot
+    function createTimeSlot() {
+    const div = document.createElement('div');
+    div.classList.add('time-slot');
+    div.innerHTML = `
+        <label>From</label>
+        <div class="time-input-group">
+            <input type="text" class="form-control timepicker" name="start_time[]" required placeholder="Start Time">
+            </select>
+        </div>
+        <label>To</label>
+        <div class="time-input-group">
+            <input type="text" class="form-control timepicker" name="end_time[]" required placeholder="End Time">
+            </select>
+        </div>
+        <button type="button" class="remove-slot-btn" title="Remove slot">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    timeSlotsContainer.appendChild(div);
+    initializeFlatpickr(); 
+}
+
     createTimeSlot();
+    addSlotBtn.addEventListener('click', createTimeSlot);
 
-    // Add new time slot
-    addSlotBtn.addEventListener('click', function() {
-        createTimeSlot();
-    });
-
-    // Delete time slot using event delegation
     timeSlotsContainer.addEventListener('click', function(e) {
         if (e.target.closest('.remove-slot-btn')) {
-            const slot = e.target.closest('.time-slot');
-            slot.remove();
+            e.target.closest('.time-slot').remove();
         }
     });
 
     $('#availabilityForm').submit(function(e) {
     e.preventDefault();
-    let form = this;
-    let formData = new FormData(form);
+    const form = this;
+    const formData = new FormData(form);
 
     $.ajax({
-        url: "{{ route('professional.availability.store') }}", 
+        url: "{{ route('professional.availability.store') }}",
         method: "POST",
         data: formData,
-        contentType: false, 
-        processData: false, 
-        cache: false, 
+        contentType: false,
+        processData: false,
+        cache: false,
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
@@ -180,25 +179,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.success) {
                 toastr.success(response.message);
                 form.reset();
-                setTimeout(function() {
-                    window.location.href = "{{ route('professional.dashboard') }}";
+                setTimeout(() => {
+                    window.location.href = "{{ route('professional.availability.index') }}";
                 }, 1500);
             } else {
-                toastr.error(response.message || "Something went wrong");
+                $.each(response.errors, function(index, error) {
+                    toastr.error(error);  
+                });
             }
         },
         error: function(xhr) {
             if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                $.each(errors, function(key, value) {
-                    toastr.error(value[0]);
+                const errors = xhr.responseJSON.errors;
+                $.each(errors, function(index, error) {
+                    toastr.error(error);
                 });
             } else {
                 toastr.error(xhr.responseJSON.message || "Unexpected error occurred");
             }
         }
     });
-    });
 });
+
+
+});
+
 </script>
 @endsection

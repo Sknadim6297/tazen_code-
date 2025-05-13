@@ -9,7 +9,7 @@
     <div class="page-header">
         <ul class="breadcrumb">
             <li>Home</li>
-            <li class="active">All Bookings</li>
+            <li class="active">All Services</li>
         </ul>
     </div>
 
@@ -26,7 +26,7 @@
                     <thead>
                         <tr>
                             <th>Service Name</th>
-                            <th>Category</th>
+                            <th>Service Category</th>
                             <th>Duration</th>
                             <th>Image</th>
                             <th>Description</th>
@@ -39,7 +39,7 @@
                         @foreach($services as $service)
     <tr>
         <td>{{ $service->service_name }}</td>
-        <td>{{ $service->category }}</td>
+        <td>{{ $service->service->name }}</td> 
         <td>{{ $service->duration }} mins</td>
         <td>
             @if($service->image_path)

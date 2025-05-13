@@ -58,9 +58,11 @@
                                                 {{ $booking->customer_name }}
                                             </td>
                                             <td>{{ $booking->professional->name }}</td>
+                                            <td>{{ $booking->service_name }}</td>
                                             <td>Null</td>
-                                            <td>Null</td>
-                                            <td>0</td>
+                                            <td>
+                                                {{ is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true)) }}
+                                            </td>    
                                             <td>0</td>
                                             <td>0</td>
                                             <td>{{ $booking->month }}</td>
