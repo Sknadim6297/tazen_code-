@@ -85,7 +85,6 @@
     .form-group.col-full {
         width: 100%;
     }
-    
 
     img {
         margin-top: 10px;
