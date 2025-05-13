@@ -20,6 +20,7 @@ use App\Models\HomeBlog;
 use App\Models\Howworks;
 use App\Models\ServiceMCQ;
 use App\Models\Blog;
+use App\Models\AllEvent;
 use App\Models\BookingTimedate;
 use App\Models\MCQ;
 use App\Models\ProfessionalOtherInformation;
@@ -46,9 +47,8 @@ class HomeController extends Controller
         $mcqs = DB::table('service_m_c_q_s')->get();
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
-        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogs'));
-        $mcqs = MCQ::latest()->get();
-        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs'));
+        $allevents = AllEvent::latest()->get();
+        return view('frontend.index', compact('services','banners','about_us','whychooses','testimonials','homeblogs','howworks','mcqs','blogs','allevents'));
     }
 
     //     public function getServiceQuestions($serviceId)
@@ -305,9 +305,11 @@ class HomeController extends Controller
 
     public function getServiceQuestions($id)
     {
+        $questions = ServiceMCQ::where('service_id', $id)->get();
+        
         return response()->json([
             'status' => 'success',
-            'questions' => ServiceMCQ::where('service_id', $id)->take(5)->get()
+            'questions' => $questions
         ]);
     }
     public function setServiceSession(Request $request)

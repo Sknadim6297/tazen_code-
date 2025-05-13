@@ -117,7 +117,6 @@
 <div class="content-wrapper">
     @forelse($profiles as $profile)
         <div class="profile-box">
-            {{-- Profile Header --}}
             <div class="profile-header">
                 <h3>Profile Details</h3>
                 <button class="btn-edit-profile">
@@ -125,25 +124,24 @@
                 </button>
             </div>
 
-            {{-- Profile Photo --}}
             <div class="profile-photo">
-                <img src="{{ $profile->profile_image ? asset($profile->profile_image) : asset('default-avatar.png') }}" alt="Profile Photo">
+                <img src="{{ $profile->customerProfile && $profile->customerProfile->profile_image ? asset($profile->customerProfile->profile_image) : asset('default-avatar.png') }}" alt="Profile Photo">
             </div>
 
-            {{-- Profile Details --}}
             <div class="profile-details">
                 <p><strong>Name:</strong> {{ $profile->name ?? 'N/A' }}</p>
                 <p><strong>Email:</strong> {{ $profile->email ?? 'N/A' }}</p>
-                <p><strong>Phone:</strong> {{ $profile->phone ?? 'N/A' }}</p>
-                <p><strong>Address:</strong> {{ $profile->address ?? 'N/A' }}</p>
-                <p><strong>City:</strong> {{ $profile->city ?? 'N/A' }}</p>
-                <p><strong>State:</strong> {{ $profile->state ?? 'N/A' }}</p>
-                <p><strong>Zip Code:</strong> {{ $profile->zip_code ?? 'N/A' }}</p>
-                <p><strong>Notes:</strong> {{ $profile->notes ?? 'No notes available' }}</p>
+                <p><strong>Phone:</strong> {{ $profile->customerProfile->phone ?? 'N/A' }}</p>
+                <p><strong>Address:</strong> {{ $profile->customerProfile->address ?? 'N/A' }}</p>
+                <p><strong>City:</strong> {{ $profile->customerProfile->city ?? 'N/A' }}</p>
+                <p><strong>State:</strong> {{ $profile->customerProfile->state ?? 'N/A' }}</p>
+                <p><strong>Zip Code:</strong> {{ $profile->customerProfile->zip_code ?? 'N/A' }}</p>
+                <p><strong>Notes:</strong> {{ $profile->customerProfile->notes ?? 'No notes available' }}</p>
             </div>
         </div>
     @empty
         <div class="alert alert-warning">No profile found.</div>
     @endforelse
 </div>
+
 @endsection

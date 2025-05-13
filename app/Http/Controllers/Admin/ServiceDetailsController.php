@@ -107,7 +107,7 @@ class ServiceDetailsController extends Controller
 
 public function update(Request $request, $id)
 {
-    $detail = ServiceDetail::findOrFail($id);
+    $detail = ServiceDetails::findOrFail($id);
 
     $detail->service_id = $request->service_id;
     $detail->banner_heading = $request->banner_heading;
@@ -141,7 +141,7 @@ public function update(Request $request, $id)
      */
     public function destroy($id)
 {
-    $detail = ServiceDetail::findOrFail($id);
+    $detail = ServiceDetails::findOrFail($id);
     $detail->delete();
     return redirect()->back()->with('success', 'Service details deleted successfully.');
 }

@@ -27,6 +27,7 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::get('/pending', [ProfessionalController::class, 'pendingPage'])->name('pending.view');
 
     Route::get('bookings/{id}/details', [BookingController::class, 'details']);
+    Route::post('bookings/search', [BookingController::class, 'search'])->name('booking.search');
 
     Route::post('/bookings/{booking}/upload-documents', [BookingController::class, 'uploadDocuments'])->name('doc.upload');
 });

@@ -16,7 +16,28 @@
                     </nav>
                 </div>
             </div>
+     <form action="{{ route('admin.monthly') }}" method="GET" class="d-flex gap-2">
+           <div class="col-xl-6">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                    <input type="date" class="form-control"  placeholder="Choose Start Date" name="start_date" id="start_date">
+                    <span class="input-group-text">to</span>
+                    <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
+                </div>
+            </div>
         </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-xl-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
         <!-- Page Header Close -->
 
 

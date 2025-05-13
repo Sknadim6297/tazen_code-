@@ -39,6 +39,14 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}"> --}}
 {{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}"> --}}
 @yield('styles')
+ <style>
+.toast-top-center {
+    top: 40px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+}
+</style>
 
 	<!-- slick slider css  -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
@@ -365,21 +373,28 @@ function checkSlides(slider, currentSlide) {
 		});
 	</script>
 <script>
-	@if (session('success'))
-		toastr.success("{{ session('success') }}");
-	@endif
+toastr.options = {
+    "positionClass": "toast-top-center",
+    "timeOut": "3000",
+    "closeButton": true,
+    "progressBar": true
+};
 
-	@if (session('error'))
-		toastr.error("{{ session('error') }}");
-	@endif
+@if (session('success'))
+    toastr.success("{{ session('success') }}");
+@endif
 
-	@if (session('warning'))
-		toastr.warning("{{ session('warning') }}");
-	@endif
+@if (session('error'))
+    toastr.error("{{ session('error') }}");
+@endif
 
-	@if (session('info'))
-		toastr.info("{{ session('info') }}");
-	@endif
+@if (session('warning'))
+    toastr.warning("{{ session('warning') }}");
+@endif
+
+@if (session('info'))
+    toastr.info("{{ session('info') }}");
+@endif
 </script>
 <script>
 	$(document).ready(function () {

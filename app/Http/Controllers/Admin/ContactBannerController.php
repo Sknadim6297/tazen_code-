@@ -73,37 +73,34 @@ class ContactBannerController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-{
-    $contactbanner = ContactBanner::findOrFail($id);
-
-    $request->validate([
-        'heading' => 'required',
-        'sub_heading' => 'nullable',
-        'banner_image' => 'nullable|image',
-        'status' => 'required'
-    ]);
-
-    $contactbanner->heading = $request->heading;
-    $contactbanner->sub_heading = $request->sub_heading;
-    $contactbanner->status = $request->status;
-
-    // Check if a new image is uploaded
-    if ($request->hasFile('banner_image')) {
-        // Delete old image
-        if (file_exists(public_path('uploads/contactbanner/' . $contactbanner->banner_image))) {
-            unlink(public_path('uploads/contactbanner/' . $contactbanner->banner_image));
+    {
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'sub_heading' => 'nullable|string|max:255',
+            'banner_image' => 'nullable|image',
+            'status' => 'required|in:active,inactive',
+        ]);
+    
+        $contactbanner = ContactBanner::findOrFail($id);
+        $data = $request->only(['heading', 'sub_heading', 'status']);
+    
+        if ($request->hasFile('banner_image')) {
+            // Delete old image if exists
+            if ($contactbanner->banner_image && file_exists(public_path($contactbanner->banner_image))) {
+                unlink(public_path($contactbanner->banner_image));
+            }
+    
+            $file = $request->file('banner_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/contactbanners'), $filename);
+            $data['banner_image'] = 'uploads/contactbanners/' . $filename;
         }
-
-        $file = $request->file('banner_image');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('uploads/contactbanner/'), $filename);
-        $contactbanner->banner_image = $filename;
+    
+        $contactbanner->update($data);
+    
+        return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner updated successfully!');
     }
-
-    $contactbanner->save();
-
-    return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner updated successfully!');
-}
+    
 
 
     /**

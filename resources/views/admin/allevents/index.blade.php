@@ -32,7 +32,7 @@
                             Total Tasks
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blog Post</button>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Event</button>
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
@@ -56,7 +56,7 @@
                                                     {{-- Date --}}
                                                     <div class="col-xl-6">
                                                         <label for="date" class="form-label">Event Date</label>
-                                                        <input type="text" class="form-control" id="date" name="date" placeholder="e.g. Mar 20 2021" required>
+                                                        <input type="date" class="form-control" id="date" name="date" required>
                                                     </div>
                                     
                                                     {{-- Starting Fees --}}

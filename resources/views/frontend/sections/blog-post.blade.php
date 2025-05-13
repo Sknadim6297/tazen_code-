@@ -26,12 +26,12 @@
     <div class="container margin_45_40">			
         <div class="row">
             <div class="col-lg-12 pb-5">
-                <div class="widget search_blog">
+                {{-- <div class="widget search_blog">
                     <div class="form-group">
                         <input type="text" name="search" id="search" class="form-control" placeholder="Search Blogs...">
                         <span><input type="submit" value="Search"></span>
                     </div>
-                </div>
+                </div> --}}
             </div>
             <aside class="col-lg-3">
                 
