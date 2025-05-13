@@ -11,7 +11,7 @@ class BookingController extends Controller
 {
     public function oneTimeBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'one-time');
+        $query = Booking::where('plan_type', 'one_time');
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -98,5 +98,23 @@ class BookingController extends Controller
         $booking->save();
 
         return redirect()->back()->with('success', 'Meeting link updated successfully!');
+    }
+    public function show($id)
+    {
+        $booking = Booking::with('timedates')->find($id);
+
+        if (!$booking) {
+            return response()->json(['error' => 'Booking not found'], 404);
+        }
+
+        return response()->json([
+            'dates' => $booking->timedates->map(function ($td) {
+                return [
+                    'date' => $td->date,
+                    'time_slot' => explode(',', $td->time_slot),
+                    'status' => $td->status ?? 'Pending',
+                ];
+            })
+        ]);
     }
 }

@@ -87,14 +87,22 @@
 						<input class="form-control" type="text" name="specialization" placeholder="Specialization" required>
 					</div>
 				
-					<!-- Experience Input -->
+				<!-- Experience Input -->
+<div class="form-group">
+    <select class="form-control" name="experience" required>
+        <option value="" disabled selected>Select Experience</option>
+        <option value="0-2">0-2 years</option>
+        <option value="2-4">2-4 years</option>
+        <option value="4-6">4-6 years</option>
+        <option value="6-8">6-8 years</option>
+        <option value="8-10">8-10 years</option>
+        <option value="10+">10+ years</option>
+    </select>
+</div>
+
+	<!-- Starting Price Input -->
 					<div class="form-group">
-						<input class="form-control" type="text" name="experience" placeholder="Experience" required>
-					</div>
-				
-					<!-- Starting Price Input -->
-					<div class="form-group">
-						<input class="form-control" type="text" name="starting_price" placeholder="Starting Price" required>
+						<input class="form-control" type="text" name="starting_price" placeholder="Price per session (Rs.)" required>
 					</div>
 				
 					<!-- Location Dropdown -->

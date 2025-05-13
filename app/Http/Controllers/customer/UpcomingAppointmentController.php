@@ -14,7 +14,7 @@ class UpcomingAppointmentController extends Controller
     {
         $query = Booking::with([
             'timedates' => function ($q) {
-                $q->where('date', '>=', \Carbon\Carbon::today())  // Ensure we only get future dates
+                $q->where('date', '>=', \Carbon\Carbon::today())  
                     ->orderBy('date', 'asc');
             },
             'professional' => function ($q) {
@@ -54,7 +54,6 @@ class UpcomingAppointmentController extends Controller
 
         return view('customer.upcoming-appointment.index', compact('bookings'));
     }
-
 
 
     /**

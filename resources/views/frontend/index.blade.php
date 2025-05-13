@@ -49,12 +49,10 @@
 			</div>
 
 			<!-- Video Tag to Add the Video -->
-			@foreach($banners as $banner)
 			<video class="header-video--media" autoplay loop muted>
-				<source src="{{ asset('storage/' . $banner->banner_video) }}" type="video/mp4">
+				<source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
-			@endforeach
 		</div>
 		<!-- /header-video -->
 		<!-- fun facts sections  -->
@@ -174,7 +172,7 @@
 								</div>
 								<div class="button-div">
 									<button class=" btn_1 medium">Get Started</button>
-									<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
+									<a href="about-us.html"><button class="btn new-custom-btn">Discover
 											More</button></a>
 								</div>
 							</div>
@@ -332,18 +330,16 @@
 					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
 				</div>
 				<div class="row add_bottom_15">
-					@foreach($allevents->take(6) as $event)
 					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
 						<div class="strip">
 							<figure>
 								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="{{ asset('storage/' . $event->card_image) }}" 
-									 data-src="{{ asset('storage/' . $event->card_image) }}"
-									 class="img-fluid lazy" alt="{{ $event->heading }}">
-								<a href="{{ route('event.details', $event->id) }}" class="strip_info">
+								<img src="img/event/astrologer event.jpg" data-src="img/event/astrologer event.jpg"
+									class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
 									<div class="item_title">
-										<h3>{{ $event->heading }}</h3>
-										<small>{{ $event->mini_heading }}</small>
+										<h3>Dr. Maria Cornfield</h3>
+										<small>Pediatrician, Psychologist ...</small>
 									</div>
 								</a>
 							</figure>
@@ -355,18 +351,141 @@
 								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
 										title="Available Video Call"><i class="icon-videocam"></i></a></li>
 								<li>
-									<div class="score">
-										<span>Starting from<em>{{ $event->date }}</em></span>
-										<strong>₹{{ number_format($event->starting_fees, 2) }}</strong>
-									</div>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
 								</li>
 							</ul>
 						</div>
 					</div>
-					@endforeach
+					<!-- /strip grid -->
+					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+						<div class="strip">
+							<figure>
+								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
+								<img src="img/event/fitness yoga event.jpg" data-src="img/event/fitness yoga event.jpg"
+									class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
+									<div class="item_title">
+										<h3>Lucy Shoemaker</h3>
+										<small>Lawyer</small>
+									</div>
+								</a>
+							</figure>
+							<ul>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Appointment"><i class="icon-users"></i></a></li>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Chat"><i class="icon-chat"></i></a></li>
+								<li>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /strip grid -->
+					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+						<div class="strip">
+							<figure>
+								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
+								<img src="img/event/influencer event.jpg" data-src="img/event/influencer event.jpg"
+									class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
+									<div class="item_title">
+										<h3>Prof. Luke Lachinet</h3>
+										<small>Math Teacher</small>
+									</div>
+								</a>
+							</figure>
+							<ul>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Appointment"><i class="icon-users"></i></a></li>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Video Call"><i class="icon-videocam"></i></a></li>
+								<li>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /strip grid -->
+					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+						<div class="strip">
+							<figure>
+								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
+								<img src="img/event/interior designer event.jpg"
+									data-src="img/event/interior designer event.jpg" class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
+									<div class="item_title">
+										<h3>Dr. Marta Rainwater</h3>
+										<small>Psychologist</small>
+									</div>
+								</a>
+							</figure>
+							<ul>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Chat"><i class="icon-chat"></i></a></li>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Video Call"><i class="icon-videocam"></i></a></li>
+								<li>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /strip grid -->
+					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+						<div class="strip">
+							<figure>
+								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
+								<img src="img/event/job career business event.jpg"
+									data-src="img/event/job career business event.jpg" class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
+									<div class="item_title">
+										<h3>Tom Manzone</h3>
+										<small>Lawyer</small>
+									</div>
+								</a>
+							</figure>
+							<ul>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Chat"><i class="icon-chat"></i></a></li>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Video Call"><i class="icon-videocam"></i></a></li>
+								<li>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /strip grid -->
+					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+						<div class="strip">
+							<figure>
+								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
+								<img src="img/event/psychologist event.jpg" data-src="img/event/psychologist event.jpg"
+									class="img-fluid lazy" alt="">
+								<a href="all-event.html" class="strip_info">
+									<div class="item_title">
+										<h3>Carl Cornfield</h3>
+										<small>Accountant</small>
+									</div>
+								</a>
+							</figure>
+							<ul>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Appointment"><i class="icon-users"></i></a></li>
+								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+										title="Available Chat"><i class="icon-chat"></i></a></li>
+								<li>
+									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /strip grid -->
 				</div>
+				<!-- /row -->
 
-				<p class="text-center"><a href="{{ route('event.list') }}" class="btn_1 medium">View All Events</a></p>
+				<p class="text-center"><a href="event-list.html" class="btn_1 medium">Start Searching</a></p>
 			</div>
 		</section>
 		<!-- /container -->
@@ -386,7 +505,7 @@
 							<h3>{{ $howwork->heading1 }}</h3>
 							<p>{{ $howwork->description1 }}</p>
 							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="url('{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}')" alt="" class="arrow_1 lazy">
+								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_1 lazy">
 						</div>
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
@@ -417,7 +536,7 @@
 							<h3>{{ $howwork->heading2 }}</h3>
 							<p>{{ $howwork->description2 }}</p>
 							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="url('{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}')" alt="" class="arrow_2 lazy">
+								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_2 lazy">
 						</div>
 					</div>
 				</div>
@@ -566,7 +685,7 @@
 				
 
 				<div class="button-div">
-					<a href="{{ route('blog.index') }}" class="btn_1 medium">Discover More</a>
+					<a href="blog.html" class="btn_1 medium">Discover More</a>
 				</div>
 
 			</div>
@@ -599,90 +718,50 @@
 	@section('script')
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			const questionsContainer = document.getElementById("questionsContainer");
+			const questions = document.querySelectorAll(".question");
 			const nextBtn = document.getElementById("nextBtn");
 			const prevBtn = document.getElementById("prevBtn");
 			const submitBtn = document.getElementById("submitBtn");
 			const form = document.getElementById("mcqForm");
-			const serviceIdInput = document.getElementById("service_id");
-
+			const bookButtons = document.querySelectorAll(".book-now");
+			const serviceIdInput = document.getElementById("selected_service_id");
+		
 			let currentQuestion = 0;
-			let questions = [];
-
-			// Handle Book Now button clicks
-			document.querySelectorAll('.book-now').forEach(button => {
-				button.addEventListener('click', function() {
-					const serviceId = this.dataset.serviceId;
+		
+			// Set service_id on Book Now click
+			bookButtons.forEach(button => {
+				button.addEventListener("click", function () {
+					const serviceId = this.getAttribute("data-service-id");
 					serviceIdInput.value = serviceId;
-					loadQuestions(serviceId);
 				});
 			});
-
-			function loadQuestions(serviceId) {
-				fetch(`/service/${serviceId}/questions`)
-					.then(response => response.json())
-					.then(data => {
-						if (data.status === 'success') {
-							questions = data.questions;
-							renderQuestions();
-							showQuestion(0);
-						}
-					})
-					.catch(error => {
-						console.error('Error loading questions:', error);
-						toastr.error('Failed to load questions. Please try again.');
-					});
-			}
-
-			function renderQuestions() {
-				questionsContainer.innerHTML = questions.map((question, index) => `
-					<div class="question" id="question${index + 1}" style="display: none;">
-						<h6>Question ${index + 1}: ${question.question}</h6>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer1" value="${question.answer1}" required>
-							<label class="form-check-label" for="q${index + 1}answer1">${question.answer1}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer2" value="${question.answer2}" required>
-							<label class="form-check-label" for="q${index + 1}answer2">${question.answer2}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer3" value="${question.answer3}" required>
-							<label class="form-check-label" for="q${index + 1}answer3">${question.answer3}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer4" value="${question.answer4}" required>
-							<label class="form-check-label" for="q${index + 1}answer4">${question.answer4}</label>
-						</div>
-					</div>
-				`).join('');
-			}
-
+		
 			function showQuestion(index) {
-				const questionElements = document.querySelectorAll('.question');
-				questionElements.forEach((q, i) => {
+				questions.forEach((q, i) => {
 					q.style.display = i === index ? "block" : "none";
 				});
-				
 				prevBtn.style.display = index > 0 ? "inline-block" : "none";
 				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
 				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
 			}
+		
 			nextBtn.addEventListener("click", function () {
 				if (currentQuestion < questions.length - 1) {
 					currentQuestion++;
 					showQuestion(currentQuestion);
 				}
 			});
+		
 			prevBtn.addEventListener("click", function () {
 				if (currentQuestion > 0) {
 					currentQuestion--;
 					showQuestion(currentQuestion);
 				}
 			});
-
+		
 			submitBtn.addEventListener("click", function () {
 				const formData = new FormData(form);
+		
 				fetch("{{ route('submitQuestionnaire') }}", {
 					method: "POST",
 					headers: {
@@ -722,6 +801,8 @@
 					console.error("Validation or Server Error:", error);
 				});
 			});
+		
+			showQuestion(currentQuestion);
 		});
 		</script>
 		
