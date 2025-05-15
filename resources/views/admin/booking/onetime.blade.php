@@ -18,7 +18,12 @@
                 </div>
             </div>
     <form action="{{ route('admin.onetime') }}" method="GET" class="d-flex gap-2">
-           <div class="col-xl-6">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+     <div class="col-xl-6">
         <div class="card-body">
             <div class="form-group">
                 <div class="input-group">
@@ -28,11 +33,6 @@
                     <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xl-4">
-        <div class="card custom-card">
-            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
         </div>
     </div>
     <div class="col-xl-2">
@@ -63,21 +63,52 @@
                                         <th>Service Time</th>
                                         <th>Add link for the Service</th>
                                         <th>Telecaller Remarks</th>
+                                        <th>Status</th>
+                                        <th>Professional document</th>
                                     </tr>
                                 </thead>
                                 
                                 <tbody>
                                     @foreach ($bookings as $key => $booking)
+                                      @php
+                // Get earliest upcoming date
+                $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
+                    ? $booking->timedates
+                        ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->isFuture())
+                        ->sortBy('date')
+                        ->first()
+                    : null;
+
+                $completedSessions = 0;
+                $pendingSessions = 0;
+
+                if ($booking->timedates && $booking->timedates->count() > 0) {
+                    foreach ($booking->timedates as $td) {
+                        $slots = explode(',', $td->time_slot);
+                        if ($td->status === 'completed') {
+                            $completedSessions += count($slots);
+                        } else {
+                            $pendingSessions += count($slots);
+                        }
+                    }
+                }
+            @endphp
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td>
-                                                {{ $booking->customer_name }}
-                                            </td>
-                                            <td>{{ $booking->professional->name }}</td>
-                                            <td>{{ $booking->service_name }}</td>
+                                            <td>{{ $booking->customer_name}}
+                    <br>
+                    ({{ $booking->customer_phone }})
+                </td>
+                <td>{{ $booking->professional->name }}
+                    <br>
+                    ({{ $booking->professional->phone }})
+                </td>
+                           <td>{{ $booking->service_name }}</td>
                                             <td>Null</td>
-                                            <td>{{ $booking->days }} {{ $booking->month }}</td>
-                                            <td>{{ $booking->time_slot }}</td>
+
+                <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
+
+                <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
                                             <td>
                                                 <form action="{{ route('admin.add-link', ['id' => $booking->id]) }}" method="POST">
                                                     @csrf
@@ -88,7 +119,12 @@
                                                 </form>
                                             </td>
                                             <td><input id="marks" class="form-control" type="text" name="" placeholder="Telecaller Remarks"></td>
-
+<td>Pending</td>
+   <td>
+    @foreach(explode(',', $booking->professional_documents) as $doc)
+        <a href="{{ asset('storage/' . $doc) }}" target="_blank">View Document</a><br>
+    @endforeach
+</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

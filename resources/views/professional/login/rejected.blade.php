@@ -6,64 +6,94 @@
     <title>Tazen - Professional Register</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-    <link href="{{ asset('frontend/assets/css/rejectpro.css') }}" rel="stylesheet">
-
+    <link href="{{ asset('frontend/assets/css/rejectpro.css') }}" rel="stylesheet"> 
     <style>
         .custom-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(3px);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .custom-modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-            animation: popup-zoom 0.4s ease;
-        }
-
-        @keyframes popup-zoom {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            color: #888;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: #000;
-        }
-        .resubmit-hint {
-    display: block;
-    margin-top: 15px;
-    font-size: 13px;
-    color: #ff4d4d;
-    font-weight: bold;
-    animation: blink 1.5s infinite;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+.custom-modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 40px 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    animation: slideDownFade 0.4s ease-out;
+}
+
+.modal-icon {
+    font-size: 50px;
+    color: #ff4d4d;
+    margin-bottom: 10px;
+}
+
+.custom-modal-content h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.rejection-reason {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.resubmit-hint {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+.resubmit-btn {
+    padding: 10px 25px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.resubmit-btn:hover {
+    background: #0056b3;
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 18px;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+@keyframes slideDownFade {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
     </style>
@@ -207,16 +237,18 @@
                 </div>
             </form>
 
-            {{-- Rejection Modal --}}
-            <div id="rejectionModal" class="custom-modal">
-                <div class="custom-modal-content">
-                    <h2 style="color: #ff4d4d;">⚠ Reason for Rejection of your profile</h2>
-                    <p>{{ $RejectedUser->reason ?? 'No rejection reason provided.' }}</p>
-        
-                    <small class="resubmit-hint">⚠ Kindly check and resubmit your details</small>
-                    <span class="close-btn">Ok</span>
-                </div>
-            </div>
+           {{-- Rejection Modal --}}
+<div id="rejectionModal" class="custom-modal">
+    <div class="custom-modal-content">
+        {{-- <button class="close-btn" onclick="closeRejectionModal()">✕</button> --}}
+        <div class="modal-icon">⚠</div>
+        <h2>Profile Rejected</h2>
+        <p class="rejection-reason">{{ $RejectedUser->reason ?? 'No rejection reason provided.' }}</p>
+        <p class="resubmit-hint">Please check and update your details before resubmitting.</p>
+        <button class="resubmit-btn " onclick="resubmitDetails()">Proceed Again</button>
+    </div>
+</div>
+
             
 
             <div class="copy">© Tazen</div>
@@ -306,6 +338,11 @@
                     }
                 });
             });
+            function resubmitDetails() {
+         document.getElementById('rejectionModal').style.display = 'none';
+}
+
         </script>
+        
 </body>
 </html>

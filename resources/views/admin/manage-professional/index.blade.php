@@ -21,7 +21,11 @@
                 </div>
             </div>
             <form action="" class="d-flex gap-2">
-            <div class="col-xl-6">
+           
+            <div class="col-xl-4">
+                <input type="search" class="form-control" id="autoComplete" placeholder="Search by name or email" spellcheck="false" autocomplete="off" autocapitalize="off">
+            </div>
+             <div class="col-xl-6">
             <div class="">
                 <div class="card-body">
                     <div class="form-group">
@@ -33,15 +37,9 @@
                 </div>
             </div>
         </div>
-            <div class="col-xl-4">
-                <input type="search" class="form-control" id="autoComplete" placeholder="Search by name or email" spellcheck="false" autocomplete="off" autocapitalize="off">
-            </div>
         </div>
         </form>
-        <!-- Date Range Filter -->
-        
 
-        <!-- Professionals Table -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">

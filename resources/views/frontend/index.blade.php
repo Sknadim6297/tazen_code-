@@ -49,10 +49,12 @@
 			</div>
 
 			<!-- Video Tag to Add the Video -->
+				@foreach($banners as $banner)
 			<video class="header-video--media" autoplay loop muted>
 				<source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
+			@endforeach
 		</div>
 		<!-- /header-video -->
 		<!-- fun facts sections  -->
@@ -172,8 +174,7 @@
 								</div>
 								<div class="button-div">
 									<button class=" btn_1 medium">Get Started</button>
-									<a href="about-us.html"><button class="btn new-custom-btn">Discover
-											More</button></a>
+							<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
 								</div>
 							</div>
 						</div>
@@ -330,16 +331,18 @@
 					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
 				</div>
 				<div class="row add_bottom_15">
+					@foreach($allevents->take(6) as $event)
 					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
 						<div class="strip">
 							<figure>
 								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/astrologer event.jpg" data-src="img/event/astrologer event.jpg"
-									class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
+								<img src="{{ asset('storage/' . $event->card_image) }}" 
+									 data-src="{{ asset('storage/' . $event->card_image) }}"
+									 class="img-fluid lazy" alt="{{ $event->heading }}">
+								<a href="{{ route('event.details', $event->id) }}" class="strip_info">
 									<div class="item_title">
-										<h3>Dr. Maria Cornfield</h3>
-										<small>Pediatrician, Psychologist ...</small>
+										<h3>{{ $event->heading }}</h3>
+										<small>{{ $event->mini_heading }}</small>
 									</div>
 								</a>
 							</figure>
@@ -351,141 +354,18 @@
 								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
 										title="Available Video Call"><i class="icon-videocam"></i></a></li>
 								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /strip grid -->
-					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-						<div class="strip">
-							<figure>
-								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/fitness yoga event.jpg" data-src="img/event/fitness yoga event.jpg"
-									class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
-									<div class="item_title">
-										<h3>Lucy Shoemaker</h3>
-										<small>Lawyer</small>
+									<div class="score">
+										<span>Starting from<em>{{ $event->date }}</em></span>
+										<strong>₹{{ number_format($event->starting_fees, 2) }}</strong>
 									</div>
-								</a>
-							</figure>
-							<ul>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Appointment"><i class="icon-users"></i></a></li>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Chat"><i class="icon-chat"></i></a></li>
-								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
 								</li>
 							</ul>
 						</div>
 					</div>
-					<!-- /strip grid -->
-					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-						<div class="strip">
-							<figure>
-								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/influencer event.jpg" data-src="img/event/influencer event.jpg"
-									class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
-									<div class="item_title">
-										<h3>Prof. Luke Lachinet</h3>
-										<small>Math Teacher</small>
-									</div>
-								</a>
-							</figure>
-							<ul>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Appointment"><i class="icon-users"></i></a></li>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Video Call"><i class="icon-videocam"></i></a></li>
-								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /strip grid -->
-					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-						<div class="strip">
-							<figure>
-								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/interior designer event.jpg"
-									data-src="img/event/interior designer event.jpg" class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
-									<div class="item_title">
-										<h3>Dr. Marta Rainwater</h3>
-										<small>Psychologist</small>
-									</div>
-								</a>
-							</figure>
-							<ul>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Chat"><i class="icon-chat"></i></a></li>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Video Call"><i class="icon-videocam"></i></a></li>
-								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /strip grid -->
-					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-						<div class="strip">
-							<figure>
-								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/job career business event.jpg"
-									data-src="img/event/job career business event.jpg" class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
-									<div class="item_title">
-										<h3>Tom Manzone</h3>
-										<small>Lawyer</small>
-									</div>
-								</a>
-							</figure>
-							<ul>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Chat"><i class="icon-chat"></i></a></li>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Video Call"><i class="icon-videocam"></i></a></li>
-								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /strip grid -->
-					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-						<div class="strip">
-							<figure>
-								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="img/event/psychologist event.jpg" data-src="img/event/psychologist event.jpg"
-									class="img-fluid lazy" alt="">
-								<a href="all-event.html" class="strip_info">
-									<div class="item_title">
-										<h3>Carl Cornfield</h3>
-										<small>Accountant</small>
-									</div>
-								</a>
-							</figure>
-							<ul>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Appointment"><i class="icon-users"></i></a></li>
-								<li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-										title="Available Chat"><i class="icon-chat"></i></a></li>
-								<li>
-									<div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /strip grid -->
+					@endforeach
 				</div>
-				<!-- /row -->
 
-				<p class="text-center"><a href="event-list.html" class="btn_1 medium">Start Searching</a></p>
+				<p class="text-center"><a href="{{ route('event.list') }}" class="btn_1 medium">View All Events</a></p>
 			</div>
 		</section>
 		<!-- /container -->
@@ -505,7 +385,8 @@
 							<h3>{{ $howwork->heading1 }}</h3>
 							<p>{{ $howwork->description1 }}</p>
 							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_1 lazy">
+
+								data-src="url('{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}')" alt="" class="arrow_1 lazy">
 						</div>
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
@@ -759,48 +640,62 @@
 				}
 			});
 		
-			submitBtn.addEventListener("click", function () {
-				const formData = new FormData(form);
-		
-				fetch("{{ route('submitQuestionnaire') }}", {
-					method: "POST",
-					headers: {
-						"X-CSRF-TOKEN": "{{ csrf_token() }}",
-						"Accept": "application/json",
-					},
-					body: formData,
-				})
-				.then(response => {
-					if (!response.ok) {
-						return response.json().then(err => {
-							throw err;
-						});
-					}
-					return response.json();
-				})
-				.then(data => {
-					if (data.success) {
-						toastr.success("Thanks for your feedback!");
-						setTimeout(() => {
-							window.location.href = "{{ route('professionals') }}";
-						}, 3000);
-					}
-				})
-				.catch(error => {
-					if (error.errors) {
-						Object.values(error.errors).forEach(msgArray => {
-							msgArray.forEach(msg => {
-								toastr.error(msg);
-							});
-						});
-					} else if (error.message) {
-						toastr.error(error.message);
-					} else {
-						toastr.error("Something went wrong. Please try again.");
-					}
-					console.error("Validation or Server Error:", error);
+		submitBtn.addEventListener("click", function () {
+	const formData = new FormData(form);
+
+	fetch("{{ route('submitQuestionnaire') }}", {
+		method: "POST",
+		headers: {
+			"X-CSRF-TOKEN": "{{ csrf_token() }}",
+			"Accept": "application/json",
+		},
+		body: formData,
+	})
+	.then(response => {
+		if (!response.ok) {
+			return response.json().then(err => {
+				// Attach status for use in catch
+				err.status = response.status;
+				throw err;
+			});
+		}
+		return response.json();
+	})
+	.then(data => {
+		if (data.success) {
+			toastr.success("Thanks for your feedback!");
+			setTimeout(() => {
+				window.location.href = "{{ route('professionals') }}";
+			}, 3000);
+		}
+	})
+	.catch(error => {
+		// 🚫 Handle 403: Redirect to login
+		if (error.status === 403 && error.redirect_to) {
+			toastr.error(error.message || "You need to login first.");
+			setTimeout(() => {
+				window.location.href = error.redirect_to;
+			}, 2000);
+			return;
+		}
+
+		// 🔁 Validation errors
+		if (error.errors) {
+			Object.values(error.errors).forEach(msgArray => {
+				msgArray.forEach(msg => {
+					toastr.error(msg);
 				});
 			});
+		} else if (error.message) {
+			toastr.error(error.message);
+		} else {
+			toastr.error("Something went wrong. Please try again.");
+		}
+		console.error("Validation or Server Error:", error);
+	});
+});
+			
+
 		
 			showQuestion(currentQuestion);
 		});

@@ -26,7 +26,7 @@
                 <span>Upcoming Appointment</span>
             </a>
 
-            <a href="event.html" class="menu-item">
+            <a href="{{ route('user.customer-event.index') }}" class="menu-item">
                 <i class="fas fa-clock"></i>
                 <span>Events</span>
             </a>

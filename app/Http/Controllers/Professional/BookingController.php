@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\BookingTimedate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -128,5 +129,31 @@ class BookingController extends Controller
                 ];
             })
         ]);
+    }
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer',
+            'date' => 'required|date',
+            'slot' => 'required|string',
+            'remarks' => 'nullable|string'
+        ]);
+        $timedate = BookingTimedate::where('booking_id', $request->booking_id)
+            ->where('date', $request->date)
+            ->first();
+
+        if (!$timedate) {
+            return response()->json(['success' => false, 'message' => 'Time slot not found.']);
+        }
+        $slots = explode(',', $timedate->time_slot);
+        if (!in_array($request->slot, $slots)) {
+            return response()->json(['success' => false, 'message' => 'Slot not found in booking.']);
+        }
+
+        $timedate->status = 'completed';
+        $timedate->remarks = $request->remarks;
+        $timedate->save();
+
+        return response()->json(['success' => true, 'message' => 'Booking status updated successfully.']);
     }
 }

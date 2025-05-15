@@ -5,19 +5,24 @@
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">Free Hand Booking</h1>
+                <h1 class="page-title fw-medium fs-18 mb-2">Monthly Booking</h1>
                 <div class="">
                     <nav>
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="javascript:void(0);">Booking</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">Booking Details</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Free Hand Booking</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Monthly</a></li>
                         </ol>
                     </nav>
                 </div>
             </div>
      <form action="{{ route('admin.monthly') }}" method="GET" class="d-flex gap-2">
-           <div class="col-xl-6">
+           
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-xl-6">
         <div class="card-body">
             <div class="form-group">
                 <div class="input-group">
@@ -27,11 +32,6 @@
                     <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xl-4">
-        <div class="card custom-card">
-            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
         </div>
     </div>
     <div class="col-xl-2">
@@ -69,6 +69,7 @@
             <th>Current Service Time</th>
             <th>Add link for the Service</th>
             <th>Details</th>
+                <th>Professional Document</th>
         </tr>
     </thead>
     <tbody>
@@ -99,8 +100,14 @@
 
             <tr>
                 <td>{{ $key + 1 }}</td>
-                <td>{{ $booking->customer_name }}</td>
-                <td>{{ $booking->professional->name }}</td>
+                <td>{{ $booking->customer_name}}
+                    <br>
+                    ({{ $booking->customer_phone }})
+                </td>
+                <td>{{ $booking->professional->name }}
+                    <br>
+                    ({{ $booking->professional->phone }})
+                </td>
                 <td>{{ $booking->service_name }}</td>
                 <td>Null</td>
                 <td>{{ is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true)) }}</td>                                          
@@ -127,6 +134,11 @@
                         See Details
                     </a>
                 </td>
+                <td>
+    @foreach(explode(',', $booking->professional_documents) as $doc)
+        <a href="{{ asset('storage/' . $doc) }}" target="_blank">View Document</a><br>
+    @endforeach
+</td>
             </tr>
         @endforeach
     </tbody>
@@ -170,8 +182,6 @@
             </div>
         </div>
         <!--End::row-2 -->
-
-
     </div>
 </div>
 @endsection

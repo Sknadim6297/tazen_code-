@@ -21,8 +21,6 @@
         </div>
         <!-- Page Header Close -->
 
-
-
         <!-- Start::row-2 -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">

@@ -161,7 +161,6 @@
                     <th>Service Category</th>
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
-                    <th>Summary/Remarks</th>
                     <th>Documents</th>
                     <th>Details</th>
                 </tr>
@@ -183,7 +182,6 @@
             <td>{{ $booking->service_name }}</td>
             <td>{{ $sessionsTaken }}</td> <!-- Sessions taken -->
             <td>{{ $sessionsRemaining }}</td> <!-- Sessions remaining -->
-            <td>{{ $booking->remarks ?? 'No remarks' }}</td>
             <td>
                 @if ($booking->professional_documents)
                     <a href="{{ asset('storage/' . $booking->professional_documents) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
@@ -216,6 +214,7 @@
                         <th>Date</th>
                         <th>Time Slot(s)</th>
                         <th>Status</th>
+                          <th>Summary/Remarks</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -246,11 +245,12 @@
                         <td>${item.date}</td>
                         <td>${timeSlots}</td>
                         <td>${status}</td>
+                        <td>${item.remarks ?? 'No remarks'}</td>
                     </tr>
                 `);
             });
 
-            $('#customModal').show();  // Shows the modal
+            $('#customModal').show();  
         },
         error: function () {
             alert('Failed to load appointment details.');
