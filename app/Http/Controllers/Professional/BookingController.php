@@ -13,32 +13,44 @@ class BookingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $query = Booking::with('timedates')
-            ->where('professional_id', Auth::guard('professional')->id());
+   public function index(Request $request)
+{
+    $professionalId = Auth::guard('professional')->id();
 
-        if ($request->filled('search_name')) {
-            $search = $request->search_name;
-            $query->where(function ($q) use ($search) {
-                $q->where('customer_name', 'like', "%{$search}%")
-                    ->orWhere('service_name', 'like', "%{$search}%")
-                    ->orWhere('remarks', 'like', "%{$search}%");
-            });
-        }
+    $query = Booking::with('timedates')
+        ->where('professional_id', $professionalId);
 
-        if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
-            $query->whereBetween('booking_date', [$request->search_date_from, $request->search_date_to]);
-        } elseif ($request->filled('search_date_from')) {
-            $query->where('booking_date', '>=', $request->search_date_from);
-        } elseif ($request->filled('search_date_to')) {
-            $query->where('booking_date', '<=', $request->search_date_to);
-        }
-
-        $bookings = $query->orderBy('booking_date', 'desc')->get();
-
-        return view('professional.booking.index', compact('bookings'));
+    if ($request->filled('search_name')) {
+        $search = $request->search_name;
+        $query->where(function ($q) use ($search) {
+            $q->where('customer_name', 'like', "%{$search}%")
+              ->orWhere('service_name', 'like', "%{$search}%")
+              ->orWhere('remarks', 'like', "%{$search}%");
+        });
     }
+    if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
+        $query->whereBetween('booking_date', [$request->search_date_from, $request->search_date_to]);
+    } elseif ($request->filled('search_date_from')) {
+        $query->where('booking_date', '>=', $request->search_date_from);
+    } elseif ($request->filled('search_date_to')) {
+        $query->where('booking_date', '<=', $request->search_date_to);
+    }
+
+    if ($request->filled('plan_type')) {
+        $query->where('plan_type', $request->plan_type);
+    }
+
+    $bookings = $query->orderBy('booking_date', 'desc')->get();
+
+    $planTypes = Booking::where('professional_id', $professionalId)
+        ->select('plan_type')
+        ->distinct()
+        ->pluck('plan_type');
+
+    return view('professional.booking.index', compact('bookings', 'planTypes'));
+}
+
+
 
 
 

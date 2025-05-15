@@ -238,15 +238,18 @@
 <div class="search-container">
     
     <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
-             <div class="form-group">
-            <label for="plan_type">Plan Type</label>
-            <select name="plan_type" id="plan_type">
-                <option value="">-- Select Plan --</option>
-                <option value="one_time" {{ request('plan_type') == 'one_time' ? 'selected' : '' }}>One Time</option>
-                <option value="free_hand" {{ request('plan_type') == 'free_hand' ? 'selected' : '' }}>Free Hand</option>
-                <option value="ttc" {{ request('plan_type') == 'ttc' ? 'selected' : '' }}>TTC</option>
-            </select>
-        </div>
+          <div class="form-group">
+    <label for="plan_type">Plan Type</label>
+    <select name="plan_type" id="plan_type">
+        <option value="">-- Select Plan --</option>
+        @foreach($planTypes as $type)
+            <option value="{{ $type }}" {{ request('plan_type') == $type ? 'selected' : '' }}>
+                {{ ucfirst(str_replace('_', ' ', $type)) }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
         <div class="form-group">
             <label for="search_name">Search</label>
             <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
@@ -295,6 +298,7 @@
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
                                     <th>Details</th>
+                                    <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                 </tr>
                             </thead>
@@ -330,6 +334,8 @@
                                         View
                                     </button>
                                 </td>
+                          
+                                   <td>{{ $booking->remarks }}</td>
                           
                                 <td>
                                     <form action="{{ route('professional.doc.upload', $booking->id) }}" method="POST" enctype="multipart/form-data">
