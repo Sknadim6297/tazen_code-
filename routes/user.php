@@ -1,18 +1,32 @@
 <?php
-
 use App\Http\Controllers\Customer\AppointmentController;
+use App\Http\Controllers\Customer\EventController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\frontend\HomeController;
 use App\Http\Controllers\frontend\LoginController;
 use Illuminate\Support\Facades\Route;
-
-
+use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 
 Route::middleware(['auth:user'])->group(function () {
     Route::get('dashboard', function () {
-        return view('customer.index');
+        $userId = Auth::guard('user')->id();
+
+        $monthlyCount = Booking::where('plan_type', 'monthly')
+            ->where('user_id', $userId)
+            ->count();
+
+        $quarterlyCount = Booking::where('plan_type', 'quarterly')
+            ->where('user_id', $userId)
+            ->count();
+
+        $totalSubscriptions = $monthlyCount + $quarterlyCount;
+
+        return view('customer.index', compact('monthlyCount', 'quarterlyCount', 'totalSubscriptions'));
     })->name('dashboard');
+
+
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
@@ -36,4 +50,5 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('appointments/{id}/details', [AppointmentController::class, 'showDetails'])->name('appointment.details');
 
     Route::resource('profile', ProfileController::class);
+    Route::resource('customer-event', EventController::class);
 });

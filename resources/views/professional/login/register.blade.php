@@ -4,17 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
+    <meta name="description" content="l">
     <meta name="author" content="Ansonika">
     <title>Tazen-Professional register</title>
-
-    <!-- Favicons-->
-	<link rel="shortcut icon" href="img/favicon.jpg" type="image/x-icon">
-
-    <link rel="apple-touch-icon" type="image/x-icon" href="img/apple-touch-icon-57x57-precomposed.png">
-    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="img/apple-touch-icon-72x72-precomposed.png">
-    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="img/apple-touch-icon-114x114-precomposed.png">
-    <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144" href="img/apple-touch-icon-144x144-precomposed.png">
 
    <!-- BASE CSS -->
    <link href="{{ asset('frontend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -38,25 +30,64 @@
     .form-step.active {
         display: block;
     }
-	</style>
+	.toast-top-center {
+    top: 40px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+}
+ .heading-style {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        border-bottom: 2px solid #007BFF;
+        padding-bottom: 5px;
+        display: inline-block;
+        margin-bottom: 15px;
+		display: flex;
+        align-items: center;
+        justify-content: center;
+    }	
+.step-header {
+    margin-bottom: 20px;
+}
+.step-number {
+    background-color: #3498db;
+    color: white;
+    border-radius: 50%;
+    height: 32px;
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.step-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+	text-align: center;
+}
+</style>
 </head>
 
 <body>
 	<nav id="menu" class="fake_menu"></nav>
-	<div id="login">
-		<aside>
-			<h2 style="text-align: center">Professional Register</h2>
-			<div class="access_social">
-					<a href="#0" class="social_bt facebook">Register with Facebook</a>
-					<a href="#0" class="social_bt google">Register with Google</a>
-				</div>
-            <div class="divider"><span>Or</span></div>
+	
+	<div id="login"><figure>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+			</figure>
+		<div>
+			<h2 class="heading-style">Professional Register</h2>
+		</div>
 			<form id="registerForm" enctype="multipart/form-data">
 				@csrf
-			
 				{{-- Step 1 - Basic Info --}}
 				<div class="form-step step-1 active">
-					<h4>Step 1 – Basic Info</h4>
+		<div class="step-header">
+  <h4 class="step-title">Basic Information</h4>
+</div>
 					<div class="form-group">
 						<input class="form-control" type="text" name="first_name" placeholder="First Name" required>
 					</div>
@@ -79,9 +110,12 @@
 				</div>
 			
 				{{-- Step 2 - Professional Info --}}
-				<div class="form-step step-2">
-					<h4>Step 2 – Professional Info</h4>
 				
+				<div class="form-step step-2">
+					<div class="step-header">
+						<h4 class="step-title">Professional Info</h4>
+					</div>
+
 					<!-- Specialization Input -->
 					<div class="form-group">
 						<input class="form-control" type="text" name="specialization" placeholder="Specialization" required>
@@ -145,7 +179,8 @@
 				</div>
 				{{-- Step 3 - Document Uploads --}}
 				<div class="form-step step-3">
-					<h4>Step 3 – Document Uploads</h4>
+					 <div class="step-header">
+					<h4 class="step-title"> Document Uploads</h4>
 					<div class="form-group">
 						<label>Qualification Document</label>
 						<input class="form-control" type="file" name="qualification_document" required>
@@ -229,22 +264,29 @@
 
 	</script>
 	<script>
-		@if (session('success'))
-			toastr.success("{{ session('success') }}");
-		@endif
-	
-		@if (session('error'))
-			toastr.error("{{ session('error') }}");
-		@endif
-	
-		@if (session('warning'))
-			toastr.warning("{{ session('warning') }}");
-		@endif
-	
-		@if (session('info'))
-			toastr.info("{{ session('info') }}");
-		@endif
-	</script>
+toastr.options = {
+    "positionClass": "toast-top-center",
+    "timeOut": "3000",
+    "closeButton": true,
+    "progressBar": true
+};
+
+@if (session('success'))
+    toastr.success("{{ session('success') }}");
+@endif
+
+@if (session('error'))
+    toastr.error("{{ session('error') }}");
+@endif
+
+@if (session('warning'))
+    toastr.warning("{{ session('warning') }}");
+@endif
+
+@if (session('info'))
+    toastr.info("{{ session('info') }}");
+@endif
+</script>
 	<script>
     $(document).ready(function () {
         let currentStep = 1;

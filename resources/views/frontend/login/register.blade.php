@@ -48,13 +48,8 @@
 	<div id="login">
 		<aside>
 			<figure>
-				<a href="index-3.html"><img src="img/tazen logo-01.png" width="150" height="60" alt="" class="logo_sticky"></a>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
 			</figure>
-			<div class="access_social">
-					<a href="#0" class="social_bt facebook">Register with Facebook</a>
-					<a href="#0" class="social_bt google">Register with Google</a>
-				</div>
-            <div class="divider"><span>Or</span></div>
 			<form id="registerForm">
 				@csrf
 				<div class="form-group">

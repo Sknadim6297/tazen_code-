@@ -30,4 +30,6 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::post('bookings/search', [BookingController::class, 'search'])->name('booking.search');
 
     Route::post('/bookings/{booking}/upload-documents', [BookingController::class, 'uploadDocuments'])->name('doc.upload');
+    Route::post('/bookings/update-status', [BookingController::class, 'updateStatus']);
+
 });

@@ -20,22 +20,24 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .toast-top-center {
+    top: 40px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+}
     </style>
 </head>
 
 <body>
     <div id="login">
-        <aside>
+        	<figure>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+			</figure>
+        <aside style="display:flex; flex-direction:column; gap:50px;">
             <h2 class="text-center">Professional Login</h2>
             <form id="loginForm">
                 @csrf
-
-                <div class="access_social">
-                    <a href="#" class="social_bt facebook">Login with Facebook</a>
-                    <a href="#" class="social_bt google">Login with Google</a>
-                </div>
-
-                <div class="divider"><span>Or</span></div>
 
                 <div class="form-group">
                     <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
@@ -112,23 +114,31 @@
                 }
             });
         });
-
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
-        @endif
-
-        @if (session('error'))
-            toastr.error("{{ session('error') }}");
-        @endif
-
-        @if (session('warning'))
-            toastr.warning("{{ session('warning') }}");
-        @endif
-
-        @if (session('info'))
-            toastr.info("{{ session('info') }}");
-        @endif
     </script>
+    <script>
+toastr.options = {
+    "positionClass": "toast-top-center",
+    "timeOut": "3000",
+    "closeButton": true,
+    "progressBar": true
+};
+
+@if (session('success'))
+    toastr.success("{{ session('success') }}");
+@endif
+
+@if (session('error'))
+    toastr.error("{{ session('error') }}");
+@endif
+
+@if (session('warning'))
+    toastr.warning("{{ session('warning') }}");
+@endif
+
+@if (session('info'))
+    toastr.info("{{ session('info') }}");
+@endif
+</script>
 </body>
 
 </html>

@@ -89,6 +89,7 @@ class AppointmentController extends Controller
                     'date' => $td->date,
                     'time_slot' => explode(',', $td->time_slot),
                     'status' => $td->status ?? 'Pending',
+                    'remarks' => $td->remarks ?? 'No remarks',
                 ];
             })
         ]);

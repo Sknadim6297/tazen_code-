@@ -4,16 +4,17 @@
 @endsection
 @section('content')
     <div class="container margin_30_40" style="margin-top: 100px;">
-        <div class="page_header">
-            <div class="breadcrumbs">
-                <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Category</a></li>
-                    <li>Page active</li>
-                </ul>
-            </div>
-            <h1>Doctors</h1><span>: 814 found</span>
-        </div>
+      <div class="page_header">
+    <div class="breadcrumbs">
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Professionals</a></li>
+        </ul>
+    </div>
+    <h1>{{ session('selected_service_name', 'Professionals') }}</h1>
+    <span>: {{ count($professionals) }} found</span>
+</div>
+
         <!-- /page_header -->
         <div class="row">
             @foreach($professionals as $professional)
@@ -39,7 +40,12 @@
             <h3>{{ $professional->name }}</h3>
             <p class="about">{{ $professional->bio }}</p>
             <small>From ₹{{ number_format($professional->profile->starting_price ?? 0, 2) }}</small>
-            <small>{{ $professional->profile->specialization }}</small>
+            <br>
+         <small>
+    {{ $professional->professionalServices->pluck('tags')->filter()->implode(', ') ?: 'No tags available' }}
+</small>
+
+
         </div>
     </a>
 </figure>

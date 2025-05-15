@@ -84,12 +84,30 @@
                                 <a href="javascript:void(0)">Apps</a>
                             </li>
                         
-                            <li class="slide has-sub">
-                                <a href="{{ route('admin.onetime') }}" class="side-menu__item">One Time</a>
-                                <a href="{{ route('admin.monthly') }}" class="side-menu__item">Monthly</a>
-                                <a href="{{ route('admin.freehand') }}" class="side-menu__item">Free Hand</a>
-                                <a href="{{ route('admin.quaterly') }}" class="side-menu__item">Quarterly</a>
-                            </li>
+                            @php
+    use App\Models\Booking;
+
+    $onetimeCount = Booking::where('plan_type', 'one_time')->count();
+    $monthlyCount = Booking::where('plan_type', 'monthly')->count();
+    $freehandCount = Booking::where('plan_type', 'free_hand')->count();
+    $quarterlyCount = Booking::where('plan_type', 'quarterly')->count();
+@endphp
+
+<li class="slide has-sub">
+    <a href="{{ route('admin.onetime') }}" class="side-menu__item">
+        One Time ({{ $onetimeCount }})
+    </a>
+    <a href="{{ route('admin.monthly') }}" class="side-menu__item">
+        Monthly ({{ $monthlyCount }})
+    </a>
+    <a href="{{ route('admin.freehand') }}" class="side-menu__item">
+        Free Hand ({{ $freehandCount }})
+    </a>
+    <a href="{{ route('admin.quaterly') }}" class="side-menu__item">
+        Quarterly ({{ $quarterlyCount }})
+    </a>
+</li>
+
                         </ul>
                     </li>
   
@@ -191,6 +209,7 @@
                                     </li>
                                 </ul>
                             </li>
+                            
                             <li class="slide has-sub">
                                 <a href="javascript:void(0);" class="side-menu__item">Service Page
                                     <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
@@ -205,8 +224,20 @@
                             </li>
 
                         </ul>
+                        <li class="slide has-sub">
+                        <a href="{{ route('admin.eventpage.index') }}" class="side-menu__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
+                            <span class="side-menu__label">Events</span>
+                        </a>
+                        <ul class="slide-menu child1">
+                          
+                        </ul>
                     </li>
+                    </li>
+                    
+
                 </ul>
+                
                 </li>
                     
                     <!-- End::slide -->

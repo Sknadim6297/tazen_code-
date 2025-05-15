@@ -576,7 +576,7 @@
                                             <ul class="appointment-features">
                                                 <li><i class="icon_check_alt2"></i> {{ $rate->num_sessions }} sessions</li>
                                                 <li><i class="icon_check_alt2"></i> {{ $rate->duration }} min per session</li>
-                                                <li><i class="icon_check_alt2"></i> Personalized treatment plan</li>
+                                                <li><i class="icon_check_alt2"></i>Curated solutions for you</li>
                                             </ul>
                                             <div class="price">
                                         @php

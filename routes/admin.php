@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\LogoController;
 use App\Http\Controllers\Admin\MCQController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\AllEventController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ManageCustomerController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\ServiceMCQController;
@@ -90,4 +91,5 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('booking/details/{id}', [BookingController::class, 'show'])->name('booking.details');
 
     Route::resource('manage-customer', ManageCustomerController::class);
+    Route::resource('eventpage', EventController::class);
 });
