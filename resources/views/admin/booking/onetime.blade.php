@@ -2,8 +2,6 @@
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
-
-            
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
@@ -18,12 +16,23 @@
                 </div>
             </div>
     <form action="{{ route('admin.onetime') }}" method="GET" class="d-flex gap-2">
-    <div class="col-xl-4">
+        <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">-- Select Status --</option>
+            @foreach ($statuses as $status)
+                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                    {{ ucfirst($status) }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-md-3">
         <div class="card custom-card">
             <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
         </div>
     </div>
-     <div class="col-xl-6">
+     <div class="col-md-4">
         <div class="card-body">
             <div class="form-group">
                 <div class="input-group">
@@ -58,12 +67,12 @@
                                         <th>Customer Name</th>
                                         <th>Professional Name</th>
                                         <th>Service Required</th>
-                                        <th>Paid Amount</th>
+                                      <th>Status</th>
                                         <th>Service Date On</th>
                                         <th>Service Time</th>
                                         <th>Add link for the Service</th>
                                         <th>Telecaller Remarks</th>
-                                        <th>Status</th>
+                                                    <th>Paid Amount</th>
                                         <th>Professional document</th>
                                     </tr>
                                 </thead>
@@ -104,7 +113,9 @@
                     ({{ $booking->professional->phone }})
                 </td>
                            <td>{{ $booking->service_name }}</td>
-                                            <td>Null</td>
+                     <td>
+    {{ $booking->timedates->first()?->status ?? '-' }}
+</td>
 
                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
 
@@ -118,8 +129,17 @@
                                                     </div>
                                                 </form>
                                             </td>
-                                            <td><input id="marks" class="form-control" type="text" name="" placeholder="Telecaller Remarks"></td>
-<td>Pending</td>
+                                            <td>
+                                                <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
+                                                    @csrf
+                                                    <div class="d-flex">
+                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks">
+                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                                    </div>
+                                                </form>
+                                            </td>
+
+                       <td>Null</td>
    <td>
     @foreach(explode(',', $booking->professional_documents) as $doc)
         <a href="{{ asset('storage/' . $doc) }}" target="_blank">View Document</a><br>
