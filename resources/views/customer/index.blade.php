@@ -41,16 +41,23 @@
             </div>
         </div>
 
-        <div class="card card-warning">
-            <div class="card-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="card-info">
-                <h4>Active Subscriptions</h4>
-                <h2>1</h2>
-                <p class=""><i class=""></i> Monthy Package</p>
-            </div>
-        </div>
+      <div class="card card-warning">
+    <div class="card-icon">
+        <i class="fas fa-users"></i>
+    </div>
+    <div class="card-info">
+        <h4>Active Subscriptions</h4>
+        <h2>{{ $totalSubscriptions }}</h2> 
+        <p class="">
+            <i class="fas fa-check-circle text-success"></i>
+            Monthly Package: {{ $monthlyCount }}
+        </p>
+        <p class="">
+            <i class="fas fa-check-circle text-success"></i>
+            Quarterly Package: {{ $quarterlyCount }}
+        </p>
+    </div>
+</div>
 
         <div class="card card-danger">
             <div class="card-icon">

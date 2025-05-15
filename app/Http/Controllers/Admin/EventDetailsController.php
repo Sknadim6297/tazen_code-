@@ -15,10 +15,10 @@ class EventDetailsController extends Controller
         $eventdetails = EventDetail::latest()->get();
         $allevents = AllEvent::latest()->get(); // Fetch all events
         $events = EventDetail::with('event')->get();
-        
-        
 
-        return view('admin.eventdetails.index', compact('eventdetails','allevents','events'));
+
+
+        return view('admin.eventdetails.index', compact('eventdetails', 'allevents', 'events'));
     }
 
     public function create()
@@ -38,15 +38,21 @@ class EventDetailsController extends Controller
             'event_gallery.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'map_link' => 'required|url|max:500',
         ]);
-    
-        $data = $request->only(['event_type', 'event_details', 'starting_date', 'starting_fees', 'map_link']);
+
+        $data = $request->only([
+            'event_type',
+            'event_details',
+            'starting_date',
+            'starting_fees',
+            'map_link'
+        ]);
         $data['event_id'] = $request->input('event_id');
-    
+
         // Upload banner image
         if ($request->hasFile('banner_image')) {
             $data['banner_image'] = $request->file('banner_image')->store('events/banners', 'public');
         }
-    
+
         // Upload gallery images as JSON
         $galleryImages = [];
         if ($request->hasFile('event_gallery')) {
@@ -55,15 +61,10 @@ class EventDetailsController extends Controller
             }
             $data['event_gallery'] = json_encode($galleryImages);
         }
-    
-        // dd($request->all());
+        EventDetail::create($data);
 
-        EventDetail::create($data); // Now event_id is definitely included
-    
         return redirect()->route('admin.eventdetails.index')->with('success', 'Event created successfully.');
     }
-    
-
 
     public function show(EventDetail $eventdetail)
     {
@@ -88,7 +89,7 @@ class EventDetailsController extends Controller
             'map_link' => 'nullable|url|max:500',
         ]);
 
-        $data = $request->only(['event_name', 'event_type', 'event_details', 'starting_date', 'starting_fees','map_link']);
+        $data = $request->only(['event_name', 'event_type', 'event_details', 'starting_date', 'starting_fees', 'map_link']);
 
         // Update banner image if new one is uploaded
         if ($request->hasFile('banner_image')) {

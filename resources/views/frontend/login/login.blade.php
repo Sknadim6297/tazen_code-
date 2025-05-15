@@ -47,15 +47,10 @@
 	<div id="login">
 		<aside>
 			<figure>
-				<a href="{{ route('home') }}"><img src="img/tazen logo-01.png" width="150" height="60" alt="" class="logo_sticky"></a>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
 			</figure>
 			<form id="loginForm" >
 				@csrf
-				<div class="access_social">
-					<a href="#0" class="social_bt facebook">Login with Facebook</a>
-					<a href="#0" class="social_bt google">Login with Google</a>
-				</div>
-				<div class="divider"><span>Or</span></div>
 				<div class="form-group">
 					<input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
 					<i class="icon_mail_alt"></i>

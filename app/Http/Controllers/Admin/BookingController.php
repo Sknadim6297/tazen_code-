@@ -68,7 +68,7 @@ class BookingController extends Controller
         return view('admin.booking.monthly', compact('bookings'));
     }
 
-    public function quarterlyBooking(Request $request)
+    public function quaterlyBooking(Request $request)
     {
         $query = Booking::where('plan_type', 'quarterly')->with('professional');
         if ($request->filled('search')) {
@@ -84,7 +84,7 @@ class BookingController extends Controller
 
         // Fetch the bookings
         $bookings = $query->latest()->get();
-        return view('admin.booking.quarterly', compact('bookings'));
+        return view('admin.booking.quaterly', compact('bookings'));
     }
 
     public function updateLink(Request $request, $id)

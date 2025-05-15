@@ -1,74 +1,135 @@
 @extends('admin.layouts.layout')
 @section('styles')
 <style>
-        .profile-card {
-        background-color: #f9f9f9;
-        border-radius: 10px;
-    }
-
-    .profile-card .card-header {
-        background-color: #007bff;
-        color: white;
-        font-size: 1.2rem;
-        text-align: center;
-    }
-
-    .profile-card .card-body {
-        padding: 20px;
-    }
-
-    .profile-img {
-        border: 5px solid #007bff;
-    }
-
-    .comment-text, .bio-text {
-        color: #555;
-        line-height: 1.6;
-    }
-
-    .documents-section {
-        margin-top: 30px;
-    }
-
-    .gallery-section {
-        margin-top: 20px;
-    }
-
-    .gallery-images img {
-        margin: 5px;
+    /* Base Card Styling */
+    .profile-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
         transition: transform 0.3s ease;
     }
 
-    .gallery-images img:hover {
-        transform: scale(1.1);
+    .profile-card:hover {
+        transform: translateY(-4px);
     }
 
-    .availability-section p, .services-section p {
+    .profile-card .card-header {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 600;
+        padding: 20px;
+        text-align: center;
+        letter-spacing: 1px;
+    }
+
+    .profile-card .card-body {
+        padding: 25px;
+    }
+
+    /* Profile Image */
+    .profile-img {
+        border-radius: 50%;
+        border: 4px solid #4e54c8;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        margin: 0 auto 20px;
+        display: block;
+    }
+
+    .comment-text,
+    .bio-text {
         color: #333;
         font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+
+    .documents-section,
+    .gallery-section {
+        margin-top: 30px;
+    }
+
+    .gallery-section h4 {
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .gallery-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .gallery-images img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .gallery-images img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .availability-section p,
+    .services-section p {
+        color: #555;
+        font-size: 1rem;
+        margin-bottom: 8px;
     }
 
     .service-card {
-        background-color: #f4f6f9;
-        border: 1px solid #ddd;
-        border-radius: 8px;
+        background-color: #f8f9fc;
+        border: 1px solid #e0e6ed;
+        border-radius: 12px;
+        padding: 15px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .service-card:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
     }
 
     .service-img {
+        border-radius: 10px;
+        width: 100%;
+        height: auto;
+    }
+
+    /* Buttons */
+    .btn-outline-primary,
+    .btn-outline-success,
+    .btn-outline-warning {
         border-radius: 8px;
+        font-size: 0.9rem;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
     }
 
-    /* Button styling */
-    .btn-outline-primary, .btn-outline-success, .btn-outline-warning {
-        border-radius: 5px;
-        font-size: 0.875rem;
-        transition: background-color 0.3s ease;
+    .btn-outline-primary:hover {
+        background-color: #4e54c8;
+        color: white;
+        border-color: #4e54c8;
     }
 
-    .btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-warning:hover {
-        background-color: rgba(0, 123, 255, 0.1);
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: white;
+        border-color: #ffc107;
     }
 </style>
+
 @endsection
 
 @section('content')
@@ -91,8 +152,7 @@
                     {{-- Basic Details --}}
                     <div class="col-md-9">
                         <div class="row">
-                            <div class="col-md-6"><strong>First Name:</strong> {{ $profile->first_name }}</div>
-                            <div class="col-md-6"><strong>Last Name:</strong> {{ $profile->last_name }}</div>
+                            <div class="col-md-6"><strong>Name:</strong> {{ $profile->name }}</div>
                             <div class="col-md-6"><strong>Email:</strong> {{ $profile->email }}</div>
                             <div class="col-md-6"><strong>Phone:</strong> {{ $profile->phone }}</div>
                             <div class="col-md-6"><strong>Specialization:</strong> {{ $profile->specialization }}</div>

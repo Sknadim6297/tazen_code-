@@ -1,6 +1,69 @@
 @extends('professional.layout.layout')
 
-@section('style')
+@section('styles')
+<style>
+    .search-container {
+        max-width: 600px;
+    }
+    .search-form {
+        display: flex;
+
+        align-items: center;
+        gap: 15px;
+    }
+
+    .form-group {
+        flex: 1 1 100%;
+    }
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+
+    .search-buttons .btn-success,
+    .search-buttons .btn-secondary {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+</style>
 
 @endsection
 
@@ -12,6 +75,42 @@
             <li class="active">All Availability</li>
         </ul>
     </div>
+<div class="search-container">
+    <form action="{{ route('professional.availability.index') }}" method="GET" class="search-form">
+        <div class="form-group">
+            <label for="search_month">Month</label>
+           @php
+    $monthNames = [
+        'jan' => 'January',
+        'feb' => 'February',
+        'mar' => 'March',
+        'apr' => 'April',
+        'may' => 'May',
+        'jun' => 'June',
+        'jul' => 'July',
+        'aug' => 'August',
+        'sep' => 'September',
+        'oct' => 'October',
+        'nov' => 'November',
+        'dec' => 'December',
+    ];
+@endphp
+
+<select name="search_month" id="search_month" class="form-control">
+    <option value="">Select Month</option>
+    @foreach ($availableMonths as $monthKey)
+        <option value="{{ $monthKey }}" {{ request('search_month') == $monthKey ? 'selected' : '' }}>
+            {{ $monthNames[$monthKey] ?? ucfirst($monthKey) }}
+        </option>
+    @endforeach
+</select>
+        </div>
+        <div class="search-buttons">
+            <button type="submit" class="btn-success">Search</button>
+            <a href="{{ route('professional.availability.index') }}" class="btn-secondary">Reset</a>
+        </div>
+    </form>
+</div>
 
     <div class="card">
         <div class="card-body">

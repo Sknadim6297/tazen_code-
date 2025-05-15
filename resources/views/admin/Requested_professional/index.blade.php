@@ -19,7 +19,12 @@
                 </div>
             </div>
            <form action="{{ route('admin.professional.requests') }}" method="GET" class="d-flex gap-2">
-           <div class="col-xl-6">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-xl-6">
         <div class="card-body">
             <div class="form-group">
                 <div class="input-group">
@@ -29,11 +34,6 @@
                     <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xl-4">
-        <div class="card custom-card">
-            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
         </div>
     </div>
     <div class="col-xl-2">
