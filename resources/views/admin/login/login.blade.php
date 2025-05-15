@@ -4,13 +4,10 @@
     <!-- Meta Data -->
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="Description" content="Codeigniter Bootstrap Responsive Admin Web Dashboard Template">
-    <meta name="Author" content="Spruko Technologies Private Limited">
-    <meta name="keywords" content="admin panel template, bootstrap, codeigniter, dashboard, etc.">
+   
 
     <!-- Title -->
-    <title> Meno - Codeigniter Bootstrap 5 Premium Admin & Dashboard Template </title>
+    <title>Tazen- admin </title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('admin/assets/images/brand-logos/favicon.ico') }}" type="image/x-icon">
@@ -29,12 +26,13 @@
     <div class="container-lg">
         <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
-                <div class="my-5 d-flex justify-content-center"> 
-                    {{-- <a href="index-2.html"><img src="{{ asset('admin/assets/images/brand-logos/desktop-dark.png') }}" alt="logo" class="desktop-dark"></a> --}}
-                </div>
 
                 <div class="card custom-card my-4 auth-circle">
+                    
                     <div class="card-body p-5">
+                            <div class="d-flex justify-content-center"> 
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+                </div>
                         <p class="h4 mb-2 fw-semibold">Sign In</p>
 
                         <!-- Login Form Start -->

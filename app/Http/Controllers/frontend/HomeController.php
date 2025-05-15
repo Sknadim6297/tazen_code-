@@ -28,6 +28,7 @@ use App\Models\RequestedService;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 use Illuminate\Http\Request;
 
@@ -48,7 +49,7 @@ class HomeController extends Controller
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
         $allevents = AllEvent::latest()->get();
-        return view('frontend.index', compact('services','banners','about_us','whychooses','testimonials','homeblogs','howworks','mcqs','blogs','allevents'));
+        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogs', 'allevents'));
     }
 
     //     public function getServiceQuestions($serviceId)
@@ -75,7 +76,8 @@ class HomeController extends Controller
         if (!Auth::guard('user')->check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have to login for book.'
+                'message' => 'You have to login for book.',
+                'redirect_to' => route('login')
             ], 403);
         }
 
@@ -117,12 +119,26 @@ class HomeController extends Controller
         ]);
     }
 
+
     public function professionals()
     {
         $services = Service::all();
-        $professionals = Professional::with('profile')->where('status', 'accepted')->latest()->get();
+        $selectedServiceId = Session::get('selected_service_id');
+
+        $professionalsQuery = Professional::with('profile', 'professionalServices')
+            ->where('status', 'accepted');
+
+        if ($selectedServiceId) {
+            $professionalsQuery->whereHas('professionalServices', function ($query) use ($selectedServiceId) {
+                $query->where('service_id', $selectedServiceId);
+            });
+        }
+
+        $professionals = $professionalsQuery->latest()->get();
+
         return view('frontend.sections.gridlisting', compact('professionals', 'services'));
     }
+
 
 
     public function professionalsDetails($id)
@@ -306,7 +322,7 @@ class HomeController extends Controller
     public function getServiceQuestions($id)
     {
         $questions = ServiceMCQ::where('service_id', $id)->get();
-        
+
         return response()->json([
             'status' => 'success',
             'questions' => $questions

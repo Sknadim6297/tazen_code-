@@ -11,16 +11,27 @@ use Illuminate\Support\Facades\Auth;
 
 class AvailabilityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $availability = Availability::with('slots')
-            ->where('professional_id', Auth::guard('professional')->id())
-            ->get();
-        return view('professional.availability.index', compact('availability'));
+
+
+   public function index(Request $request)
+{
+    $query = Availability::with('slots')
+        ->where('professional_id', Auth::guard('professional')->id());
+
+    if ($request->filled('search_month')) {
+        $searchMonth = strtolower($request->search_month);
+        $query->where('month', $searchMonth); 
     }
+
+    $availability = $query->get();
+    $availableMonths = Availability::where('professional_id', Auth::guard('professional')->id())
+        ->pluck('month')
+        ->unique()
+        ->sort()
+        ->values();
+
+    return view('professional.availability.index', compact('availability', 'availableMonths'));
+}
 
 
     /**

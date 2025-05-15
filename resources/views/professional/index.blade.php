@@ -16,16 +16,24 @@
 
     <!-- Dashboard Cards -->
     <div class="card-grid">
-        <div class="card card-primary">
-            <div class="card-icon">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="card-info">
-                <h4>Total Bookings</h4>
-                <h2>24</h2>
-                <p class="positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
-            </div>
+        @php
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\Booking;
+
+    $professionalId = Auth::guard('professional')->id();
+    $totalBookings = Booking::where('professional_id', $professionalId)->count();
+@endphp
+
+         <div class="card card-primary">
+        <div class="card-icon">
+            <i class="fas fa-calendar-check"></i>
         </div>
+        <div class="card-info">
+            <h4>Total Bookings</h4>
+            <h2>{{ $totalBookings }}</h2>
+            <p class="positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
+        </div>
+    </div>
 
         <div class="card card-success">
             <div class="card-icon">
@@ -38,16 +46,25 @@
             </div>
         </div>
 
-        <div class="card card-warning">
-            <div class="card-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="card-info">
-                <h4>Active Clients</h4>
-                <h2>15</h2>
-                <p class="negative"><i class="fas fa-arrow-down"></i> 2% from last month</p>
-            </div>
-        </div>
+        @php
+    $professionalId = Auth::guard('professional')->id();
+    $activeClients = Booking::where('professional_id', $professionalId)
+ 
+                            ->distinct('user_id')
+                            ->count('user_id');
+@endphp
+
+<div class="card card-warning">
+    <div class="card-icon">
+        <i class="fas fa-users"></i>
+    </div>
+    <div class="card-info">
+        <h4>Active Clients</h4>
+        <h2>{{ $activeClients }}</h2>
+        <p class="negative"><i class="fas fa-arrow-down"></i> 2% from last month</p>
+    </div>
+</div>
+
 
         <div class="card card-danger">
             <div class="card-icon">
@@ -60,6 +77,16 @@
             </div>
         </div>
     </div>
+@php
+
+    $professionalId = Auth::guard('professional')->id();
+
+    $recentBookings = Booking::with('customerProfile')
+                        ->where('professional_id', $professionalId)
+                        ->latest()
+                        ->take(5)
+                        ->get();
+@endphp
 
     <!-- Recent Bookings -->
     <!-- Recent Bookings -->
@@ -67,7 +94,7 @@
         <div class="card-header">
             <h4>Recent Bookings</h4>
             <div class="card-action">
-                <button>View All</button>
+                <button><a href="{{ route('professional.booking.index') }}">View All</a></button>
                 <button>Export</button>
             </div>
         </div>
@@ -86,83 +113,51 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="user-profile" style="margin-left: 0;">
-                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User"
-                                    style="width: 30px; height: 30px;">
-                                <div class="user-info">
-                                    <h5>Ishita</h5>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Weekly Session</td>
-                        <td>07-01-2025</td>
-                        <td>12:00-12:30</td>
-                        <td>₹1000</td>
-                        <td><span class="status-badge success">Completed</span></td>
-                        <td>
-                            <a href="https://meet.google.com/abc-xyz-123" target="_blank"
-                                class="action-btn">
-                                <i class="fas fa-video"></i> Join
-                            </a>
-                        </td>
-                        <td>
-                            <div class="action-btn"><i class="fas fa-eye"></i></div>
-                            <div class="action-btn"><i class="fas fa-edit"></i></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="user-profile" style="margin-left: 0;">
-                                <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="User"
-                                    style="width: 30px; height: 30px;">
-                                <div class="user-info">
-                                    <h5>Chanchal</h5>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Monthly Package</td>
-                        <td>12-01-2025</td>
-                        <td>1:00-1:30</td>
-                        <td>₹4800</td>
-                        <td><span class="status-badge warning">Pending</span></td>
-                        <td>
-                            <span class="text-gray">Not scheduled</span>
-                        </td>
-                        <td>
-                            <div class="action-btn"><i class="fas fa-eye"></i></div>
-                            <div class="action-btn"><i class="fas fa-edit"></i></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="user-profile" style="margin-left: 0;">
-                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="User"
-                                    style="width: 30px; height: 30px;">
-                                <div class="user-info">
-                                    <h5>Rohit</h5>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Quarterly Package</td>
-                        <td>14-01-2025</td>
-                        <td>6:00-6:30</td>
-                        <td>₹6800</td>
-                        <td><span class="status-badge info">Confirmed</span></td>
-                        <td>
-                            <a href="https://meet.google.com/def-uvw-456" target="_blank"
-                                class="action-btn">
-                                <i class="fas fa-video"></i> Join
-                            </a>
-                        </td>
-                        <td>
-                            <div class="action-btn"><i class="fas fa-eye"></i></div>
-                            <div class="action-btn"><i class="fas fa-edit"></i></div>
-                        </td>
-                    </tr>
-                </tbody>
+            <tbody>
+    @foreach ($recentBookings as $booking)
+    @php
+    @endphp
+        <tr>
+            <td>
+                <div class="user-profile" style="margin-left: 0;">
+                    <img src="{{ $booking->customerProfile->profile_image ?? 'https://via.placeholder.com/30' }}" 
+                         alt="User" style="width: 30px; height: 30px;">
+                    <div class="user-info">
+                        <h5>{{ $booking->customer_name ?? 'N/A' }}</h5>
+                    </div>
+                </div>
+            </td>
+            <td>{{ ucfirst($booking->plan_type ?? 'N/A') }}</td>
+            <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
+            <td>{{ $booking->time_slot }}</td>
+            <td>₹{{ $booking->customerProfile->package_price ?? 'N/A' }}</td>
+            <td>
+                <span class="status-badge 
+                    @if(strtolower($booking->session_type) == 'completed') success
+                    @elseif(strtolower($booking->session_type) == 'pending') warning
+                    @elseif(strtolower($booking->session_type) == 'confirmed') info
+                    @else secondary
+                    @endif">
+                    {{ ucfirst($booking->session_type) }}
+                </span>
+            </td>
+            <td>
+                @if ($booking->meeting_link)
+                    <a href="{{ $booking->meeting_link }}" target="_blank" class="action-btn">
+                        <i class="fas fa-video"></i> Join
+                    </a>
+                @else
+                    <span class="text-gray">Not scheduled</span>
+                @endif
+            </td>
+            <td>
+                <div class="action-btn"><i class="fas fa-eye"></i></div>
+                <div class="action-btn"><i class="fas fa-edit"></i></div>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
+
             </table>
         </div>
     </div>

@@ -3,10 +3,9 @@
     <div class="sidebar-header">
         <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" style="align-items: center; justify-content: center; display: flex;" height="100">
     </div> 
-
     <div class="sidebar-menu">
         <div class="menu-title">Main</div>
-        <a href="index.html" class="menu-item active">
+        <a href="{{ route('professional.dashboard') }}" class="menu-item active">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>

@@ -39,14 +39,7 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/contacts.css') }}"> --}}
 {{-- <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}"> --}}
 @yield('styles')
- <style>
-.toast-top-center {
-    top: 40px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-}
-</style>
+ 
 
 	<!-- slick slider css  -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
@@ -530,12 +523,6 @@ if (fullText.style.display === "none") {
 			currentQuestion--;
 			showQuestion(currentQuestion);
 		}
-	});
-	
-	$('#submitBtn').on('click', function () {
-		// You can handle form submission here
-		alert('Form submitted!');
-		$('#mcqModal').modal('hide');
 	});
 	$.get('/get-mcq-questions/' + serviceId, function(data) {
     // fill the modal content with MCQ questions

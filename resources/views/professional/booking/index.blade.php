@@ -2,23 +2,23 @@
 
 @section('styles')
 <style>
-    /* Style for the slider container */
+   /* Style for the slider container */
 .status-slider {
     position: relative;
+    display: inline-block;
     width: 60px;
     height: 30px;
+    cursor: pointer;
 }
 
 /* Hide the checkbox but keep its functionality */
-.status-checkbox {
+.status-slider input {
     opacity: 0;
-    position: absolute;
     width: 0;
     height: 0;
-    pointer-events: none; /* Prevent clicking the checkbox directly */
 }
 
-/* The slider */
+/* The slider track */
 .status-slider .slider {
     position: absolute;
     top: 0;
@@ -30,7 +30,7 @@
     transition: 0.4s;
 }
 
-/* The knob (toggle button) */
+/* The round toggle knob */
 .status-slider .slider:before {
     content: "";
     position: absolute;
@@ -42,16 +42,12 @@
     background-color: white;
     transition: 0.4s;
 }
-
-/* When the checkbox is checked, move the knob to the right */
-.status-checkbox:checked + .slider {
-    background-color: #4CAF50;
+.status-slider input:checked + .slider {
+    background-color: #2196F3; 
 }
-
-.status-checkbox:checked + .slider:before {
+.status-slider input:checked + .slider:before {
     transform: translateX(30px);
 }
-
     .content-wrapper {
         background-color: #f8f9fa;
         padding: 20px;
@@ -217,6 +213,14 @@
     .btn-secondary:hover {
         background-color: #5a6268;
     }
+    .search-form select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: white;
+}
+
 </style>
 @endsection
 
@@ -231,8 +235,18 @@
             <li class="active">All Bookings</li>
         </ul>
     </div>
-   <div class="search-container">
+<div class="search-container">
+    
     <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
+             <div class="form-group">
+            <label for="plan_type">Plan Type</label>
+            <select name="plan_type" id="plan_type">
+                <option value="">-- Select Plan --</option>
+                <option value="one_time" {{ request('plan_type') == 'one_time' ? 'selected' : '' }}>One Time</option>
+                <option value="free_hand" {{ request('plan_type') == 'free_hand' ? 'selected' : '' }}>Free Hand</option>
+                <option value="ttc" {{ request('plan_type') == 'ttc' ? 'selected' : '' }}>TTC</option>
+            </select>
+        </div>
         <div class="form-group">
             <label for="search_name">Search</label>
             <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
@@ -248,12 +262,16 @@
             <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
         </div>
 
+        <!-- ✅ Plan Type Dropdown -->
+   
+
         <div class="search-buttons">
             <button type="submit" class="btn-success">Search</button>
             <a href="{{ route('professional.booking.index') }}" class="btn-secondary">Reset</a>
         </div>
     </form>
 </div>
+
 
 
     <div class="card">
@@ -277,7 +295,6 @@
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
                                     <th>Details</th>
-                                    <th>Summary/Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                 </tr>
                             </thead>
@@ -313,7 +330,7 @@
                                         View
                                     </button>
                                 </td>
-                                <td>Kuch bhi</td>
+                          
                                 <td>
                                     <form action="{{ route('professional.doc.upload', $booking->id) }}" method="POST" enctype="multipart/form-data">
                                         @csrf
@@ -372,76 +389,124 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const viewButtons = document.querySelectorAll('.view-details');
+document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('bookingDetailModal');
     const closeModal = document.querySelector('.close-modal');
     const tableBody = document.querySelector('#details-table tbody');
 
-    viewButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const bookingId = this.dataset.bookingId;
-
-            fetch(`/professional/bookings/${bookingId}/details`)
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    tableBody.innerHTML = '';
-
-                    data.dates.forEach((item, index) => {
-                        item.time_slot.forEach(slot => {
-                            tableBody.innerHTML += `
-                                <tr>
-                                    <td>${item.date}</td>
-                                    <td>${slot}</td>
-                                     <td>
-                                        <input type="text" class="form-control" value="${item.remarks || ''}" placeholder="Remarks">
-                                    </td>
-                                  <td>
-    <div class="status-slider" data-row="${index}">
-        <input type="checkbox" class="status-checkbox" ${item.status === 'Complete' ? 'checked' : ''}>
-        <span class="slider"></span>
-    </div>
-</td>
-                                   
-                                </tr>
-                            `;
-                        });
-                    });
-
-                    modal.style.display = 'block';
-                })
-                .catch(err => {
-                    console.error('Error fetching booking details:', err);
-                    alert('Something went wrong fetching booking details.');
-                });
+    // View details button click
+    document.querySelectorAll('.view-details').forEach(button => {
+        button.addEventListener('click', () => {
+            const bookingId = button.dataset.bookingId;
+            fetchBookingDetails(bookingId);
         });
     });
 
-    closeModal.addEventListener('click', function () {
-        modal.style.display = 'none';
-    });
+    // Fetch booking details from server
+    function fetchBookingDetails(bookingId) {
+        fetch(`/professional/bookings/${bookingId}/details`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                populateTable(data.dates, bookingId);
+                modal.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching booking details:', error);
+                alert('Something went wrong while fetching booking details.');
+            });
+    }
 
-    window.addEventListener('click', function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
+    // Populate the modal table
+    function populateTable(dates, bookingId) {
+        tableBody.innerHTML = '';
+
+        dates.forEach(item => {
+            item.time_slot.forEach(slot => {
+                const isChecked = item.status === 'Complete' ? 'checked' : '';
+                const remarks = item.remarks || '';
+
+                const row = `
+                    <tr>
+                        <td>${item.date}</td>
+                        <td>${slot}</td>
+                        <td>
+                            <input type="text" class="form-control remark-input" value="${remarks}" placeholder="Remarks">
+                        </td>
+                        <td>
+                            <label class="status-slider" 
+                                   data-booking-id="${bookingId}" 
+                                   data-date="${item.date}" 
+                                   data-slot="${slot}">
+                                <input type="checkbox" class="status-checkbox" ${isChecked}>
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                `;
+
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        });
+
+        attachCheckboxListeners();
+    }
+
+    // Attach change event to status checkboxes
+    function attachCheckboxListeners() {
+        document.querySelectorAll('.status-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const label = checkbox.closest('.status-slider');
+                const bookingId = label.dataset.bookingId;
+                const date = label.dataset.date;
+                const slot = label.dataset.slot;
+                const remarks = checkbox.closest('tr').querySelector('.remark-input').value;
+
+                // Always send status = Complete on toggle
+                const status = checkbox.checked ? 'Complete' : 'Pending';
+                
+                // Send AJAX request to update status and remarks
+                fetch('/professional/bookings/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        booking_id: bookingId,
+                        date: date,
+                        slot: slot,
+                        remarks: remarks
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                    } else {
+                           toastr.error(data.message);
+                        checkbox.checked = false; 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                    alert('Failed to update status.');
+                    checkbox.checked = false; // rollback
+                });
+            });
+        });
+    }
+
+    // Modal close handlers
+    closeModal.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', event => {
+        if (event.target === modal) modal.style.display = 'none';
     });
 });
-
-document.querySelectorAll('.status-checkbox').forEach((checkbox) => {
-    checkbox.addEventListener('change', function() {
-        let rowIndex = this.closest('.status-slider').getAttribute('data-row');
-        let newStatus = this.checked ? 'Complete' : 'Pending';
-
-        alert(`Row ${rowIndex}: Status changed to ${newStatus}`);
-    });
-});
-
-
 </script>
+
+
+
 @endsection

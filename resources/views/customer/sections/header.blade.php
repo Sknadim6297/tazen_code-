@@ -10,14 +10,12 @@
     </div>
 
     <div class="header-right">
-        <div class="header-icon">
-            <i class="far fa-envelope"></i>
-            <span class="badge">3</span>
-        </div>
-        <div class="header-icon">
-            <i class="far fa-bell"></i>
-            <span class="badge">5</span>
-        </div>
+
+        <div class="header-icon logout">
+                <a href="{{ route('user.logout') }}" class="btn-logout" title="Logout">
+                    <i class="fas fa-power-off"></i>
+                </a>
+            </div>
         <div class="user-profile">
             <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
             <div class="user-info">
