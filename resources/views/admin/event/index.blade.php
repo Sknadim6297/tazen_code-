@@ -38,8 +38,6 @@
         </div>
         </div>
         </form>
-<a href="{{ route('user.customer-event.index') }}">User Events</a>
-<a href="{{ route('admin.eventpage.index') }}">Admin Events</a>
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">

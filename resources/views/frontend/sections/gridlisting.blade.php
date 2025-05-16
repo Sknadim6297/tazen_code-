@@ -27,7 +27,7 @@
     {{-- Experience Badge --}}
     @if(!empty($professional->profile->experience))
         <div style="position: absolute; top: 10px; right: 10px; background: #ff6f61; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; justify-content: center; z-index: 5;">
-            <i class="icon_briefcase" style="margin-right: 5px;"></i> {{ $professional->profile->experience }} years
+            <i class="icon_briefcase" style="margin-right: 5px;"></i> {{ $professional->profile->experience }} yrs
         </div>
     @endif
 
