@@ -86,15 +86,19 @@
 	<script>
 	$('#loginForm').submit(function(e) {
     e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirect') || "{{ route('home') }}";
+    let formData = $(this).serializeArray();
+    formData.push({name: 'redirect', value: redirect});
 
     $.ajax({
         url: "{{ route('login.submit') }}",
         method: "POST",
-        data: $(this).serialize(),
+        data: $.param(formData),
         success: function(response) {
             toastr.success(response.message);
             setTimeout(function() {
-                window.location.href = "{{ route('home') }}";
+                window.location.href = response.redirect_url || "{{ route('home') }}";
             }, 1500);
         },
         error: function(xhr) {

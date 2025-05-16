@@ -46,4 +46,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(CustomerProfile::class);
     }
+    public function bookings()
+{
+    return $this->hasMany(EventBooking::class);
+}
+
 }

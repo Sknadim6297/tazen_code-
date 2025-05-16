@@ -114,15 +114,15 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-title">
-            <h3>Summary of your appointments</h3>
+            <h3>Summary of your Event booking</h3>
         </div>
         <ul class="breadcrumb">
             <li>Home</li>
-            <li class="active">Appointment</li>
+            <li class="active">events</li>
         </ul>
     </div>
 <div class="search-container">
-    <form action="{{ route('user.all-appointment.index') }}" method="GET" class="search-form">
+    <form action="{{ route('user.customer-event.index') }}" method="GET" class="search-form">
         <div class="form-group">
             <label for="search_name">Search</label>
             <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
@@ -152,67 +152,49 @@
             <button class="btn btn-primary">Download Full Report</button>
         </div>
 
-        <table class="table table-bordered">
-            <thead>
+            <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Event Name</th>
+                <th>Event Date</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>No. of Persons</th>
+                <th>Paid Price</th>
+                <th>Gmeet Link</th>
+                <th>Payment Status</th>
+                <th>Order ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($bookings as $index => $booking)
                 <tr>
-                    <th>S.No</th>
-                    <th>Booking date</th>
-                    <th>Event Name</th>
-                      <th>Event Category</th>
-                    <th>Event date</th>
-                    <th>Amount Paid</th>
-                    <th>Venue</th>
-                    <th>Address</th>
-                    <th>Status  </th>
+                    <td>{{ $index + 1 }}</td>
+    <td>{{ $booking->event->heading ?? 'N/A' }}</td>
+                    <td>{{ $booking->event_date }}</td>
+                    <td>{{ $booking->location ?? 'N/A' }}</td>
+                    <td>{{ $booking->type ?? 'N/A' }}</td>
+                    <td>{{ $booking->persons ?? 'N/A' }}</td>
+                    <td>₹{{ number_format($booking->total_price, 2) }}</td>
+                    <td>
+       <a href="{{ $booking->gmeet_link }}" target="_blank">Join</a>
+    </td>
+
+                    <td>
+                        @if($booking->payment_status == 'success')
+                            <span class="badge bg-success">Confirmed</span>
+                        @elseif($booking->payment_status == 'failed')
+                            <span class="badge bg-warning text-dark">Failed</span>
+                        @else
+                            <span class="badge bg-danger">Unknown</span>
+                        @endif
+                    </td>
+                    <td>{{ $booking->order_id ?? 'N/A' }}</td>
                 </tr>
-            </thead>
-       <tbody>
-    <tr>
-        <td>1</td>
-        <td>2025-05-10</td>
-        <td>Wedding Ceremony</td>
-        <td>Personal</td>
-        <td>2025-06-01</td>
-        <td>₹25,000</td>
-        <td>Grand Palace</td>
-        <td>123 Park Street, Kolkata</td>
-        <td><span class="badge bg-success">Confirmed</span></td>
-    </tr>
-    <tr>
-        <td>2</td>
-        <td>2025-05-11</td>
-        <td>Corporate Meetup</td>
-        <td>Corporate</td>
-        <td>2025-06-05</td>
-        <td>₹40,000</td>
-        <td>ITC Sonar</td>
-        <td>EM Bypass, Kolkata</td>
-        <td><span class="badge bg-warning text-dark">Pending</span></td>
-    </tr>
-    <tr>
-        <td>3</td>
-        <td>2025-05-12</td>
-        <td>Birthday Bash</td>
-        <td>Personal</td>
-        <td>2025-06-07</td>
-        <td>₹15,000</td>
-        <td>Fun Fiesta Hall</td>
-        <td>Behala, Kolkata</td>
-        <td><span class="badge bg-danger">Cancelled</span></td>
-    </tr>
-    <tr>
-        <td>4</td>
-        <td>2025-05-13</td>
-        <td>Music Night</td>
-        <td>Entertainment</td>
-        <td>2025-06-10</td>
-        <td>₹30,000</td>
-        <td>Eco Park Auditorium</td>
-        <td>New Town, Kolkata</td>
-        <td><span class="badge bg-success">Confirmed</span></td>
-    </tr>
-</tbody>
-        </table>
+            @endforeach
+        </tbody>
+            </table>
     </div>
 
 </div>
