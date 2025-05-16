@@ -17,7 +17,11 @@ class AllEvent extends Model
         'starting_fees',
     ];
     public function eventDetails()
-{
-    return $this->belongsTo(AllEvent::class, 'event_id');
-}
+    {
+        return $this->belongsTo(AllEvent::class, 'event_id');
+    }
+    public function bookings()
+    {
+        return $this->hasMany(EventBooking::class, 'event_id');
+    }
 }

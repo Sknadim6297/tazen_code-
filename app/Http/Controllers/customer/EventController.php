@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\EventBooking;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -12,7 +14,8 @@ class EventController extends Controller
      */
     public function index()
     {
-        return view('customer.event.index');
+        $bookings = EventBooking::with('event')->where('user_id', auth()->guard('user')->id())->get();
+        return view('customer.event.index', compact('bookings'));
     }
 
     /**

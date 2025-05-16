@@ -57,6 +57,7 @@
                                         <th scope="col">Sl.No</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
+                                        <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
@@ -76,6 +77,21 @@
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $professional->email }}</span>
+                                            </td>
+                                            <td>
+                                                <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="d-flex align-items-center gap-2">
+    @csrf
+
+    <div class="input-group" style="max-width: 115px;">
+        <input class="form-control" type="number" name="margin_percentage" 
+               value="{{ $professional->margin }}" min="0" max="100" required>
+        <span class="input-group-text">%</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+
                                             </td>
                                             <td>
                                                 @if($professional->status == 'accepted')
