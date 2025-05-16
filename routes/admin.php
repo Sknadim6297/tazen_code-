@@ -92,4 +92,6 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::resource('manage-customer', ManageCustomerController::class);
     Route::resource('eventpage', EventController::class);
+    Route::post('booking/{id}/add-remarks', [BookingController::class, 'addRemarks'])->name('add-remarks');
+
 });
