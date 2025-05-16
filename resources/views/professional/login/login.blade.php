@@ -19,6 +19,13 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-image: url("https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?cs=srgb&dl=pexels-hillaryfox-1595385.jpg&fm=jpg");
+background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+
         }
         .toast-top-center {
     top: 40px !important;

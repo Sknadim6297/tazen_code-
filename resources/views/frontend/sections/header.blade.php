@@ -39,7 +39,7 @@
                 <a href="#0" class="open_close">
                     <i class="icon_close"></i><span>Menu</span>
                 </a>
-                <a href="index-2.html"><img src="{{ asset('frontend/assets/img/logo.svg') }}" width="120" height="35" alt=""></a>
+                <a href="index-2.html"><img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="120" height="45" alt=""></a>
             </div>
             <ul>
                 <!-- <li class="submenu">

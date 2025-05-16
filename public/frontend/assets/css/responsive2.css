@@ -1,0 +1,80 @@
+@media (max-width: 767px) {
+    .header-video h1, .header-video h3 {
+        /* font-size: 36px; */
+        font-size: 2.8em;
+        margin-top: 202px;
+    }
+
+    .fun-facts-cards .container .card{
+         margin-right: 10px;
+    }
+
+    .about-page-counter .row .col-lg-6 .ex-card {
+    border-radius: 10px;
+    background: #1f2f6a;
+    box-shadow: 0px 23px 30px 0px rgba(0, 0, 0, 0.15);
+    padding: 10px 10px 10px 10px;
+    transition: all 0.4s ease !important;
+    }
+
+    .about-page-counter .row .col-lg-6 .ex-card .d-flex{
+         width: 206px;
+    }
+
+    .services-counter-section-info .container .row .counter-section .card{
+        margin-top: 17px;
+    }
+
+    a {
+    color: #000000;
+    -moz-transition: .3s ease-in-out;
+    -o-transition: .3s ease-in-out;
+    -webkit-transition: .3s ease-in-out;
+    -ms-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+    outline: 0;
+    font-weight: bold;
+}
+
+.ttm-box-date {
+        position: absolute;
+        bottom: 0;
+        background-color: #1f2f6a;
+        color: #fff;
+        width: 100%;
+        padding: 3px 10px;
+        font-size: 15px;
+    }
+
+        .featured-content-inner {
+        padding: 15px;
+    }
+
+
+        ul.campain-upper-list li {
+        display: inline-block;
+        background-color: transparent;
+        padding: 5px 20px;
+        margin-bottom: 10px;
+        border: 3px solid #039d99;
+        border-radius: 23px;
+        background: #1f2f6a;
+        margin-right: 5px;
+        }
+
+        .unique-btn {
+                margin-top: -62px;
+        }
+
+        body, html {
+    overflow-x: hidden;
+}
+
+    .singlepost p {
+    line-height: 1.8;
+    text-align: justify;
+}
+}
+
+
+
