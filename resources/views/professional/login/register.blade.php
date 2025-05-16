@@ -23,6 +23,11 @@
 
 		body {
 			font-family: "Poppins";
+			background-image: url("https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?cs=srgb&dl=pexels-hillaryfox-1595385.jpg&fm=jpg");
+background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 		}
        .form-step {
         display: none;
@@ -123,7 +128,7 @@
 				
 				<!-- Experience Input -->
 <div class="form-group">
-    <select class="form-control" name="experience" required>
+    <select class="form-control" style="padding-left: 39px;" name="experience" required>
         <option value="" disabled selected>Select Experience</option>
         <option value="0-2">0-2 years</option>
         <option value="2-4">2-4 years</option>
@@ -141,7 +146,7 @@
 				
 					<!-- Location Dropdown -->
 					<div class="form-group">
-						<select class="form-control" name="address" required >
+						<select class="form-control" style="padding-left: 39px;" name="address" required >
 							<option value="">Select Location</option>
 							<option value="Mumbai">Mumbai</option>
 							<option value="Kolkata">Kolkata</option>
@@ -168,7 +173,7 @@
 				
 					<!-- Bio Textarea -->
 					<div class="form-group">
-						<textarea class="form-control" name="bio" placeholder="Short Bio" required></textarea>
+						<textarea class="form-control" name="bio" style="padding-left: 39px;" placeholder="Short Bio" required></textarea>
 					</div>
 				
 					<!-- Navigation Buttons -->
