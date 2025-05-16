@@ -11680,10 +11680,10 @@ ul.bullets li:before {
     top: 0
 }
 
-.opacity-mask {
+/* .opacity-mask {
     top: 0;
     z-index: 2
-}
+} */
 
 .layer {
     position: fixed;

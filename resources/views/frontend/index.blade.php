@@ -4,6 +4,7 @@
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
+	<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 @endsection
 @section('content')
 	<main>
@@ -174,7 +175,8 @@
 								</div>
 								<div class="button-div">
 									<button class=" btn_1 medium">Get Started</button>
-							<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
+									<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
+											More</button></a>
 								</div>
 							</div>
 						</div>
@@ -195,6 +197,7 @@
 				</div>
 			</div>
 		</section>
+
 
 
 		<section class="bg-light fun-facts-cards py-5">
@@ -524,6 +527,7 @@
 		
 		
 		
+		
 		<!-- ====== End of 1.10. Testimonials section ====== -->
 		<!-- END OF TESTIMONIALS -->
 		<!-- testimonials end  -->
@@ -540,17 +544,17 @@
 					</div>
 				</div>
 				<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
-					@foreach ($blogs as $blog)
+					@foreach ($blogs->take(3) as $blog)
 						<div class="col-sm-12">
 							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-								<a href="{{ url('/blog/' . $blog->id) }}">
-									<div class="post-image position-relative overlay-secondary">
-										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid">
+								<a href="{{ route('blog.index') }}">
+									<div class="post-image position-relative overlay-secondary" style="height: 200px; overflow: hidden;">
+										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
 									</div>
 								</a>
 								<div class="post-content p-35">
 									<h5 class="d-block font-400 mb-3">
-										<a href="{{ url('/blog/' . $blog->id) }}" class="transation text-dark hover-text-primary">
+										<a href="{{ route('blog.index') }}" class="transation text-dark hover-text-primary">
 											{{ $blog->title }}
 										</a>
 									</h5>
@@ -566,7 +570,7 @@
 				
 
 				<div class="button-div">
-					<a href="blog.html" class="btn_1 medium">Discover More</a>
+					<a href="{{ route('blog.index') }}" class="btn_1 medium">Discover More</a>
 				</div>
 
 			</div>
