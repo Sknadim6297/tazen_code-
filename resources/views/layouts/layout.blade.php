@@ -56,6 +56,7 @@
 	<link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
 	<link href="{{ asset('frontend/assets/css/new-style.css') }}" rel="stylesheet">
 	<link href="{{ asset('frontend/assets/css/layout.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 
 	@yield('styles')
 

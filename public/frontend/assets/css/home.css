@@ -1104,6 +1104,7 @@ a.btn_explore:hover {
     transition: all 0.4s ease;
     padding: 10px 15px;
     border: none;
+        /* margin-right: 10px; */
 }
 .fun-facts-cards .container .card .text p{ 
     color: white;
