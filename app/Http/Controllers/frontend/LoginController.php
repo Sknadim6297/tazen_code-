@@ -17,30 +17,36 @@ class LoginController extends Controller
     }
 
     // Handle login request
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
+ public function login(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+    ]);
 
-        $credentials = $request->only('email', 'password');
-        $remember = $request->filled('remember');
+    $credentials = $request->only('email', 'password');
+    $remember = $request->filled('remember');
 
-        if (Auth::guard('user')->attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'You are successfully logged in!',
-                'redirect_url' => route('user.dashboard'),
-            ]);
-        }
+    if (Auth::guard('user')->attempt($credentials, $remember)) {
+        $request->session()->regenerate();
+
+        $redirectUrl = $request->input('redirect', route('user.dashboard'));
 
         return response()->json([
-            'status' => 'error',
-            'message' => 'The provided credentials do not match our records.',
-        ], 401);
+            'status' => 'success',
+            'message' => 'You are successfully logged in!',
+            'redirect_url' => $redirectUrl,
+        ]);
     }
+
+    return response()->json([
+        'status' => 'error',
+        'message' => 'The provided credentials do not match our records.',
+    ], 401);
+}
+
+
+
 
     public function showRegisterForm()
     {

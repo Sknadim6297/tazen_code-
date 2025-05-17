@@ -6,46 +6,52 @@
 @section('content')
 
 <main>
-    <div class="hero_single event-slide  ">
-        {{-- @foreach($event as $item) --}}
-        <div class="owl-carousel owl-theme ">
-            <div class="item">
-                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-            </div>
-            <div class="item">
-                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-            </div>
-            <div class="item">
-                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-            </div>
-            <div class="item">
-                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-            </div> 
+  <div class="hero_single event-slide">
+    <div class="owl-carousel owl-theme">
+        <div class="item">
+            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
         </div>
-        {{-- @endforeach --}}
+        <div class="item">
+            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
+        </div>
+        <div class="item">
+            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
+        </div>
+        <div class="item">
+            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
+        </div> 
     </div>
-    <!-- /error -->
-     <div class="event-information my-5">
-       
-            <div class="container">
-                {{-- @foreach($event as $item) --}}
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="details-event">
-                            <h3>{{ $event->eventDetails->heading }}</h3>
-                            <p>{{ $event->event_type }}</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 text-end">
-                       <a href="">
-                        <button class="btn unique-btn">
-                          Book Now
-                        </button>
-                       </a>
-                    </div>
-                    <hr>
+</div>
+
+<div class="event-information my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="details-event">
+                    <h3>{{ $event->eventDetails->heading }}</h3>
+                    <p>{{ $event->event_type }}</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-end">
+                <button class="btn unique-btn" id="bookNowBtn"
+                    data-event-id="{{ $event->id }}"
+                    data-location="Kolkata"
+                    data-type="offline"
+                    data-event-date="{{ $event->starting_date }}"
+                    data-amount="{{ $event->starting_fees }}">
+                    Book Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
                     <div class="col-lg-12">
-                        <div class="event-date">
+                        <div class="event-date" style="text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;">
                             <p>{{ $event->starting_date }} onwards</p>
                             <p><i class="fa-solid fa-location-check"></i> Multiple Venues</p>
                             <p><span>Rs.{{ $event->starting_fees }}</span> onwards</p>
@@ -225,7 +231,132 @@
         </div>
 
      </div>
-    
+    <!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="bookingForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Booking Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="event_id" name="event_id">
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone" name="phone" maxlength="10" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Number of Persons</label>
+                        <input type="number" class="form-control" id="persons" name="persons" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Price</label>
+                        <p id="totalPrice" class="fw-bold">₹0</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </main>
+
+@endsection
+@section('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const bookNowBtn = document.getElementById('bookNowBtn');
+    const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+    const eventIdInput = document.getElementById('event_id');
+    const personsInput = document.getElementById('persons');
+    const phoneInput = document.getElementById('phone');
+    const totalPrice = document.getElementById('totalPrice');
+    const bookingForm = document.getElementById('bookingForm');
+
+    let eventDetails = {}; 
+    bookNowBtn.addEventListener('click', function () {
+        eventDetails = {
+            event_id: this.getAttribute('data-event-id'),
+            location: this.getAttribute('data-location'),
+            type: this.getAttribute('data-type'),
+            event_date: this.getAttribute('data-event-date'),
+            amount: parseFloat(this.getAttribute('data-amount')) || 0
+        };
+
+        bookingForm.reset();
+        eventIdInput.value = eventDetails.event_id;
+        totalPrice.textContent = '₹0';
+        bookingModal.show();
+    });
+
+    personsInput.addEventListener('input', function () {
+    const persons = parseInt(this.value) || 0;
+    const amount = parseFloat(eventDetails.amount) || 0;
+    const total = persons * amount;
+    totalPrice.textContent = `₹${total.toFixed(2)}`;
+});
+
+
+    bookingForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const phone = phoneInput.value.trim();
+        const persons = parseInt(personsInput.value);
+
+        if (!phone || phone.length !== 10 || isNaN(persons) || persons < 1) {
+            toastr.error('Please enter valid phone number and persons.');
+            return;
+        }
+
+        const finalData = {
+            ...eventDetails,
+            phone: phone,
+            persons: persons,
+            total_price: persons * eventDetails.amount
+        };
+
+        fetch("{{ route('user.check.login') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(finalData)
+        })
+        .then(res => {
+            if (res.status === 401) {
+                toastr.error('Please login to continue.');
+                const redirectUrl = encodeURIComponent(window.location.href);
+                window.location.href = "{{ route('login') }}" + '?redirect=' + redirectUrl;
+                throw new Error('Unauthorized');
+            }
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                toastr.success(data.message || 'Booking saved successfully!');
+                window.location.href = "{{ route('user.booking.summary') }}";
+            } else {
+                toastr.error(data.message || 'Something went wrong.');
+            }
+        })
+        .catch(error => {
+            if (error.message !== 'Unauthorized') {
+                console.error('Fetch error:', error);
+                toastr.error('Request failed or response not valid JSON.');
+            }
+        });
+    });
+});
+</script>
 
 @endsection
