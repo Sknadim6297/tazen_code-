@@ -5,9 +5,8 @@
         <h4>Edit About Us Info</h4>
     
         <form action="{{ route('admin.aboutus.update', $about->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
             @method('PUT')
-    
+            @csrf
             <div class="row mb-3">
                 <label for="heading" class="col-form-label col-md-2">Heading</label>
                 <div class="col-md-10">

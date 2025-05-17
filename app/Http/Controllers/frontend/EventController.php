@@ -12,7 +12,7 @@ class EventController extends Controller
 {
     public function show($id)
     {
-        $event = Event::findOrFail($id); // Fetch event by ID
+        $event = Event::findOrFail($id); 
         dd($event);
         $eventfaqs = EventFAQ::latest()->get();
         

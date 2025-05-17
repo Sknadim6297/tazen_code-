@@ -450,8 +450,6 @@
 		</div>
 		<!-- /bg_gray -->
 
-
-		<!-- ====== 1.10. Testimonials section ====== -->
 		<section class="ttm-row padding_top_zero-section ttm-bgcolor-white clearfix testimonial-new">
 			<div class="container-fluid">
 				<!-- Static heading and subheading -->
@@ -601,6 +599,19 @@
 
     @endsection
 	@section('script')
+	<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+	<script>
+$(document).ready(function(){
+  $('.testimonial_slider').slick({
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: true,
+    dots: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+  });
+});
+</script>
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
 			const questions = document.querySelectorAll(".question");
