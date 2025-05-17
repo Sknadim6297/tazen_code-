@@ -67,9 +67,9 @@
             <th>Validity Till</th>
             <th>Current Service Date On</th>
             <th>Current Service Time</th>
-            <th>Add link for the Service</th>
             <th>Details</th>
                 <th>Professional Document</th>
+                <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -118,26 +118,23 @@
                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
 
                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
-
-                <td>
-                    <form action="{{ route('admin.add-link', ['id' => $booking->id]) }}" method="POST">
-                        @csrf
-                        <div class="d-flex">
-                            <input type="url" name="meeting_link" class="form-control" value="{{ $booking->meeting_link }}" placeholder="Add Link" required>
-                            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                        </div>
-                    </form>
-                </td>
-
                 <td>
                     <a href="javascript:void(0);" class="btn btn-sm btn-primary see-details-btn" data-id="{{ $booking->id }}">
                         See Details
                     </a>
                 </td>
-                <td>
-    @foreach(explode(',', $booking->professional_documents) as $doc)
-        <a href="{{ asset('storage/' . $doc) }}" target="_blank">View Document</a><br>
-    @endforeach
+            <td>
+    @if(!empty($booking->professional_documents))
+        @foreach(explode(',', $booking->professional_documents) as $doc)
+            <a href="{{ asset('storage/' . $doc) }}" target="_blank"
+               class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
+               style="width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 5px;">
+                <i class="bi bi-download fs-4 text-primary"></i>
+            </a>
+        @endforeach
+    @else
+        No Document
+    @endif
 </td>
             </tr>
         @endforeach
@@ -186,39 +183,64 @@
 </div>
 @endsection
 @section('scripts')
-<script>
-    $(document).ready(function () {
-    $('.see-details-btn').click(function () {
-        let bookingId = $(this).data('id');
+    <script>
+        $(document).ready(function () {
+            $('.see-details-btn').click(function () {
+                let bookingId = $(this).data('id');
+                let csrf = '{{ csrf_token() }}';
+                let route = '{{ url("admin/booking/add-link") }}';
 
-        $.ajax({
-            url: '/admin/booking/details/' + bookingId, 
-            type: 'GET',
-            success: function (response) {
-                if (response.dates.length > 0) {
-                    let html = '<ul class="list-group">';
-                    response.dates.forEach(dateInfo => {
-                        html += `<li class="list-group-item">
-                                    <strong>Date:</strong> ${dateInfo.date}<br>
-                                    <strong>Time Slots:</strong> ${dateInfo.time_slot.join(', ')}<br>
-                                    <strong>Status:</strong> ${dateInfo.status}
-                                 </li>`;
-                    });
-                    html += '</ul>';
-                    $('#detailsModalBody').html(html);
-                } else {
-                    $('#detailsModalBody').html('<p>No booking dates available.</p>');
-                }
+                $.ajax({
+                    url: '/admin/booking/details/' + bookingId,
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.dates.length > 0) {
+                            let html = `
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle" style="background-color: #e6f7ff;">
+                                        <thead class="table-primary text-center">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Time Slot</th>
+                                                <th>Status</th>
+                                                <th>Meeting Link</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
 
-                $('#detailsModal').modal('show');
-            },
-            error: function () {
-                $('#detailsModalBody').html('<p>Error fetching booking details.</p>');
-                $('#detailsModal').modal('show');
-            }
+                            response.dates.forEach(dateInfo => {
+                                html += `
+                                    <tr>
+                                        <td>${dateInfo.date}</td>
+                                        <td>${dateInfo.time_slot}</td>
+                                        <td>${dateInfo.status}</td>
+                                        <td>
+                                            <form action="${route}" method="POST" class="d-flex">
+                                                <input type="hidden" name="_token" value="${csrf}">
+                                                <input type="hidden" name="timedate_id" value="${dateInfo.id}">
+                                                <input type="url" name="meeting_link" class="form-control" placeholder="Add Link" value="${dateInfo.meeting_link || ''}" required>
+                                                <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                            </form>
+                                        </td>
+                                    </tr>`;
+                            });
+
+                            html += `</tbody></table></div>`;
+                            $('#detailsModalBody').html(html);
+                        } else {
+                            $('#detailsModalBody').html('<p>No booking dates available.</p>');
+                        }
+
+                        $('#detailsModal').modal('show');
+                    },
+                    error: function () {
+                        $('#detailsModalBody').html('<p>Error fetching booking details.</p>');
+                        $('#detailsModal').modal('show');
+                    }
+                });
+            });
         });
-    });
-});
+    </script>
 
-</script>
+
 @endsection
