@@ -1,5 +1,7 @@
 <?php
+
 use App\Http\Controllers\Customer\AppointmentController;
+use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\EventController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
@@ -51,4 +53,11 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::resource('profile', ProfileController::class);
     Route::resource('customer-event', EventController::class);
+    Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
+    Route::get('/booking/summary', [BookingController::class, 'bookingSummary'])->name('booking.summary');
+
+    Route::post('/booking/payment/init', [BookingController::class, 'initPayment'])->name('booking.payment.init');
+    Route::post('/booking/payment/success', [BookingController::class, 'paymentSuccess'])->name('booking.payment.success');
+    Route::get('/booking/success', [BookingController::class, 'successPage'])->name('booking.success');
+    Route::post('/booking/payment/failed', [BookingController::class, 'paymentFailed'])->name('booking.payment.failed');
 });

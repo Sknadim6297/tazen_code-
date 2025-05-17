@@ -93,5 +93,6 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('manage-customer', ManageCustomerController::class);
     Route::resource('eventpage', EventController::class);
     Route::post('booking/{id}/add-remarks', [BookingController::class, 'addRemarks'])->name('add-remarks');
-
+    Route::post('booking/{id}/update-gmeet-link', [EventController::class, 'updateGmeetLink'])->name('event.updateGmeetLink');
+    Route::post('/professional/{id}/margin', [ManageProfessionalController::class, 'updateMargin'])->name('updateMargin');
 });

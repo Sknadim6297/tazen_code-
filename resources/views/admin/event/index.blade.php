@@ -1,5 +1,4 @@
 @extends('admin.layouts.layout')
-
 @section('style')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" />
 @endsection
@@ -19,25 +18,36 @@
                     </nav>
                 </div>
             </div>
-            <form action="" class="d-flex gap-2">
-           
-            <div class="col-xl-4">
-                <input type="search" class="form-control" id="autoComplete" placeholder="Search by name or email" spellcheck="false" autocomplete="off" autocapitalize="off">
-            </div>
-             <div class="col-xl-6">
-            <div class="">
-                <div class="card-body">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-text text-muted"> <i class="ri-calendar-line"></i> </div>
-                            <input type="text" class="form-control" id="daterange" placeholder="Choose dates">
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <form action="{{ route('admin.eventpage.index') }}" method="GET" class="d-flex gap-2">
+
+    <div class="col-xl-2">
+        <select name="status" class="form-control">
+            <option value=""> payment status</option>
+            @foreach($statusList as $status)
+                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                    {{ ucfirst($status) }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-xl-4">
+        <input type="search" name="search" class="form-control" placeholder="Search by name or event" value="{{ request('search') }}">
+    </div>
+    <div class="col-xl-4">
+        <div class="input-group">
+            <input type="date" class="form-control" name="start_date" value="{{ request('start_date') }}">
+            <span class="input-group-text">to</span>
+            <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
         </div>
-        </div>
-        </form>
+    </div>
+
+    <div class="col-xl-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">
@@ -48,74 +58,64 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table text-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th><input class="form-check-input check-all" type="checkbox" id="all-professionals" aria-label="..."></th>
-                                        <th scope="col">Sl.No</th>
-                                        <th scope="col">Customer#</th>
-                                        <th scope="col">Event name</th>
-                                          <th scope="col">Event date</th>
-                                             <th scope="col">Location</th>
-                                                   <th scope="col">Amount</th>
-                                             <th scope="col">Gmeet#</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Created At</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                       <tbody>
-    <tr>
-        <td><input class="form-check-input" type="checkbox"></td>
-        <td>1</td>
-        <td>CUST001</td>
-        <td>Wedding Ceremony</td>
-        <td>2025-06-01</td>
-        <td>Kolkata</td>
-        <td>₹20,000</td>
-        <td>gmeet.com/xyz123</td>
-        <td><span class="badge bg-success">Confirmed</span></td>
-        <td>2025-05-10</td>
-        <td>
-            <a href="#" class="btn btn-sm btn-primary">Edit</a>
-            <a href="#" class="btn btn-sm btn-danger">Delete</a>
-        </td>
-    </tr>
-    <tr>
-        <td><input class="form-check-input" type="checkbox"></td>
-        <td>2</td>
-        <td>CUST002</td>
-        <td>Birthday Party</td>
-        <td>2025-06-05</td>
-        <td>New Town</td>
-        <td>₹10,000</td>
-        <td>gmeet.com/abc456</td>
-        <td><span class="badge bg-warning text-dark">Pending</span></td>
-        <td>2025-05-11</td>
-        <td>
-            <a href="#" class="btn btn-sm btn-primary">Edit</a>
-            <a href="#" class="btn btn-sm btn-danger">Delete</a>
-        </td>
-    </tr>
-    <tr>
-        <td><input class="form-check-input" type="checkbox"></td>
-        <td>3</td>
-        <td>CUST003</td>
-        <td>Corporate Meeting</td>
-        <td>2025-06-10</td>
-        <td>Salt Lake</td>
-        <td>₹35,000</td>
-        <td>gmeet.com/def789</td>
-        <td><span class="badge bg-danger">Cancelled</span></td>
-        <td>2025-05-12</td>
-        <td>
-            <a href="#" class="btn btn-sm btn-primary">Edit</a>
-            <a href="#" class="btn btn-sm btn-danger">Delete</a>
-        </td>
-    </tr>
-</tbody>
+                            <table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Sl.No</th>
+            <th>Customer Name</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>No. of Persons</th>
+            <th>Phone</th>
+            <th>Price</th>
+            <th>Total Price</th>
+            <th>Gmeet Link</th>
+            <th>Payment Status</th>
+            <th>Order ID</th>
+            <th>Payment Failure Reason</th>
+            <th>Payment Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($bookings as $index => $booking)
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $booking->user->name ?? 'N/A' }}</td>
+                <td>{{ $booking->event->heading ?? 'N/A' }}</td>
+                <td>{{ $booking->event_date }}</td>
+                <td>{{ $booking->location ?? 'N/A' }}</td>
+                <td>{{ $booking->type ?? 'N/A' }}</td>
+                <td>{{ $booking->persons ?? 'N/A' }}</td>
+                <td>{{ $booking->phone ?? 'N/A' }}</td>
+                <td>₹{{ number_format($booking->price, 2) }}</td>
+                <td>₹{{ number_format($booking->total_price, 2) }}</td>
+                <td>
+    <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST">
+        @csrf
+        <input type="text" name="gmeet_link" class="form-control" value="{{ $booking->gmeet_link ?? 'N/A' }}">
+        <button type="submit" class="btn btn-primary mt-1">Save</button>
+    </form>
+</td>
 
-                            </table>
+                <td>
+                    @if($booking->payment_status == 'success')
+                        <span class="badge bg-success">Confirmed</span>
+                    @elseif($booking->payment_status == 'failed')
+                        <span class="badge bg-warning text-dark">Failed</span>
+                    @else
+                        <span class="badge bg-danger">Unknown</span>
+                    @endif
+                </td>
+                <td>{{ $booking->order_id ?? 'N/A' }}</td>
+                <td>{{ $booking->payment_failure_reason ?? 'N/A' }}</td>
+                <td>{{ $booking->created_at->format('Y-m-d H:i') }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
