@@ -75,7 +75,7 @@
                                 @if(!$profile->specialization) <span class="warning-badge">Required</span> @endif
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Experience</span>
+                                <span class="detail-label">Experience(in Yrs)</span>
                                 <span class="detail-value">{{ $profile->experience ?? 'N/A' }}</span>
                                 @if(!$profile->experience) <span class="warning-badge">Required</span> @endif
                             </div>
@@ -88,6 +88,11 @@
                                 <span class="detail-label">Education</span>
                                 <span class="detail-value">{{ $profile->education ?? 'N/A' }}</span>
                                 @if(!$profile->education) <span class="warning-badge">Required</span> @endif
+                            </div>
+                              <div class="detail-item">
+                                <span class="detail-label">Margin (%)</span>
+                                <span class="detail-value">{{ $profile->professional->margin ?? 'N/A' }}</span>
+                                @if(!$profile->professional->margin) <span class="warning-badge">Required</span> @endif
                             </div>
                         </div>
                     </div>

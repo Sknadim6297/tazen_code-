@@ -15,6 +15,7 @@ class EventController extends Controller
     public function index()
     {
         $bookings = EventBooking::with('event')->where('user_id', auth()->guard('user')->id())->get();
+         
         return view('customer.event.index', compact('bookings'));
     }
 
