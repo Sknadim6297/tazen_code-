@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\EventBooking;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Razorpay\Api\Api;
@@ -42,13 +43,14 @@ class BookingController extends Controller
 
     public function bookingSummary()
     {
+        $services=Service::all();
         $bookingData = session('event_booking_data');
 
         if (!$bookingData) {
             return redirect()->back()->with('error', 'No booking data found.');
         }
 
-        return view('customer.booking.summary', compact('bookingData'));
+        return view('customer.booking.summary', compact('bookingData', 'services'));
     }
     public function initPayment()
     {

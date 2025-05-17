@@ -158,7 +158,7 @@
                 <th>Sl.No</th>
                 <th>Event Name</th>
                 <th>Event Date</th>
-                <th>Location</th>
+                <th>Address</th>
                 <th>Type</th>
                 <th>No. of Persons</th>
                 <th>Paid Price</th>

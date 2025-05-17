@@ -79,20 +79,23 @@
                                                 <span class="fw-medium">{{ $professional->email }}</span>
                                             </td>
                                             <td>
-                                                <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="d-flex align-items-center gap-2">
-    @csrf
+    @if($professional->status === 'accepted')
+        <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="d-flex align-items-center gap-2">
+            @csrf
 
-    <div class="input-group" style="max-width: 115px;">
-        <input class="form-control" type="number" name="margin_percentage" 
-               value="{{ $professional->margin }}" min="0" max="100" required>
-        <span class="input-group-text">%</span>
-    </div>
+            <div class="input-group" style="max-width: 115px;">
+                <input class="form-control" type="number" name="margin_percentage" 
+                       value="{{ $professional->margin }}" min="0" max="100" required>
+                <span class="input-group-text">%</span>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    @else
+        Not Applicable
+    @endif
+</td>
 
-
-                                            </td>
                                             <td>
                                                 @if($professional->status == 'accepted')
                                                     <span class="badge bg-success">Approved</span>
@@ -108,12 +111,6 @@
                                             <td class="">
                                                 <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
                                                     <i class="ri-eye-line"></i>
-                                                </a>
-                                                <a href="{{ route('admin.manage-professional.edit', $professional->id) }}" class="btn btn-primary-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="Edit">
-                                                    <i class="ri-edit-line"></i>
-                                                </a>
-                                                <a href="{{ route('admin.manage-professional.destroy', $professional->id) }}" class="btn btn-danger-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="Delete">
-                                                    <i class="ri-delete-bin-5-line"></i>
                                                 </a>
                                             </td>
                                         </tr>

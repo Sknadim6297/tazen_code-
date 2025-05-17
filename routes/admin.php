@@ -84,7 +84,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/booking/freehand', [BookingController::class, 'freeHandBooking'])->name('freehand');
     Route::get('/booking/monthly', [BookingController::class, 'monthlyBooking'])->name('monthly');
     Route::get('/booking/quaterly', [BookingController::class, 'quaterlyBooking'])->name('quaterly');
-    Route::post('/booking/add-link/{id}', [BookingController::class, 'updateLink'])->name('add-link');
+    Route::post('booking/add-link', [BookingController::class, 'addMeetingLink'])->name('add-link');
+
 
     Route::post('/professional/reject/{id}', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
 
