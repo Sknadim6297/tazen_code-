@@ -83,6 +83,7 @@ return array(
     'App\\Models\\Customer' => $baseDir . '/app/Models/Customer.php',
     'App\\Models\\CustomerProfile' => $baseDir . '/app/Models/CustomerProfile.php',
     'App\\Models\\Event' => $baseDir . '/app/Models/Event.php',
+    'App\\Models\\EventBooking' => $baseDir . '/app/Models/EventBooking.php',
     'App\\Models\\EventDetail' => $baseDir . '/app/Models/EventDetail.php',
     'App\\Models\\EventFAQ' => $baseDir . '/app/Models/EventFAQ.php',
     'App\\Models\\HomeBlog' => $baseDir . '/app/Models/HomeBlog.php',

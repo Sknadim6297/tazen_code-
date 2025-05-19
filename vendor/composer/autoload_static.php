@@ -322,13 +322,13 @@ class ComposerStaticInit9c491b8531eec05ba41a11d9276a5749
         ),
         'Spatie\\LaravelIgnition\\' => 
         array (
-            0 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/laravel-ignition',
-            1 => __DIR__ . '/..' . '/spatie/laravel-ignition/src',
+            0 => __DIR__ . '/..' . '/spatie/laravel-ignition/src',
+            1 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/laravel-ignition',
         ),
         'Spatie\\Ignition\\' => 
         array (
-            0 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/ignition',
-            1 => __DIR__ . '/..' . '/spatie/ignition/src',
+            0 => __DIR__ . '/..' . '/spatie/ignition/src',
+            1 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/ignition',
         ),
         'Spatie\\FlareClient\\' => 
         array (
@@ -624,6 +624,7 @@ class ComposerStaticInit9c491b8531eec05ba41a11d9276a5749
         'App\\Models\\Customer' => __DIR__ . '/../..' . '/app/Models/Customer.php',
         'App\\Models\\CustomerProfile' => __DIR__ . '/../..' . '/app/Models/CustomerProfile.php',
         'App\\Models\\Event' => __DIR__ . '/../..' . '/app/Models/Event.php',
+        'App\\Models\\EventBooking' => __DIR__ . '/../..' . '/app/Models/EventBooking.php',
         'App\\Models\\EventDetail' => __DIR__ . '/../..' . '/app/Models/EventDetail.php',
         'App\\Models\\EventFAQ' => __DIR__ . '/../..' . '/app/Models/EventFAQ.php',
         'App\\Models\\HomeBlog' => __DIR__ . '/../..' . '/app/Models/HomeBlog.php',

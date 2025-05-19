@@ -5,6 +5,55 @@
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
 	<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
+	 <style>
+        /* Hide video and show image on mobile */
+        @media (max-width: 992px) {
+            .header-video--media {
+                display: none !important;
+            }
+            .mobile-video-fallback {
+                display: block !important;
+                width: 100%;
+                height: auto;
+            }
+        }
+        .mobile-video-fallback {
+            display: none;
+        }
+		
+    </style>
+	<style>
+    .header-video {
+        position: relative;
+        height: 500px; /* Set your desired height */
+        overflow: hidden;
+    }
+    .header-video--media {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .mobile-video-fallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+    @media (max-width: 992px) {
+        .header-video--media {
+            display: none;
+        }
+        .mobile-video-fallback {
+            display: block;
+        }
+    }
+</style>
 @endsection
 @section('content')
 	<main>
@@ -51,11 +100,13 @@
 
 			<!-- Video Tag to Add the Video -->
 				@foreach($banners as $banner)
-			<video class="header-video--media" autoplay loop muted>
-				<source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
-				Your browser does not support the video tag.
-			</video>
-			@endforeach
+    <video class="header-video--media" autoplay loop muted>
+        <source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <!-- Fallback image for mobile -->
+    <img src="{{ asset('frontend/assets/img/slides/slide_home_2.jpg') }}" class="mobile-video-fallback" >
+@endforeach
 		</div>
 		<!-- /header-video -->
 		<!-- fun facts sections  -->
@@ -86,12 +137,7 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-														<button class="btn btn-primary book-now" 
-														data-service-id="{{ $service->id }}" 
-														data-bs-toggle="modal" 
-														data-bs-target="#mcqModal">
-														Book Now
-													</button>
+														<button class="btn btn-primary book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
 											
 											</div>
 										</div>
@@ -111,22 +157,12 @@
 							</div>
 				
 							<div class="modal-body">
-								<form id="mcqForm" method="POST" action="{{ route('submit.mcq') }}">
+								<form id="mcqForm" method="POST" action="{{ route('submitQuestionnaire') }}">
 									@csrf
-									<input type="hidden" name="service_id" id="selected_service_id">
-									<!-- Loop through MCQs -->
-									@foreach ($mcqs as $index => $mcq)
-										<div class="question" id="question{{ $index + 1 }}">
-											<h6>Question {{ $index + 1 }}: {{ $mcq->question }}</h6>
-				
-											@foreach (['answer1', 'answer2', 'answer3', 'answer4'] as $opt)
-												<div class="form-check">
-													<input class="form-check-input" type="radio" name="q{{ $index + 1 }}" id="q{{ $index + 1 }}{{ $opt }}" value="{{ $mcq->$opt }}" required>
-													<label class="form-check-label" for="q{{ $index + 1 }}{{ $opt }}">{{ $mcq->$opt }}</label>
-												</div>
-											@endforeach
-										</div>
-									@endforeach
+									<input type="hidden" name="service_id" id="service_id">
+									<div id="questionsContainer">
+										<!-- Questions will be loaded here dynamically -->
+									</div>
 								</form>
 							</div>
 				
@@ -524,8 +560,6 @@
 		
 		
 		
-		
-		
 		<!-- ====== End of 1.10. Testimonials section ====== -->
 		<!-- END OF TESTIMONIALS -->
 		<!-- testimonials end  -->
@@ -714,7 +748,138 @@ $(document).ready(function(){
 		
 			showQuestion(currentQuestion);
 		});
+
+		
 		</script>
+		<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const questionsContainer = document.getElementById("questionsContainer");
+			const nextBtn = document.getElementById("nextBtn");
+			const prevBtn = document.getElementById("prevBtn");
+			const submitBtn = document.getElementById("submitBtn");
+			const form = document.getElementById("mcqForm");
+			const serviceIdInput = document.getElementById("service_id");
+
+			let currentQuestion = 0;
+			let questions = [];
+
+			// Handle Book Now button clicks
+			document.querySelectorAll('.book-now').forEach(button => {
+				button.addEventListener('click', function() {
+					const serviceId = this.dataset.serviceId;
+					serviceIdInput.value = serviceId;
+					loadQuestions(serviceId);
+				});
+			});
+
+			function loadQuestions(serviceId) {
+				fetch(`/service/${serviceId}/questions`)
+					.then(response => response.json())
+					.then(data => {
+						if (data.status === 'success') {
+							questions = data.questions;
+							renderQuestions();
+							showQuestion(0);
+						}
+					})
+					.catch(error => {
+						console.error('Error loading questions:', error);
+						toastr.error('Failed to load questions. Please try again.');
+					});
+			}
+
+			function renderQuestions() {
+				questionsContainer.innerHTML = questions.map((question, index) => `
+					<div class="question" id="question${index + 1}" style="display: none;">
+						<h6>Question ${index + 1}: ${question.question}</h6>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer1" value="${question.answer1}" required>
+							<label class="form-check-label" for="q${index + 1}answer1">${question.answer1}</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer2" value="${question.answer2}" required>
+							<label class="form-check-label" for="q${index + 1}answer2">${question.answer2}</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer3" value="${question.answer3}" required>
+							<label class="form-check-label" for="q${index + 1}answer3">${question.answer3}</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer4" value="${question.answer4}" required>
+							<label class="form-check-label" for="q${index + 1}answer4">${question.answer4}</label>
+						</div>
+					</div>
+				`).join('');
+			}
+
+			function showQuestion(index) {
+				const questionElements = document.querySelectorAll('.question');
+				questionElements.forEach((q, i) => {
+					q.style.display = i === index ? "block" : "none";
+				});
+				
+				prevBtn.style.display = index > 0 ? "inline-block" : "none";
+				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
+				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+			}
+
+			nextBtn.addEventListener("click", function () {
+				if (currentQuestion < questions.length - 1) {
+					currentQuestion++;
+					showQuestion(currentQuestion);
+				}
+			});
+
+			prevBtn.addEventListener("click", function () {
+				if (currentQuestion > 0) {
+					currentQuestion--;
+					showQuestion(currentQuestion);
+				}
+			});
+
+			submitBtn.addEventListener("click", function () {
+				const formData = new FormData(form);
+				fetch("{{ route('submitQuestionnaire') }}", {
+					method: "POST",
+					headers: {
+						"X-CSRF-TOKEN": "{{ csrf_token() }}",
+						"Accept": "application/json",
+					},
+					body: formData,
+				})
+				.then(response => {
+					if (!response.ok) {
+						return response.json().then(err => {
+							throw err;
+						});
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data.success) {
+						toastr.success("Thanks for your feedback!");
+						setTimeout(() => {
+							window.location.href = "{{ route('professionals') }}";
+						}, 3000);
+					}
+				})
+				.catch(error => {
+					if (error.errors) {
+						Object.values(error.errors).forEach(msgArray => {
+							msgArray.forEach(msg => {
+								toastr.error(msg);
+							});
+						});
+					} else if (error.message) {
+						toastr.error(error.message);
+					} else {
+						toastr.error("Something went wrong. Please try again.");
+					}
+					console.error("Validation or Server Error:", error);
+				});
+			});
+		});
+	</script>
 		
 	
 
