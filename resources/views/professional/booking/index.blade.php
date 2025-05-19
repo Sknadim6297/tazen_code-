@@ -298,6 +298,7 @@
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
                                     <th>Details</th>
+                                    <th>Status</th>
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                 </tr>
@@ -334,7 +335,9 @@
                                         View
                                     </button>
                                 </td>
-                          
+                           <td>
+                            Pending
+                           </td>
                                    <td>{{ $booking->remarks }}</td>
                           
                                 <td>
