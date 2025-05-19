@@ -11,15 +11,15 @@ class CreateMcqAnswersTable extends Migration
         Schema::create('mcq_answers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('q1')->nullable();
-            $table->string('q2')->nullable();
-            $table->string('q3')->nullable();
-            $table->string('q4')->nullable();
-            $table->string('q5')->nullable();
+            $table->unsignedBigInteger('service_id')->nullable();
+            $table->unsignedBigInteger('question_id')->nullable();
+            $table->string('answer')->nullable();
             $table->timestamps();
 
-            // Optional: add foreign key
+            // Foreign keys
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
+            $table->foreign('question_id')->references('id')->on('service_m_c_q_s')->onDelete('cascade');
         });
     }
 

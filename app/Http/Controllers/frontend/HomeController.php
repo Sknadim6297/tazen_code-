@@ -81,33 +81,46 @@ class HomeController extends Controller
             ], 403);
         }
 
+        // Parse the JSON answers string into an array
+        $answers = json_decode($request->input('answers'), true);
+
         // Validation
         $request->validate([
-            'q1' => 'required|string',
-            'q2' => 'required|string',
-            'q3' => 'required|string',
-            'q4' => 'required|string',
-            'q5' => 'nullable|string',
             'service_id' => 'required|integer|exists:services,id',
+            'answers' => 'required|string' // Changed to string since we're sending JSON
         ]);
 
+        // Validate the parsed answers array
+        if (!is_array($answers)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid answers format'
+            ], 422);
+        }
+
+        foreach ($answers as $answer) {
+            if (!isset($answer['question_id']) || !isset($answer['answer'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid answer format'
+                ], 422);
+            }
+        }
+
         // Save answers
-        $questionnaire = new McqAnswer();
-        $questionnaire->user_id = Auth::guard('user')->id();
-        $questionnaire->q1 = $request->input('q1');
-        $questionnaire->q2 = $request->input('q2');
-        $questionnaire->q3 = $request->input('q3');
-        $questionnaire->q4 = $request->input('q4');
-        $questionnaire->q5 = $request->input('q5', null);
-        $questionnaire->save();
+        foreach ($answers as $answer) {
+            McqAnswer::create([
+                'user_id' => Auth::guard('user')->id(),
+                'service_id' => $request->service_id,
+                'question_id' => $answer['question_id'],
+                'answer' => $answer['answer']
+            ]);
+        }
 
-        // Save the selected service ID and service name in the session
-        $selectedServiceId = $request->input('service_id');
-        $service = Service::find($selectedServiceId);
-
+        $service = Service::find($request->service_id);
         if ($service) {
             session([
-                'selected_service_id' => $selectedServiceId,
+                'selected_service_id' => $request->service_id,
                 'selected_service_name' => $service->name,
             ]);
         }
