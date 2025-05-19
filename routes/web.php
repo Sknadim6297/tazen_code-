@@ -251,6 +251,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('homeblog', \App\Http\Controllers\Admin\HomeBlogController::class);
     Route::resource('howworks', \App\Http\Controllers\Admin\HowworksController::class);
     Route::resource('about-banner', AboutBannerController::class);
+    Route::get('/mcq-answers', [App\Http\Controllers\Admin\McqAnswerController::class, 'index'])->name('mcq-answers.index');
 });
 
 

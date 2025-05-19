@@ -19,7 +19,9 @@
                 <h4>Rate List</h4>
                 <div class="card-actions">
                     @if($rateCount < 4)
-                    <a href="{{ route('professional.rate.create') }}" style="background-color: #0d67c7;color:white;padding:7px;border-radius:10px">Add Rate</a>
+                    <a href="{{ route('professional.rate.create') }}">
+                        <i class="fas fa-plus"></i> Add Rate
+                    </a>
                     @endif
                 </div>
             </div>
@@ -38,17 +40,17 @@
                     <tbody>
                         @forelse($rates as $rate)
                             <tr>
-                                <td>{{ $rate->session_type }}</td>
-                                <td>{{ $rate->num_sessions }}</td>
-                                <td>₹{{ number_format($rate->rate_per_session, 2) }}</td>
-                                <td>₹{{ number_format($rate->final_rate, 2) }}</td>
-                                <td>{{ $rate->duration }} min</td>
-                                <td>
+                                <td data-label="Session Type">{{ $rate->session_type }}</td>
+                                <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
+                                <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
+                                <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
+                                <td data-label="Duration">{{ $rate->duration }} min</td>
+                                <td data-label="Actions">
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('professional.rate.edit', $rate->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>     
-                                        <a href="javascript:void(0)" data-url="{{  route('professional.rate.destroy', $rate->id)  }}" class="btn btn-sm btn-outline-warning delete-item" title="Delete">
+                                        <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="btn btn-sm btn-outline-warning delete-item" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
@@ -56,7 +58,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted">No rate details found.</td>
+                                <td colspan="6" class="text-center text-muted">No rate details found.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -65,8 +67,8 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
-
 @endsection
