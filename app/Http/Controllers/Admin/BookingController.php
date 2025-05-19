@@ -103,19 +103,19 @@ class BookingController extends Controller
         return view('admin.booking.quaterly', compact('bookings'));
     }
 
-   public function addMeetingLink(Request $request)
-{
-    $request->validate([
-        'timedate_id' => 'required|exists:booking_timedates,id',
-        'meeting_link' => 'required|url',
-    ]);
+    public function addMeetingLink(Request $request)
+    {
+        $request->validate([
+            'timedate_id' => 'required|exists:booking_timedates,id',
+            'meeting_link' => 'required|url',
+        ]);
 
-    $timedate = BookingTimedate::find($request->timedate_id);
-    $timedate->meeting_link = $request->meeting_link;
-    $timedate->save();
+        $timedate = BookingTimedate::find($request->timedate_id);
+        $timedate->meeting_link = $request->meeting_link;
+        $timedate->save();
 
-    return back()->with('success', 'Meeting link added successfully.');
-}
+        return back()->with('success', 'Meeting link added successfully.');
+    }
 
     public function show($id)
     {
@@ -144,5 +144,18 @@ class BookingController extends Controller
         $booking->remarks = $request->remarks;
         $booking->save();
         return redirect()->back()->with('success', 'Remarks updated successfully!');
+    }
+
+    public function addProfessionalRemarks(Request $request, $id)
+    {
+        $request->validate([
+            'remarks_for_professional' => 'nullable|string|max:1000',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $booking->remarks_for_professional = $request->remarks_for_professional;
+        $booking->save();
+
+        return back()->with('success', 'Remarks for professional updated successfully.');
     }
 }

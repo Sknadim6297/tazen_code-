@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\frontend\AuthController;
+use App\Http\Controllers\Professional\AuthController as ProfessionalAuthController;
 use App\Http\Controllers\Professional\AvailabilityController;
 use App\Http\Controllers\Professional\BillingController;
 use App\Http\Controllers\Professional\BookingController;
@@ -32,4 +34,5 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::post('/bookings/{booking}/upload-documents', [BookingController::class, 'uploadDocuments'])->name('doc.upload');
     Route::post('/bookings/update-status', [BookingController::class, 'updateStatus']);
 
+   
 });
