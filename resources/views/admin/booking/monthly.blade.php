@@ -68,8 +68,11 @@
             <th>Current Service Date On</th>
             <th>Current Service Time</th>
             <th>Details</th>
-                <th>Professional Document</th>
-                <th>Status</th>
+            <th>Professional Document</th>
+            <th>Customer Document</th>
+            <th>Status</th>
+            <th>Admin remarks to professional</th>
+            <th>Telecaller Remarks </th>
         </tr>
     </thead>
     <tbody>
@@ -124,7 +127,7 @@
                     </a>
                 </td>
             <td>
-    @if(!empty($booking->professional_documents))
+             @if(!empty($booking->professional_documents))
         @foreach(explode(',', $booking->professional_documents) as $doc)
             <a href="{{ asset('storage/' . $doc) }}" target="_blank"
                class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
@@ -136,6 +139,38 @@
         No Document
     @endif
 </td>
+<td>
+    @if(!empty($booking->customer_document))
+        @foreach(explode(',', $booking->customer_document) as $doc)
+            <a href="{{ asset('storage/' . $doc) }}" target="_blank"
+               class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
+               style="width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 5px;">
+                <i class="bi bi-download fs-4 text-primary"></i>
+            </a>
+        @endforeach
+    @else
+        No Document
+    @endif
+</td>
+<td>Pending</td>
+<td>
+                                                <form action="{{ route('admin.professional-add-remarks', ['id' => $booking->id]) }}" method="POST">
+                                                    @csrf
+                                                    <div class="d-flex">
+                                                        <input id="remarks_for_professional" class="form-control" type="text" name="remarks_for_professional" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks_for_professional}}">
+                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                           <td>
+                                                <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
+                                                    @csrf
+                                                    <div class="d-flex">
+                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
+                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                                    </div>
+                                                </form>
+                                            </td>
             </tr>
         @endforeach
     </tbody>
@@ -183,6 +218,16 @@
 </div>
 @endsection
 @section('scripts')
+<script>
+    function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+</script>
     <script>
         $(document).ready(function () {
             $('.see-details-btn').click(function () {
@@ -203,6 +248,7 @@
                                                 <th>Date</th>
                                                 <th>Time Slot</th>
                                                 <th>Status</th>
+                                                <th>Professional Remarks to customer</th>
                                                 <th>Meeting Link</th>
                                             </tr>
                                         </thead>
@@ -211,9 +257,10 @@
                             response.dates.forEach(dateInfo => {
                                 html += `
                                     <tr>
-                                        <td>${dateInfo.date}</td>
+                                        <td>${formatDate(dateInfo.date)}</td>
                                         <td>${dateInfo.time_slot}</td>
                                         <td>${dateInfo.status}</td>
+                                          <td>${dateInfo.remarks ?? '-'}</td>
                                         <td>
                                             <form action="${route}" method="POST" class="d-flex">
                                                 <input type="hidden" name="_token" value="${csrf}">

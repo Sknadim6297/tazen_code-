@@ -648,111 +648,6 @@ $(document).ready(function(){
 </script>
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			const questions = document.querySelectorAll(".question");
-			const nextBtn = document.getElementById("nextBtn");
-			const prevBtn = document.getElementById("prevBtn");
-			const submitBtn = document.getElementById("submitBtn");
-			const form = document.getElementById("mcqForm");
-			const bookButtons = document.querySelectorAll(".book-now");
-			const serviceIdInput = document.getElementById("selected_service_id");
-		
-			let currentQuestion = 0;
-		
-			// Set service_id on Book Now click
-			bookButtons.forEach(button => {
-				button.addEventListener("click", function () {
-					const serviceId = this.getAttribute("data-service-id");
-					serviceIdInput.value = serviceId;
-				});
-			});
-		
-			function showQuestion(index) {
-				questions.forEach((q, i) => {
-					q.style.display = i === index ? "block" : "none";
-				});
-				prevBtn.style.display = index > 0 ? "inline-block" : "none";
-				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
-				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
-			}
-		
-			nextBtn.addEventListener("click", function () {
-				if (currentQuestion < questions.length - 1) {
-					currentQuestion++;
-					showQuestion(currentQuestion);
-				}
-			});
-		
-			prevBtn.addEventListener("click", function () {
-				if (currentQuestion > 0) {
-					currentQuestion--;
-					showQuestion(currentQuestion);
-				}
-			});
-		
-		submitBtn.addEventListener("click", function () {
-	const formData = new FormData(form);
-
-	fetch("{{ route('submitQuestionnaire') }}", {
-		method: "POST",
-		headers: {
-			"X-CSRF-TOKEN": "{{ csrf_token() }}",
-			"Accept": "application/json",
-		},
-		body: formData,
-	})
-	.then(response => {
-		if (!response.ok) {
-			return response.json().then(err => {
-				// Attach status for use in catch
-				err.status = response.status;
-				throw err;
-			});
-		}
-		return response.json();
-	})
-	.then(data => {
-		if (data.success) {
-			toastr.success("Thanks for your feedback!");
-			setTimeout(() => {
-				window.location.href = "{{ route('professionals') }}";
-			}, 3000);
-		}
-	})
-	.catch(error => {
-		// 🚫 Handle 403: Redirect to login
-		if (error.status === 403 && error.redirect_to) {
-			toastr.error(error.message || "You need to login first.");
-			setTimeout(() => {
-				window.location.href = error.redirect_to;
-			}, 2000);
-			return;
-		}
-
-		// 🔁 Validation errors
-		if (error.errors) {
-			Object.values(error.errors).forEach(msgArray => {
-				msgArray.forEach(msg => {
-					toastr.error(msg);
-				});
-			});
-		} else if (error.message) {
-			toastr.error(error.message);
-		} else {
-			toastr.error("Something went wrong. Please try again.");
-		}
-		console.error("Validation or Server Error:", error);
-	});
-});
-			
-
-		
-			showQuestion(currentQuestion);
-		});
-
-		
-		</script>
-		<script>
-		document.addEventListener("DOMContentLoaded", function () {
 			const questionsContainer = document.getElementById("questionsContainer");
 			const nextBtn = document.getElementById("nextBtn");
 			const prevBtn = document.getElementById("prevBtn");
@@ -790,23 +685,23 @@ $(document).ready(function(){
 
 			function renderQuestions() {
 				questionsContainer.innerHTML = questions.map((question, index) => `
-					<div class="question" id="question${index + 1}" style="display: none;">
+					<div class="question" id="question${question.id}" style="display: none;">
 						<h6>Question ${index + 1}: ${question.question}</h6>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer1" value="${question.answer1}" required>
-							<label class="form-check-label" for="q${index + 1}answer1">${question.answer1}</label>
+							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer1" value="${question.answer1}" required>
+							<label class="form-check-label" for="q${question.id}answer1">${question.answer1}</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer2" value="${question.answer2}" required>
-							<label class="form-check-label" for="q${index + 1}answer2">${question.answer2}</label>
+							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer2" value="${question.answer2}" required>
+							<label class="form-check-label" for="q${question.id}answer2">${question.answer2}</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer3" value="${question.answer3}" required>
-							<label class="form-check-label" for="q${index + 1}answer3">${question.answer3}</label>
+							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer3" value="${question.answer3}" required>
+							<label class="form-check-label" for="q${question.id}answer3">${question.answer3}</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${index + 1}" id="q${index + 1}answer4" value="${question.answer4}" required>
-							<label class="form-check-label" for="q${index + 1}answer4">${question.answer4}</label>
+							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer4" value="${question.answer4}" required>
+							<label class="form-check-label" for="q${question.id}answer4">${question.answer4}</label>
 						</div>
 					</div>
 				`).join('');
@@ -837,8 +732,29 @@ $(document).ready(function(){
 				}
 			});
 
+			// Single submit event listener
 			submitBtn.addEventListener("click", function () {
 				const formData = new FormData(form);
+				const answers = [];
+				
+				// Get all questions
+				const questions = document.querySelectorAll('.question');
+				questions.forEach((question) => {
+					const questionId = question.id.replace('question', '');
+					const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+					
+					if (selectedAnswer) {
+						answers.push({
+							question_id: questionId,
+							answer: selectedAnswer.value
+						});
+					}
+				});
+
+				// Add answers to formData as a JSON string
+				formData.append('answers', JSON.stringify(answers));
+				formData.append('service_id', document.getElementById('service_id').value);
+
 				fetch("{{ route('submitQuestionnaire') }}", {
 					method: "POST",
 					headers: {

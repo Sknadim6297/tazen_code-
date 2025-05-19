@@ -66,7 +66,7 @@
 							<span class="checkmark"></span>
 						</label>
 					</div>
-					<div class="float-end"><a id="forgot" href="javascript:void(0);">Forgot Password?</a></div>
+					<div class="float-end"><a href="{{ route('forgot.form') }}">Forgot Password?</a></div>
 				</div>
 				<button type="submit" class="btn_1 full-width">Login to Tazen</button>
 				<div class="text-center add_top_10">New to Tazen? <strong><a href="{{ route('register') }}">Sign up!</a></strong></div>

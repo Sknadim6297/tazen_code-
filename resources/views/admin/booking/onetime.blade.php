@@ -71,12 +71,12 @@
                                         <th>Service Date On</th>
                                         <th>Service Time</th>
                                         <th>Add link for the Service</th>
-                                        <th>Admin remarks to professional</th>
                                         <th>Paid Amount</th>
                                         <th>Professional document</th>
                                         <th>Customer Document</th>
                                         <th>Telecaller Remarks</th>
                                          <th>Professional Remarks to customer</th>
+                                                   <th>Admin remarks to professional</th>
                                     </tr>
                                 </thead>
                                 
@@ -133,16 +133,6 @@
                                                     </div>
                                                 </form>
                                             </td>
-                                            <td>
-                                                <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
-                                                    @csrf
-                                                    <div class="d-flex">
-                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
-                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                                    </div>
-                                                </form>
-                                            </td>
-
                        <td>Null</td>
  <td>
     @if(!empty($booking->professional_documents))
@@ -158,8 +148,8 @@
     @endif
 </td>
 <td>
-    @if(!empty($booking->professional_documents))
-        @foreach(explode(',', $booking->professional_documents) as $doc)
+    @if(!empty($booking->customer_document))
+        @foreach(explode(',', $booking->customer_document) as $doc)
             <a href="{{ asset('storage/' . $doc) }}" target="_blank"
                class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
                style="width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 5px;">
@@ -179,16 +169,24 @@
                                                     </div>
                                                 </form>
                                             </td>
-<td>
-    @if($booking->timedates->isNotEmpty())
-        @foreach($booking->timedates as $timedate)
-            {{ $timedate->remarks ?? '-' }}<br>
-        @endforeach
-    @else
-        -
-    @endif
+                                  <td>
+                  @if($booking->timedates->isNotEmpty())
+                 @foreach($booking->timedates as $timedate)
+                 {{ $timedate->remarks ?? '-' }}<br>
+                    @endforeach
+                @else
+                     -
+              @endif
+          </td>
+           <td>
+    <form action="{{ route('admin.professional-add-remarks', ['id' => $booking->id]) }}" method="POST">
+        @csrf
+        <div class="d-flex">
+            <input id="remarks_for_professional" class="form-control" type="text" name="remarks_for_professional" placeholder="Remarks for Professional" style="width: 350px;" value="{{ $booking->remarks_for_professional }}">
+            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+        </div>
+    </form>
 </td>
-
 
                                         </tr>
                                     @endforeach

@@ -78,7 +78,9 @@
                                             <td>
                                                 <span class="fw-medium">{{ $professional->email }}</span>
                                             </td>
-                                            <td>
+                                            <td style="display: flex;
+  justify-content: center;
+  align-items: center;">
     @if($professional->status === 'accepted')
         <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="d-flex align-items-center gap-2">
             @csrf
