@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'laravel/laravel',
-        'pretty_version' => 'dev-sk_nadim',
-        'version' => 'dev-sk_nadim',
-        'reference' => '18ea573b6849952c15aed629a7dc4b8354efa6fa',
+        'pretty_version' => 'dev-tania',
+        'version' => 'dev-tania',
+        'reference' => 'e53fee35f9b2a10b12dc46164a3c2cd6be8e5561',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -380,9 +380,9 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-sk_nadim',
-            'version' => 'dev-sk_nadim',
-            'reference' => '18ea573b6849952c15aed629a7dc4b8354efa6fa',
+            'pretty_version' => 'dev-tania',
+            'version' => 'dev-tania',
+            'reference' => 'e53fee35f9b2a10b12dc46164a3c2cd6be8e5561',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -757,8 +757,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '3.0.0',
-                1 => '1.0|2.0|3.0',
+                0 => '1.0|2.0|3.0',
+                1 => '3.0.0',
             ),
         ),
         'psr/simple-cache' => array(

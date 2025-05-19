@@ -457,84 +457,76 @@
 
     <!-- testimonials slider  -->
     <section class="ttm-row padding_top_zero-section ttm-bgcolor-white clearfix testimonial-new">
-        <div class="container-fluid">
-            @foreach($testimonials as $testimonial)
-            <!-- row -->
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 ttm-box-col-wrapper m-auto">
-                    <div class="main_title center">
-                        <span><em></em></span>
-                        <h2>TESTIMONIALS</h2>
-                        <p>{{ $testimonial->section_sub_heading }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row slick_slider"
-                data-slick='{"slidesToShow":4, "slidesToScroll": 1, "arrows":false, "autoplay":true, "dots":false, "infinite":true, "responsive":[{"breakpoint":1199,"settings": {"slidesToShow": 3}},{"breakpoint":992,"settings":{"slidesToShow": 2}},{"breakpoint":767,"settings":{"slidesToShow": 2}}, {"breakpoint":600,"settings":{"slidesToShow": 1}}]}'>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-content bg-lavender mb-15">
-                            {{ $testimonial->description1 }}
-                        </div>
-                        <div class="testimonial-img bg-blue">
-                            <img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-img bg-pink mb-15">
-                            <img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
-                        </div>
-                        <div class="testimonial-content bg-green">
-                            {{ $testimonial->description2 }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-content mb-15">
-                            {{ $testimonial->description3 }}
-                        </div>
-                        <div class="testimonial-img">
-                            <img src="{{ asset('storage/'.$testimonial->image3) }}" alt="Testimonial Image">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-img bg-green mb-15">
-                            <img src="{{ asset('storage/'.$testimonial->image4) }}" alt="Testimonial Image">
-                        </div>
-                        <div class="testimonial-content bg-pink">
-                            {{ $testimonial->description4 }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-content bg-lavender mb-15">
-                            {{ $testimonial->description1 }}
-                        </div>
-                        <div class="testimonial-img bg-blue">
-                            <img src="{{ asset('storage/'.$testimonial->image1) }}" alt="Testimonial Image">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                    <div class="testimonial-box">
-                        <div class="testimonial-img mb-15 bg-green">
-                            <img src="{{ asset('storage/'.$testimonial->image2) }}" alt="Testimonial Image">
-                        </div>
-                        <div class="testimonial-content bg-pink">
-                            {{ $testimonial->description2 }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </section>
+			<div class="container-fluid">
+				<!-- Static heading and subheading -->
+				<div class="row">
+					<div class="col-lg-12 col-md-12 col-sm-12 ttm-box-col-wrapper m-auto">
+						<div class="main_title center">
+							<span><em></em></span>
+							<h2>TESTIMONIALS</h2>
+							<p>What our clients say about us</p>
+						</div>
+					</div>
+				</div>
+		
+				<div class="row slick_slider"
+					 data-slick='{"slidesToShow":4,"slidesToScroll":1,"arrows":false,"autoplay":true,"dots":false,"infinite":true,"responsive":[{"breakpoint":1199,"settings":{"slidesToShow":3}},{"breakpoint":992,"settings":{"slidesToShow":2}},{"breakpoint":767,"settings":{"slidesToShow":2}},{"breakpoint":600,"settings":{"slidesToShow":1}}]}'>
+					
+					@php
+						$totalSlides = 6; // Total slides to display
+						$testimonialCount = count($testimonials);
+					@endphp
+		
+					@for($i = 0; $i < $totalSlides; $i++)
+						<div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
+							<div class="testimonial-box">
+								@php
+									$isEven = $i % 2 === 0;
+								@endphp
+		
+								@if($i < $testimonialCount)
+									{{-- Real testimonial --}}
+									@php $t = $testimonials[$i]; @endphp
+									@if($isEven)
+										<div class="testimonial-content bg-lavender mb-15">
+											{{ $t->description }}
+										</div>
+										<div class="testimonial-img bg-blue">
+											<img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
+										</div>
+									@else
+										<div class="testimonial-img bg-pink mb-15">
+											<img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
+										</div>
+										<div class="testimonial-content bg-green">
+											{{ $t->description }}
+										</div>
+									@endif
+								@else
+									{{-- Dummy testimonial --}}
+									@if($isEven)
+										<div class="testimonial-content bg-lavender mb-15">
+											This is a sample testimonial. Excellent service and support!
+										</div>
+										<div class="testimonial-img bg-blue">
+											<img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
+										</div>
+									@else
+										<div class="testimonial-img bg-pink mb-15">
+											<img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
+										</div>
+										<div class="testimonial-content bg-green">
+											This is a sample testimonial. Highly recommended!
+										</div>
+									@endif
+								@endif
+							</div>
+						</div>
+					@endfor
+		
+				</div>
+			</div>
+		</section>
     
     <section class="cta-bg-color-new">
         <div class="call_section version_2 lazy">

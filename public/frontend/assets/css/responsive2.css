@@ -2,7 +2,7 @@
     .header-video h1, .header-video h3 {
         /* font-size: 36px; */
         font-size: 2.8em;
-        margin-top: 202px;
+        margin-top: -80px;
     }
 
     .fun-facts-cards .container .card{
@@ -24,6 +24,11 @@
     .services-counter-section-info .container .row .counter-section .card{
         margin-top: 17px;
     }
+
+    .home-about-section .container .col-lg-6 .right-img img{
+
+        margin-left: 30px;
+        }
 
     a {
     color: #000000;
