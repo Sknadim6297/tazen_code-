@@ -56,7 +56,7 @@
 
             <li class="submenu">
     <a href="#0" class="show-submenu">Listing</a>
-    {{-- <ul>
+    <ul>
         @foreach ($services as $service)
             @php
                 $icons = [
@@ -76,7 +76,7 @@
                 <a href="{{ url('/service/' . $service->id) }}">{{ $service->name }}</a>
             </li>
         @endforeach
-    </ul> --}}
+    </ul>
 </li>
 
             

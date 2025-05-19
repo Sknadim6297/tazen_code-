@@ -165,4 +165,24 @@
     }
 }
 
+@media (max-width: 768px) {
+    .sidebar.active {
+        transform: translateX(0);
+        margin-top: 60px;
+    }
+
+    .header-icon{
+        margin-left: 205px;
+        margin-top: -64px;
+    }
+
+    
+    .user-profile-wrapper{
+    gap: 5px;
+    margin-left: 226px;
+    margin-top: -105px;
+
+    }
+}
+
 </style>
