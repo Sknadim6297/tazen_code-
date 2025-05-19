@@ -123,7 +123,7 @@
                                             <td>{{ $about->year_of_experience }} years</td>
                                             <td>
                                                 @if ($about->image)
-                                                    <img src="{{ asset('uploads/aboutus/' . $about->image) }}" alt="About Image" style="height: 60px;">
+                                                    <img src="{{ asset('storage/' . $about->image) }}" alt="About Image" style="height: 60px;">
                                                 @else
                                                     N/A
                                                 @endif
