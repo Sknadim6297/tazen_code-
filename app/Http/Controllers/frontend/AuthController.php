@@ -7,12 +7,15 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use App\Models\Service;
 
 class AuthController extends Controller
 {
     public function showForgotForm()
     {
-        return view('frontend.login.forgot-password');
+
+        $services = Service::latest()->get();
+        return view('frontend.login.forgot-password', compact('services'));
     }
     public function sendResetLink(Request $request)
     {
@@ -31,8 +34,9 @@ class AuthController extends Controller
     {
         $token = $request->query('token');
         $email = $request->query('email');
+        $services = Service::latest()->get();
 
-        return view('frontend.login.reset-password', compact('token', 'email'));
+        return view('frontend.login.reset-password', compact('token', 'email','services'));
     }
     public function resetPassword(Request $request)
     {
