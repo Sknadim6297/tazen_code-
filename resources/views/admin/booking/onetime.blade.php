@@ -16,7 +16,13 @@
                 </div>
             </div>
     <form action="{{ route('admin.onetime') }}" method="GET" class="d-flex gap-2">
-        <div class="col-md-3">
+        
+    <div class="col-md-3">
+        <div class="card custom-card">
+            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-md-3">
         <select name="status" class="form-select">
             <option value="">-- Select Status --</option>
             @foreach ($statuses as $status)
@@ -25,12 +31,6 @@
                 </option>
             @endforeach
         </select>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card custom-card">
-            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
-        </div>
     </div>
      <div class="col-md-4">
         <div class="card-body">
@@ -71,15 +71,19 @@
                                         <th>Service Date On</th>
                                         <th>Service Time</th>
                                         <th>Add link for the Service</th>
-                                        <th>Telecaller Remarks</th>
-                                                    <th>Paid Amount</th>
+                                        <th>Admin remarks to professional</th>
+                                        <th>Paid Amount</th>
                                         <th>Professional document</th>
+                                        <th>Customer Document</th>
+                                        <th>Telecaller Remarks</th>
+                                         <th>Professional Remarks to customer</th>
                                     </tr>
                                 </thead>
                                 
                                 <tbody>
                                     @foreach ($bookings as $key => $booking)
-                                      @php
+                                      @php  
+                                    //   print_r($booking->timedates);
                 // Get earliest upcoming date
                 $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
                     ? $booking->timedates
@@ -124,7 +128,7 @@
                                                 <form action="{{ route('admin.add-link', ['id' => $booking->id]) }}" method="POST">
                                                     @csrf
                                                     <div class="d-flex">
-                                                        <input type="url" name="meeting_link" class="form-control" value="{{ $booking->meeting_link }}" placeholder="Add Link" required>
+                                                        <input type="url" name="meeting_link" class="form-control" value="{{ $booking->meeting_link }}" placeholder="Add Link" required  style="width: 350px;">
                                                         <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
                                                     </div>
                                                 </form>
@@ -133,18 +137,59 @@
                                                 <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
                                                     @csrf
                                                     <div class="d-flex">
-                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks">
+                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
                                                         <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
                                                     </div>
                                                 </form>
                                             </td>
 
                        <td>Null</td>
-   <td>
-    @foreach(explode(',', $booking->professional_documents) as $doc)
-        <a href="{{ asset('storage/' . $doc) }}" target="_blank">View Document</a><br>
-    @endforeach
+ <td>
+    @if(!empty($booking->professional_documents))
+        @foreach(explode(',', $booking->professional_documents) as $doc)
+            <a href="{{ asset('storage/' . $doc) }}" target="_blank"
+               class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
+               style="width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 5px;">
+                <i class="bi bi-download fs-4 text-primary"></i>
+            </a>
+        @endforeach
+    @else
+        No Document
+    @endif
 </td>
+<td>
+    @if(!empty($booking->professional_documents))
+        @foreach(explode(',', $booking->professional_documents) as $doc)
+            <a href="{{ asset('storage/' . $doc) }}" target="_blank"
+               class="d-inline-flex justify-content-center align-items-center me-2 mb-1"
+               style="width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 5px;">
+                <i class="bi bi-download fs-4 text-primary"></i>
+            </a>
+        @endforeach
+    @else
+        No Document
+    @endif
+</td>
+    <td>
+                                                <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
+                                                    @csrf
+                                                    <div class="d-flex">
+                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
+                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                                    </div>
+                                                </form>
+                                            </td>
+<td>
+    @if($booking->timedates->isNotEmpty())
+        @foreach($booking->timedates as $timedate)
+            {{ $timedate->remarks ?? '-' }}<br>
+        @endforeach
+    @else
+        -
+    @endif
+</td>
+
+
                                         </tr>
                                     @endforeach
                                 </tbody>
