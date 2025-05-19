@@ -1,5 +1,6 @@
 @extends('professional.layout.layout')
 @section('style')
+<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 @endsection
 @section('content')
 
