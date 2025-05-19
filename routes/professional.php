@@ -34,5 +34,7 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::post('/bookings/{booking}/upload-documents', [BookingController::class, 'uploadDocuments'])->name('doc.upload');
     Route::post('/bookings/update-status', [BookingController::class, 'updateStatus']);
 
-   
+    // Add route for getting questionnaire answers
+    Route::get('/bookings/{booking}/questionnaire', [App\Http\Controllers\Professional\BookingController::class, 'getQuestionnaireAnswers'])->name('booking.questionnaire');
+
 });

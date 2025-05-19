@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Professional;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
+use App\Models\McqAnswer;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -166,6 +168,78 @@ class BookingController extends Controller
         $timedate->remarks = $request->remarks;
         $timedate->save();
 
+        // Get the associated booking
+        $booking = Booking::findOrFail($request->booking_id);
+
+        // Associate the user's questionnaire answers with this booking
+        $mcqAnswers = McqAnswer::where('user_id', $booking->user_id)
+                               ->where('service_id', $booking->service_id)
+                               ->whereNull('booking_id')
+                               ->get();
+                               
+        if ($mcqAnswers->count() > 0) {
+            foreach ($mcqAnswers as $answer) {
+                $answer->booking_id = $booking->id;
+                $answer->save();
+            }
+        }
+
         return response()->json(['success' => true, 'message' => 'Booking status updated successfully.']);
+    }
+    
+    /**
+     * Get questionnaire answers for a specific booking
+     */
+    public function getQuestionnaireAnswers($bookingId)
+    {
+        try {
+            $booking = Booking::with(['customer', 'mcqAnswers.question'])->findOrFail($bookingId);
+            
+            // Get all answers associated with this booking
+            $answers = $booking->mcqAnswers;
+            
+            if ($answers->isEmpty()) {
+                \Log::info('No answers found for booking ID: ' . $bookingId);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No questionnaire answers found for this booking.',
+                    'debug_info' => [
+                        'booking_id' => $bookingId,
+                        'user_id' => $booking->user_id,
+                        'service_id' => $booking->service_id
+                    ]
+                ]);
+            }
+            
+            // Format answers with their questions
+            $formattedAnswers = $answers->map(function ($answer) {
+                return [
+                    'question' => $answer->question ? $answer->question->question : 'Question not found',
+                    'answer' => $answer->answer,
+                    'service_id' => $answer->service_id,
+                    'user_id' => $answer->user_id
+                ];
+            });
+            
+            // Get service name and customer name for display
+            $serviceName = $booking->service_name ?? 'Unknown Service';
+            $customerName = $booking->customer ? $booking->customer->name : 'Unknown Customer';
+            
+            return response()->json([
+                'success' => true,
+                'answers' => $formattedAnswers,
+                'booking_details' => [
+                    'service_name' => $serviceName,
+                    'customer_name' => $customerName
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in getQuestionnaireAnswers: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving questionnaire answers: ' . $e->getMessage()
+            ]);
+        }
     }
 }
