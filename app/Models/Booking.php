@@ -51,4 +51,12 @@ class Booking extends Model
     {
         return $this->belongsTo(CustomerProfile::class, 'user_id');
     }
+    
+    /**
+     * Get the questionnaire answers associated with this booking
+     */
+    public function mcqAnswers()
+    {
+        return $this->hasMany(McqAnswer::class, 'booking_id');
+    }
 }

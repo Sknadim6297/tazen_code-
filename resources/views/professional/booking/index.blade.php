@@ -2,6 +2,41 @@
 
 @section('styles')
 <style>
+    /* Questionnaire styles */
+    .questionnaire-info {
+        margin-left: 8px;
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+
+    .questionnaire-details {
+        padding: 15px;
+    }
+
+    .answers-list {
+        margin-top: 20px;
+    }
+
+    .answer-item {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .answer-item .question {
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .answer-item .answer {
+        color: #34495e;
+        margin-bottom: 0;
+        font-size: 14px;
+        padding-left: 20px;
+    }
+
    /* Style for the slider container */
 .status-slider {
     position: relative;
@@ -221,6 +256,41 @@
     background-color: white;
 }
 
+/* Add these styles for the questionnaire modal */
+.questionnaire-details {
+    padding: 15px;
+}
+
+.answers-list {
+    margin-top: 20px;
+}
+
+.answer-item {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.answer-item .question {
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.answer-item .answer {
+    color: #34495e;
+    margin-bottom: 0;
+    font-size: 14px;
+    padding-left: 20px;
+}
+
+.questionnaire-info {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
 </style>
 @endsection
 
@@ -317,7 +387,14 @@
                             @endphp
                             
                             <tr>
-                                <td>{{ $booking->customer_name }}</td>
+                                <td>
+                                    {{ $booking->customer_name }}
+                                    <button class="btn btn-info btn-sm questionnaire-info" 
+                                            data-booking-id="{{ $booking->id }}" 
+                                            title="View Questionnaire Answers">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
                                 <td>{{ $booking->plan_type }}</td>
                                 <td>{{ $booking->service_name }}</td>
                                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('F') : '-' }}</td>
@@ -385,13 +462,23 @@
                 <tr>
                     <th>Date</th>
                     <th>Time Slot</th>
-                      <th>Remarks</th>
+                    <th>Remarks</th>
                     <th>Status</th>
-                  
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+</div>
+
+<!-- Questionnaire Modal -->
+<div id="questionnaireModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <span class="close-modal" id="closeQuestionnaireModal">&times;</span>
+        <h4>Questionnaire Answers</h4>
+        <div id="questionnaireContent">
+            <!-- Content will be loaded here -->
+        </div>
     </div>
 </div>
 @endsection
@@ -400,8 +487,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('bookingDetailModal');
+    const questionnaireModal = document.getElementById('questionnaireModal');
     const closeModal = document.querySelector('.close-modal');
+    const closeQuestionnaireModal = document.getElementById('closeQuestionnaireModal');
     const tableBody = document.querySelector('#details-table tbody');
+    const questionnaireContent = document.getElementById('questionnaireContent');
 
     // View details button click
     document.querySelectorAll('.view-details').forEach(button => {
@@ -508,11 +598,116 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Handle questionnaire info button clicks
+    document.querySelectorAll('.questionnaire-info').forEach(button => {
+        button.addEventListener('click', () => {
+            const bookingId = button.dataset.bookingId;
+            fetchQuestionnaireAnswers(bookingId);
+        });
+    });
+
+    // Fetch questionnaire answers
+    function fetchQuestionnaireAnswers(bookingId) {
+        fetch(`/professional/bookings/${bookingId}/questionnaire`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = `<div class="questionnaire-details">
+                        <h5>Customer: ${data.booking_details.customer_name}</h5>
+                        <h6>Service: ${data.booking_details.service_name}</h6>
+                        <div class="answers-list">`;
+                    
+                    data.answers.forEach(item => {
+                        html += `
+                            <div class="answer-item">
+                                <p class="question"><strong>Q:</strong> ${item.question}</p>
+                                <p class="answer"><strong>A:</strong> ${item.answer}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div></div>`;
+                    questionnaireContent.innerHTML = html;
+                } else {
+                    questionnaireContent.innerHTML = `<p class="text-center text-muted">${data.message}</p>`;
+                }
+                questionnaireModal.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching questionnaire answers:', error);
+                questionnaireContent.innerHTML = '<p class="text-center text-danger">Error loading questionnaire answers.</p>';
+                questionnaireModal.style.display = 'block';
+            });
+    }
+
     // Modal close handlers
     closeModal.addEventListener('click', () => modal.style.display = 'none');
+    closeQuestionnaireModal.addEventListener('click', () => questionnaireModal.style.display = 'none');
+    
     window.addEventListener('click', event => {
         if (event.target === modal) modal.style.display = 'none';
+        if (event.target === questionnaireModal) questionnaireModal.style.display = 'none';
     });
+});
+
+// Add this new JavaScript code
+const questionnaireModal = document.getElementById('questionnaireModal');
+const closeQuestionnaireModal = document.getElementById('closeQuestionnaireModal');
+const questionnaireContent = document.getElementById('questionnaireContent');
+
+// Handle questionnaire info button clicks
+document.querySelectorAll('.questionnaire-info').forEach(button => {
+    button.addEventListener('click', () => {
+        const bookingId = button.dataset.bookingId;
+        fetchQuestionnaireAnswers(bookingId);
+    });
+});
+
+// Fetch questionnaire answers
+function fetchQuestionnaireAnswers(bookingId) {
+    fetch(`/professional/bookings/${bookingId}/questionnaire`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let html = `<div class="questionnaire-details">
+                    <h5>Customer: ${data.booking_details.customer_name}</h5>
+                    <h6>Service: ${data.booking_details.service_name}</h6>
+                    <div class="answers-list">`;
+                
+                data.answers.forEach(item => {
+                    html += `
+                        <div class="answer-item">
+                            <p class="question"><strong>Q:</strong> ${item.question}</p>
+                            <p class="answer"><strong>A:</strong> ${item.answer}</p>
+                        </div>
+                    `;
+                });
+                
+                html += `</div></div>`;
+                questionnaireContent.innerHTML = html;
+                questionnaireModal.style.display = 'block';
+            } else {
+                questionnaireContent.innerHTML = `<p class="text-center text-muted">${data.message}</p>`;
+                questionnaireModal.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching questionnaire answers:', error);
+            questionnaireContent.innerHTML = '<p class="text-center text-danger">Error loading questionnaire answers.</p>';
+            questionnaireModal.style.display = 'block';
+        });
+}
+
+// Close questionnaire modal
+closeQuestionnaireModal.addEventListener('click', () => {
+    questionnaireModal.style.display = 'none';
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', event => {
+    if (event.target === questionnaireModal) {
+        questionnaireModal.style.display = 'none';
+    }
 });
 </script>
 
