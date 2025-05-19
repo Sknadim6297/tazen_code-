@@ -107,13 +107,14 @@ class HomeController extends Controller
             }
         }
 
-        // Save answers
+        // Save answers temporarily without booking_id (will be linked when booking is completed)
         foreach ($answers as $answer) {
             McqAnswer::create([
                 'user_id' => Auth::guard('user')->id(),
                 'service_id' => $request->service_id,
                 'question_id' => $answer['question_id'],
                 'answer' => $answer['answer']
+                // booking_id will be added when booking is completed
             ]);
         }
 
@@ -309,6 +310,15 @@ class HomeController extends Controller
                     'time_slot' => $entry['time_slot'],
                     'status' => 'pending',
                 ]);
+            }
+
+            // Associate any pending MCQ answers with this booking
+            $serviceId = session('selected_service_id');
+            if ($serviceId) {
+                McqAnswer::where('user_id', Auth::guard('user')->id())
+                    ->where('service_id', $serviceId)
+                    ->whereNull('booking_id')
+                    ->update(['booking_id' => $booking->id]);
             }
 
             return response()->json([

@@ -13,6 +13,7 @@ class McqAnswer extends Model
         'user_id',
         'service_id',
         'question_id',
+        'booking_id',
         'answer'
     ];
 
@@ -29,5 +30,10 @@ class McqAnswer extends Model
     public function question()
     {
         return $this->belongsTo(ServiceMCQ::class, 'question_id');
+    }
+    
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 }
