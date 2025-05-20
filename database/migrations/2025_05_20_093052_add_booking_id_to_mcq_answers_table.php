@@ -9,21 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('mcq_answers', function (Blueprint $table) {
-            $table->unsignedBigInteger('booking_id')->nullable()->after('question_id');
-            $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('set null');
+            $table->unsignedBigInteger('booking_id')->nullable()->after('service_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('mcq_answers', function (Blueprint $table) {
-            $table->dropForeign(['booking_id']);
             $table->dropColumn('booking_id');
         });
     }

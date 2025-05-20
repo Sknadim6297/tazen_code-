@@ -54,21 +54,28 @@
                 </ul>
             </li> -->
 
-            <li class="submenu">
+           @php
+    use App\Models\Service;
+
+    $dropdown_services = Service::all();
+
+    $icons = [
+        1 => 'work-life-balance.png',
+        2 => 'interior-designer.png',
+        3 => 'horoscope.png',
+        4 => 'cardio.png',
+        5 => 'designer.png',
+        6 => 'influencer.png',
+        7 => 'psychologist.png',
+        8 => 'dieticians.png',
+    ];
+@endphp
+
+<li class="submenu">
     <a href="#0" class="show-submenu">Listing</a>
     <ul>
-        @foreach ($services as $service)
+        @foreach ($dropdown_services as $service)
             @php
-                $icons = [
-                    1 => 'work-life-balance.png',
-                    2 => 'interior-designer.png',
-                    3 => 'horoscope.png',
-                    4 => 'cardio.png',
-                    5 => 'designer.png',
-                    6 => 'influencer.png',
-                    7 => 'psychologist.png',
-                    8 => 'dieticians.png',
-                ];
                 $icon = $icons[$service->id] ?? 'default.png';
             @endphp
             <li>
@@ -78,6 +85,7 @@
         @endforeach
     </ul>
 </li>
+
 
             
 

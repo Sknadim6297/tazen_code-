@@ -17,6 +17,12 @@ class Professional extends Authenticatable
         'phone',
         'status',
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     public function profile()
     {
         return $this->hasOne(Profile::class, 'professional_id', 'id');
