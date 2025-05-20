@@ -7,13 +7,13 @@
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">Task List View</h1>
+                <h1 class="page-title fw-medium fs-18 mb-2">List View</h1>
                 <div class="">
                     <nav>
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">Apps</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">Task</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Task List View</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Manage Website</a></li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Home Page</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Why Choose Us</li>
                         </ol>
                     </nav>
                 </div>

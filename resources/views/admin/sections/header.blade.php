@@ -14,10 +14,10 @@
             <div class="header-element">
                 <div class="horizontal-logo">
                     <a href="index-2.html" class="header-logo">
-                        <img src="assets/images/brand-logos/desktop-logo.png" alt="logo" class="desktop-logo">
-                        <img src="assets/images/brand-logos/toggle-logo.png" alt="logo" class="toggle-logo">
-                        <img src="assets/images/brand-logos/desktop-dark.png" alt="logo" class="desktop-dark">
-                        <img src="assets/images/brand-logos/toggle-dark.png" alt="logo" class="toggle-dark">
+                        <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-logo">
+                        <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="toggle-logo">
+                        <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-dark">
+                        <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="toggle-dark">
                     </a>
                 </div>
             </div>

@@ -370,18 +370,18 @@
 					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
 				</div>
 				<div class="row add_bottom_15">
-					@foreach($allevents->take(6) as $event)
+					@foreach($eventDetails as $eventDetail)
 					<div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
 						<div class="strip">
 							<figure>
 								<a href="" class="wish_bt"><i class="icon_heart"></i></a>
-								<img src="{{ asset('storage/' . $event->card_image) }}" 
-									 data-src="{{ asset('storage/' . $event->card_image) }}"
-									 class="img-fluid lazy" alt="{{ $event->heading }}">
-								<a href="{{ route('event.details', $event->id) }}" class="strip_info">
+								<img src="{{ asset('storage/' . $eventDetail->event->card_image) }}" 
+									 data-src="{{ asset('storage/' . $eventDetail->event->card_image) }}"
+									 class="img-fluid lazy" alt="{{ $eventDetail->event->heading }}">
+								<a href="{{ route('event.details', $eventDetail->event->id) }}" class="strip_info">
 									<div class="item_title">
-										<h3>{{ $event->heading }}</h3>
-										<small>{{ $event->mini_heading }}</small>
+										<h3>{{ $eventDetail->event->heading }}</h3>
+										<small>{{ $eventDetail->event->mini_heading }}</small>
 									</div>
 								</a>
 							</figure>
@@ -394,8 +394,8 @@
 										title="Available Video Call"><i class="icon-videocam"></i></a></li>
 								<li>
 									<div class="score">
-										<span>Starting from<em>{{ $event->date }}</em></span>
-										<strong>₹{{ number_format($event->starting_fees, 2) }}</strong>
+										<span>Starting from<em>{{ $eventDetail->event->date }}</em></span>
+										<strong>₹{{ number_format($eventDetail->event->starting_fees, 2) }}</strong>
 									</div>
 								</li>
 							</ul>
@@ -690,23 +690,23 @@
 					</div>
 				</div>
 				<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
-					@foreach ($blogs->take(3) as $blog)
+					@foreach ($blogPosts as $blogPost)
 						<div class="col-sm-12">
 							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-								<a href="{{ route('blog.index') }}">
+								<a href="{{ route('blog.show', $blogPost->id) }}">
 									<div class="post-image position-relative overlay-secondary" style="height: 200px; overflow: hidden;">
-										<img src="{{ asset('storage/' . $blog->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+										<img src="{{ asset('storage/' . $blogPost->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
 									</div>
 								</a>
 								<div class="post-content p-35">
 									<h5 class="d-block font-400 mb-3">
-										<a href="{{ route('blog.index') }}" class="transation text-dark hover-text-primary">
-											{{ $blog->title }}
+										<a href="{{ route('blog.show', $blogPost->id) }}" class="transation text-dark hover-text-primary">
+											{{ $blogPost->blog->title }}
 										</a>
 									</h5>
-									<p>{{ $blog->description_short }}</p>
+									<p>{{ $blogPost->blog->description_short }}</p>
 									<div class="post-meta text-uppercase">
-										<a href="#"><span>{{ $blog->created_by }}</span></a>
+										<a href="#"><span>{{ $blogPost->blog->created_by }}</span></a>
 									</div>
 								</div>
 							</div>

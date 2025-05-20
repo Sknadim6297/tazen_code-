@@ -29,6 +29,8 @@ use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use App\Models\BlogPost;
+use App\Models\EventDetail;
 
 use Illuminate\Http\Request;
 
@@ -44,12 +46,12 @@ class HomeController extends Controller
         $testimonials = Testimonial::latest()->get();
         $homeblogs = HomeBlog::latest()->get();
         $howworks = Howworks::latest()->get();
-        $blogs = Blog::latest()->get();
+        $blogPosts = BlogPost::with('blog')->latest()->take(3)->get();
         $mcqs = DB::table('service_m_c_q_s')->get();
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
-        $allevents = AllEvent::latest()->get();
-        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogs', 'allevents'));
+        $eventDetails = EventDetail::with('event')->latest()->take(6)->get();
+        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogPosts', 'eventDetails'));
     }
 
     //     public function getServiceQuestions($serviceId)
