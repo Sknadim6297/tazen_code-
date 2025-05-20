@@ -71,6 +71,7 @@
     .btn-secondary:hover {
         background-color: #5a6268;
     }
+<<<<<<< Updated upstream
 
     .document-actions {
         display: flex;
@@ -165,6 +166,67 @@
         from { opacity: 1; }
         to { opacity: 0; }
     }
+=======
+    @media screen and (max-width: 767px) {
+    /* Fix header to prevent horizontal scrolling */
+    .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    /* Make table container scrollable horizontally */
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+    }
+    
+    /* Ensure the table takes full width of container */
+    .data-table {
+        width: 100%;
+        table-layout: auto;
+    }
+    
+    /* Fix the search container from overflowing */
+    .search-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure content wrapper doesn't cause horizontal scroll */
+    .content-wrapper {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+        padding: 20px 10px;
+    }
+    
+    /* Fix card width */
+    .card {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure the card body doesn't cause overflow */
+    .card-body {
+        padding: 10px 5px;
+    }
+    
+    /* Optional: Make some table columns width-responsive */
+    .data-table th,
+    .data-table td {
+        white-space: nowrap;
+    }
+}
+>>>>>>> Stashed changes
 </style>
 @endsection
 

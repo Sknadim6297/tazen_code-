@@ -23,12 +23,52 @@
                     <a href="{{ route('professional.dashboard') }}" class="btn_access bg-primary" style="border-radius: 30px;">Professional Dashboard</a>
                 </li>
             @else
-                <li><a href="{{ route('login') }}" class="btn_access">Log In</a></li>
-                <li><a href="{{ route('professional.login') }}" class="btn_access green"><i class="fa-solid fa-user-plus"></i> Join as a Professional</a></li>
+                <li class="d-flex align-items-center gap-2">
+                    <a href="{{ route('login') }}" class="btn_access">Log In</a>
+                    <a href="{{ route('professional.login') }}" class="btn_access green"><i class="fa-solid fa-user-plus"></i> Join as a Professional</a>
+                </li>
             @endif
         </ul>
         
-        
+        <style>
+            @media (max-width: 767px) {
+                #top_menu {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    padding: 10px;
+                }
+                
+                #top_menu li {
+                    width: 100%;
+                }
+                
+                #top_menu .btn_access {
+                    width: 100%;
+                    text-align: center;
+                    padding: 8px 15px;
+                    font-size: 14px;
+                }
+                
+                #top_menu .btn_access i {
+                    margin-right: 5px;
+                }
+            }
+            @media (max-width: 767px) {
+    ul#top_menu>li a.btn_access {
+        padding: 6px 0px;
+                font-size: 11px;
+    }
+}
+
+@media (max-width: 991px) {
+    #logo img {
+        width: auto;
+        height: 50px;
+        margin-right: 260px;
+    }
+}
+        </style>
         
         <!-- /top_menu -->
         <a href="#0" class="open_close">
