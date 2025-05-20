@@ -9,6 +9,7 @@ use App\Models\McqAnswer;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -40,6 +41,19 @@ class BookingController extends Controller
 
     if ($request->filled('plan_type')) {
         $query->where('plan_type', $request->plan_type);
+    }
+
+    // Add status filter
+    if ($request->filled('status')) {
+        if ($request->status === 'completed') {
+            $query->whereHas('timedates', function($q) {
+                $q->where('status', 'completed');
+            }, '=', DB::raw('(select count(*) from booking_timedates where booking_timedates.booking_id = bookings.id)'));
+        } elseif ($request->status === 'pending') {
+            $query->whereHas('timedates', function($q) {
+                $q->where('status', 'pending')->orWhereNull('status');
+            });
+        }
     }
 
     $bookings = $query->orderBy('booking_date', 'desc')->get();
@@ -77,28 +91,53 @@ class BookingController extends Controller
      */
     public function uploadDocuments(Request $request, $bookingId)
     {
-        $request->validate([
-            'documents.*' => 'mimes:pdf|max:2048',
-        ]);
-        $booking = Booking::findOrFail($bookingId);
+        try {
+            $request->validate([
+                'document' => 'required|mimes:pdf|max:2048',
+            ]);
 
-        if ($request->hasFile('documents')) {
-            $filePaths = [];
-            if ($booking->professional_documents) {
-                $filePaths = explode(',', $booking->professional_documents);
+            $booking = Booking::findOrFail($bookingId);
+
+            if ($request->hasFile('document')) {
+                // Delete old file if it exists
+                if ($booking->professional_documents) {
+                    $oldPath = storage_path('app/public/' . $booking->professional_documents);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                // Generate unique filename with timestamp
+                $file = $request->file('document');
+                $timestamp = time();
+                $extension = $file->getClientOriginalExtension();
+                $filename = $timestamp . '_' . uniqid() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                
+                // Store the new file
+                $filePath = $file->storeAs('uploads/documents', $filename, 'public');
+                
+                // Update database
+                $booking->professional_documents = $filePath;
+                $booking->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Document ' . ($booking->wasChanged('professional_documents') ? 'updated' : 'uploaded') . ' successfully!',
+                    'file_path' => $filePath
+                ]);
             }
 
-            foreach ($request->file('documents') as $file) {
-                $filePath = $file->store('uploads/documents', 'public');
-                $filePaths[] = $filePath;
-            }
-            $booking->professional_documents = implode(',', $filePaths);
-            $booking->save();
-
-            return back()->with('success', 'Documents uploaded successfully!');
+            return response()->json([
+                'success' => false,
+                'message' => 'No document was uploaded.'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Document upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading document: ' . $e->getMessage()
+            ]);
         }
-
-        return back()->with('error', 'No documents were uploaded.');
     }
 
     /**
@@ -150,8 +189,10 @@ class BookingController extends Controller
             'booking_id' => 'required|integer',
             'date' => 'required|date',
             'slot' => 'required|string',
-            'remarks' => 'nullable|string'
+            'remarks' => 'nullable|string',
+            'status' => 'required|in:completed,pending'
         ]);
+
         $timedate = BookingTimedate::where('booking_id', $request->booking_id)
             ->where('date', $request->date)
             ->first();
@@ -159,25 +200,27 @@ class BookingController extends Controller
         if (!$timedate) {
             return response()->json(['success' => false, 'message' => 'Time slot not found.']);
         }
+
         $slots = explode(',', $timedate->time_slot);
         if (!in_array($request->slot, $slots)) {
             return response()->json(['success' => false, 'message' => 'Slot not found in booking.']);
         }
 
-        $timedate->status = 'completed';
+        $timedate->status = $request->status;
         $timedate->remarks = $request->remarks;
         $timedate->save();
 
         // Get the associated booking
         $booking = Booking::findOrFail($request->booking_id);
 
-        // Associate the user's questionnaire answers with this booking
-        $mcqAnswers = McqAnswer::where('user_id', $booking->user_id)
-                               ->where('service_id', $booking->service_id)
-                               ->whereNull('booking_id')
-                               ->get();
-                               
-        if ($mcqAnswers->count() > 0) {
+        // Only associate MCQ answers if status is completed
+        if ($request->status === 'completed') {
+            // Associate the user's questionnaire answers with this booking
+            $mcqAnswers = McqAnswer::where('user_id', $booking->user_id)
+                                ->where('service_id', $booking->service_id)
+                                ->whereNull('booking_id')
+                                ->get();
+            
             foreach ($mcqAnswers as $answer) {
                 $answer->booking_id = $booking->id;
                 $answer->save();

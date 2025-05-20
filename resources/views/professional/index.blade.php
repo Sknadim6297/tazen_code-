@@ -153,7 +153,6 @@
             </td>
             <td>
                 <div class="action-btn"><i class="fas fa-eye"></i></div>
-                <div class="action-btn"><i class="fas fa-edit"></i></div>
             </td>
         </tr>
     @endforeach

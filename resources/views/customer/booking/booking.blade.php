@@ -34,7 +34,7 @@
                                     <li><strong>Date & Time:</strong>
                                         <ul>
                                             @foreach($bookingData['bookings'] as $booking)
-                                                <li>{{ $booking['date'] ?? 'N/A' }} - {{ $booking['time_slot'] ?? 'N/A' }}</li>
+                                                <li>{{ \Carbon\Carbon::parse($booking['date'])->format('d/m/y') }} - {{ $booking['time_slot'] ?? 'N/A' }}</li>
                                             @endforeach
                                         </ul>
                                     </li>
@@ -44,7 +44,7 @@
                                 <hr>
                                 <li>Service name: <span>{{ session('selected_service_name') ?? 'N/A' }}</span></li>
                               
-                                <li>Plan type: <span>{{ $planType ?? 'N/A' }}</span></li>
+                              <li>Plan type: <span>{{ isset($planType) ? ucwords(str_replace('_', ' ', $planType)) : 'N/A' }}</span></li>
                                 <li>Type: <span>Appointment</span></li>
                                 <li>Your name: <span>{{ Auth::guard('user')->user()->name ?? 'N/A' }}</span></li>
                                 <li>Your email: <span>{{ Auth::guard('user')->user()->email ?? 'N/A' }}</span></li>
