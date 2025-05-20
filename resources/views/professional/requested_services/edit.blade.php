@@ -2,6 +2,88 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('professional/assets/css/other.css') }}" />
+<style>
+    /* Mobile-friendly styling for Other Information page */
+@media screen and (max-width: 767px) {
+    /* Fix header to prevent horizontal scrolling */
+    .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    /* Make table container scrollable horizontally */
+    .table-responsive {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+    }
+    
+    /* Ensure the table takes full width of container */
+    .table {
+        width: 100%;
+        table-layout: auto;
+    }
+    
+    /* Ensure content wrapper doesn't cause horizontal scroll */
+    .content-wrapper {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+        padding: 20px 10px;
+    }
+    
+    /* Fix card width */
+    .card {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure the card body doesn't cause overflow */
+    .card-body {
+        padding: 10px 5px;
+    }
+    
+    /* Optional: Make some table columns width-responsive */
+    .table th,
+    .table td {
+        white-space: nowrap;
+    }
+    
+    /* Fix the actions column to be more mobile-friendly */
+    .table td:last-child {
+        min-width: 100px;
+    }
+    
+    /* Fix buttons in small screens */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Fix badges display in mobile view */
+    .badge {
+        display: inline-block;
+        margin-bottom: 3px;
+    }
+    
+    /* Card header adjustments for mobile */
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .card-header .btn {
+        margin-top: 10px;
+    }
+}
+</style>
 @endsection
 
 

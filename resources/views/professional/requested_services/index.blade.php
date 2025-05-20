@@ -1,17 +1,7 @@
 @extends('professional.layout.layout')
 
 @section('style')
-    <style>
-        .badge {
-            display: inline-block;
-            padding: 0.25em 0.5em;
-            background-color: #17a2b8;
-            color: #fff;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            margin-right: 3px;
-        }
-    </style>
+
 @endsection
 
 @section('content')
@@ -32,7 +22,6 @@
                     <i class="fas fa-plus-circle"></i> Add Information
                 </a>
                 @endif
-                
             </div>
 
             <div class="table-responsive mt-3">
@@ -46,7 +35,7 @@
                             <th>Specializations</th>
                             <th>Education Statement</th>
                             <th>Education</th>
-                            <th>Actions</th>
+                            <th class="actions-cell">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,7 +56,6 @@
                                 @endforeach
                             </td>
             
-                            {{-- Prices --}}
                             <td>
                                 @foreach($pricesList as $price)
                                     <div>₹{{ number_format((float) $price, 2) }}</div>
@@ -79,9 +67,7 @@
                                     <span class="badge">{{ $spec ?? '-' }}</span>
                                 @endforeach
                             </td>
-           <td>
-              {{ $service->education_statement }} 
-           </td>
+                            <td>{{ $service->education_statement }}</td>
                             <td>
                                 @if(is_array($educationList))
                                     @foreach($educationList['college_name'] as $index => $college)
@@ -91,29 +77,144 @@
                                     <div>-</div>
                                 @endif
                             </td>
-                            {{-- Actions --}}
-                            <td class="" style="display: flex; gap: 5px; align-items: center; justify-content: center;">
-                                <a href="{{ route('professional.requested_services.edit', $service->id) }}" class="btn btn-sm btn-primary">
-                                    Edit
-                                </a>
-                                <a href="javascript:void(0);" 
-                                data-url="{{ route('professional.requested_services.destroy', $service->id) }}"
-                                data-id="{{ $service->id }}" 
-                                class="btn btn-sm btn-danger ml-2 delete-item">Delete</a>                             
+                            <td class="actions-cell">
+                                <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
+                                    <a href="{{ route('professional.requested_services.edit', $service->id) }}" class="btn btn-sm btn-primary">
+                                        Edit
+                                    </a>
+                                    <a href="javascript:void(0);" 
+                                    data-url="{{ route('professional.requested_services.destroy', $service->id) }}"
+                                    data-id="{{ $service->id }}" 
+                                    class="btn btn-sm btn-danger delete-item">Delete</a>                             
+                                </div>
                             </td>
-                            
                         </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">No data found.</td>
+                                <td colspan="8" class="text-center">No data found.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            
-
         </div>
     </div>
 </div>
+<style>
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.5em;
+            background-color: #17a2b8;
+            color: #fff;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 3px;
+        }
+
+        /* Base styles */
+        .content-wrapper {
+            padding: 15px;
+            overflow-x: hidden; /* Prevent horizontal scrolling on page */
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden; /* Contain table overflow */
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        table {
+            width: 100%;
+            min-width: 800px; /* Minimum width to force scrolling */
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f1f1f1;
+            font-weight: 600;
+        }
+
+        .actions-cell {
+            white-space: nowrap; /* Prevent action buttons from wrapping */
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 767px) {
+    /* Fix header to prevent horizontal scrolling */
+    .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    /* Make table container scrollable horizontally */
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+    }
+    
+    /* Ensure the table takes full width of container */
+    .data-table {
+        width: 100%;
+        table-layout: auto;
+    }
+    
+    /* Fix the search container from overflowing */
+    .search-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure content wrapper doesn't cause horizontal scroll */
+    .content-wrapper {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+        padding: 20px 10px;
+    }
+    
+    /* Fix card width */
+    .card {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure the card body doesn't cause overflow */
+    .card-body {
+        padding: 10px 5px;
+    }
+    
+    /* Optional: Make some table columns width-responsive */
+    .data-table th,
+    .data-table td {
+        white-space: nowrap;
+    }
+    .card-header h4 {
+    font-size: 17px;
+    }
+    .btn{
+            font-size: 10px;
+    }
+}
+    </style>
 @endsection
