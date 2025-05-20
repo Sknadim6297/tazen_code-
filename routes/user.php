@@ -10,6 +10,7 @@ use App\Http\Controllers\frontend\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Service;
 
 Route::middleware(['auth:user'])->group(function () {
     Route::get('dashboard', function () {
@@ -35,7 +36,8 @@ Route::middleware(['auth:user'])->group(function () {
 
     
     Route::get('booking', function () {
-        return view('customer.booking.booking');
+         $services = Service::latest()->get();
+        return view('customer.booking.booking',compact('services'));
     })->name('booking');
 
 

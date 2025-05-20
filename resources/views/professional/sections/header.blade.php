@@ -71,7 +71,7 @@
 }
 
 .search-box i {
-    color: #999;
+    color: #99999900;
 }
 
 .search-box input {
@@ -160,6 +160,9 @@
         gap: 10px;
     }
 
+    .search-box i {
+    color: #99999900;
+    }
     .header-left, .header-right {
         flex-wrap: wrap;
     }

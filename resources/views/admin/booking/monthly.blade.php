@@ -52,32 +52,33 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table text-nowrap">
-    <thead>
-        <tr>
-            <th>Sl. No</th>
-            <th>Customer Name</th>
-            <th>Professional Name</th>
-            <th>Service Required</th>
-            <th>Paid Amount</th>
-            <th>Number Of Session</th>
-            <th>Number Of Session Taken</th>
-            <th>Number Of Session Pending</th>
-            <th>Validity Till</th>
-            <th>Current Service Date On</th>
-            <th>Current Service Time</th>
-            <th>Details</th>
-            <th>Professional Document</th>
-            <th>Customer Document</th>
-            <th>Status</th>
-            <th>Admin remarks to professional</th>
-            <th>Telecaller Remarks </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($bookings as $key => $booking)
-            @php
+    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table text-nowrap" style="min-width: 1200px;"> <!-- Set a minimum width larger than mobile screens -->
+            <thead>
+                <tr>
+                    <th>Sl. No</th>
+                    <th>Customer Name</th>
+                    <th>Professional Name</th>
+                    <th>Service Required</th>
+                    <th>Paid Amount</th>
+                    <th>Number Of Session</th>
+                    <th>Number Of Session Taken</th>
+                    <th>Number Of Session Pending</th>
+                    <th>Validity Till</th>
+                    <th>Current Service Date On</th>
+                    <th>Current Service Time</th>
+                    <th>Details</th>
+                    <th>Professional Document</th>
+                    <th>Customer Document</th>
+                    <th>Status</th>
+                    <th>Admin remarks to professional</th>
+                    <th>Telecaller Remarks </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach ($bookings as $key => $booking)
+                @php
                 // Get earliest upcoming date
                 $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
                     ? $booking->timedates
@@ -99,34 +100,34 @@
                         }
                     }
                 }
-            @endphp
+                @endphp
 
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $booking->customer_name}}
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $booking->customer_name}}
                     <br>
                     ({{ $booking->customer_phone }})
-                </td>
-                <td>{{ $booking->professional->name }}
+                    </td>
+                    <td>{{ $booking->professional->name }}
                     <br>
                     ({{ $booking->professional->phone }})
-                </td>
-                <td>{{ $booking->service_name }}</td>
-                <td>Null</td>
-                <td>{{ is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true)) }}</td>                                          
-                <td>{{ $completedSessions }}</td>
-                <td>{{ $pendingSessions }}</td>  
-                <td>{{ $booking->month }}</td>
+                    </td>
+                    <td>{{ $booking->service_name }}</td>
+                    <td>Null</td>
+                    <td>{{ is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true)) }}</td>                                          
+                    <td>{{ $completedSessions }}</td>
+                    <td>{{ $pendingSessions }}</td>  
+                    <td>{{ $booking->month }}</td>
 
-                <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
+                    <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
 
-                <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
-                <td>
+                    <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
+                    <td>
                     <a href="javascript:void(0);" class="btn btn-sm btn-primary see-details-btn" data-id="{{ $booking->id }}">
                         See Details
                     </a>
-                </td>
-            <td>
+                    </td>
+                    <td>
              @if(!empty($booking->professional_documents))
         @foreach(explode(',', $booking->professional_documents) as $doc)
             <a href="{{ asset('storage/' . $doc) }}" target="_blank"
@@ -216,6 +217,27 @@
         <!--End::row-2 -->
     </div>
 </div>
+<style>
+    @media (max-width: 767.98px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        width: auto;
+        min-width: 100%;
+    }
+    
+    /* Optional: prevent page scrolling when table is being scrolled */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+}
+</style>
 @endsection
 @section('scripts')
 <script>

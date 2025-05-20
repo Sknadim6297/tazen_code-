@@ -50,8 +50,8 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table text-nowrap">
+    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table text-nowrap" style="min-width: 1200px;"> <!-- Set a minimum width larger than mobile screens -->
                                 <thead>
                                     <tr>
                                         <th>Sl. No</th>
@@ -182,6 +182,27 @@
 
     </div>
 </div>
+<style>
+    @media (max-width: 767.98px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        width: auto;
+        min-width: 100%;
+    }
+    
+    /* Optional: prevent page scrolling when table is being scrolled */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+}
+</style>
 @endsection
 @section('scripts')
 <script>
