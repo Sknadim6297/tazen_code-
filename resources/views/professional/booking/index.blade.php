@@ -46,6 +46,11 @@
     cursor: pointer;
 }
 
+.status-slider.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 /* Hide the checkbox but keep its functionality */
 .status-slider input {
     opacity: 0;
@@ -82,6 +87,9 @@
 }
 .status-slider input:checked + .slider:before {
     transform: translateX(30px);
+}
+.status-slider.disabled input:checked + .slider {
+    background-color: #ccc;
 }
     .content-wrapper {
         background-color: #f8f9fa;
@@ -291,6 +299,161 @@
     font-size: 12px;
 }
 
+/* Add these new styles for document display */
+.document-preview {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.document-preview:hover {
+    background-color: #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.document-preview img {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+.document-preview .doc-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.document-preview .doc-name {
+    font-size: 12px;
+    color: #495057;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-preview .doc-type {
+    font-size: 10px;
+    color: #6c757d;
+}
+
+.no-doc-message {
+    color: #6c757d;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px dashed #dee2e6;
+}
+
+/* Add these new styles for status badges */
+.badge {
+    padding: 1px 5px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000;
+}
+
+/* Add styles for upload modal */
+.upload-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.upload-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.upload-modal-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.upload-modal-header h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.close-upload-modal {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-upload-modal:hover {
+    color: #000;
+}
+
+.upload-form {
+    margin-top: 20px;
+}
+
+.upload-form .form-group {
+    margin-bottom: 20px;
+}
+
+.upload-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.upload-form input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.upload-form .btn-upload {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.upload-form .btn-upload:hover {
+    background-color: #0056b3;
+}
 </style>
 @endsection
 
@@ -321,6 +484,15 @@
 </div>
 
         <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="">All Status</option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="search_name">Search</label>
             <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
         </div>
@@ -334,9 +506,6 @@
             <label for="search_date_to">To Date</label>
             <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
         </div>
-
-        <!-- ✅ Plan Type Dropdown -->
-   
 
         <div class="search-buttons">
             <button type="submit" class="btn-success">Search</button>
@@ -371,6 +540,7 @@
                                     <th>Status</th>
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
+                                    <th>Customer Document</th> <!-- Add this line -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -412,28 +582,87 @@
                                         View
                                     </button>
                                 </td>
-                           <td>
-                            Pending
-                           </td>
-                                   <td>{{ $booking->remarks }}</td>
-                          
                                 <td>
-                                    <form action="{{ route('professional.doc.upload', $booking->id) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <input type="file" name="documents[]" class="form-control" accept=".pdf" multiple>
-                                        <button type="submit" class="btn btn-primary btn-sm mt-2">Upload</button>
-                                    </form>
-                                
-                                    {{-- PDF view icon --}}
-                                    @if ($booking->professional_documents)
-                                        @php
-                                            $documents = explode(',', $booking->professional_documents);
-                                        @endphp
-                                        @foreach ($documents as $document)
-                                            <a href="{{ asset('storage/' . $document) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
-                                                <img src="{{ asset('images/pdf-icon.png') }}" alt="PDFs" style="width: 20px;">
+                                    @php
+                                        $allSlots = $booking->timedates;
+                                        $allCompleted = $allSlots->count() > 0 && $allSlots->every(function($timedate) {
+                                            return $timedate->status === 'completed';
+                                        });
+                                    @endphp
+                                    <span class="badge {{ $allCompleted ? 'bg-success' : 'bg-warning' }}">
+                                        {{ $allCompleted ? 'Completed' : 'Pending' }}
+                                    </span>
+                                </td>
+                                <td>{{ $booking->remarks ?? 'No remarks' }}</td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if ($booking->professional_documents)
+                                            @php
+                                                $doc = $booking->professional_documents;
+                                                $extension = pathinfo($doc, PATHINFO_EXTENSION);
+                                                $fileName = basename($doc);
+                                                $icon = match(strtolower($extension)) {
+                                                    'pdf' => 'pdf',
+                                                    'doc', 'docx' => 'word',
+                                                    'jpg', 'jpeg', 'png' => 'image',
+                                                    default => 'file'
+                                                };
+                                            @endphp
+                                            <a href="{{ asset('storage/' . $doc) }}" 
+                                               class="document-preview" 
+                                               target="_blank"
+                                               title="View {{ $fileName }}">
+                                                <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
+                                                     alt="{{ strtoupper($extension) }}">
+                                                <div class="doc-info">
+                                                    <span class="doc-name">{{ $fileName }}</span>
+                                                    <span class="doc-type">{{ strtoupper($extension) }} Document</span>
+                                                </div>
                                             </a>
-                                        @endforeach
+                                        @endif
+                                        <button class="btn btn-sm btn-primary upload-btn" 
+                                                onclick="openUploadModal('{{ $booking->id }}')"
+                                                title="Upload/Update Document">
+                                            <i class="fas fa-{{ $booking->professional_documents ? 'sync' : 'upload' }}"></i>
+                                            {{ $booking->professional_documents ? 'Update' : 'Upload' }}
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if ($booking->customer_document)
+                                        @php
+                                            $customerDocs = explode(',', $booking->customer_document);
+                                        @endphp
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach ($customerDocs as $doc)
+                                                @php
+                                                    $extension = pathinfo($doc, PATHINFO_EXTENSION);
+                                                    $fileName = basename($doc);
+                                                    $icon = match(strtolower($extension)) {
+                                                        'pdf' => 'pdf',
+                                                        'doc', 'docx' => 'word',
+                                                        'jpg', 'jpeg', 'png' => 'image',
+                                                        default => 'file'
+                                                    };
+                                                @endphp
+                                                <a href="{{ asset('storage/' . $doc) }}" 
+                                                   class="document-preview" 
+                                                   target="_blank"
+                                                   title="View {{ $fileName }}">
+                                                    <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
+                                                         alt="{{ strtoupper($extension) }}">
+                                                    <div class="doc-info">
+                                                        <span class="doc-name">{{ $fileName }}</span>
+                                                        <span class="doc-type">{{ strtoupper($extension) }} Document</span>
+                                                    </div>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="no-doc-message">
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            No documents provided
+                                        </div>
                                     @endif
                                 </td>
                                 
@@ -481,6 +710,25 @@
         </div>
     </div>
 </div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="upload-modal">
+    <div class="upload-modal-content">
+        <span class="close-upload-modal">&times;</span>
+        <div class="upload-modal-header">
+            <h4>Upload Document</h4>
+        </div>
+        <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" id="booking_id" name="booking_id">
+            <div class="form-group">
+                <label for="document">Select PDF Document (Max 2MB)</label>
+                <input type="file" name="document" id="document" accept=".pdf" required>
+            </div>
+            <button type="submit" class="btn-upload">Upload Document</button>
+        </form>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -524,7 +772,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dates.forEach(item => {
             item.time_slot.forEach(slot => {
-                const isChecked = item.status === 'Complete' ? 'checked' : '';
+                const isCompleted = item.status === 'completed';
+                const isChecked = isCompleted ? 'checked' : '';
+                const sliderClass = 'status-slider';
                 const remarks = item.remarks || '';
 
                 const row = `
@@ -532,16 +782,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>${item.date}</td>
                         <td>${slot}</td>
                         <td>
-                            <input type="text" class="form-control remark-input" value="${remarks}" placeholder="Remarks">
+                            <input type="text" class="form-control remark-input" value="${remarks}" 
+                                   placeholder="Remarks">
                         </td>
                         <td>
-                            <label class="status-slider" 
+                            <label class="${sliderClass}"
                                    data-booking-id="${bookingId}" 
                                    data-date="${item.date}" 
                                    data-slot="${slot}">
                                 <input type="checkbox" class="status-checkbox" ${isChecked}>
                                 <span class="slider"></span>
                             </label>
+                            <span class="status-text">${isCompleted ? 'Completed' : 'Pending'}</span>
                         </td>
                     </tr>
                 `;
@@ -556,16 +808,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach change event to status checkboxes
     function attachCheckboxListeners() {
         document.querySelectorAll('.status-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
+            checkbox.addEventListener('change', async (e) => {
                 const label = checkbox.closest('.status-slider');
                 const bookingId = label.dataset.bookingId;
                 const date = label.dataset.date;
                 const slot = label.dataset.slot;
-                const remarks = checkbox.closest('tr').querySelector('.remark-input').value;
+                const remarks = checkbox.closest('tr').querySelector('.remark-input').value.trim();
+                const status = checkbox.checked ? 'completed' : 'pending';
 
-                // Always send status = Complete on toggle
-                const status = checkbox.checked ? 'Complete' : 'Pending';
-                
+                // Check if remarks are empty and show confirmation
+                if (!remarks) {
+                    if (!confirm('Are you sure you want to proceed without adding any remarks?')) {
+                        // If user cancels, revert the checkbox state
+                        checkbox.checked = !checkbox.checked;
+                        return;
+                    }
+                }
+
                 // Send AJAX request to update status and remarks
                 fetch('/professional/bookings/update-status', {
                     method: 'POST',
@@ -577,22 +836,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         booking_id: bookingId,
                         date: date,
                         slot: slot,
-                        remarks: remarks
+                        remarks: remarks,
+                        status: status
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         toastr.success(data.message);
+                        // Update the UI to reflect the new status
+                        const statusText = checkbox.closest('td').querySelector('.status-text');
+                        statusText.textContent = status === 'completed' ? 'Completed' : 'Pending';
+                        
+                        // Keep remarks input always enabled
+                        const remarksInput = checkbox.closest('tr').querySelector('.remark-input');
+                        remarksInput.readOnly = false;
+                        
+                        // Keep slider always enabled
+                        label.className = 'status-slider';
                     } else {
-                           toastr.error(data.message);
-                        checkbox.checked = false; 
+                        toastr.error(data.message);
+                        // Revert the checkbox state
+                        checkbox.checked = !checkbox.checked;
                     }
                 })
                 .catch(error => {
                     console.error('Error updating status:', error);
-                    alert('Failed to update status.');
-                    checkbox.checked = false; // rollback
+                    toastr.error('Failed to update status.');
+                    // Revert the checkbox state
+                    checkbox.checked = !checkbox.checked;
                 });
             });
         });
@@ -709,6 +981,65 @@ window.addEventListener('click', event => {
         questionnaireModal.style.display = 'none';
     }
 });
+
+// Add this after your existing JavaScript
+const uploadModal = document.getElementById('uploadModal');
+const closeUploadModal = document.querySelector('.close-upload-modal');
+const uploadForm = document.getElementById('uploadForm');
+const bookingIdInput = document.getElementById('booking_id');
+
+function openUploadModal(bookingId) {
+    bookingIdInput.value = bookingId;
+    uploadModal.style.display = 'block';
+}
+
+closeUploadModal.onclick = function() {
+    uploadModal.style.display = 'none';
+}
+
+window.onclick = function(event) {
+    if (event.target == uploadModal) {
+        uploadModal.style.display = 'none';
+    }
+}
+
+uploadForm.onsubmit = function(e) {
+    e.preventDefault();
+    const formData = new FormData(uploadForm);
+    const bookingId = bookingIdInput.value;
+    
+    // Get the file input and check if a file is selected
+    const fileInput = document.getElementById('document');
+    if (fileInput.files.length === 0) {
+        toastr.error('Please select a file to upload');
+        return;
+    }
+
+    // Add the single file to formData
+    formData.append('document', fileInput.files[0]);
+
+    fetch(`/professional/bookings/${bookingId}/upload-documents`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toastr.success(data.message);
+            uploadModal.style.display = 'none';
+            location.reload(); // Reload to show new document
+        } else {
+            toastr.error(data.message || 'Upload failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('An error occurred while uploading');
+    });
+};
 </script>
 
 

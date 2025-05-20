@@ -17,7 +17,14 @@
                 </a>
             </div>
         <div class="user-profile">
-            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+            @php
+                $profile = Auth::guard('user')->user()->customerProfile;
+            @endphp
+            <img 
+                src="{{ $profile && $profile->profile_image ? asset($profile->profile_image) : asset('default-avatar.png') }}" 
+                alt="User"
+                onerror="this.onerror=null;this.src='{{ asset('default-avatar.png') }}';"
+            />
             <div class="user-info">
                 <h5>{{ Auth::guard('user')->user()->name }}</h5>
                 <p>User</p>

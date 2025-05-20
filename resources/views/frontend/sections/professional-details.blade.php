@@ -832,7 +832,13 @@ planButtons.forEach(button => {
         const plan = this.getAttribute('data-plan');
         sessionCount = parseInt(this.getAttribute('data-sessions')); 
         selectedPlanInput.value = plan;
-        selectedPlanText.textContent = `${plan} Consultation (Total ${sessionCount} Sessions)`;
+        
+        // Format the plan name for display
+        const displayPlan = plan.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+            
+        selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
         selectedPlanDisplay.style.display = 'block';
         selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
     });

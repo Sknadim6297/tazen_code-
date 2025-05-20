@@ -156,6 +156,11 @@ class BookingController extends Controller
 
     public function successPage()
     {
-        return view('customer.booking.event_success');
+        return view('customer.booking.success');
+    }
+
+    public function bookingSuccessPage()
+    {
+        return view('customer.booking.success');
     }
 }

@@ -33,9 +33,12 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
+    
     Route::get('booking', function () {
         return view('customer.booking.booking');
     })->name('booking');
+
+
     Route::post('/booking/store', [HomeController::class, 'store'])->name('booking.store');
 
 
