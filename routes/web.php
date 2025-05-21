@@ -1,20 +1,34 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\admin\TestimonialController;
-use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\frontend\HomeController;
-use App\Http\Controllers\Frontend\EventController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+// Admin Controllers
+use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\HowworksController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\AboutBannerController;
 use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\frontend\LoginController;
-use App\Http\Controllers\Frontend\ServiceController;
-use App\Http\Controllers\Professional\ProfessionalController;
-use App\Http\Controllers\Customer\UpcomingAppointmentController;
-use Illuminate\Auth\Events\Login;
 use App\Http\Controllers\Admin\BlogPostController;
+use App\Http\Controllers\Admin\MCQController;
+
+// Auth Controllers
+use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\Frontend\AuthController;
+
+// Frontend Controllers
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\LoginController;
+use App\Http\Controllers\Frontend\EventController;
+use App\Http\Controllers\Frontend\ServiceController;
+
+// Customer & Professional
+use App\Http\Controllers\Customer\UpcomingAppointmentController;
+use App\Http\Controllers\Professional\ProfessionalController;
+
+// Models
 use App\Models\AboutUs;
 use App\Models\Whychoose;
 use App\Models\Testimonial;
@@ -22,20 +36,15 @@ use App\Models\AboutBanner;
 use App\Models\AboutExperience;
 use App\Models\AboutHowWeWork;
 use App\Models\AboutFAQ;
-use App\Models\Eventdetail;
+use App\Models\Event;
+use App\Models\EventDetail;
 use App\Models\EventFAQ;
-use App\Models\Contactbanner;
+use App\Models\ContactBanner;
 use App\Models\ContactDetail;
 use App\Models\BlogBanner;
 use App\Models\BlogPost;
 use App\Models\Blog;
-use App\Http\Controllers\Admin\MCQController;
-use App\Http\Controllers\frontend\AuthController;
 use App\Models\Service;
-use App\Models\Event;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Models\AllEvent;
 
 
