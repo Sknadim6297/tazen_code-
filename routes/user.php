@@ -5,8 +5,8 @@ use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\EventController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
-use App\Http\Controllers\frontend\HomeController;
-use App\Http\Controllers\frontend\LoginController;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
@@ -34,10 +34,10 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
-    
+
     Route::get('booking', function () {
-         $services = Service::latest()->get();
-        return view('customer.booking.booking',compact('services'));
+        $services = Service::latest()->get();
+        return view('customer.booking.booking', compact('services'));
     })->name('booking');
 
 
