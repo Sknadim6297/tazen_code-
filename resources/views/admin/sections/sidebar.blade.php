@@ -50,7 +50,7 @@
                             <li class="slide has-sub">
                                 <a href="{{ route('admin.professional.requests') }}" class="side-menu__item">Manage Professional</a>
                                 <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professional</a>
-                                <a href="javascript:void(0);" class="side-menu__item">Professional Billing</a>
+                                <a href="{{ route('admin.professional.billing') }}" class="side-menu__item">Professional Billing</a>
                             </li>
                         </ul>
                     </li>
@@ -68,7 +68,7 @@
                         
                             <li class="slide has-sub">
                                 <a href="{{ route('admin.manage-customer.index') }}" class="side-menu__item">Manage Customer</a>
-                                <a href="javascript:void(0);" class="side-menu__item">Customer Billing</a>
+                                <a href="{{ route('admin.customer.billing') }}" class="side-menu__item">Customer Billing</a>
                             </li>
                         </ul>
                     </li>
