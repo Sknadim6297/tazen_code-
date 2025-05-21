@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\McqAnswer;
 use App\Models\BookingTimedate;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CustomerBookingController extends Controller
 {
@@ -180,7 +181,7 @@ class CustomerBookingController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $pdf = \PDf::loadView('customer.billing.invoice', [
+        $pdf = PDF::loadView('customer.billing.invoice', [
             'booking' => $booking,
             'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
             'invoice_date' => $booking->created_at->format('d M Y'),
