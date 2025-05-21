@@ -238,33 +238,49 @@ class HomeController extends Controller
 
     public function storeInSession(Request $request)
     {
-        $request->validate([
-            'professional_id' => 'required|exists:professionals,id',
-            'plan_type' => 'required|string',
-            'bookings' => 'required|array|min:1',
-        ]);
+        try {
+            $request->validate([
+                'professional_id' => 'required|exists:professionals,id',
+                'plan_type' => 'required|string',
+                'bookings' => 'required|array',
+                'total_amount' => 'required|numeric',
+            ]);
 
-        $bookingData = [];
+            $bookingData = [];
 
-        foreach ($request->bookings as $date => $slots) {
-            foreach ($slots as $slot) {
-                $bookingData[] = [
-                    'date' => $date,
-                    'time_slot' => $slot,
-                ];
+            foreach ($request->bookings as $date => $slots) {
+                if (!empty($slots)) {
+                    $bookingData[] = [
+                        'date' => $date,
+                        'time_slot' => $slots[0], // Take the first slot for each date
+                    ];
+                }
             }
+
+            if (empty($bookingData)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No valid booking slots provided'
+                ], 422);
+            }
+
+            session(['booking_data' => [
+                'professional_id' => $request->professional_id,
+                'plan_type' => $request->plan_type,
+                'bookings' => $bookingData,
+                'total_amount' => $request->total_amount,
+            ]]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Booking saved successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
         }
-
-        session(['booking_data' => [
-            'professional_id' => $request->professional_id,
-            'plan_type' => $request->plan_type,
-            'bookings' => $bookingData,
-        ]]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Booking saved successfully!',
-        ]);
     }
 
 

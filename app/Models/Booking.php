@@ -14,17 +14,22 @@ class Booking extends Model
         'user_id',
         'professional_id',
         'plan_type',
-        'booking_date',
-        'time_slot',
+        'customer_phone',
+        'service_name',
+        'session_type',
         'customer_name',
         'customer_email',
-        'customer_phone',
-        'session_type',
         'month',
+        'booking_date',
         'days',
-        'meeting_link',
-        'professional_documents',
+        'time_slot',
+        'amount',
+        'payment_id',
+        'payment_status',
         'remarks',
+        'remarks_for_professional',
+        'customer_document',
+        'professional_documents'
     ];
 
     /**
@@ -58,5 +63,10 @@ class Booking extends Model
     public function mcqAnswers()
     {
         return $this->hasMany(McqAnswer::class, 'booking_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

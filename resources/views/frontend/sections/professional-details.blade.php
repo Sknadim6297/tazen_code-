@@ -594,7 +594,15 @@
                                                 <small>{{ $perText }}</small>
                                             </div>
                                             
-                                            <button class="btn_1 full-width select-plan" data-plan="{{ $safeId }}" data-sessions="{{ $rate->num_sessions }}">Select {{ ucfirst($rate->session_type) }}</button>
+                           <button 
+    class="btn_1 full-width select-plan" 
+    data-plan="{{ $safeId }}" 
+    data-sessions="{{ $rate->num_sessions }}" 
+    data-rate="{{ $rate->final_rate }}"
+>
+    Select {{ ucfirst($rate->session_type) }}
+</button>
+
                                         </div>
                                     </div>
                                 @endforeach
@@ -826,11 +834,14 @@ const selectedPlanDisplay = document.getElementById('selected-plan-display');
 const selectedPlanText = document.getElementById('selected-plan-text');
 const selectedPlanInput = document.getElementById('selected_plan');
 let sessionCount = 0; 
+let selectedRate = 0;
+
 
 planButtons.forEach(button => {
     button.addEventListener('click', function () {
         const plan = this.getAttribute('data-plan');
         sessionCount = parseInt(this.getAttribute('data-sessions')); 
+           selectedRate = parseFloat(this.getAttribute('data-rate'));
         selectedPlanInput.value = plan;
         
         // Format the plan name for display
@@ -860,13 +871,19 @@ document.querySelector('.booking').addEventListener('click', function (e) {
     }
 
     if (selectedDatesCount !== sessionCount) {
-        toastr.error(`You need to select  ${sessionCount} dates for this booking.`);
+        toastr.error(`You need to select ${sessionCount} dates for this booking.`);
         return;
     }
 
     const professionalName = document.getElementById('professional_name').textContent.trim();
     const professionalAddress = document.getElementById('professional_address').textContent.trim();
     const professionalId = {{ json_encode($profile->professional->id ?? null) }};
+
+    // Format the bookings data into the expected structure
+    const formattedBookings = {};
+    Object.keys(bookingData).forEach(date => {
+        formattedBookings[date] = bookingData[date];
+    });
 
     // Send the booking data to the server
     fetch("{{ route('user.booking.session.store') }}", {
@@ -880,11 +897,19 @@ document.querySelector('.booking').addEventListener('click', function (e) {
             professional_address: professionalAddress,
             professional_id: professionalId,
             plan_type: planType,
-            bookings: bookingData,
+            bookings: formattedBookings,
+            total_amount: selectedRate
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return res.json();
+    })
     .then(data => {
+        console.log('Response Data:', data);
+        
         if (data.status === 'success') {
             toastr.success(data.message);
             setTimeout(() => {

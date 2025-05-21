@@ -1,0 +1,111 @@
+@extends('admin.layouts.layout')
+
+@section('content')
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">Customer Billing</h1>
+                <div>
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Customer</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Customer Billing</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- End Page Header -->
+
+        <!-- Search Container -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="{{ route('admin.customer.billing') }}" method="GET">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Date Range</label>
+                            <input type="date" class="form-control" name="start_date" value="{{ request('start_date') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">To</label>
+                            <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Plan Type</label>
+                            <select class="form-select" name="plan_type">
+                                <option value="">All Plans</option>
+                                <option value="one_time" {{ request('plan_type') == 'one_time' ? 'selected' : '' }}>One Time</option>
+                                <option value="monthly" {{ request('plan_type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                <option value="quarterly" {{ request('plan_type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
+                                <option value="free_hand" {{ request('plan_type') == 'free_hand' ? 'selected' : '' }}>Free Hand</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">SMS Status</label>
+                            <select class="form-select" name="sms_status">
+                                <option value="">All Status</option>
+                                <option value="sent" {{ request('sms_status') == 'sent' ? 'selected' : '' }}>Sent</option>
+                                <option value="pending" {{ request('sms_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                            <a href="{{ route('admin.customer.billing') }}" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Billing Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Customer Name</th>
+                                <th>Service Taking</th>
+                                <th>Professional</th>
+                                <th>Type of Plan</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>SMS Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($billings as $key => $billing)
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td>{{ $billing->customer_name }}</td>
+                                <td>{{ $billing->service_name }}</td>
+                                <td>{{ $billing->professional->name ?? 'N/A' }}</td>
+                                <td>{{ ucfirst(str_replace('_', ' ', $billing->plan_type)) }}</td>
+                                <td>₹{{ number_format($billing->amount, 2) }}</td>
+                                <td>{{ $billing->created_at->format('d M Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $billing->sms_status == 'sent' ? 'success' : 'warning' }}">
+                                        {{ ucfirst($billing->sms_status ?? 'Pending') }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-center">No billing records found</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    {{ $billings->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection 

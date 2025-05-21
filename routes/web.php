@@ -26,7 +26,9 @@ use App\Http\Controllers\Frontend\ServiceController;
 
 // Customer & Professional
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
+use App\Http\Controllers\Customer\CustomerBookingController;
 use App\Http\Controllers\Professional\ProfessionalController;
+use App\Http\Controllers\Professional\BillingController;
 
 // Models
 use App\Models\AboutUs;
@@ -258,6 +260,15 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/upcoming-appointments', [UpcomingAppointmentController::class, 'index'])->name('user.upcoming-appointment.index');
     Route::post('/customer/upload-document', [UpcomingAppointmentController::class, 'uploadDocument'])->name('user.upload-document');
     Route::get('/customer/document-info/{id}', [UpcomingAppointmentController::class, 'getDocumentInfo'])->name('user.document-info');
+
+    // Booking and Payment routes
+    Route::post('/booking/initiate-payment', [CustomerBookingController::class, 'initiatePayment'])->name('user.booking.initiate-payment');
+    Route::post('/booking/verify-payment', [CustomerBookingController::class, 'verifyPayment'])->name('user.booking.verify-payment');
+    Route::get('/booking/success', [CustomerBookingController::class, 'success'])->name('user.booking.success');
+
+    // Customer Billing routes
+    Route::get('/customer/billing', [CustomerBookingController::class, 'billing'])->name('user.billing.index');
+    Route::get('/customer/billing/download/{id}', [CustomerBookingController::class, 'downloadInvoice'])->name('user.billing.download');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
@@ -300,4 +311,10 @@ Route::prefix('professional')->name('professional.')->group(function () {
         Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset.form');
         Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
     });
+});
+
+Route::middleware(['auth:professional'])->group(function () {
+    // Professional billing routes
+    Route::get('/billing', [BillingController::class, 'index'])->name('professional.billing.index');
+    Route::get('/billing/download-invoice/{booking}', [\App\Http\Controllers\Professional\ProfessionalBillingController::class, 'downloadInvoice'])->name('professional.billing.download-invoice');
 });

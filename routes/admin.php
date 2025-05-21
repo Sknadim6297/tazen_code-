@@ -99,4 +99,7 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::post('bookings/{id}/add-remarks', [BookingController::class, 'addProfessionalRemarks'])->name('professional-add-remarks');
 
+    Route::get('professional-billing', [App\Http\Controllers\Admin\BillingController::class, 'professionalBilling'])->name('professional.billing');
+    Route::get('customer-billing', [App\Http\Controllers\Admin\CustomerBillingController::class, 'index'])->name('customer.billing');
+
 });

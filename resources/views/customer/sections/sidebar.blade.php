@@ -32,7 +32,7 @@
             </a>
 
             <div class="menu-title">Billing</div>
-            <a href="bill.html" class="menu-item">
+            <a href="{{ route('user.billing.index') }}" class="menu-item">
                 <i class="fas fa-file-invoice-dollar"></i>
                 <span>All Billing</span>
             </a>
