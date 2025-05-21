@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
+use PDF;
 
 class BillingController extends Controller
 {
@@ -12,7 +15,12 @@ class BillingController extends Controller
      */
     public function index()
     {
-        return view('professional.billing.index');
+        $bookings = Booking::where('professional_id', Auth::guard('professional')->id())
+            ->select('id', 'customer_name', 'plan_type', 'month', 'amount')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('professional.billing.index', compact('bookings'));
     }
 
     /**
@@ -61,5 +69,23 @@ class BillingController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function downloadInvoice($id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        // Check if the booking belongs to the authenticated professional
+        if ($booking->professional_id !== Auth::guard('professional')->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $pdf = PDF::loadView('professional.billing.invoice', [
+            'booking' => $booking,
+            'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+            'invoice_date' => $booking->created_at->format('d M Y'),
+        ]);
+
+        return $pdf->download('invoice-' . $booking->id . '.pdf');
     }
 }
