@@ -4,6 +4,13 @@
     {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
+    <style>
+        @media (max-width: 767px) {
+    .how_2 figure img {
+        width: 327px;
+    }
+}
+    </style>
 @endsection
 
 @section('content')
