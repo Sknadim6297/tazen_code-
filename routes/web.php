@@ -255,7 +255,7 @@ Route::middleware(['auth:user'])->group(function () {
     // Professional routes
     Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
     Route::get("professionals/details/{id}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
-    
+
     // Upcoming appointments routes
     Route::get('/upcoming-appointments', [UpcomingAppointmentController::class, 'index'])->name('user.upcoming-appointment.index');
     Route::post('/customer/upload-document', [UpcomingAppointmentController::class, 'uploadDocument'])->name('user.upload-document');
@@ -304,12 +304,29 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset.form');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 
+// Add these routes for user password reset
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showForgotForm'])
+        ->name('forgot.form');
+    Route::post('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLink'])
+        ->name('forgot.send');
+    Route::get('/reset-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showResetForm'])
+        ->name('password.reset.form');
+    Route::post('/reset-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'resetPassword'])
+        ->name('password.reset');
+});
+
+// Add these routes for professional password reset
 Route::prefix('professional')->name('professional.')->group(function () {
     Route::middleware('guest:professional')->group(function () {
-        Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('forgot.form');
-        Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.send');
-        Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset.form');
-        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+        Route::get('/forgot-password', [App\Http\Controllers\Professional\AuthController::class, 'showForgotForm'])
+            ->name('forgot.form');
+        Route::post('/forgot-password', [App\Http\Controllers\Professional\AuthController::class, 'sendResetLink'])
+            ->name('forgot.send');
+        Route::get('/reset-password', [App\Http\Controllers\Professional\AuthController::class, 'showResetForm'])
+            ->name('password.reset.form');
+        Route::post('/reset-password', [App\Http\Controllers\Professional\AuthController::class, 'resetPassword'])
+            ->name('password.reset');
     });
 });
 
