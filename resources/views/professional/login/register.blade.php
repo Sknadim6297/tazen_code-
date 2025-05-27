@@ -74,6 +74,39 @@ background-repeat: no-repeat;
     color: #2c3e50;
 	text-align: center;
 }
+.spinner {
+        width: 50px;
+        height: 50px;
+        position: relative;
+    }
+    .double-bounce1, .double-bounce2 {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #3498db;
+        opacity: 0.6;
+        position: absolute;
+        top: 0;
+        left: 0;
+        animation: sk-bounce 2.0s infinite ease-in-out;
+    }
+    .double-bounce2 {
+        animation-delay: -1.0s;
+        background-color: #2ecc71;
+    }
+    @keyframes sk-bounce {
+        0%, 100% { transform: scale(0.0); }
+        50% { transform: scale(1.0); }
+    }
+    .progress-bar-animated {
+        animation: progress-bar-stripes 1s linear infinite;
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+    }
+    @keyframes progress-bar-stripes {
+        from { background-position: 1rem 0 }
+        to { background-position: 0 0 }
+    }
 </style>
 </head>
 
@@ -212,7 +245,19 @@ background-repeat: no-repeat;
 				</div>
 				</div>
 			</form>
-			
+			<div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 9999; backdrop-filter: blur(5px);">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; background-color: rgba(0,0,0,0.6); padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 300px;">
+        <div class="spinner" style="margin: 0 auto 20px;">
+            <div class="double-bounce1"></div>
+            <div class="double-bounce2"></div>
+        </div>
+        <h4 style="margin: 0 0 10px; font-size: 18px; font-weight: 500;">Processing Your Registration</h4>
+        <p style="margin: 0; opacity: 0.8; font-size: 14px; line-height: 1.4;">Please wait while we upload your documents. This might take a moment.</p>
+        <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; margin-top: 20px; overflow: hidden;">
+            <div class="progress-bar-animated" style="height: 100%; width: 100%; background: linear-gradient(90deg, #3498db, #2ecc71);"></div>
+        </div>
+    </div>
+</div>
 			
 			<div class="copy">© Tazen</div>
 		</aside>
@@ -232,19 +277,25 @@ background-repeat: no-repeat;
 	
 	$('#registerForm').submit(function(e) {
     e.preventDefault();
-
-    var formData = new FormData(this); 
+    
+    // Show loading overlay
+    $('#loading-overlay').show();
+    
+    var formData = new FormData(this);
 
     $.ajax({
         url: "{{ route('professional.register.submit') }}",
         type: "POST",
         data: formData,
-        processData: false, 
-        contentType: false, 
+        processData: false,
+        contentType: false,
         headers: {
             "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
         },
         success: function(response) {
+            // Hide loading overlay
+            $('#loading-overlay').hide();
+            
             if (response.status === 'success') {
                 toastr.success(response.message);
                 setTimeout(function() {
@@ -255,6 +306,9 @@ background-repeat: no-repeat;
             }
         },
         error: function(xhr) {
+            // Hide loading overlay
+            $('#loading-overlay').hide();
+            
             if (xhr.responseJSON && xhr.responseJSON.errors) {
                 var errors = xhr.responseJSON.errors;
                 for (var key in errors) {
@@ -266,7 +320,6 @@ background-repeat: no-repeat;
         }
     });
 });
-
 	</script>
 	<script>
 toastr.options = {

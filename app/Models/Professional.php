@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Professional extends Authenticatable
 {
     use HasFactory, Notifiable;
-
+    protected $table = 'professionals';
     protected $fillable = [
         'name',
         'email',
@@ -39,5 +39,9 @@ class Professional extends Authenticatable
     public function professionalRejection()
     {
         return $this->hasMany(ProfessionalRejection::class);
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ProfessionalResetPassword($token));
     }
 }
