@@ -188,7 +188,6 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-<<<<<<< Updated upstream
             <tbody>
     @foreach ($recentBookings as $booking)
     @php
@@ -213,7 +212,7 @@
                     @elseif(strtolower($booking->session_type) == 'pending') warning
                     @elseif(strtolower($booking->session_type) == 'confirmed') info
                     @else secondary
-                    @endif">
+                    @endif">    
                     {{ ucfirst($booking->session_type) }}
                 </span>
             </td>
@@ -233,52 +232,6 @@
     @endforeach
 </tbody>
 
-=======
-                <tbody>
-                    @foreach ($recentBookings as $booking)
-                    @php
-                    @endphp
-                        <tr>
-                            <td>
-                                <div class="user-profile" style="margin-left: 0;">
-                                    <img src="{{ $booking->customerProfile->profile_image ?? 'https://via.placeholder.com/30' }}" 
-                                         alt="User" style="width: 30px; height: 30px;">
-                                    <div class="user-info">
-                                        <h5>{{ $booking->customer_name ?? 'N/A' }}</h5>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ ucfirst($booking->plan_type ?? 'N/A') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
-                            <td>{{ $booking->time_slot }}</td>
-                            <td>₹{{ $booking->customerProfile->package_price ?? 'N/A' }}</td>
-                            <td>
-                                <span class="status-badge 
-                                    @if(strtolower($booking->session_type) == 'completed') success
-                                    @elseif(strtolower($booking->session_type) == 'pending') warning
-                                    @elseif(strtolower($booking->session_type) == 'confirmed') info
-                                    @else secondary
-                                    @endif">
-                                    {{ ucfirst($booking->session_type) }}
-                                </span>
-                            </td>
-                            <td>
-                                @if ($booking->meeting_link)
-                                    <a href="{{ $booking->meeting_link }}" target="_blank" class="action-btn">
-                                        <i class="fas fa-video"></i> Join
-                                    </a>
-                                @else
-                                    <span class="text-gray">Not scheduled</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="action-btn"><i class="fas fa-eye"></i></div>
-                                <div class="action-btn"><i class="fas fa-edit"></i></div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
->>>>>>> Stashed changes
             </table>
         </div>
     </div>
