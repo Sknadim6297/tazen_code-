@@ -1,113 +1,85 @@
-@extends('layouts.layout')
-@section('styles')
-<style>
-    .container {
-        max-width: 500px;
-        margin: 5rem auto;
-        padding: 2.5rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
 
-    h2 {
-        text-align: center;
-        color: #2d3748;
-        margin-bottom: 2rem;
-        font-weight: 600;
-        font-size: 1.8rem;
-    }
+<!DOCTYPE html>
+<html lang="en">
 
-    .form-control {
-        height: 48px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        padding: 0 15px;
-        margin-top: 8px;
-        font-size: 15px;
-        transition: all 0.3s;
-    }
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tazen - Professional Login</title>
 
-    .form-control:focus {
-        border-color: #4299e1;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
-    }
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    .mb-3 {
-        margin-bottom: 1.75rem;
-    }
+    <!-- Styles -->
+    <link href="{{ asset('frontend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('frontend/assets/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('frontend/assets/css/account.css') }}" rel="stylesheet">
+    <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/password-reset.css') }}">
+</head>
 
-    label {
-        font-weight: 500;
-        color: #4a5568;
-        font-size: 15px;
-    }
-
-    .btn-success {
-        width: 100%;
-        padding: 12px;
-        background-color: #38a169;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        color: white;
-        transition: background-color 0.3s;
-        cursor: pointer;
-        margin-top: 0.5rem;
-    }
-
-    .btn-success:hover {
-        background-color: #2f855a;
-    }
-
-    .text-danger {
-        color: #e53e3e;
-        font-size: 14px;
-        margin-top: 6px;
-        display: block;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .container {
-            margin: 2rem auto;
-            padding: 1.5rem;
-        }
-        
-        h2 {
-            font-size: 1.5rem;
-        }
-    }
-</style>
-@endsection
-
-@section('content')
+<body>
 <div class="container">
-    <h2>Reset Password</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Reset Password') }}</div>
 
-    <form method="POST" action="{{ route('password.reset') }}">
-        @csrf
-        <input type="hidden" name="token" value="{{ $token }}">
+                <div class="card-body">
+                    <form method="POST" action="{{ route('password.reset') }}">
+                        @csrf
 
-        <div class="mb-3">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" required>
-            @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                        <input type="hidden" name="token" value="{{ $token }}">
+
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
+
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mt-3">
+                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mt-3">
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0 mt-3">
+                            <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Reset Password') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="mb-3">
-            <label>New Password</label>
-            <input type="password" name="password" class="form-control" required>
-            @error('password') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label>Confirm Password</label>
-            <input type="password" name="password_confirmation" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn btn-success">Reset Password</button>
-    </form>
+    </div>
 </div>
-@endsection
+</body>
+</html>
