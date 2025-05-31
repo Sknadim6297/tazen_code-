@@ -265,6 +265,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/initiate-payment', [CustomerBookingController::class, 'initiatePayment'])->name('user.booking.initiate-payment');
     Route::post('/booking/verify-payment', [CustomerBookingController::class, 'verifyPayment'])->name('user.booking.verify-payment');
     Route::get('/booking/success', [CustomerBookingController::class, 'success'])->name('user.booking.success');
+    Route::get('/event/booking/success', [CustomerBookingController::class, 'eventSuccess'])->name('user.event.booking.success');
 
     // Customer Billing routes
     Route::get('/customer/billing', [CustomerBookingController::class, 'billing'])->name('user.billing.index');
@@ -334,4 +335,13 @@ Route::middleware(['auth:professional'])->group(function () {
     // Professional billing routes
     Route::get('/billing', [BillingController::class, 'index'])->name('professional.billing.index');
     Route::get('/billing/download-invoice/{booking}', [\App\Http\Controllers\Professional\ProfessionalBillingController::class, 'downloadInvoice'])->name('professional.billing.download-invoice');
+});
+
+// Professional payment routes
+Route::middleware(['auth:admin'])->group(function() {
+    // Existing routes...
+    Route::post('/admin/professional/payment/save', [App\Http\Controllers\Admin\BillingController::class, 'savePayment'])
+        ->name('admin.professional.payment.save');
+    Route::post('/admin/professional/payment/update-status', [App\Http\Controllers\Admin\BillingController::class, 'updatePaymentStatus'])
+        ->name('admin.professional.payment.update-status');
 });

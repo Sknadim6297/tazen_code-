@@ -16,7 +16,7 @@ class UpcomingAppointmentController extends Controller
     {
         $query = Booking::with([
             'timedates' => function ($q) {
-                $q->where('date', '>=', \Carbon\Carbon::today())  
+                $q->where('date', '>=', \Carbon\Carbon::today())
                     ->orderBy('date', 'asc');
             },
             'professional' => function ($q) {
@@ -24,20 +24,15 @@ class UpcomingAppointmentController extends Controller
             }
         ])
             ->where('user_id', Auth::guard('user')->id());
-
-        // 🔍 Search by Professional Name (search_name)
         if ($request->filled('search_name')) {
             $search = $request->search_name;
-            $query->
-             
-            
-            whereHas('professional', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            }
-        );
+            $query->whereHas(
+                'professional',
+                function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                }
+            );
         }
-
-        // 📅 Search by Date Range (search_date_from & search_date_to)
         if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->whereBetween('booking_date', [$request->search_date_from, $request->search_date_to]);
@@ -123,18 +118,16 @@ class UpcomingAppointmentController extends Controller
             ]);
 
             $booking = Booking::findOrFail($request->booking_id);
-            
+
             if ($request->hasFile('document')) {
                 $file = $request->file('document');
-                
+
                 // Log file information
                 Log::info('File information:', [
                     'original_name' => $file->getClientOriginalName(),
                     'mime_type' => $file->getMimeType(),
                     'size' => $file->getSize(),
                 ]);
-
-                // Delete old file if exists
                 if ($booking->customer_document && Storage::disk('public')->exists($booking->customer_document)) {
                     try {
                         Storage::disk('public')->delete($booking->customer_document);
@@ -143,26 +136,17 @@ class UpcomingAppointmentController extends Controller
                     }
                 }
 
-                // Generate safe filename
                 $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-                
+
                 try {
-                    // Store the file
                     $path = $file->storeAs('customer-documents', $fileName, 'public');
-                    
-                    // Verify file was stored
                     if (!Storage::disk('public')->exists($path)) {
                         throw new \Exception('File was not stored properly');
                     }
 
-                    // Update database
                     $booking->customer_document = $path;
                     $booking->save();
 
-                    // Log success
-                    Log::info('File uploaded successfully:', ['path' => $path]);
-
-                    // Return success response
                     return response()->json([
                         'success' => true,
                         'message' => 'Document uploaded successfully',
@@ -182,12 +166,11 @@ class UpcomingAppointmentController extends Controller
                     ], 500);
                 }
             }
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'No document was uploaded'
             ], 400);
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation error: ' . json_encode($e->errors()));
             return response()->json([
@@ -219,7 +202,7 @@ class UpcomingAppointmentController extends Controller
     {
         try {
             $booking = Booking::findOrFail($id);
-            
+
             if (!$booking->customer_document) {
                 return response()->json([
                     'success' => false,
@@ -248,7 +231,6 @@ class UpcomingAppointmentController extends Controller
                 'file' => $fileInfo
             ]);
         } catch (\Exception $e) {
-            \Log::error('Document info error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error getting document information'

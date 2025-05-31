@@ -132,7 +132,6 @@ class BookingController extends Controller
                 'message' => 'No document was uploaded.'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Document upload error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error uploading document: ' . $e->getMessage()
@@ -242,7 +241,6 @@ class BookingController extends Controller
             $answers = $booking->mcqAnswers;
             
             if ($answers->isEmpty()) {
-                \Log::info('No answers found for booking ID: ' . $bookingId);
                 return response()->json([
                     'success' => false,
                     'message' => 'No questionnaire answers found for this booking.',
@@ -278,7 +276,7 @@ class BookingController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error in getQuestionnaireAnswers: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving questionnaire answers: ' . $e->getMessage()
