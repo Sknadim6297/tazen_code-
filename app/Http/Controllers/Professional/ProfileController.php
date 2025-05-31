@@ -155,47 +155,83 @@ class ProfileController extends Controller
             'bio' => 'nullable|string',
             'photo' => 'nullable|image',
             'gallery.*' => 'nullable|image',
+            'delete_gallery' => 'nullable|array',
             'qualificationDocument' => 'nullable|file',
             'aadhaarCard' => 'nullable|file',
             'panCard' => 'nullable|file',
         ]);
 
         $profile = Profile::findOrFail($id);
+        
+        // Security check - ensure the profile belongs to the authenticated professional
+        if ($profile->professional_id != Auth::guard('professional')->id()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized access'], 403);
+        }
+        
         $professionalId = Auth::guard('professional')->id();
 
-        // Delete & update photo
-        if ($request->hasFile('photo') && $profile->photo) {
-            Storage::disk('public')->delete($profile->photo);
+        // Handle profile photo update
+        if ($request->hasFile('photo')) {
+            if ($profile->photo) {
+                Storage::disk('public')->delete($profile->photo);
+            }
             $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
         }
 
-        // Delete & update gallery
-        if ($request->hasFile('gallery')) {
-            if ($profile->gallery) {
-                foreach (json_decode($profile->gallery, true) as $img) {
-                    Storage::disk('public')->delete($img);
+        // Enhanced gallery handling - preserve existing images
+        if ($request->hasFile('gallery') || $request->has('delete_gallery')) {
+            // Get current gallery images
+            $currentGallery = $profile->gallery ? json_decode($profile->gallery, true) : [];
+            
+            // Handle image deletions first
+            if ($request->has('delete_gallery') && is_array($request->delete_gallery)) {
+                foreach ($request->delete_gallery as $imageToDelete) {
+                    // Find and remove from array
+                    $key = array_search($imageToDelete, $currentGallery);
+                    if ($key !== false) {
+                        // Delete the actual file
+                        Storage::disk('public')->delete($imageToDelete);
+                        // Remove from array
+                        unset($currentGallery[$key]);
+                    }
                 }
+                // Reindex array to avoid issues with JSON encoding
+                $currentGallery = array_values($currentGallery);
             }
-            $profile->gallery = json_encode($this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery'));
+            
+            // Add new gallery images
+            if ($request->hasFile('gallery')) {
+                $newImages = $this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery');
+                // Merge with existing images
+                $currentGallery = array_merge($currentGallery, $newImages);
+            }
+            
+            // Update gallery with preserved + new images
+            $profile->gallery = json_encode($currentGallery);
         }
 
-        // Delete & update qualification document
-        if ($request->hasFile('qualificationDocument') && $profile->qualification_document) {
-            Storage::disk('public')->delete($profile->qualification_document);
+        // Handle document uploads
+        if ($request->hasFile('qualificationDocument')) {
+            if ($profile->qualification_document) {
+                Storage::disk('public')->delete($profile->qualification_document);
+            }
             $profile->qualification_document = $this->uploadImage($request, 'qualificationDocument', 'uploads/profiles/documents');
         }
 
-        // Delete & update aadhaar
-        if ($request->hasFile('aadhaarCard') && $profile->aadhaar_card) {
-            Storage::disk('public')->delete($profile->aadhaar_card);
+        if ($request->hasFile('aadhaarCard')) {
+            if ($profile->aadhaar_card) {
+                Storage::disk('public')->delete($profile->aadhaar_card);
+            }
             $profile->aadhaar_card = $this->uploadImage($request, 'aadhaarCard', 'uploads/profiles/identity');
         }
 
-        // Delete & update pan
-        if ($request->hasFile('panCard') && $profile->pan_card) {
-            Storage::disk('public')->delete($profile->pan_card);
+        if ($request->hasFile('panCard')) {
+            if ($profile->pan_card) {
+                Storage::disk('public')->delete($profile->pan_card);
+            }
             $profile->pan_card = $this->uploadImage($request, 'panCard', 'uploads/profiles/identity');
         }
+
         // Update other fields
         $profile->professional_id = $professionalId;
         $profile->name = $data['name'];
