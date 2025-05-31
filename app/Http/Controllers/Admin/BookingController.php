@@ -50,24 +50,8 @@ class BookingController extends Controller
 
     public function freeHandBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'free_hand')->with('professional', 'timedates');
-        if ($request->filled('search')) {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
-            });
-        }
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
-        }
-        $bookings = $query->latest()->get();
-        return view('admin.booking.freehand', compact('bookings'));
-    }
-
-    public function monthlyBooking(Request $request)
-    {
-        $query = Booking::where('plan_type', 'monthly')->with(['professional', 'timedates', 'customerProfile']);
+        $query = Booking::where('plan_type', 'free_hand')
+            ->with(['professional', 'timedates', 'customerProfile']);
         
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -87,6 +71,70 @@ class BookingController extends Controller
         // Fetch the bookings
         $bookings = $query->latest()->get();
 
+        $today = now()->startOfDay();
+
+        foreach ($bookings as $booking) {
+            // Calculate next booking date - only looking at future dates
+            $nextSession = $booking->timedates()
+                ->where('date', '>=', $today->format('Y-m-d'))
+                ->orderBy('date', 'asc')
+                ->first();
+            
+            // Get the most recent past session with a meeting link (for reference)
+            $lastSessionWithLink = $booking->timedates()
+                ->where('date', '<', $today->format('Y-m-d'))
+                ->whereNotNull('meeting_link')
+                ->orderBy('date', 'desc')
+                ->first();
+            
+            // Set meeting link priority: 1) Next session link, 2) Most recent past session link
+            $booking->next_booking = $nextSession;
+            $booking->last_session_with_link = $lastSessionWithLink;
+            
+            // Calculate completed and pending sessions
+            $completedSessions = 0;
+            $pendingSessions = 0;
+            
+            if ($booking->timedates && $booking->timedates->count() > 0) {
+                foreach ($booking->timedates as $td) {
+                    $slots = explode(',', $td->time_slot);
+                    if ($td->status === 'completed') {
+                        $completedSessions += count($slots);
+                    } else {
+                        $pendingSessions += count($slots);
+                    }
+                }
+            }
+            
+            $booking->completed_sessions = $completedSessions;
+            $booking->pending_sessions = $pendingSessions;
+        }
+
+        return view('admin.booking.freehand', compact('bookings'));
+    }
+
+    public function monthlyBooking(Request $request)
+    {
+        $query = Booking::where('plan_type', 'monthly')->with(['professional', 'timedates', 'customerProfile']);
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            })->orWhereHas('professional', function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Fetch the bookings
+        $bookings = $query->latest()->get();
+
         // Enhance bookings with next booking date and payment info
         foreach ($bookings as $booking) {
             // Calculate next booking date
@@ -95,27 +143,27 @@ class BookingController extends Controller
                 ->where('status', '!=', 'completed')
                 ->orderBy('date', 'asc')
                 ->first();
-            
-            $booking->next_booking_date = $nextBookingDate ? 
-                \Carbon\Carbon::parse($nextBookingDate->date)->format('d M Y') : 
+
+            $booking->next_booking_date = $nextBookingDate ?
+                \Carbon\Carbon::parse($nextBookingDate->date)->format('d M Y') :
                 'No Upcoming Booking';
-            
+
             // Format time slots for next booking
             if ($nextBookingDate) {
                 $booking->next_booking_time = $nextBookingDate->time_slot;
                 $booking->next_meeting_link = $nextBookingDate->meeting_link;
             }
-            
+
             // Handle payment info - show amount if payment status is paid
-            $booking->display_amount = $booking->payment_status === 'paid' ? 
+            $booking->display_amount = $booking->payment_status === 'paid' ?
                 number_format($booking->amount, 2) : 'Not Paid';
-                
+
             // Get the latest meeting link from the most recent timedate with a link
             $latestTimedate = $booking->timedates()
                 ->whereNotNull('meeting_link')
                 ->orderBy('date', 'desc')
                 ->first();
-                
+
             $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
         }
 
@@ -124,20 +172,59 @@ class BookingController extends Controller
 
     public function quaterlyBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'quarterly')->with('professional');
+        $query = Booking::where('plan_type', 'quarterly')
+            ->with(['professional', 'timedates', 'customerProfile']);
+
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%')
                     ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            })->orWhereHas('professional', function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
         // Fetch the bookings
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10);
+
+        // Enhance bookings with next booking date and payment info
+        foreach ($bookings as $booking) {
+            // Calculate next booking date
+            $nextBookingDate = $booking->timedates()
+                ->where('date', '>', now()->format('Y-m-d'))
+                ->where('status', '!=', 'completed')
+                ->orderBy('date', 'asc')
+                ->first();
+
+            $booking->next_booking_date = $nextBookingDate ?
+                \Carbon\Carbon::parse($nextBookingDate->date)->format('d M Y') :
+                'No Upcoming Booking';
+
+            // Format time slots for next booking
+            if ($nextBookingDate) {
+                $booking->next_booking_time = $nextBookingDate->time_slot;
+                $booking->next_meeting_link = $nextBookingDate->meeting_link;
+            }
+
+            // Handle payment info - show amount if payment status is paid
+            $booking->display_amount = $booking->payment_status === 'paid' ?
+                number_format($booking->amount, 2) : 'Not Paid';
+
+            // Get the latest meeting link from the most recent timedate with a link
+            $latestTimedate = $booking->timedates()
+                ->whereNotNull('meeting_link')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
+        }
+
         return view('admin.booking.quaterly', compact('bookings'));
     }
 
@@ -164,12 +251,12 @@ class BookingController extends Controller
         }
 
         $today = now()->startOfDay();
-        
+
         return response()->json([
             'dates' => $booking->timedates->map(function ($td) use ($today) {
                 $dateObj = \Carbon\Carbon::parse($td->date);
                 $isExpired = $dateObj->lt($today);
-                
+
                 return [
                     'id' => $td->id,
                     'date' => $td->date,
