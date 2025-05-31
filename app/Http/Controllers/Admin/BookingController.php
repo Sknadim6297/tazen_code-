@@ -67,20 +67,58 @@ class BookingController extends Controller
 
     public function monthlyBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'monthly')->with('professional', 'timedates', 'customerProfile');
+        $query = Booking::where('plan_type', 'monthly')->with(['professional', 'timedates', 'customerProfile']);
+        
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%')
                     ->orWhere('service_name', 'like', '%' . $searchTerm . '%');
+            })->orWhereHas('professional', function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
+        
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
         // Fetch the bookings
         $bookings = $query->latest()->get();
+
+        // Enhance bookings with next booking date and payment info
+        foreach ($bookings as $booking) {
+            // Calculate next booking date
+            $nextBookingDate = $booking->timedates()
+                ->where('date', '>', now()->format('Y-m-d'))
+                ->where('status', '!=', 'completed')
+                ->orderBy('date', 'asc')
+                ->first();
+            
+            $booking->next_booking_date = $nextBookingDate ? 
+                \Carbon\Carbon::parse($nextBookingDate->date)->format('d M Y') : 
+                'No Upcoming Booking';
+            
+            // Format time slots for next booking
+            if ($nextBookingDate) {
+                $booking->next_booking_time = $nextBookingDate->time_slot;
+                $booking->next_meeting_link = $nextBookingDate->meeting_link;
+            }
+            
+            // Handle payment info - show amount if payment status is paid
+            $booking->display_amount = $booking->payment_status === 'paid' ? 
+                number_format($booking->amount, 2) : 'Not Paid';
+                
+            // Get the latest meeting link from the most recent timedate with a link
+            $latestTimedate = $booking->timedates()
+                ->whereNotNull('meeting_link')
+                ->orderBy('date', 'desc')
+                ->first();
+                
+            $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
+        }
+
         return view('admin.booking.monthly', compact('bookings'));
     }
 
@@ -125,14 +163,24 @@ class BookingController extends Controller
             return response()->json(['error' => 'Booking not found'], 404);
         }
 
+        $today = now()->startOfDay();
+        
         return response()->json([
-            'dates' => $booking->timedates->map(function ($td) {
+            'dates' => $booking->timedates->map(function ($td) use ($today) {
+                $dateObj = \Carbon\Carbon::parse($td->date);
+                $isExpired = $dateObj->lt($today);
+                
                 return [
+                    'id' => $td->id,
                     'date' => $td->date,
-                    'time_slot' => explode(',', $td->time_slot),
-                    'status' => $td->status ?? 'Pending',
+                    'time_slot' => $td->time_slot,
+                    'status' => $td->status ?? 'pending',
+                    'remarks' => $td->remarks ?? '-',
+                    'meeting_link' => $td->meeting_link ?? '',
+                    'is_expired' => $isExpired,
+                    'is_today' => $dateObj->isToday(),
                 ];
-            })
+            })->sortBy('date')->values()->all()
         ]);
     }
     public function addRemarks(Request $request, $id)

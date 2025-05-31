@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            window.location.href = "{{ route('user.booking.success') }}";
+                            window.location.href = "{{ route('user.event.booking.success') }}";
                         } else {
                             toastr.error('Payment verification failed.');
                         }

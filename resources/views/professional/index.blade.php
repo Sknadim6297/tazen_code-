@@ -116,7 +116,7 @@
             </div>
             <div class="card-info">
                 <h4>Total Revenue</h4>
-                <h2>₹12,600</h2>
+                <h2>₹12,600</h2>            
                 <p class="positive"><i class="fas fa-arrow-up"></i> 8% from last month</p>
             </div>
         </div>

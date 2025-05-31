@@ -30,7 +30,9 @@
                             <th>Customer Name</th>
                             <th>Session Type</th>
                             <th>Month</th>
-                            <th>Amount</th>
+                            <th>Gross Amount</th>
+                            <th>Platform Margin</th>
+                            <th>Net Amount</th>
                             <th>Invoice</th>
                         </tr>
                     </thead>
@@ -53,9 +55,19 @@
                                 <div class="label">Month</div>
                                 <div class="value">{{ $booking->month }}</div>
                             </td>
-                            <td data-label="Amount">
-                                <div class="label">Amount</div>
+                            <td data-label="Gross Amount">
+                                <div class="label">Gross Amount</div>
                                 <div class="value">₹{{ number_format($booking->amount, 2) }}</div>
+                            </td>
+                            <td data-label="Platform Margin">
+                                <div class="label">Platform Margin</div>
+                                <div class="value margin-value">
+                                    <span class="margin-badge">{{ $marginPercentage }}%</span>
+                                </div>
+                            </td>
+                            <td data-label="Net Amount">
+                                <div class="label">Net Amount</div>
+                                <div class="value net-amount">₹{{ number_format($booking->net_amount, 2) }}</div>
                             </td>
                             <td data-label="Invoice">
                                 <div class="label">Invoice</div>
@@ -69,7 +81,9 @@
                         @endforeach
                         <tr class="total-row">
                             <td colspan="3" class="total-label">Total Billing:</td>
-                            <td class="total-amount">₹{{ number_format($bookings->sum('amount'), 2) }}</td>
+                            <td class="total-amount">₹{{ number_format($totalGrossAmount, 2) }}</td>
+                            <td class="total-deduction">₹{{ number_format($totalMarginDeducted, 2) }}</td>
+                            <td class="total-net">₹{{ number_format($totalNetAmount, 2) }}</td>
                             <td></td>
                         </tr>
                     </tbody>

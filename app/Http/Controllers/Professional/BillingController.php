@@ -10,17 +10,34 @@ use PDF;
 
 class BillingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
+        $professional = auth()->user(); 
+        $marginPercentage = $professional->margin; 
+        // Get bookings
         $bookings = Booking::where('professional_id', Auth::guard('professional')->id())
             ->select('id', 'customer_name', 'plan_type', 'month', 'amount')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('professional.billing.index', compact('bookings'));
+        // Calculate margin deductions for each booking
+        foreach ($bookings as $booking) {
+            $booking->margin_amount = ($booking->amount * $marginPercentage) / 100;
+            $booking->net_amount = $booking->amount - $booking->margin_amount;
+        }
+
+        // Calculate totals
+        $totalGrossAmount = $bookings->sum('amount');
+        $totalMarginDeducted = $bookings->sum('margin_amount');
+        $totalNetAmount = $bookings->sum('net_amount');
+
+        return view('professional.billing.index', [
+            'bookings' => $bookings,
+            'marginPercentage' => $marginPercentage,
+            'totalGrossAmount' => $totalGrossAmount,
+            'totalMarginDeducted' => $totalMarginDeducted,
+            'totalNetAmount' => $totalNetAmount
+        ]);
     }
 
     /**
@@ -74,16 +91,23 @@ class BillingController extends Controller
     public function downloadInvoice($id)
     {
         $booking = Booking::findOrFail($id);
-        
-        // Check if the booking belongs to the authenticated professional
         if ($booking->professional_id !== Auth::guard('professional')->id()) {
             abort(403, 'Unauthorized');
         }
+
+        $professional = Auth::guard('professional')->user();
+        $marginPercentage = $professional->margin;
+
+        $marginAmount = ($booking->amount * $marginPercentage) / 100;
+        $netAmount = $booking->amount - $marginAmount;
 
         $pdf = PDF::loadView('professional.billing.invoice', [
             'booking' => $booking,
             'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
             'invoice_date' => $booking->created_at->format('d M Y'),
+            'marginPercentage' => $marginPercentage,
+            'marginAmount' => $marginAmount,
+            'netAmount' => $netAmount,
         ]);
 
         return $pdf->download('invoice-' . $booking->id . '.pdf');
