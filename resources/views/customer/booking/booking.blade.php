@@ -54,7 +54,7 @@
                             </div>
 
                             <a href="javascript:void(0);" class="btn_1 full-width mb_5 booking">Book Now</a>
-                            <a href="#" class="btn_1 full-width outline mb_25">Change Booking</a>
+                            <a href="{{ route('user.reset-booking') }}" class="btn_1 full-width outline mb_25">Change Booking</a>
                         </div>
                     @else
                         <div class="main">
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ phone: phone })
             })
             .then(res => res.json())
-            .then(data => {
+            .then(data => { // Fixed missing arrow here
                 if (data.status === 'success') {
                     // Initialize Razorpay
                     const options = {

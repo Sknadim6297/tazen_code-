@@ -29,7 +29,7 @@ class CustomerBookingController extends Controller
                 ], 400);
             }
 
-            $amount = $bookingData['total_amount'] * 100; 
+            $amount = $bookingData['total_amount'] * 100;
             $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
 
             $order = $api->order->create([
@@ -51,7 +51,6 @@ class CustomerBookingController extends Controller
                 'email' => Auth::guard('user')->user()->email,
                 'phone' => $request->phone
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -81,8 +80,6 @@ class CustomerBookingController extends Controller
             if (!$professional) {
                 throw new \Exception('Professional not found');
             }
-
-            // Create booking record
             $booking = new Booking();
             $booking->user_id = Auth::guard('user')->id();
             $booking->professional_id = $bookingData['professional_id'];
@@ -95,11 +92,11 @@ class CustomerBookingController extends Controller
             $booking->amount = $bookingData['total_amount'];
             $booking->payment_id = $request->razorpay_payment_id;
             $booking->payment_status = 'paid';
-            
+
             $firstBookingDate = Carbon::parse($bookingData['bookings'][0]['date']);
             $booking->month = $firstBookingDate->format('M');
             $booking->booking_date = $firstBookingDate->format('Y-m-d');
-            $booking->days = json_encode(array_map(function($b) {
+            $booking->days = json_encode(array_map(function ($b) {
                 return Carbon::parse($b['date'])->day;
             }, $bookingData['bookings']));
             $booking->time_slot = json_encode(array_column($bookingData['bookings'], 'time_slot'));
@@ -123,8 +120,6 @@ class CustomerBookingController extends Controller
                     ->whereNull('booking_id')
                     ->update(['booking_id' => $booking->id]);
             }
-
-            // Store success data in session with professional details
             session([
                 'booking_success' => [
                     'professional_name' => $professional->name,
@@ -144,7 +139,6 @@ class CustomerBookingController extends Controller
                 'message' => 'Payment successful and booking confirmed',
                 'redirect_url' => route('user.booking.success')
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -158,7 +152,7 @@ class CustomerBookingController extends Controller
         if (!session()->has('booking_success')) {
             return redirect()->route('professionals')->with('error', 'No booking information found');
         }
-        
+
         return view('customer.booking.success');
     }
 
@@ -175,8 +169,7 @@ class CustomerBookingController extends Controller
     public function downloadInvoice($id)
     {
         $booking = Booking::with('professional')->findOrFail($id);
-        
-        // Check if the booking belongs to the authenticated user
+
         if ($booking->user_id !== Auth::guard('user')->id()) {
             abort(403, 'Unauthorized');
         }
@@ -189,4 +182,8 @@ class CustomerBookingController extends Controller
 
         return $pdf->download('invoice-' . $booking->id . '.pdf');
     }
-} 
+    public function eventSuccess()
+    {
+        return view('customer.booking.event_success');
+    }
+}

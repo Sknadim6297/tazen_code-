@@ -1,85 +1,141 @@
 @extends('professional.layout.layout')
 
-@section('style')
-
-@endsection
-
-@section('content')
-
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>All Billing</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">All Billing</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h4>Billing Details</h4>
-            
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Session Type</th>
-                            <th>Month</th>
-                            <th>Amount</th>
-                            <th>Invoice</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($bookings as $booking)
-                        <tr>
-                            <td data-label="Customer Name">
-                                <div class="label">Customer Name</div>
-                                <div class="value">{{ $booking->customer_name }}</div>
-                            </td>
-                            <td data-label="Session Type">
-                                <div class="label">Session Type</div>
-                                <div class="value">
-                                    <span class="badge badge-{{ str_replace('_', '-', strtolower($booking->plan_type)) }}">
-                                        {{ ucwords(str_replace('_', ' ', $booking->plan_type)) }}
-                                    </span>
-                                </div>
-                            </td>
-                            <td data-label="Month">
-                                <div class="label">Month</div>
-                                <div class="value">{{ $booking->month }}</div>
-                            </td>
-                            <td data-label="Amount">
-                                <div class="label">Amount</div>
-                                <div class="value">₹{{ number_format($booking->amount, 2) }}</div>
-                            </td>
-                            <td data-label="Invoice">
-                                <div class="label">Invoice</div>
-                                <div class="value">
-                                    <a href="{{ route('professional.billing.download-invoice', ['booking' => $booking->id]) }}" class="btn-download">
-                                        Download Invoice
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                        <tr class="total-row">
-                            <td colspan="3" class="total-label">Total Billing:</td>
-                            <td class="total-amount">₹{{ number_format($bookings->sum('amount'), 2) }}</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+@section('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --primary-rgb: 79, 70, 229;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+    }
   
+    /* Date Picker and Filter Styling */
+    .filter-section {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 6px;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--gray-300);
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+    }
+
+    .filter-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        outline: none;
+    }
+
+    .filter-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 18px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        background-color: var(--primary-dark);
+    }
+
+    .filter-btn.reset {
+        background-color: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    .filter-btn.reset:hover {
+        background-color: var(--gray-300);
+    }
+
+    /* Date picker customization */
+    .flatpickr-calendar {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        border-radius: 10px !important;
+    }
+
+    .flatpickr-day.selected, 
+    .flatpickr-day.startRange, 
+    .flatpickr-day.endRange, 
+    .flatpickr-day.selected.inRange, 
+    .flatpickr-day.startRange.inRange, 
+    .flatpickr-day.endRange.inRange, 
+    .flatpickr-day.selected:focus, 
+    .flatpickr-day.startRange:focus, 
+    .flatpickr-day.endRange:focus, 
+    .flatpickr-day.selected:hover, 
+    .flatpickr-day.startRange:hover, 
+    .flatpickr-day.endRange:hover {
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+    }
+
+    /* Transaction number styling */
+    .transaction-number {
+        font-family: monospace;
+        padding: 4px 8px;
+        background: #f7fafc;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    /* Status badges */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-paid {
+        background-color: rgba(72, 187, 120, 0.1);
+        color: #48bb78;
+    }
+
+    .status-unpaid {
+        background-color: rgba(237, 100, 88, 0.1);
+        color: #ed645c;
+    }
 
     .content-wrapper {
         background-color: #f8fafc;
@@ -524,11 +580,159 @@
 </style>
 @endsection
 
+@section('content')
+<div class="content-wrapper">
+    <div class="page-header">
+        <div class="page-title">
+            <h3>All Billing</h3>
+        </div>
+        <ul class="breadcrumb">
+            <li>Home</li>
+            <li class="active">All Billing</li>
+        </ul>
+    </div>
+
+    <!-- New Filter Section -->
+    <div class="filter-section">
+        <form action="{{ route('professional.billing.index') }}" method="GET" id="filter-form">
+            <div class="row">
+                   <div class="form-group">
+            <label for="search_date_from">From Date</label>
+            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+        </div>
+
+        <div class="form-group">
+            <label for="search_date_to">To Date</label>
+            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+        </div>
+                <div class="col-md-3 filter-group">
+                    <label class="filter-label" for="plan_type">Plan Type</label>
+                    <select class="filter-input" id="plan_type" name="plan_type">
+                        <option value="">All Plans</option>
+                        <option value="monthly" {{ request('plan_type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="quarterly" {{ request('plan_type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
+                        <option value="yearly" {{ request('plan_type') == 'free_hand' ? 'selected' : '' }}>Free Hand</option>
+                        <option value="one_time" {{ request('plan_type') == 'one_time' ? 'selected' : '' }}>One Time</option>
+                    </select>
+                </div>
+                <div class="col-md-3 filter-group">
+                    <label class="filter-label" for="payment_status">Payment Status</label>
+                    <select class="filter-input" id="payment_status" name="payment_status">
+                        <option value="">All Statuses</option>
+                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                        <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 d-flex justify-content-end filter-actions">
+                    <button type="submit" class="filter-btn">Apply Filters</button>
+                    <a href="{{ route('professional.billing.index') }}" class="filter-btn reset ml-2">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Billing Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Session Type</th>
+                            <th>Month</th>
+                           
+                            <th>Gross Amount</th>
+                            <th>Platform Margin</th>
+                            <th>Net Amount</th>
+                    
+                            <th>Status</th>
+                                     <th>Transaction Number</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($bookings as $booking)
+                        <tr>
+                            <td data-label="Customer Name">
+                                <div class="label">Customer Name</div>
+                                <div class="value">{{ $booking->customer_name }}</div>
+                            </td>
+                            <td data-label="Session Type">
+                                <div class="label">Session Type</div>
+                                <div class="value">
+                                    <span class="badge badge-{{ str_replace('_', '-', strtolower($booking->plan_type)) }}">
+                                        {{ ucwords(str_replace('_', ' ', $booking->plan_type)) }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td data-label="Month">
+                                <div class="label">Month</div>
+                                <div class="value">{{ $booking->month }}</div>
+                            </td>
+                            
+                            <td data-label="Gross Amount">
+                                <div class="label">Gross Amount</div>
+                                <div class="value">₹{{ number_format($booking->amount, 2) }}</div>
+                            </td>
+                            <td data-label="Platform Margin">
+                                <div class="label">Platform Margin</div>
+                                <div class="value margin-value">
+                                    <span class="margin-badge">{{ $marginPercentage }}%</span>
+                                </div>
+                            </td>
+                            <td data-label="Net Amount">
+                                <div class="label">Net Amount</div>
+                                <div class="value net-amount">₹{{ number_format($booking->net_amount, 2) }}</div>
+                            </td>
+                            
+                            <td data-label="Status">
+                                <div class="label">Status</div>
+                                <div class="value">
+                                    <span class="status-badge status-{{ $booking->paid_status ?? 'unpaid' }}">
+                                        {{ ucfirst($booking->paid_status ?? 'unpaid') }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td data-label="Transaction ID">
+                                <div class="label">Transaction ID</div>
+                                <div class="value">
+                                    <span class="transaction-number">{{ $booking->transaction_number ?? 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td data-label="Invoice">
+                                <div class="label">Invoice</div>
+                                <div class="value">
+                                    <a href="{{ route('professional.billing.download-invoice', ['booking' => $booking->id]) }}" class="btn-download">
+                                        Download Invoice
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                        <tr class="total-row">
+                            <td colspan="4" class="total-label">Total Billing:</td>
+                            <td class="total-amount">₹{{ number_format($totalGrossAmount, 2) }}</td>
+                            <td class="total-deduction">₹{{ number_format($totalMarginDeducted, 2) }}</td>
+                            <td class="total-net">₹{{ number_format($totalNetAmount, 2) }}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+
+
 @section('scripts')
 <script>
-    // Add any necessary JavaScript here
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add interactive elements if needed
-    });
+    
 </script>
 @endsection

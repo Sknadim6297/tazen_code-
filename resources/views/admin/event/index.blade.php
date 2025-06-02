@@ -94,7 +94,7 @@
                 <td>
     <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST">
         @csrf
-        <input type="text" name="gmeet_link" class="form-control" value="{{ $booking->gmeet_link ?? 'N/A' }}">
+        <input type="text" name="gmeet_link" class="form-control" value="{{ $booking->gmeet_link ?? 'N/A' }}" style="width: 320px">
         <button type="submit" class="btn btn-primary mt-1">Save</button>
     </form>
 </td>
