@@ -167,6 +167,90 @@
 				font-size: 20px;
 			}
 		}
+    
+    /* Star Rating Styles */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        font-size: 32px;
+    }
+    
+    .star-rating input {
+        display: none;
+    }
+    
+    .star-rating label {
+        cursor: pointer;
+        color: #ddd;
+        padding: 0 5px;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffb700;
+    }
+    
+    .rating-value {
+        font-size: 16px;
+        font-weight: 500;
+        color: #555;
+        height: 24px;
+    }
+    
+    .rating-title {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #edf2f7;
+        padding: 15px 20px;
+    }
+    
+    .modal-body {
+        padding: 30px;
+    }
+    
+    .modal-footer {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #edf2f7;
+    }
+    
+    #reviewForm textarea {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    
+    #reviewForm textarea:focus {
+        border-color: #74b9ff;
+        box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.2);
+    }
+    
+    /* Submit Button Animation */
+    #submitReview {
+        transition: all 0.3s ease;
+    }
+    
+    #submitReview:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
     </style>
 @endsection
 @section('content')
@@ -358,6 +442,7 @@
                                 <div id="collapse-B" class="collapse" role="tabpanel" aria-labelledby="heading-B">
                                     <div class="card-body reviews">
                                         <div class="row add_bottom_45 d-flex align-items-center">
+                                            
                                             <div class="col-md-3">
                                                 <div id="review_summary">
                                                     <strong>8.5</strong>
@@ -365,6 +450,7 @@
                                                     <small>Based on 4 reviews</small>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-md-9 reviews_sum_details">
                                                 <div class="row">
                                                     <div class="col-md-6">
@@ -415,6 +501,7 @@
                                                 <!-- /row -->
                                             </div>
                                         </div>
+                                                         <p class="text-end"><button type="button" class="btn_1" data-bs-toggle="modal" data-bs-target="#reviewModal"><i class="fas fa-star me-1"></i> Leave a review</button></p>
                                         <div id="reviews">
                                             <div class="review_card">
                                                 <div class="row">
@@ -500,7 +587,6 @@
                                             <!-- /review_card -->
                                         </div>
                                         <!-- /reviews -->
-                                        <p class="text-end"><a href="leave-review.html" class="btn_1">Leave a review</a></p>
                                     </div>
                                 </div>
                             </div>
@@ -700,6 +786,76 @@
                     <li><a class="gplus-share" href="#0"><i class="social_googleplus"></i> Share</a></li>
                 </ul>
             </div>
+            <!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">
+                    <i class="fas fa-star text-warning me-2"></i>Rate Your Experience
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if(Auth::guard('user')->check())
+                    <form id="reviewForm">
+                        @csrf
+                        <input type="hidden" name="professional_id" value="{{ $profile->professional->id ?? '' }}">
+                        
+                        <!-- Rating Stars -->
+                        <div class="rating-container text-center mb-4">
+                            <p class="rating-title mb-2">How would you rate this professional?</p>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5" />
+                                <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star4" name="rating" value="4" />
+                                <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star3" name="rating" value="3" />
+                                <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star2" name="rating" value="2" />
+                                <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star1" name="rating" value="1" />
+                                <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                            </div>
+                            <div class="rating-value mt-2">
+                                <span id="selected-rating">Select a rating</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Review Text -->
+                        <div class="form-group mb-3">
+                            <label for="review_text" class="form-label">Your Review</label>
+                            <textarea class="form-control" name="review_text" id="review_text" rows="4" 
+                                placeholder="Share your experience with this professional..."></textarea>
+                            <small class="form-text text-muted">
+                                Your honest feedback helps others make better decisions.
+                            </small>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            Please <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="alert-link">sign in</a> to leave a review.
+                        </div>
+                    </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                @if(Auth::guard('user')->check())
+                    <button type="button" class="btn_1" id="submitReview">
+                        <i class="fas fa-paper-plane me-1"></i> Submit Review
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
             @endsection
             @section('script')
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1007,6 +1163,140 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Review submission
+    const reviewForm = document.getElementById('reviewForm');
+    const submitReviewBtn = document.getElementById('submitReview');
+
+    if (submitReviewBtn) {
+        submitReviewBtn.addEventListener('click', function () {
+            if (reviewForm) {
+                const formData = new FormData(reviewForm);
+
+                // Append additional data if needed
+                // formData.append('key', 'value');
+
+                fetch("{{ route('user.review.store') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Review submission response:', data);
+                    if (data.status === 'success') {
+                        toastr.success(data.message);
+                        // Optionally, you can close the modal and reset the form
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        reviewForm.reset();
+                    } else {
+                        toastr.error(data.message || 'Failed to submit review.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting review:', error);
+                    toastr.error('An error occurred. Please try again later.');
+                });
+            }
+        });
+    }
 });
+</script>
+<script>
+    // Star rating handling
+    document.addEventListener('DOMContentLoaded', function() {
+        // Other existing code...
+        
+        // Star rating functionality
+        const ratingInputs = document.querySelectorAll('.star-rating input');
+        const ratingValueDisplay = document.getElementById('selected-rating');
+        const ratingTexts = [
+            'Select a rating',
+            'Poor',
+            'Fair',
+            'Good', 
+            'Very Good',
+            'Excellent'
+        ];
+        
+        ratingInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const value = parseInt(this.value);
+                ratingValueDisplay.textContent = ratingTexts[value];
+            });
+        });
+        
+        // Review form submission
+        const submitReviewBtn = document.getElementById('submitReview');
+        if (submitReviewBtn) {
+            submitReviewBtn.addEventListener('click', function() {
+                const form = document.getElementById('reviewForm');
+                const formData = new FormData(form);
+                const rating = formData.get('rating');
+                const reviewText = formData.get('review_text');
+                
+                // Validate form
+                if (!rating) {
+                    toastr.error('Please select a rating');
+                    return;
+                }
+                
+                if (!reviewText.trim()) {
+                    toastr.error('Please write your review');
+                    return;
+                }
+                
+                // Show loading state
+                submitReviewBtn.disabled = true;
+                submitReviewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Submitting...';
+                
+                // Submit the review
+                fetch('{{ route("user.review.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        professional_id: formData.get('professional_id'),
+                        rating: rating,
+                        review_text: reviewText
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        toastr.success(data.message || 'Review submitted successfully!');
+                        
+                        // Close modal and reset form
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+                        modal.hide();
+                        
+                        // Reload page after a short delay to show the new review
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(data.message || 'Something went wrong');
+                        submitReviewBtn.disabled = false;
+                        submitReviewBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Submit Review';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred. Please try again.');
+                    submitReviewBtn.disabled = false;
+                    submitReviewBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Submit Review';
+                });
+            });
+        }
+    });
 </script>
 @endsection
