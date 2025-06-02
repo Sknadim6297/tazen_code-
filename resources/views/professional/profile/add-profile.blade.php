@@ -440,6 +440,66 @@
             background-color: rgba(52, 152, 219, 0.1);
         }
     }
+
+    /* Add these styles for the gallery image deletion feature */
+    .gallery-image-container {
+        position: relative;
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .delete-image-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--danger-color);
+        color: white;
+        border: 1px solid white;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        opacity: 0.8;
+        z-index: 5;
+    }
+
+    .delete-image-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Animation for image removal */
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+    }
+
+    .fade-out {
+        animation: fadeOut 0.3s ease forwards;
+    }
+
+    /* New image preview styling */
+    .new-image-preview {
+        position: relative;
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
 </style>
 @endsection
 @section('content')
@@ -479,12 +539,19 @@
                                 @php
                                     $gallery = is_array($profile->gallery) ? $profile->gallery : json_decode($profile->gallery, true);
                                 @endphp
-                                @foreach($gallery as $img)
-                                    <img src="{{ asset($img) }}" alt="Gallery Image" width="80">
+                                @foreach($gallery as $index => $img)
+                                    <div class="gallery-image-container" id="gallery-image-{{ $index }}">
+                                        <button type="button" class="delete-image-btn" data-path="{{ $img }}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <img src="{{ asset($img) }}" alt="Gallery Image" width="80">
+                                    </div>
                                 @endforeach
                             </div>
                         @endif
                     </div>
+                    <!-- Hidden input to store deleted image paths -->
+                    <input type="hidden" name="deleted_images" id="deleted_images" value="">
                 </div>
                 <div class="form-group col-2">
                     <div>
@@ -587,11 +654,43 @@
 
 @section('scripts')
 <script>
+// Array to store deleted image paths
+const deletedImages = [];
+
+// Handle delete button click
+$(document).on('click', '.delete-image-btn', function() {
+    const imagePath = $(this).data('path');
+    const container = $(this).closest('.gallery-image-container');
+    
+    // Add confirmation dialog
+    if (confirm('Are you sure you want to delete this image?')) {
+        // Add fade-out animation
+        container.addClass('fade-out');
+        
+        // Add the image path to the deleted images array
+        deletedImages.push(imagePath);
+        
+        // Update the hidden input with deleted images
+        $('#deleted_images').val(JSON.stringify(deletedImages));
+        
+        // Remove the element after animation
+        setTimeout(() => {
+            container.remove();
+        }, 300);
+    }
+});
+
+// Handle form submission
 $('#profileForm').submit(function(e) {
     e.preventDefault();
     let form = this;
     let formData = new FormData(form);
     formData.append('_method', 'PUT');
+    
+    // Add the deleted images to formData if any
+    if (deletedImages.length > 0) {
+        formData.set('deleted_images', JSON.stringify(deletedImages));
+    }
     
     // Add loading state
     $('#submitBtn').addClass('btn-loading').html('');
@@ -646,46 +745,55 @@ $('#profileForm').submit(function(e) {
     });
 });
 
-// Add file input preview functionality
-$('input[type="file"]').change(function(e) {
+// Update file input preview functionality for gallery images
+$('#gallery').change(function(e) {
     const fileInput = $(this);
-    const previewContainer = fileInput.next('.file-input-wrapper').find('.image-preview');
+    let previewContainer = fileInput.next('.file-input-wrapper').find('.image-preview');
     
     if (!previewContainer.length) {
         fileInput.next('.file-input-wrapper').append('<div class="image-preview"></div>');
         previewContainer = fileInput.next('.file-input-wrapper').find('.image-preview');
     }
     
-    if (this.files && this.files[0]) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            if (fileInput.attr('multiple')) {
-                // Multiple files
-                for (let i = 0; i < fileInput[0].files.length; i++) {
-                    const file = fileInput[0].files[i];
-                    if (file.type.match('image.*')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            previewContainer.append(`<img src="${e.target.result}" alt="Preview" width="80">`);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-            } else {
-                // Single file
-                if (fileInput[0].files[0].type.match('image.*')) {
-                    previewContainer.html(`<img src="${e.target.result}" alt="Preview" width="100">`);
-                } else {
-                    const fileName = fileInput[0].files[0].name;
-                    previewContainer.html(`<span>File selected: ${fileName}</span>`);
-                }
+    if (this.files && this.files.length > 0) {
+        // For each file, create a preview with delete button
+        for (let i = 0; i < this.files.length; i++) {
+            const file = this.files[i];
+            
+            if (file.type.match('image.*')) {
+                const reader = new FileReader();
+                const uniqueId = 'new-img-' + Date.now() + '-' + i;
+                
+                reader.onload = function(e) {
+                    const newImage = `
+                        <div class="new-image-preview" id="${uniqueId}">
+                            <button type="button" class="delete-image-btn" data-id="${uniqueId}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <img src="${e.target.result}" alt="New image" width="80">
+                        </div>
+                    `;
+                    previewContainer.append(newImage);
+                };
+                
+                reader.readAsDataURL(file);
             }
-        };
-        
-        reader.readAsDataURL(this.files[0]);
+        }
     }
 });
+
+// Handle delete button for newly uploaded images
+$(document).on('click', '.new-image-preview .delete-image-btn', function() {
+    const containerId = $(this).data('id');
+    const $container = $('#' + containerId);
+    
+    $container.addClass('fade-out');
+    setTimeout(() => {
+        $container.remove();
+    }, 300);
+});
+
+// Rest of your existing JS code...
 
 // Add form field validation on blur
 $('input, textarea').blur(function() {

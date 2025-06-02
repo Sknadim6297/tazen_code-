@@ -155,7 +155,7 @@ class ProfileController extends Controller
             'bio' => 'nullable|string',
             'photo' => 'nullable|image',
             'gallery.*' => 'nullable|image',
-            'delete_gallery' => 'nullable|array',
+            'deleted_images' => 'nullable|string', // Changed from delete_gallery array to deleted_images string
             'qualificationDocument' => 'nullable|file',
             'aadhaarCard' => 'nullable|file',
             'panCard' => 'nullable|file',
@@ -178,37 +178,43 @@ class ProfileController extends Controller
             $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
         }
 
-        // Enhanced gallery handling - preserve existing images
-        if ($request->hasFile('gallery') || $request->has('delete_gallery')) {
-            // Get current gallery images
-            $currentGallery = $profile->gallery ? json_decode($profile->gallery, true) : [];
+        // Enhanced gallery handling - preserve existing images and handle deletions
+        $currentGallery = $profile->gallery ? json_decode($profile->gallery, true) : [];
+        
+        // Handle image deletions using the deleted_images field
+        if ($request->filled('deleted_images')) {
+            $deletedImages = json_decode($request->deleted_images, true);
             
-            // Handle image deletions first
-            if ($request->has('delete_gallery') && is_array($request->delete_gallery)) {
-                foreach ($request->delete_gallery as $imageToDelete) {
-                    // Find and remove from array
-                    $key = array_search($imageToDelete, $currentGallery);
+            if (is_array($deletedImages) && count($deletedImages) > 0) {
+                foreach ($deletedImages as $imagePath) {
+                    // Find the image in the current gallery
+                    $key = array_search($imagePath, $currentGallery);
+                    
                     if ($key !== false) {
-                        // Delete the actual file
-                        Storage::disk('public')->delete($imageToDelete);
-                        // Remove from array
+                        // Delete the physical file
+                        if (file_exists(public_path($imagePath))) {
+                            unlink(public_path($imagePath));
+                        }
+                        
+                        // Remove from the gallery array
                         unset($currentGallery[$key]);
                     }
                 }
+                
                 // Reindex array to avoid issues with JSON encoding
                 $currentGallery = array_values($currentGallery);
             }
-            
-            // Add new gallery images
-            if ($request->hasFile('gallery')) {
-                $newImages = $this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery');
-                // Merge with existing images
-                $currentGallery = array_merge($currentGallery, $newImages);
-            }
-            
-            // Update gallery with preserved + new images
-            $profile->gallery = json_encode($currentGallery);
         }
+        
+        // Add new gallery images
+        if ($request->hasFile('gallery')) {
+            $newImages = $this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery');
+            // Merge with existing images
+            $currentGallery = array_merge($currentGallery, $newImages);
+        }
+        
+        // Update gallery with preserved + new images
+        $profile->gallery = json_encode($currentGallery);
 
         // Handle document uploads
         if ($request->hasFile('qualificationDocument')) {

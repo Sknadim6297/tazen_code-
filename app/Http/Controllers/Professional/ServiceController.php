@@ -46,7 +46,6 @@ class ServiceController extends Controller
             'serviceName' => 'required|string|max:255',
             'serviceDuration' => 'required|integer',
             'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
-            'serviceDescription' => 'required|string',
             'features' => 'nullable|array',
             'serviceTags' => 'nullable|string',
             'serviceRequirements' => 'nullable|string',

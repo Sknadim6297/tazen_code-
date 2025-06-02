@@ -66,6 +66,9 @@
     <div class="form-container">
         <form id="serviceForm" enctype="multipart/form-data">
             @csrf   
+            
+            <!-- Hidden field for service duration with default value -->
+            <input type="hidden" name="serviceDuration" value="60">
     
             <div class="form-row">
                 <div class="form-col">
@@ -81,17 +84,6 @@
                             @foreach($services as $service)
                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="serviceDuration">Duration *</label>
-                        <select name="serviceDuration" id="serviceDuration" class="form-control" required>
-                            <option value="30">30 minutes</option>
-                            <option value="45">45 minutes</option>
-                            <option value="60">60 minutes</option>
-                            <option value="90">90 minutes</option>
-                            <option value="120">120 minutes</option>
                         </select>
                     </div>
                 </div>
@@ -126,15 +118,6 @@
                         <div class="checkbox-group">
                             <label class="checkbox-item">
                                 <input type="checkbox" name="features[]" value="online"> Online Sessions
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="in-person"> In-Person
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="group" disabled> Group Sessions
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="recorded" disabled> Recorded Sessions
                             </label>
                         </div>
                         
