@@ -7,6 +7,7 @@ use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\LoginController;
+use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
@@ -66,4 +67,5 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/booking/success', [BookingController::class, 'successPage'])->name('booking.success');
     Route::post('/booking/payment/failed', [BookingController::class, 'paymentFailed'])->name('booking.payment.failed');
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
 });

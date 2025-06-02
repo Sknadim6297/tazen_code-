@@ -47,8 +47,17 @@ class User extends Authenticatable
         return $this->hasOne(CustomerProfile::class);
     }
     public function bookings()
-{
-    return $this->hasMany(EventBooking::class);
-}
+    {
+        return $this->hasMany(EventBooking::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 
+    // Add a method to check if user has already reviewed a professional
+    public function hasReviewedProfessional($professionalId)
+    {
+        return $this->reviews()->where('professional_id', $professionalId)->exists();
+    }
 }
