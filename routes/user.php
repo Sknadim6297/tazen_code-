@@ -65,4 +65,5 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/payment/success', [BookingController::class, 'paymentSuccess'])->name('booking.payment.success');
     Route::get('/booking/success', [BookingController::class, 'successPage'])->name('booking.success');
     Route::post('/booking/payment/failed', [BookingController::class, 'paymentFailed'])->name('booking.payment.failed');
+    Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
 });

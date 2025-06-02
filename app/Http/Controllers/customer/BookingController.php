@@ -43,7 +43,7 @@ class BookingController extends Controller
 
     public function bookingSummary()
     {
-        $services=Service::all();
+        $services = Service::all();
         $bookingData = session('event_booking_data');
 
         if (!$bookingData) {
@@ -162,5 +162,31 @@ class BookingController extends Controller
     public function bookingSuccessPage()
     {
         return view('customer.booking.success');
+    }
+
+    public function resetBooking()
+    {
+        // Store previous URL before clearing session
+        $previousUrl = url()->previous();
+
+        // Extract service_id and professional_id from session if they exist
+        $serviceId = session()->has('booking_data') ? session('booking_data.service_id') : null;
+        $professionalId = session()->has('booking_data') ? session('booking_data.professional_id') : null;
+
+        session()->forget('booking_data');
+
+        session()->flash('success', 'Your booking has been reset. You can start fresh now.');
+
+        // Check if the previous URL was a professional details page
+        if (preg_match('/professionals\/details\/(\d+)/', $previousUrl, $matches)) {
+            $professionalId = $matches[1];
+            // Use the correct route name for professional details
+            return redirect()->route('user.professionals.details', ['id' => $professionalId]);
+        }
+
+        // If we have a professional ID in the session, redirect to that professional's page
+        if ($professionalId) {
+            return redirect()->route('professionals.details', ['id' => $professionalId]);
+        }
     }
 }
