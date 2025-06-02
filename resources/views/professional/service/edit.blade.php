@@ -8,15 +8,18 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-title">
-            <h3>Add Service</h3>
+            <h3>Edit Service</h3>
         </div>
         <ul class="breadcrumb">
             <li>Home</li>
-            <li class="active">Add Service</li>
+            <li class="active">Edit Service</li>
         </ul>
     </div>
     <form id="serviceForm" enctype="multipart/form-data">
         @csrf
+        <!-- Hidden duration field -->
+        <input type="hidden" name="serviceDuration" value="{{ old('serviceDuration', $service->duration ?? 60) }}">
+        
         <div class="form-container">
             <div class="form-row">
                 <div class="form-col">
@@ -35,18 +38,6 @@
                                 <option value="{{ $cat->id }}" 
                                     {{ (old('serviceId', $service->service_id ?? '') == $cat->id) ? 'selected' : '' }}>
                                     {{ ucfirst($cat->name) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-        
-                    <div class="form-group">
-                        <label for="serviceDuration">Duration *</label>
-                        <select name="serviceDuration" id="serviceDuration" class="form-control" required>
-                            @foreach([30, 45, 60, 90, 120] as $duration)
-                                <option value="{{ $duration }}" {{ (old('serviceDuration', $service->duration ?? '') == $duration) ? 'selected' : '' }}>
-                                    {{ $duration }} minutes
                                 </option>
                             @endforeach
                         </select>
@@ -87,10 +78,9 @@
                         <label>Service Features</label>
                         <div class="checkbox-group">
                             @php
-                            // If features are not null and is not already an array, decode it
                             $selectedFeatures = is_array($service->features) ? $service->features : json_decode($service->features ?? '[]', true);
-                            $allFeatures = ['online' => 'Online Sessions', 'in-person' => 'In-Person', 'group' => 'Group Sessions', 'recorded' => 'Recorded Sessions'];
-                        @endphp
+                            $allFeatures = ['online' => 'Online Sessions'];
+                            @endphp
                         
                             @foreach($allFeatures as $key => $label)
                                 <label class="checkbox-item">

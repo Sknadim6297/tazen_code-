@@ -74,7 +74,6 @@
                                 <th>Type of Plan</th>
                                 <th>Amount</th>
                                 <th>Date</th>
-                                <th>SMS Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,11 +86,6 @@
                                 <td>{{ ucfirst(str_replace('_', ' ', $billing->plan_type)) }}</td>
                                 <td>₹{{ number_format($billing->amount, 2) }}</td>
                                 <td>{{ $billing->created_at->format('d M Y') }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $billing->sms_status == 'sent' ? 'success' : 'warning' }}">
-                                        {{ ucfirst($billing->sms_status ?? 'Pending') }}
-                                    </span>
-                                </td>
                             </tr>
                             @empty
                             <tr>

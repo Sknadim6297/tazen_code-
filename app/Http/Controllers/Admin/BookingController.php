@@ -52,7 +52,7 @@ class BookingController extends Controller
     {
         $query = Booking::where('plan_type', 'free_hand')
             ->with(['professional', 'timedates', 'customerProfile']);
-        
+
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
@@ -63,9 +63,16 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Add status filtering
+        if ($request->filled('status')) {
+            $query->whereHas('timedates', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
         }
 
         // Fetch the bookings
@@ -79,22 +86,22 @@ class BookingController extends Controller
                 ->where('date', '>=', $today->format('Y-m-d'))
                 ->orderBy('date', 'asc')
                 ->first();
-            
+
             // Get the most recent past session with a meeting link (for reference)
             $lastSessionWithLink = $booking->timedates()
                 ->where('date', '<', $today->format('Y-m-d'))
                 ->whereNotNull('meeting_link')
                 ->orderBy('date', 'desc')
                 ->first();
-            
+
             // Set meeting link priority: 1) Next session link, 2) Most recent past session link
             $booking->next_booking = $nextSession;
             $booking->last_session_with_link = $lastSessionWithLink;
-            
+
             // Calculate completed and pending sessions
             $completedSessions = 0;
             $pendingSessions = 0;
-            
+
             if ($booking->timedates && $booking->timedates->count() > 0) {
                 foreach ($booking->timedates as $td) {
                     $slots = explode(',', $td->time_slot);
@@ -105,12 +112,15 @@ class BookingController extends Controller
                     }
                 }
             }
-            
+
             $booking->completed_sessions = $completedSessions;
             $booking->pending_sessions = $pendingSessions;
         }
 
-        return view('admin.booking.freehand', compact('bookings'));
+        // Add statuses for dropdown
+        $statuses = ['pending', 'completed'];
+
+        return view('admin.booking.freehand', compact('bookings', 'statuses'));
     }
 
     public function monthlyBooking(Request $request)
@@ -130,6 +140,13 @@ class BookingController extends Controller
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Add status filtering
+        if ($request->filled('status')) {
+            $query->whereHas('timedates', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
         }
 
         // Fetch the bookings
@@ -167,7 +184,10 @@ class BookingController extends Controller
             $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
         }
 
-        return view('admin.booking.monthly', compact('bookings'));
+        // Add statuses for dropdown
+        $statuses = ['pending', 'completed'];
+
+        return view('admin.booking.monthly', compact('bookings', 'statuses'));
     }
 
     public function quaterlyBooking(Request $request)
@@ -188,6 +208,13 @@ class BookingController extends Controller
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Add status filtering
+        if ($request->filled('status')) {
+            $query->whereHas('timedates', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
         }
 
         // Fetch the bookings
@@ -225,7 +252,10 @@ class BookingController extends Controller
             $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
         }
 
-        return view('admin.booking.quaterly', compact('bookings'));
+        // Add statuses for dropdown
+        $statuses = ['pending', 'completed'];
+
+        return view('admin.booking.quaterly', compact('bookings', 'statuses'));
     }
 
     public function addMeetingLink(Request $request)

@@ -16,12 +16,22 @@
                 </div>
             </div>
             <form action="{{ route('admin.quaterly') }}" method="GET" class="d-flex gap-2">
-                <div class="col-xl-4">
+                <div class="col-md-3">
                     <div class="card custom-card">
                         <input type="search" name="search" value="{{ request('search') }}" class="form-control" id="autoComplete" placeholder="Search by name, phone, or service">
                     </div>
                 </div>
-                <div class="col-xl-6">
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">-- Select Status --</option>
+                        @foreach ($statuses as $status)
+                            <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                {{ ucfirst($status) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
                     <div class="card-body">
                         <div class="form-group">
                             <div class="input-group">
