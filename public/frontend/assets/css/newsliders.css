@@ -5,10 +5,10 @@
 .testimonial-box .testimonial-content {
     background-color: #e4d6c3;
     border-radius: 20px;
-    padding: 20px 30px;
+    padding: 12px 30px;
     color: #333;
     line-height: 22px;
-    font-weight: 700;
+    font-weight: 600;
     text-align: justify;
 }
 .ttm-row.testimonial-new {
@@ -18,17 +18,18 @@
     background-position: center center;
 }
 .bg-pink {
-  background-color: #f1dddd!important;
+  background-color: #fff44f!important;
 }
 .bg-green{
-    background-color: #e1f0ee!important;
+    background-color: #152a70!important;
+    
 }
 
 .bg-lavender{
-    background-color: #f5effa!important;
+    background-color: #152a70!important;
 }
 .bg-blue{
-    background-color: #bcccff!important;
+    background-color: #fff44f!important;
 }
 img.icon-img {
     height: 47px;
@@ -146,7 +147,7 @@ section.for-talent {
 .browse-box:hover{
     color: #fff;
     background: #c70d76;
-       transition: 0.5s ease;
+    transition: 0.5s ease;
 }
 .browse-box:hover h6{
     color: #fff;
@@ -169,7 +170,7 @@ section.for-talent {
     position: absolute;
     bottom: 0;
     left: 0;
-    background: #fff;
+    /* background: #fff; */
     width: 100%;
     /* text-align: right; */
     padding: 6px;
@@ -247,9 +248,9 @@ ul.login .btn_hover1 {
     background: #fff;
     margin: auto;
     text-align: center;
-      border-radius: 50%;
-      overflow: hidden;
-      margin-bottom: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 .testimonial_slider .testi-img img{
     width: 100%;
@@ -258,7 +259,7 @@ ul.login .btn_hover1 {
     padding: 10px;
 }
 .testimonial-new{
-    background-color: #FFF2E1;
+    background: linear-gradient(200deg, #ffd414d4, #99b1f699, #dc6c49);
 }
 /* #ff3a65   */
 /* #039d99   */

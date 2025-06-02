@@ -8,7 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <link href="{{ asset('frontend/assets/css/rejectpro.css') }}" rel="stylesheet"> 
     <style>
-        .custom-modal {
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #ff4400b3, #cd952d, #d0be5b, #3776b5);
+        background-size: 300% 300%;
+        animation: gradientFlow 10s ease infinite;
+        margin: 0;
+        padding: 0;
+    }
+
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .custom-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -96,6 +114,49 @@
     }
 }
 
+.btn{
+    background-color: #0056b3;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+ 
+.btn a{
+    text-decoration: none;
+    color: white;
+}
+
+    /* Add these new styles */
+    .step-logo {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .step-logo img {
+        max-width: 150px;
+        height: auto;
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    .step-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .step-header h4 {
+        color: #333;
+        font-size: 20px;
+        margin-top: 15px;
+    }
+
     </style>
 </head>
 
@@ -104,6 +165,9 @@
 
     <div id="login">
         <aside>
+            <div class="step-logo">
+                <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Tazen Logo">
+            </div>
             <h2 style="text-align: center">Please Check For Approval</h2>
 
             <form id="registerForm" enctype="multipart/form-data">
@@ -111,7 +175,12 @@
 
                 {{-- Step 1 - Basic Info --}}
                 <div class="form-step step-1 active">
-                    <h4>Step 1 – Basic Info</h4>
+                    <div class="step-header">
+                        {{-- <div class="step-logo">
+                            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Tazen Logo">
+                        </div> --}}
+                        <h4>Step 1 – Basic Info</h4>
+                    </div>
 
                     <div class="form-group">
                         <label for="name">Name</label>
@@ -137,7 +206,12 @@
 
                 {{-- Step 2 - Professional Info --}}
                 <div class="form-step step-2">
-                    <h4>Step 2 – Professional Info</h4>
+                    <div class="step-header">
+                        {{-- <div class="step-logo">
+                            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Tazen Logo">
+                        </div> --}}
+                        <h4>Step 2 – Professional Info</h4>
+                    </div>
 
                     <div class="form-group">
                         <input class="form-control" type="text" name="specialization" placeholder="Specialization"
@@ -190,7 +264,12 @@
 
                 {{-- Step 3 - Document Uploads --}}
                 <div class="form-step step-3">
-                    <h4>Step 3 – Document Uploads</h4>
+                    <div class="step-header">
+                        {{-- <div class="step-logo">
+                            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Tazen Logo">
+                        </div> --}}
+                        <h4>Step 3 – Document Uploads</h4>
+                    </div>
 
                     @php
                         $doc = $RejectedUser->profile;
@@ -204,7 +283,7 @@
                         <div class="form-group">
                             <label>{{ $label }}</label><br>
                             @if($doc->$field)
-                                <a href="{{ asset($doc->$field) }}" target="_blank">View {{ $label }}</a>
+                                <button class="btn"><a href="{{ asset($doc->$field) }}" target="_blank">View {{ $label }}</a></button>
                             @endif
                             <input class="form-control mt-2" type="file" name="{{ $field }}">
                         </div>
@@ -240,12 +319,14 @@
            {{-- Rejection Modal --}}
 <div id="rejectionModal" class="custom-modal">
     <div class="custom-modal-content">
-        {{-- <button class="close-btn" onclick="closeRejectionModal()">✕</button> --}}
+        <div class="step-logo">
+            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Tazen Logo">
+        </div>
         <div class="modal-icon">⚠</div>
         <h2>Profile Rejected</h2>
         <p class="rejection-reason">{{ $RejectedUser->reason ?? 'No rejection reason provided.' }}</p>
         <p class="resubmit-hint">Please check and update your details before resubmitting.</p>
-        <button class="resubmit-btn " onclick="resubmitDetails()">Proceed Again</button>
+        <button class="resubmit-btn" onclick="resubmitDetails()">Proceed Again</button>
     </div>
 </div>
 

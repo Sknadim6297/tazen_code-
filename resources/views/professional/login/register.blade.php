@@ -114,7 +114,7 @@ background-repeat: no-repeat;
 	<nav id="menu" class="fake_menu"></nav>
 	
 	<div id="login"><figure>
-				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
 			</figure>
 		<div>
 			<h2 class="heading-style">Professional Register</h2>
@@ -229,23 +229,23 @@ background-repeat: no-repeat;
 					 <div class="step-header">
 					<h4 class="step-title"> Document Uploads</h4>
 					<div class="form-group">
-						<label>Qualification Document</label>
+						<label>Qualification Document(jpeg,pdf,png)</label>
 						<input class="form-control" type="file" name="qualification_document" required>
 					</div>
 					<div class="form-group">
-						<label>Aadhaar Card</label>
+						<label>Aadhaar Card(jpeg,pdf,png)</label>
 						<input class="form-control" type="file" name="aadhaar_card" required>
 					</div>
 					<div class="form-group">
-						<label>PAN Card</label>
+						<label>PAN Card(jpeg,pdf,png)</label>
 						<input class="form-control" type="file" name="pan_card" required>
 					</div>
 					<div class="form-group">
-						<label>Profile Photo</label>
+						<label>Profile Photo(jpeg,png)</label>
 						<input class="form-control" type="file" name="profile_photo" required>
 					</div>
-					<div>
-						<label for="gallery">Upload Gallery Images</label>
+					<div class="form-group">
+						<label for="gallery">Upload Gallery Images(jpeg,png)</label>
 						<input class="form-control" type="file" name="gallery[]" multiple>
 					</div>
 					<div style="display: flex; gap: 10px; margin-top: 10px;">
