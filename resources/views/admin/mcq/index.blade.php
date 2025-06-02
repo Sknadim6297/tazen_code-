@@ -11,30 +11,32 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table id="mcqTable" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Service</th>
-                                <th>Question</th>
-                                <th>Answer</th>
-                                <th>Created At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($mcqAnswers as $answer)
-                            <tr>
-                                <td>{{ $answer->id }}</td>
-                                <td>{{ $answer->user->name ?? 'N/A' }}</td>
-                                <td>{{ $answer->service->name ?? 'N/A' }}</td>
-                                <td>{{ $answer->question->question ?? 'N/A' }}</td>
-                                <td>{{ $answer->answer }}</td>
-                                <td>{{ $answer->created_at->format('Y-m-d H:i:s') }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                        <table id="mcqTable" class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($mcqAnswers as $answer)
+                                <tr>
+                                    <td>{{ $answer->id }}</td>
+                                    <td>{{ $answer->user->name ?? 'N/A' }}</td>
+                                    <td>{{ $answer->service->name ?? 'N/A' }}</td>
+                                    <td>{{ $answer->question->question ?? 'N/A' }}</td>
+                                    <td>{{ $answer->answer }}</td>
+                                    <td>{{ $answer->created_at->format('Y-m-d H:i:s') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <!-- /.card-body -->
             </div>

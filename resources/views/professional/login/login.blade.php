@@ -39,7 +39,7 @@ background-repeat: no-repeat;
 <body>
     <div id="login">
         	<figure>
-				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
 			</figure>
         <aside style="display:flex; flex-direction:column; gap:50px;">
             <h2 class="text-center">Professional Login</h2>

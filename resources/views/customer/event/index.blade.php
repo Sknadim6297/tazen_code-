@@ -107,64 +107,144 @@
     }
 
     @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+        /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .content-section {
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+            padding: 10px;
+        }
+        
+        /* Ensure the table takes full width of container */
+        .table {
+            width: 100%;
+            min-width: 1000px; /* Minimum width to ensure all columns are visible */
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            padding: 15px;
+        }
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 15px 10px;
+        }
+        
+        /* Make table columns width-responsive */
+        .table th,
+        .table td {
+            white-space: nowrap;
+            padding: 8px;
+        }
+        
+        /* Adjust button sizes for mobile */
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        /* Style for the Join link */
+        .table a {
+            padding: 4px 8px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        
+        /* Style for badges */
+        .badge {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
     }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
+
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+
+         /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .content-section {
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+            padding: 10px;
+        }
+        
+        /* Ensure the table takes full width of container */
+        .table {
+            width: 100%;
+            min-width: 800px; /* Minimum width to ensure all columns are visible */
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+        width: 100%;
         max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
         overflow-x: hidden;
+        padding: 15px;
     }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 15px 10px;
+        }
+        
+        /* Make table columns width-responsive */
+        .table th,
+        .table td {
+            white-space: nowrap;
+            padding: 8px;
+        }
+        
+        /* Adjust button sizes for mobile */
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        /* Ensure modal content is properly sized on mobile */
+        .custom-modal-content {
+            width: 95%;
+            margin: 10% auto;
+            padding: 15px;
+        }
     }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-}
 </style>
 @endsection
 
