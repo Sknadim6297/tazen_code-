@@ -345,4 +345,3 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/admin/professional/payment/update-status', [App\Http\Controllers\Admin\BillingController::class, 'updatePaymentStatus'])
         ->name('admin.professional.payment.update-status');
 });
-
