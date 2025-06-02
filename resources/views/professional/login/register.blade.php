@@ -155,8 +155,18 @@ background-repeat: no-repeat;
 					</div>
 
 					<!-- Specialization Input -->
-					<div class="form-group">
-						<input class="form-control" type="text" name="specialization" placeholder="Specialization" required>
+				<div class="form-group">
+						<select class="form-control" style="padding-left: 39px;" name="specialization" required >
+							<option value="">Select Specialization</option>
+							<option value="Job Counselor & Career Counsellor">Job Counselor & Career Counsellor</option>
+							<option value="Psychologists ">Psychologists </option>
+							<option value="Dietician ">Dietician </option>
+							<option value="Fitness Trainer">Fitness Trainer</option>
+							<option value="Financial Experts">Financial Experts</option>
+							<option value="Life Coach">Life Coach</option>
+							<option value="Style Consultant">Style Consultant</option>
+							<option value="Astrologer">Astrologer</option>
+						</select>
 					</div>
 				
 				<!-- Experience Input -->
@@ -176,7 +186,6 @@ background-repeat: no-repeat;
 					<div class="form-group">
 						<input class="form-control" type="text" name="starting_price" placeholder="Price per session (Rs.)" required>
 					</div>
-				
 					<!-- Location Dropdown -->
 					<div class="form-group">
 						<select class="form-control" style="padding-left: 39px;" name="address" required >
