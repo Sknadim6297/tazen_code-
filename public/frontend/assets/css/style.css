@@ -10218,7 +10218,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: #222;
+    color: #13147c;;
     -moz-transition: .3s ease-in-out;
     -o-transition: .3s ease-in-out;
     -webkit-transition: .3s ease-in-out;
@@ -10248,7 +10248,7 @@ header.header_in {
 }
 
 a {
-    color: #039d99;
+    color: #bc3737;
     -moz-transition: .3s ease-in-out;
     -o-transition: .3s ease-in-out;
     -webkit-transition: .3s ease-in-out;
@@ -10573,7 +10573,7 @@ header.sticky .main-menu>ul>li:hover>a {
         display: block;
         text-align: center;
         padding: 30px 0 25px;
-        background-color: #039d99;
+        background-color: #0f1010;
     }
 
     #header_menu a.open_close {
@@ -10689,7 +10689,7 @@ header.sticky .main-menu>ul>li:hover>a {
 .main_title span em,
 a.btn_1.full-width.booking:hover,
 ul#top_menu>li a.btn_access.green:hover {
-    background-color: #039d99;
+    background-color: #ed7b17;
 }
 
 @media only screen and (max-width:480px) {
@@ -10738,13 +10738,15 @@ ul#top_menu>li a.btn_access {
 }
 
 ul#top_menu>li a.btn_access:hover {
-    background-color: #039d99;
-    border-color: #039d99
+    background-color: #1e0d60;
+    /* border-color: #dd5907 */
+    border: none;
 }
 
 ul#top_menu>li a.btn_access.green {
-    background-color: #1f2f6a;
-    border-color: transparent
+   background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+    border-color: transparent;
+    border: none;
 }
 
 .hero_single {
@@ -10862,7 +10864,7 @@ ul#top_menu>li a.btn_access.green {
     -moz-border-radius: 3px;
     -ms-border-radius: 3px;
     border-radius: 3px;
-    background-color: #1f2f6a;
+    background: linear-gradient(135deg, #e95409, #0a0c65);
     margin-right: -1px
 }
 
@@ -10870,7 +10872,7 @@ ul#top_menu>li a.btn_access.green {
 .custom-search-input input[type=submit]:hover,
 .main_title a:hover,
 .strip figure a.wish_bt.liked {
-    background-color: #039d99
+    background: linear-gradient(135deg, #0a0c65, #e95409 );
 }
 
 .page_header {
@@ -11387,7 +11389,7 @@ a.btn_1 {
 
 .strip ul li a i {
     font-size: 1.125rem;
-    color: #bdbfc2;
+    color: #1e1f21;
     position: relative;
     bottom: -3px
 }
@@ -11409,7 +11411,7 @@ a.btn_1 {
 }
 
 .score strong {
-    border: 1px solid #ededed;
+    border: 1px solid #080707;
     line-height: 1;
     -webkit-border-radius: 5px 5px 5px 0;
     -moz-border-radius: 5px 5px 5px 0;
@@ -11513,7 +11515,7 @@ a.btn_1 {
 .btn_1,
 a.btn_1 {
     border: none;
-    background: #039d99;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
     outline: 0;
     cursor: pointer;
     padding: 10px 20px;
@@ -12037,8 +12039,8 @@ footer:before {
     display: block;
     width: 100%;
     height: 5px;
-    background: -webkit-linear-gradient(left, #039d99, #1f2f6a);
-    background: linear-gradient(to right, #039d99, #1f2f6a);
+    /* background: -webkit-linear-gradient(left, #039d99, #1f2f6a); */
+    background: linear-gradient(to right, #e29834, #1b2340);
     top: 0;
     left: 0;
     right: 0

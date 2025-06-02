@@ -49,8 +49,6 @@
 </form>
         <!-- Page Header Close -->
 
-
-
         <!-- Start::row-2 -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
@@ -61,8 +59,8 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
-    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="table text-nowrap" style="min-width: 1200px;"> <!-- Set a minimum width larger than mobile screens -->
+    <div class="table-responsive">
+        <table class="table text-nowrap">
             <thead>
                 <tr>
                     <th>Sl. No</th>
@@ -198,23 +196,23 @@
 </td>
 <td>Pending</td>
 <td>
-                                                <form action="{{ route('admin.professional-add-remarks', ['id' => $booking->id]) }}" method="POST">
-                                                    @csrf
-                                                    <div class="d-flex">
-                                                        <input id="remarks_for_professional" class="form-control" type="text" name="remarks_for_professional" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks_for_professional}}">
-                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                           <td>
-                                                <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
-                                                    @csrf
-                                                    <div class="d-flex">
-                                                        <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
-                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                                    </div>
-                                                </form>
-                                            </td>
+    <form action="{{ route('admin.professional-add-remarks', ['id' => $booking->id]) }}" method="POST">
+        @csrf
+        <div class="d-flex">
+            <input id="remarks_for_professional" class="form-control" type="text" name="remarks_for_professional" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks_for_professional}}">
+            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+        </div>
+    </form>
+</td>
+<td>
+    <form action="{{ route('admin.add-remarks', ['id' => $booking->id]) }}" method="POST">
+        @csrf
+        <div class="d-flex">
+            <input id="marks" class="form-control" type="text" name="remarks" placeholder="Remarks" style="width: 350px;" value="{{ $booking->remarks }}">
+            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+        </div>
+    </form>
+</td>
             </tr>
         @endforeach
     </tbody>
@@ -245,8 +243,7 @@
                                 </li>
                                 <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
                                 <li class="page-item active" aria-current="page">
-                                    <a class="page-link" href="javascript:void(0);">2</a>
-                                </li>
+                                    <a class="page-link" href="javascript:void(0);">2</a></li>
                                 <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
                                 <li class="page-item">
                                     <a class="page-link" href="javascript:void(0);">Next</a>
@@ -261,15 +258,64 @@
     </div>
 </div>
 <style>
+    /* Enhanced table scrolling for mobile */
     @media (max-width: 767.98px) {
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .table {
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+        
+        .table {
+            width: auto;
+            min-width: 100%;
+            white-space: nowrap;
+            margin-bottom: 0;
+        }
+        
+        /* Custom scrollbar styling */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+            background-color: #f5f5f5;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 10px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        /* Fix form elements on mobile */
+        .page-header-breadcrumb form {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .page-header-breadcrumb form .col-xl-2,
+        .page-header-breadcrumb form .col-xl-4,
+        .page-header-breadcrumb form .col-xl-6 {
+            width: 100%;
+            max-width: 100%;
+            padding-right: 0;
+            padding-left: 0;
+        }
+        
+        /* Prevent horizontal page scrolling */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+         .table {
         width: auto;
         min-width: 100%;
     }
@@ -302,6 +348,7 @@
         font-size: 0.7em;
         padding: 2px 5px;
     }
+
 </style>
 @endsection
 @section('scripts')
@@ -417,6 +464,4 @@
     }
 });
     </script>
-
-
-@endsection
+@endsection"

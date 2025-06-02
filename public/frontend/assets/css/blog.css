@@ -221,7 +221,7 @@ article.blog .post_info ul li:last-child i {
     position: absolute;
     top: 5px;
     right: 5px;
-    background-color: #039d99;
+        background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
     color: #fff;
     font-weight: 600;
     height: 30px;

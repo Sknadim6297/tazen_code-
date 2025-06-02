@@ -20,10 +20,13 @@
 
 <body>
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Professional Reset Password') }}</div>
+  <form method="POST" action="{{ route('professional.forgot.send') }}">
+    @csrf
+    <label>Email:</label>
+    <input type="email" name="email" required>
+    <button type="submit">Send Password Reset Link</button>
+  </form>
+</div>
 
                 <div class="card-body">
                     @if (session('status'))

@@ -309,6 +309,9 @@ typography
   [data-header-styles=light] .app-header .horizontal-logo .header-logo .toggle-logo,
   [data-header-styles=transparent][data-theme-mode=light] .app-header .horizontal-logo .header-logo .toggle-logo {
     display: block;
+            height: 50px;
+        width: auto;
+        margin-top: -13px;
   }
   [data-header-styles=light] .app-header .horizontal-logo .header-logo .desktop-logo,
   [data-header-styles=light] .app-header .horizontal-logo .header-logo .toggle-dark,
@@ -2810,9 +2813,9 @@ typography
 /* Start::button colors */
 /* btn-primary starts */
 .btn-primary {
-  background-color: rgb(var(--primary-rgb)) !important;
-  border-color: rgb(var(--primary-rgb)) !important;
-  color: #fff !important;
+  background: linear-gradient(to right, #FF4500, #FFA500, #FFD700, #007FFF) !important;
+  border:none;
+  color: #141212 !important;
 }
 .btn-primary:hover {
   background-color: rgba(var(--primary-rgb), 0.9) !important;
@@ -9495,7 +9498,7 @@ caption {
   content: "";
   width: 100%;
   height: 100%;
-  background-color: rgba(var(--primary-rgb), 0.95);
+  /* background-color: rgba(var(--primary-rgb), 0.95); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
