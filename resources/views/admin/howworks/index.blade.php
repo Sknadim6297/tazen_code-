@@ -120,7 +120,7 @@
                                 
                                         <td>
                                             @if($item->image1)
-                                                <img src="{{ asset('uploads/howworks/' . $item->image1) }}" alt="Image 1" width="60">
+                                                <img src="{{ asset('storage/' . $item->image1) }}" alt="Image 1" width="60">
                                             @endif
                                         </td>
                                         <td>{{ $item->heading1 }}</td>
@@ -128,7 +128,7 @@
                                 
                                         <td>
                                             @if($item->image2)
-                                                <img src="{{ asset('uploads/howworks/' . $item->image2) }}" alt="Image 2" width="60">
+                                                <img src="{{ asset('storage/' . $item->image2) }}" alt="Image 2" width="60">
                                             @endif
                                         </td>
                                         <td>{{ $item->heading2 }}</td>
@@ -136,7 +136,7 @@
                                 
                                         <td>
                                             @if($item->image3)
-                                                <img src="{{ asset('uploads/howworks/' . $item->image3) }}" alt="Image 3" width="60">
+                                                <img src="{{ asset('storage/' . $item->image3) }}" alt="Image 3" width="60">
                                             @endif
                                         </td>
                                         <td>{{ $item->heading3 }}</td>

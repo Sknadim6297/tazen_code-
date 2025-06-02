@@ -23,6 +23,7 @@ body {
     border-radius: 20px;
     padding: 40px 35px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    margin: 70px;
     transition: all 0.3s ease-in-out;
 }
 
@@ -111,6 +112,7 @@ label {
 @media screen and (max-width: 480px) {
     #login {
         padding: 25px 20px;
+        margin: 20px;
     }
 
     aside h2 {

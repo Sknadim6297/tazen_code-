@@ -1,5 +1,6 @@
 @extends('customer.layout.layout')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/appointment.css') }}" />
+
 @section('content')
 <div class="content-wrapper">
     <!-- Page Header -->
@@ -41,7 +42,7 @@
                             <td><span class="badge badge-{{ strtolower($booking->plan_type) }}">{{ ucwords(str_replace('_', ' ', $booking->plan_type)) }}</span></td>
                             <td>₹{{ number_format($booking->amount, 2) }}</td>
                             <td>
-                                <a href="{{ route('user.billing.download', $booking->id) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ route('user.billing.download', $booking->id) }}" class="btn btn-mm btn-primary">
                                     <i class="fas fa-download"></i> Invoice
                                 </a>
                             </td>
@@ -55,6 +56,14 @@
 </div>
 
 <style>
+
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .btn-mm {
+   
+    font-size: 0.675rem;
+    
+}
+    }
 .badge {
     padding: 6px 12px;
     border-radius: 15px;
@@ -110,6 +119,73 @@
     padding: 0.4rem 0.75rem;
     font-size: 0.875rem;
     border-radius: 0.375rem;
+}
+
+@media screen and (max-width: 767px) {
+    /* Fix header to prevent horizontal scrolling */
+    .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    /* Make table container scrollable horizontally */
+    .table-responsive {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+        padding: 10px;
+    }
+    
+    /* Ensure the table takes full width of container */
+    .data-table {
+        width: 100%;
+        min-width: 800px; /* Minimum width to ensure all columns are visible */
+    }
+    
+    /* Ensure content wrapper doesn't cause horizontal scroll */
+    .content-wrapper {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+        padding: 15px 10px;
+    }
+    
+    /* Make table columns width-responsive */
+    .data-table th,
+    .data-table td {
+        white-space: nowrap;
+        padding: 8px;
+    }
+    
+    /* Adjust button sizes for mobile */
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    /* Adjust badge sizes for mobile */
+    .badge {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    /* Fix card width */
+    .card {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Ensure the card body doesn't cause overflow */
+    .card-body {
+        padding: 10px 5px;
+    }
 }
 </style>
 @endsection 

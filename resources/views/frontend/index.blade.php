@@ -20,6 +20,19 @@
         .mobile-video-fallback {
             display: none;
         }
+
+		@media only screen and (min-width: 768px) and (max-width: 1024px) {
+
+			.fun-facts-cards .container .card-two {
+    			margin-top: 20px;
+    
+		}
+
+		.fun-facts-cards .container .right .row .third-card .card-three{
+			margin-top: 14px;
+		}
+
+		}
 		
     </style>
 	<style>
@@ -53,6 +66,15 @@
             display: block;
         }
     }
+
+	.btn-custom{
+		    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+			border: none;
+			color: white;
+	}
+	.text{
+		color: white;
+	}
 </style>
 @endsection
 @section('content')
@@ -137,7 +159,7 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-														<button class="btn btn-primary book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+														<button class="btn btn-custom book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
 											
 											</div>
 										</div>
@@ -185,7 +207,7 @@
 		</section>
 		<!-- second popups  -->
 
-		<section class=" home-about-section py-5" style="background-color: #FFF2E1;">
+		<section class=" home-about-section py-5" style="background: linear-gradient(200deg, #ffd414d4, #99b1f699, #dc6c49);}">
 			<div class="container">
 				@foreach($about_us as $aboutus)
 				<div class="row">
@@ -210,7 +232,8 @@
 
 								</div>
 								<div class="button-div">
-									<button class=" btn_1 medium">Get Started</button>
+									<button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+">Get Started</button>
 									<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
 											More</button></a>
 								</div>
@@ -362,7 +385,7 @@
 
 		<!-- /bg_gray -->
 
-		<section style="background-color: #FFF2E1;">
+		<section style="background-color:  #99b1f699;">
 			<div class="container margin_60_40">
 				<div class="main_title center">
 					<span><em></em></span>
@@ -404,7 +427,7 @@
 					@endforeach
 				</div>
 
-				<p class="text-center"><a href="{{ route('event.list') }}" class="btn_1 medium">View All Events</a></p>
+				<p class="text-center"><a href="{{ route('event.list') }}" class="btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">View All Events</a></p>
 			</div>
 		</section>
 		<!-- /container -->
@@ -487,192 +510,103 @@
 		<!-- /bg_gray -->
 
 		<!-- Testimonial Section -->
-		<section class="testimonial-section py-5">
-			<div class="container">
-				<div class="main_title center mb-5">
-					<span><em></em></span>
-					<h2>What Our Clients Say</h2>
-					<p>Discover why people love our services</p>
-				</div>
+		 <section class="ttm-row padding_top_zero-section ttm-bgcolor-white clearfix testimonial-new">
+        <div class="container-fluid">
+            <!-- Static heading and subheading -->
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 ttm-box-col-wrapper m-auto">
+                    <div class="main_title center">
+                        <span><em></em></span>
+                        <h2>TESTIMONIALS</h2>
+                        <p>What our clients say about us</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="owl-carousel services-carousal" id="testimonial-carousel">
+                    @php
+                        $totalSlides = 6; // Total slides to display
+                        $testimonialCount = count($testimonials);
+                    @endphp
+    
+                    @for($i = 0; $i < $totalSlides; $i++)
+                        <div class="item">
+                            <div class="testimonial-box">
+                                @php
+                                    $isEven = $i % 2 === 0;
+                                @endphp
+    
+                                @if($i < $testimonialCount)
+                                    {{-- Real testimonial --}}
+                                    @php $t = $testimonials[$i]; @endphp
+                                    @if($isEven)
+                                        <div class="testimonial-content bg-lavender mb-15">
+                                            <p class="text">{{ $t->description }}</p>
+                                        </div>
+                                        <div class="testimonial-img bg-blue">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                        </div>
+                                    @else
+                                        <div class="testimonial-img bg-pink mb-15">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                        </div>
+                                        <div class="testimonial-content bg-green">
+                                            <p class="text">{{ $t->description }}</p>
+                                        </div>
+                                    @endif
+                                @else
+                                    {{-- Dummy testimonial --}}
+                                    @if($isEven)
+                                        <div class="testimonial-content bg-lavender mb-15">
+                                            This is a sample testimonial. Excellent service and support!
+                                        </div>
+                                        <div class="testimonial-img bg-blue">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                        </div>
+                                    @else
+                                        <div class="testimonial-img bg-pink mb-15">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                        </div>
+                                        <div class="testimonial-content bg-green">
+                                            <p class="text">This is a sample testimonial. Highly recommended!</p>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+        </div>
+    </section>
 
-				<div class="row testimonial-slider">
-					@foreach($testimonials as $testimonial)
-					<div class="col-lg-4">
-						<div class="testimonial-card">
-							<div class="testimonial-content">
-								<div class="quote-icon">
-									<i class="fas fa-quote-left"></i>
-								</div>
-								<p class="testimonial-text">{{ $testimonial->description }}</p>
-								<div class="testimonial-author">
-									<div class="author-image">
-										<img src="{{ asset('storage/'.$testimonial->image) }}" alt="Client">
-									</div>
-									<div class="author-info">
-										<h5>{{ $testimonial->name ?? 'Happy Client' }}</h5>
-										<span>{{ $testimonial->position ?? 'Verified Customer' }}</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					@endforeach
-				</div>
-			</div>
-		</section>
-
-		<style>
-			.testimonial-section {
-				background-color: #f8f9fa;
-				position: relative;
-				overflow: hidden;
-			}
-
-			.testimonial-card {
-				background: #fff;
-				border-radius: 15px;
-				padding: 30px;
-				margin: 15px;
-				box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-				transition: all 0.3s ease;
-			}
-
-			.testimonial-card:hover {
-				transform: translateY(-5px);
-				box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-			}
-
-			.quote-icon {
-				color: #007bff;
-				font-size: 24px;
-				margin-bottom: 15px;
-			}
-
-			.testimonial-text {
-				font-size: 16px;
-				line-height: 1.6;
-				color: #555;
-				margin-bottom: 20px;
-				min-height: 100px;
-			}
-
-			.testimonial-author {
-				display: flex;
-				align-items: center;
-				margin-top: 20px;
-				border-top: 1px solid #eee;
-				padding-top: 20px;
-			}
-
-			.author-image {
-				width: 60px;
-				height: 60px;
-				border-radius: 50%;
-				overflow: hidden;
-				margin-right: 15px;
-				border: 3px solid #007bff;
-			}
-
-			.author-image img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-			}
-
-			.author-info h5 {
-				margin: 0;
-				font-size: 18px;
-				color: #333;
-			}
-
-			.author-info span {
-				font-size: 14px;
-				color: #777;
-			}
-
-			/* Slick Slider Customization */
-			.testimonial-slider {
-				margin: 0 -15px;
-			}
-
-			.testimonial-slider .slick-slide {
-				padding: 0 15px;
-			}
-
-			.testimonial-slider .slick-dots {
-				bottom: -40px;
-			}
-
-			.testimonial-slider .slick-dots li button:before {
-				font-size: 12px;
-				color: #007bff;
-			}
-
-			.testimonial-slider .slick-prev,
-			.testimonial-slider .slick-next {
-				width: 40px;
-				height: 40px;
-				background: #fff;
-				border-radius: 50%;
-				box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-				z-index: 1;
-			}
-
-			.testimonial-slider .slick-prev:before,
-			.testimonial-slider .slick-next:before {
-				color: #007bff;
-				font-size: 20px;
-			}
-
-			.testimonial-slider .slick-prev {
-				left: -20px;
-			}
-
-			.testimonial-slider .slick-next {
-				right: -20px;
-			}
-
-			@media (max-width: 768px) {
-				.testimonial-card {
-					margin: 10px;
-				}
-
-				.testimonial-slider .slick-prev {
-					left: 0;
-				}
-
-				.testimonial-slider .slick-next {
-					right: 0;
-				}
-			}
-		</style>
 
 		<script>
 			$(document).ready(function(){
-				$('.testimonial-slider').slick({
+				$("#testimonial-carousel").owlCarousel({
+					loop: true,
+					margin: 20,
+					nav: true,
 					dots: true,
-					infinite: true,
-					speed: 500,
-					slidesToShow: 3,
-					slidesToScroll: 1,
 					autoplay: true,
-					autoplaySpeed: 3000,
-					responsive: [
-						{
-							breakpoint: 1024,
-							settings: {
-								slidesToShow: 2,
-								slidesToScroll: 1
-							}
+					autoplayTimeout: 3000,
+					autoplayHoverPause: true,
+					items: 4,
+					responsive: {
+						0: {
+							items: 1
 						},
-						{
-							breakpoint: 768,
-							settings: {
-								slidesToShow: 1,
-								slidesToScroll: 1
-							}
+						576: {
+							items: 2
+						},
+						992: {
+							items: 3
+						},
+						1200: {
+							items: 4
 						}
-					]
+					}
 				});
 			});
 		</script>
@@ -716,7 +650,7 @@
 				
 
 				<div class="button-div">
-					<a href="{{ route('blog.index') }}" class="btn_1 medium">Discover More</a>
+					<a href="{{ route('blog.index') }}" class="btn_1 medium" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Discover More</a>
 				</div>
 
 			</div>
@@ -727,11 +661,11 @@
 				<div class="container clearfix">
 					<div class="row">
 						<div class=" col-md-6  wow">
-							<img src="img/are-you-pro.png" alt="">
+							<img src="{{ asset('frontend/assets/img/are-you-pro.png')}}" alt="">
 						</div>
 						<div class=" col-md-6  wow">
 							<div class="box_1">
-								<div class="ribbon_promo"><span>Free</span></div>
+								<div class="ribbon_promo"></div>
 								<h3>Are you a Professional?</h3>
 								<p>Join Us to increase your online visibility. You'll have access to even more customers
 									who are looking to professional service or consultation.</p>
