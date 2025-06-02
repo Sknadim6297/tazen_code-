@@ -10,6 +10,34 @@
         width: 327px;
     }
 }
+
+    .btn-custom{
+        background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+        color: white;
+        border: none;
+    }
+
+    @media (max-width: 991px) {
+    .custom-search-input {
+        margin-left: 0;
+    }
+    }
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .need-help-service .container .text-center figure::before {
+    position: absolute;
+    top: 12%;
+    right: 188px;
+    }
+
+    .services-counter-section-info .container .row .counter-section .card{
+        margin-top: 10px;
+    }
+}
+
+.text{
+		color: white;
+	}
+
     </style>
 @endsection
 
@@ -281,7 +309,7 @@
                                         <p class="text-dark mb-0">{{ $relatedService->name }}</p>
                                     </div>
                                     <div class="r">
-                                        <button class="btn_1 book-now-btn" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+                                        <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
                                     </div>
                                 </div>
                             </div>
@@ -307,61 +335,60 @@
                 </div>
             </div>
     
-            <div class="row slick_slider"
-                 data-slick='{"slidesToShow":4,"slidesToScroll":1,"arrows":false,"autoplay":true,"dots":false,"infinite":true,"responsive":[{"breakpoint":1199,"settings":{"slidesToShow":3}},{"breakpoint":992,"settings":{"slidesToShow":2}},{"breakpoint":767,"settings":{"slidesToShow":2}},{"breakpoint":600,"settings":{"slidesToShow":1}}]}'>
-                
-                @php
-                    $totalSlides = 6; // Total slides to display
-                    $testimonialCount = count($testimonials);
-                @endphp
+            <div class="row">
+                <div class="owl-carousel services-carousal" id="testimonial-carousel">
+                    @php
+                        $totalSlides = 6; // Total slides to display
+                        $testimonialCount = count($testimonials);
+                    @endphp
     
-                @for($i = 0; $i < $totalSlides; $i++)
-                    <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
-                        <div class="testimonial-box">
-                            @php
-                                $isEven = $i % 2 === 0;
-                            @endphp
+                    @for($i = 0; $i < $totalSlides; $i++)
+                        <div class="item">
+                            <div class="testimonial-box">
+                                @php
+                                    $isEven = $i % 2 === 0;
+                                @endphp
     
-                            @if($i < $testimonialCount)
-                                {{-- Real testimonial --}}
-                                @php $t = $testimonials[$i]; @endphp
-                                @if($isEven)
-                                    <div class="testimonial-content bg-lavender mb-15">
-                                        {{ $t->description }}
-                                    </div>
-                                    <div class="testimonial-img bg-blue">
-                                        <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
-                                    </div>
+                                @if($i < $testimonialCount)
+                                    {{-- Real testimonial --}}
+                                    @php $t = $testimonials[$i]; @endphp
+                                    @if($isEven)
+                                        <div class="testimonial-content bg-lavender mb-15">
+                                            <p class="text">{{ $t->description }}</p>
+                                        </div>
+                                        <div class="testimonial-img bg-blue">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                        </div>
+                                    @else
+                                        <div class="testimonial-img bg-pink mb-15">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                        </div>
+                                        <div class="testimonial-content bg-green">
+                                            <p class="text">{{ $t->description }}</p>
+                                        </div>
+                                    @endif
                                 @else
-                                    <div class="testimonial-img bg-pink mb-15">
-                                        <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image">
-                                    </div>
-                                    <div class="testimonial-content bg-green">
-                                        {{ $t->description }}
-                                    </div>
+                                    {{-- Dummy testimonial --}}
+                                    @if($isEven)
+                                        <div class="testimonial-content bg-lavender mb-15">
+                                           <p class="text"> This is a sample testimonial. Excellent service and support!</p>
+                                        </div>
+                                        <div class="testimonial-img bg-blue">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                        </div>
+                                    @else
+                                        <div class="testimonial-img bg-pink mb-15">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                        </div>
+                                        <div class="testimonial-content bg-green">
+                                            <p class="text">This is a sample testimonial. Highly recommended!</p>
+                                        </div>
+                                    @endif
                                 @endif
-                            @else
-                                {{-- Dummy testimonial --}}
-                                @if($isEven)
-                                    <div class="testimonial-content bg-lavender mb-15">
-                                        This is a sample testimonial. Excellent service and support!
-                                    </div>
-                                    <div class="testimonial-img bg-blue">
-                                        <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
-                                    </div>
-                                @else
-                                    <div class="testimonial-img bg-pink mb-15">
-                                        <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image">
-                                    </div>
-                                    <div class="testimonial-content bg-green">
-                                        This is a sample testimonial. Highly recommended!
-                                    </div>
-                                @endif
-                            @endif
+                            </div>
                         </div>
-                    </div>
-                @endfor
-    
+                    @endfor
+                </div>
             </div>
         </div>
     </section>
@@ -371,11 +398,11 @@
             <div class="container clearfix">
                 <div class="row">
                     <div class="col-md-6 wow">
-                        <img src="img/are-you-pro.png" alt="">
+                        <img src="{{ asset('frontend/assets/img/are-you-pro.png')}}" alt="">
                     </div>
                     <div class="col-md-6 wow">
                         <div class="box_1">
-                            <div class="ribbon_promo"><span>Free</span></div>
+                            <div class="ribbon_promo"></div>
                             <h3>Are you a Professional?</h3>
                             <p>Join Us to increase your online visibility. You'll have access to even more customers who are looking to professional service or consultation.</p>
                             <a href="submit-professional.html" class="new-unique-btn">Read more</a>
@@ -387,4 +414,33 @@
     </section>
     <!--/call_section-->
 </main>
+
+<script>
+    $(document).ready(function(){
+        $("#testimonial-carousel").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 3000,
+            autoplayHoverPause: true,
+            items: 4,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                576: {
+                    items: 2
+                },
+                992: {
+                    items: 3
+                },
+                1200: {
+                    items: 4
+                }
+            }
+        });
+    });
+</script>
 @endsection

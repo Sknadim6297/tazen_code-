@@ -292,7 +292,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        background: linear-gradient(135deg, #ed9706, #1e21a3);
     color: white;
 }
 

@@ -675,7 +675,7 @@ a.btn_explore:hover {
 
 .box_about strong {
     display: block;
-    color: #039d99;
+    color: #d13613;
     font-size: 21px;
     font-size: 1.3125rem;
     width: 30px;
@@ -684,7 +684,7 @@ a.btn_explore:hover {
     position: absolute;
     top: 45px;
     left: 30px;
-    border: 2px solid #039d99;
+    border: 2px solid #d13613;
     line-height: 25px;
     font-weight: 500;
     -webkit-border-radius: 50px;
@@ -1029,7 +1029,7 @@ a.btn_explore:hover {
 
 .call_section .box_1 {
     position: relative;
-    background-color: #D46FA9;
+    background-color: #090e35;;
     color: #fff;
     padding: 60px 40px 0px 40px;
 }
@@ -1141,7 +1141,7 @@ a.btn_explore:hover {
     transition: all 0.4s ease;
 }
 .fun-facts-cards .container .card-one{
-background-image: url(../img/new-icons/6.png);
+background-image: url(../img/new-icons/7.jpg);
 background-repeat: repeat;
 background-size: cover;
 background-position: center;
@@ -1150,7 +1150,7 @@ background-position: center;
 }
 
 .fun-facts-cards .container .card-two{
-    background-image: url(../img/new-icons/5.png);
+    background-image: url(../img/new-icons/8.jpg);
     background-repeat: repeat;
     background-size: cover;
     background-position: center;
@@ -1158,7 +1158,7 @@ background-position: center;
 }
 
 .fun-facts-cards .container .card-three{  
-    background-image: url(../img/new-icons/3.png);
+    background-image: url(../img/new-icons/9.jpg);
     background-repeat: repeat;
     background-size: cover;
     background-position: center;
@@ -1195,7 +1195,7 @@ border-radius: 22px;
 }
 .fun-facts-cards .container  .right .row .third-card .card-three{
     /* background-color: #D38135; */
-    background-image: url(../img/new-icons/4.png);
+    background-image: url(../img/new-icons/11.jpg);
     background-repeat: repeat;
     background-size: cover;
     background-position: center;
@@ -1203,14 +1203,14 @@ border-radius: 22px;
 }
 .fun-facts-cards .container  .right .row .first-card .card-one{
     /* background-color: #8C68C8; */
-     background-image: url(../img/new-icons/2.png);
+     background-image: url(../img/new-icons/7.jpg);
     background-repeat: repeat;
     background-size: cover;
     background-position: center;
 }
 .fun-facts-cards .container  .right .row .second-card .card-two{
     /* background-color: #5A79D6; */
-     background-image: url(../img/new-icons/1.png);
+     background-image: url(../img/new-icons/10.jpg);
     background-repeat: repeat;
     background-size: cover;
     background-position: center;
@@ -1239,7 +1239,7 @@ border-radius: 22px;
    
 }
 .new-custom-btn:hover{
-background: #039d99 !important;
+background: #c45105 !important;
 color: white;
 }
 
@@ -1274,7 +1274,7 @@ color: white;
 }
 /* #039d99 */
 .home-about-section .container .row .position-relative .ab-count {
-    background: linear-gradient(180deg, #1f2f6a 0%,  #039d99 100%);
+    background: linear-gradient(180deg, #1c264a 0%, #c4501a 100%);
     color: #ffffff;
     position: absolute;
     bottom: -18px;
@@ -1407,7 +1407,7 @@ background: conic-gradient(from 315deg, #0A37D8, #9E9019);
 /* about-page edit  */
 .about-page-counter .row .col-lg-6 .ex-card {
     border-radius: 10px;
-    background: #1f2f6a;
+        background-color: #152a70;
     box-shadow: 0px 23px 30px 0px rgba(0, 0, 0, 0.15);
     padding: 20px 20px 20px 20px;
   
@@ -1417,7 +1417,7 @@ background: conic-gradient(from 315deg, #0A37D8, #9E9019);
 .about-page-counter .row .col-lg-6 .ex-card .d-flex{
 
 border-radius: 50%;
-background: linear-gradient(11deg, #039d99 0.01%, #039d99 100%);
+background: linear-gradient(11deg, #709d03 0.01%, #039d99 100%);
 height: 90px;
 width: 120px;
 padding: 29px 0px;
@@ -1435,14 +1435,14 @@ margin-bottom: 0px;
     color: white;
 }
 .about-page-counter .row .col-lg-6 .ex-card:hover { 
-    background: linear-gradient(11deg, #039d99 0.01%, #039d99 100%);
+   background: linear-gradient(135deg, #f39c12, #c51010, #152a70);
     transform: scale(1.05) !important;
     transition: all 0.4s ease !important;
 }
 .about-page-counter .row .col-lg-6 .ex-card:hover .d-flex { 
 
   
-    background: linear-gradient(11deg, #1f2f6a 0.01%, #1f2f6a 100%);
+    background: linear-gradient(11deg, #039d99 0.01%, #709d03 100%);
  
   
 }

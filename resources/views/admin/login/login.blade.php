@@ -31,7 +31,7 @@
                     
                     <div class="card-body p-5">
                             <div class="d-flex justify-content-center"> 
-				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="100" height="100" alt="" class="logo_sticky"></a>
+				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
                 </div>
                         <p class="h4 mb-2 fw-semibold">Sign In</p>
 

@@ -4,8 +4,8 @@
             <a href="{{ url('/') }}" title="Tazen">
                 {{-- <img src="{{ asset('frontend/assets/img/logo.svg') }}" width="120" height="35" alt="" class="logo_normal"> --}}
                 {{-- <img src="{{ asset('frontend/assets/img/logo_sticky.svg') }}" width="120" height="35" alt="" class="logo_sticky"> --}}
-                <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_normal">
-                <img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="150" height="60" alt="" class="logo_sticky">
+                <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" width="150" height="auto" alt="" class="logo_normal">
+                <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" width="150" height="auto" alt="" class="logo_sticky">
             </a>
         </div>
         <ul id="top_menu">
@@ -16,11 +16,17 @@
         
             @if($user)
                 <li class="d-flex align-items-center gap-2">
-                    <a href="{{ route('user.dashboard') }}" class="btn_access bg-success" style="border-radius: 30px;">Dashboard</a>
+                    <a href="{{ route('user.dashboard') }}" class="btn btn-custom" style="border-radius: 4px;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+    border: none;
+    color: aliceblue;"">Dashboard</a>
                 </li>
             @elseif($professional)
                 <li class="d-flex align-items-center gap-2">
-                    <a href="{{ route('professional.dashboard') }}" class="btn_access bg-primary" style="border-radius: 30px;">Professional Dashboard</a>
+                    <a href="{{ route('professional.dashboard') }}" class="btn btn-custom" style="border-radius: 4px;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+    border: none;
+    color: aliceblue;">Professional Dashboard</a>
                 </li>
             @else
                 <li class="d-flex align-items-center gap-2">
@@ -66,8 +72,11 @@
         width: auto;
         height: 50px;
         margin-right: 260px;
+        margin-top: 0;
+
     }
 }
+
         </style>
         
         <!-- /top_menu -->
@@ -79,7 +88,7 @@
                 <a href="#0" class="open_close">
                     <i class="icon_close"></i><span>Menu</span>
                 </a>
-                <a href="index-2.html"><img src="{{ asset('frontend/assets/img/tazen logo-01.png') }}" width="120" height="45" alt=""></a>
+                <a href="{{ url('/') }}"><img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" width="120" height="auto" alt=""></a>
             </div>
             <ul>
                 <!-- <li class="submenu">
