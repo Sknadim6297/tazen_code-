@@ -18,7 +18,9 @@
             <div class="card-header">
                 <h4>Service List</h4>
                 <div class="card-actions">
-                    <a href="{{ route('professional.service.create') }}" style="background-color: #0d67c7;color:white;padding:7px;border-radius:10px">Add Service</a>
+                    @if(count($services) == 0)
+                        <a href="{{ route('professional.service.create') }}" style="background-color: #0d67c7;color:white;padding:7px;border-radius:10px">Add Service</a>
+                    @endif
                 </div>
             </div>
             <div class="table-responsive">
@@ -27,7 +29,6 @@
                         <tr>
                             <th>Service Name</th>
                             <th>Service Category</th>
-                            <th>Duration</th>
                             <th>Image</th>
                             <th>Description</th>
                             <th>Tags</th>
@@ -37,72 +38,103 @@
                     </thead>
                     <tbody>
                         @foreach($services as $service)
-    <tr>
-        <td>{{ $service->service_name }}</td>
-        <td>{{ $service->service->name }}</td> 
-        <td>{{ $service->duration }} mins</td>
-        <td>
-            @if($service->image_path)
-                <img src="{{ asset('upload/services/' . $service->image_path) }}" alt="Image" width="60">
-            @else
-                <span class="text-muted">No Image</span>
-            @endif
-        </td>
-        <td>{{ Str::limit($service->description, 50) }}</td>
-        <td>{{ $service->tags }}</td>
-        <td>{{ $service->requirements }}</td>
-        <td>
-            <div style="display: flex; gap: 10px;">
-        
-                <a href="{{ route('professional.service.edit', $service->id) }}" 
-                   style="background-color: #28a745; 
-                          color: white; 
-                          padding: 8px 16px; 
-                          font-size: 14px; 
-                          font-weight: 500;
-                          border: none; 
-                          border-radius: 8px; 
-                          text-decoration: none; 
-                          display: inline-flex; 
-                          align-items: center; 
-                          justify-content: center;
-                          transition: background-color 0.3s ease;">
-                    <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
-                </a>
-        
-                <a href="javascript:void(0)" 
-                   class="delete-item" 
-                   data-url="{{ route('professional.service.destroy', $service->id) }}"
-                   style="background-color: #dc3545; 
-                          color: white; 
-                          padding: 8px 16px; 
-                          font-size: 14px; 
-                          font-weight: 500;
-                          border: none; 
-                          border-radius: 8px; 
-                          text-decoration: none; 
-                          display: inline-flex; 
-                          align-items: center; 
-                          justify-content: center;
-                          transition: background-color 0.3s ease;">
-                    <i class="far fa-trash-alt" style="margin-right: 6px;"></i> Delete
-                </a>
-        
-            </div>
-        </td>
-        
-    </tr>
-@endforeach
-
+                            <tr>
+                                <td>{{ $service->service_name }}</td>
+                                <td>{{ $service->service->name }}</td> 
+                                <td>
+                                    @if($service->image_path)
+                                        <img src="{{ asset('upload/services/' . $service->image_path) }}" alt="Image" width="60">
+                                    @else
+                                        <span class="text-muted">No Image</span>
+                                    @endif
+                                </td>
+                                <td>{{ Str::limit($service->description, 50) }}</td>
+                                <td>{{ $service->tags }}</td>
+                                <td>{{ $service->requirements }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 10px;">
+                                
+                                        <a href="{{ route('professional.service.edit', $service->id) }}" 
+                                           style="background-color: #28a745; 
+                                                  color: white; 
+                                                  padding: 8px 16px; 
+                                                  font-size: 14px; 
+                                                  font-weight: 500;
+                                                  border: none; 
+                                                  border-radius: 8px; 
+                                                  text-decoration: none; 
+                                                  display: inline-flex; 
+                                                  align-items: center; 
+                                                  justify-content: center;
+                                                  transition: background-color 0.3s ease;">
+                                            <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
+                                        </a>
+                                
+                                        <a href="javascript:void(0)" 
+                                           class="delete-item" 
+                                           data-url="{{ route('professional.service.destroy', $service->id) }}"
+                                           style="background-color: #dc3545; 
+                                                  color: white; 
+                                                  padding: 8px 16px; 
+                                                  font-size: 14px; 
+                                                  font-weight: 500;
+                                                  border: none; 
+                                                  border-radius: 8px; 
+                                                  text-decoration: none; 
+                                                  display: inline-flex; 
+                                                  align-items: center; 
+                                                  justify-content: center;
+                                                  transition: background-color 0.3s ease;">
+                                            <i class="far fa-trash-alt" style="margin-right: 6px;"></i> Delete
+                                        </a>
+                                
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
             
+            @if(count($services) == 0)
+                <div class="text-center mt-4 p-3 bg-light rounded">
+                    <p class="mb-0">No services added yet. Click "Add Service" to create your first service.</p>
+                </div>
+            @endif
         </div>
     </div>
 </div>
 @endsection
 
 @section('scripts')
-
+<script>
+    // Delete confirmation
+    $(document).on('click', '.delete-item', function(e) {
+        e.preventDefault();
+        const url = $(this).data('url');
+        
+        if (confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message || 'Service deleted successfully');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message || 'Failed to delete service');
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error(xhr.responseJSON?.message || 'An error occurred while deleting the service');
+                }
+            });
+        }
+    });
+</script>
 @endsection

@@ -703,248 +703,310 @@
             @endsection
             @section('script')
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        let enabledDates = @json($enabledDates);
-        console.log(enabledDates);
-        
-        let selectedBookings = {};
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let enabledDates = @json($enabledDates);
+    console.log(enabledDates);
+    
+    // Get existing bookings for this professional
+    const existingBookings = @json($existingBookings ?? []);
+    console.log("Existing bookings:", existingBookings);
+    
+    let selectedBookings = {};
 
-        // Helper function to format the date to local date string
-        function formatLocalDate(date) {
-            const offset = date.getTimezoneOffset();
-            const localDate = new Date(date.getTime() - offset * 60000);
-            return localDate.toISOString().split('T')[0];
-        }
+    // Helper function to format the date to local date string
+    function formatLocalDate(date) {
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - offset * 60000);
+        return localDate.toISOString().split('T')[0];
+    }
 
-        // Initialize Flatpickr
-        flatpickr("#calendarDiv", {
-            inline: true,
-            mode: "multiple",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            enable: enabledDates, 
-            disable: [
-                function (date) {
-                    const dateString = formatLocalDate(date);
-                    return !enabledDates.includes(dateString) || date.getDay() === 0;
-                }
-            ],
-            onDayCreate: function (dObj, dStr, fp, dayElem) {
-                const date = dayElem.dateObj;
+    // Initialize Flatpickr
+    flatpickr("#calendarDiv", {
+        inline: true,
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        enable: enabledDates, 
+        disable: [
+            function (date) {
                 const dateString = formatLocalDate(date);
-                if (enabledDates.includes(dateString) && date.getDay() !== 0) {
-                    dayElem.style.backgroundColor = '#28a745';
-                    dayElem.style.color = 'white';
-                } else {
-                    dayElem.style.backgroundColor = '#ccc'; // Disabled days
-                    dayElem.style.color = '#999';
-                }
-            },
-            onChange: function (selectedDates, dateStr, instance) {
-    const offset = selectedDates.length ? selectedDates[0].getTimezoneOffset() : 0;
-    const selectedDatesLocal = selectedDates.map(d => {
-        return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
-    });
-
-    // Remove unselected dates from selectedBookings
-    Object.keys(selectedBookings).forEach(date => {
-        if (!selectedDatesLocal.includes(date)) {
-            delete selectedBookings[date];
-        }
-    });
-
-    // Hide all slot boxes first
-    document.querySelectorAll('.slot-box').forEach(box => {
-        box.style.display = 'none';
-        box.removeAttribute('data-current-date');
-    });
-
-    // Show slots for last selected date only
-    if (selectedDates.length > 0) {
-        const selectedDateUTC = selectedDates[selectedDates.length - 1];
-        const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
-        const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-        const weekday = weekdayNames[selectedDate.getDay()];
-        const dateString = selectedDate.toISOString().split('T')[0];
-
-        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
-            box.style.display = 'flex';
-            box.setAttribute('data-current-date', dateString);
-        });
-    }
-
-    updateSelectedTimeList();
-}
-        });
-
-        // Handle slot selection
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            slot.addEventListener('change', function () {
-                const box = this.closest('.slot-box');
-                const currentDate = box.getAttribute('data-current-date');
-                const selectedTime = this.value;
-
-                if (currentDate && selectedTime) {
-                    if (!selectedBookings[currentDate]) {
-                        selectedBookings[currentDate] = [];
-                    }
-                    selectedBookings[currentDate] = [selectedTime];
-                    document.querySelectorAll(`.slot-box[data-current-date="${currentDate}"] .time-slot`).forEach(input => {
-                        input.checked = (input.value === selectedTime);
-                    });
-
-                    updateSelectedTimeList();
-                }
-            });
-        });
-      function updateSelectedTimeList() {
-    const list = document.getElementById('selected-time-list');
-    if (list) {
-        list.innerHTML = '';
-
-        // Sort the dates first
-        const sortedDates = Object.keys(selectedBookings).sort();
-
-        sortedDates.forEach(date => {
-            // Sort times within each date
-            const sortedTimes = selectedBookings[date].slice().sort((a, b) => {
-                return new Date(`1970-01-01T${a}`) - new Date(`1970-01-01T${b}`);
-            });
-
-            sortedTimes.forEach(time => {
-                const item = document.createElement('li');
-                item.textContent = `${date} - ${time}`;
-                list.appendChild(item);
-            });
-        });
-        const bookingDataInput = document.getElementById('booking_data_json');
-        if (bookingDataInput) {
-            bookingDataInput.value = JSON.stringify(selectedBookings);
-        }
-    } else {
-        console.warn('Selected time list element not found!');
-    }
-}
-
-
-        // Handle plan selection
-        const planButtons = document.querySelectorAll('.select-plan');
-const selectedPlanDisplay = document.getElementById('selected-plan-display');
-const selectedPlanText = document.getElementById('selected-plan-text');
-const selectedPlanInput = document.getElementById('selected_plan');
-let sessionCount = 0; 
-let selectedRate = 0;
-
-
-planButtons.forEach(button => {
-    button.addEventListener('click', function () {
-        const plan = this.getAttribute('data-plan');
-        sessionCount = parseInt(this.getAttribute('data-sessions')); 
-           selectedRate = parseFloat(this.getAttribute('data-rate'));
-        selectedPlanInput.value = plan;
-        
-        // Format the plan name for display
-        const displayPlan = plan.split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-            
-        selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
-        selectedPlanDisplay.style.display = 'block';
-        selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
-    });
-});
-
-// Handle booking submission
-document.querySelector('.booking').addEventListener('click', function (e) {
-    e.preventDefault();
-
-    const planType = selectedPlanInput.value;
-    const bookingData = selectedBookings;
-
-    // Get the number of dates selected by the user
-    const selectedDatesCount = Object.keys(bookingData).length;
-
-    if (!planType) {
-        toastr.error('Please select a consultation plan.');
-        return;
-    }
-
-    if (selectedDatesCount !== sessionCount) {
-        toastr.error(`You need to select ${sessionCount} dates for this booking.`);
-        return;
-    }
-
-    const professionalName = document.getElementById('professional_name').textContent.trim();
-    const professionalAddress = document.getElementById('professional_address').textContent.trim();
-    const professionalId = {{ json_encode($profile->professional->id ?? null) }};
-
-    // Format the bookings data into the expected structure
-    const formattedBookings = {};
-    Object.keys(bookingData).forEach(date => {
-        formattedBookings[date] = bookingData[date];
-    });
-
-    // Send the booking data to the server
-    fetch("{{ route('user.booking.session.store') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                return !enabledDates.includes(dateString) || date.getDay() === 0;
+            }
+        ],
+        onDayCreate: function (dObj, dStr, fp, dayElem) {
+            const date = dayElem.dateObj;
+            const dateString = formatLocalDate(date);
+            if (enabledDates.includes(dateString) && date.getDay() !== 0) {
+                dayElem.style.backgroundColor = '#28a745';
+                dayElem.style.color = 'white';
+            } else {
+                dayElem.style.backgroundColor = '#ccc'; // Disabled days
+                dayElem.style.color = '#999';
+            }
         },
-        body: JSON.stringify({
-            professional_name: professionalName,
-            professional_address: professionalAddress,
-            professional_id: professionalId,
-            plan_type: planType,
-            bookings: formattedBookings,
-            total_amount: selectedRate
-        })
-    })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return res.json();
-    })
-    .then(data => {
-        console.log('Response Data:', data);
-        
-        if (data.status === 'success') {
-            toastr.success(data.message);
-            setTimeout(() => {
-                window.location.href = "{{ route('user.booking') }}";
-            }, 1000);
-        } else {
-            toastr.error(data.message || 'Something went wrong.');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        toastr.error('Server error. Please try again later.');
-    });
-});
+        onChange: function (selectedDates, dateStr, instance) {
+            const offset = selectedDates.length ? selectedDates[0].getTimezoneOffset() : 0;
+            const selectedDatesLocal = selectedDates.map(d => {
+                return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
+            });
 
-        // Toggle Bio functionality
-        const bioShort = document.getElementById("bio-short");
-        const bioFull = document.getElementById("bio-full");
-        const toggleBtn = document.getElementById("toggle-bio");
-
-        if (toggleBtn) {
-            toggleBtn.addEventListener("click", function () {
-                if (bioFull.style.display === "none") {
-                    bioShort.style.display = "none";
-                    bioFull.style.display = "block";
-                    toggleBtn.textContent = "Read Less";
-                } else {
-                    bioShort.style.display = "block";
-                    bioFull.style.display = "none";
-                    toggleBtn.textContent = "Read More";
+            // Remove unselected dates from selectedBookings
+            Object.keys(selectedBookings).forEach(date => {
+                if (!selectedDatesLocal.includes(date)) {
+                    delete selectedBookings[date];
                 }
             });
+
+            // Hide all slot boxes first
+            document.querySelectorAll('.slot-box').forEach(box => {
+                box.style.display = 'none';
+                box.removeAttribute('data-current-date');
+            });
+
+            // Show slots for last selected date only
+            if (selectedDates.length > 0) {
+                const selectedDateUTC = selectedDates[selectedDates.length - 1];
+                const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
+                const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                const weekday = weekdayNames[selectedDate.getDay()];
+                const dateString = selectedDate.toISOString().split('T')[0];
+
+                document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
+                    box.style.display = 'flex';
+                    box.setAttribute('data-current-date', dateString);
+                    
+                    // Check if the slot is already booked
+                    const timeInput = box.querySelector('.time-slot');
+                    const timeValue = timeInput.value;
+                    
+                    // Disable slots that are already booked
+                    if (isTimeSlotBooked(dateString, timeValue)) {
+                        timeInput.disabled = true;
+                        timeInput.checked = false;
+                        box.classList.add('slot-booked');
+                    } else {
+                        timeInput.disabled = false;
+                        box.classList.remove('slot-booked');
+                    }
+                });
+            }
+
+            updateSelectedTimeList();
         }
     });
 
+    // Function to check if a time slot is already booked
+    function isTimeSlotBooked(date, timeSlot) {
+        if (!existingBookings[date]) return false;
+        
+        // Format timeSlot for comparison (both might have different formats)
+        const slotStartTime = timeSlot.split(' to ')[0].trim();
+        
+        return existingBookings[date].some(bookedTime => {
+            // Format bookedTime for comparison
+            const bookedStartTime = bookedTime.split(' to ')[0].trim();
+            
+            // Compare times (ignoring AM/PM for now - would need more robust comparison in production)
+            return bookedStartTime === slotStartTime;
+        });
+    }
+
+    // Handle slot selection
+    document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.addEventListener('change', function () {
+            const box = this.closest('.slot-box');
+            const currentDate = box.getAttribute('data-current-date');
+            const selectedTime = this.value;
+
+            // Don't allow selection of already booked slots
+            if (isTimeSlotBooked(currentDate, selectedTime)) {
+                toastr.error('This time slot is already booked. Please choose another time.');
+                this.checked = false;
+                return;
+            }
+
+            if (currentDate && selectedTime) {
+                if (!selectedBookings[currentDate]) {
+                    selectedBookings[currentDate] = [];
+                }
+                selectedBookings[currentDate] = [selectedTime];
+                document.querySelectorAll(`.slot-box[data-current-date="${currentDate}"] .time-slot`).forEach(input => {
+                    input.checked = (input.value === selectedTime);
+                });
+
+                updateSelectedTimeList();
+            }
+        });
+    });
+    
+    // Add CSS for booked slots
+    const style = document.createElement('style');
+    style.textContent = `
+        .slot-booked {
+            opacity: 0.6;
+            position: relative;
+        }
+        .slot-booked::after {
+            content: "BOOKED";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 2;
+        }
+    `;
+    document.head.appendChild(style);
+
+    function updateSelectedTimeList() {
+        const list = document.getElementById('selected-time-list');
+        if (list) {
+            list.innerHTML = '';
+
+            // Sort the dates first
+            const sortedDates = Object.keys(selectedBookings).sort();
+
+            sortedDates.forEach(date => {
+                // Sort times within each date
+                const sortedTimes = selectedBookings[date].slice().sort((a, b) => {
+                    return new Date(`1970-01-01T${a}`) - new Date(`1970-01-01T${b}`);
+                });
+
+                sortedTimes.forEach(time => {
+                    const item = document.createElement('li');
+                    item.textContent = `${date} - ${time}`;
+                    list.appendChild(item);
+                });
+            });
+            const bookingDataInput = document.getElementById('booking_data_json');
+            if (bookingDataInput) {
+                bookingDataInput.value = JSON.stringify(selectedBookings);
+            }
+        } else {
+            console.warn('Selected time list element not found!');
+        }
+    }
+
+    // Handle plan selection
+    const planButtons = document.querySelectorAll('.select-plan');
+    const selectedPlanDisplay = document.getElementById('selected-plan-display');
+    const selectedPlanText = document.getElementById('selected-plan-text');
+    const selectedPlanInput = document.getElementById('selected_plan');
+    let sessionCount = 0; 
+    let selectedRate = 0;
+
+    planButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const plan = this.getAttribute('data-plan');
+            sessionCount = parseInt(this.getAttribute('data-sessions')); 
+            selectedRate = parseFloat(this.getAttribute('data-rate'));
+            selectedPlanInput.value = plan;
+            
+            // Format the plan name for display
+            const displayPlan = plan.split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+                
+            selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
+            selectedPlanDisplay.style.display = 'block';
+            selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Handle booking submission
+    document.querySelector('.booking').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const planType = selectedPlanInput.value;
+        const bookingData = selectedBookings;
+
+        // Get the number of dates selected by the user
+        const selectedDatesCount = Object.keys(bookingData).length;
+
+        if (!planType) {
+            toastr.error('Please select a consultation plan.');
+            return;
+        }
+
+        if (selectedDatesCount !== sessionCount) {
+            toastr.error(`You need to select ${sessionCount} dates for this booking.`);
+            return;
+        }
+
+        const professionalName = document.getElementById('professional_name').textContent.trim();
+        const professionalAddress = document.getElementById('professional_address').textContent.trim();
+        const professionalId = {{ json_encode($profile->professional->id ?? null) }};
+
+        // Format the bookings data into the expected structure
+        const formattedBookings = {};
+        Object.keys(bookingData).forEach(date => {
+            formattedBookings[date] = bookingData[date];
+        });
+
+        // Send the booking data to the server
+        fetch("{{ route('user.booking.session.store') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                professional_name: professionalName,
+                professional_address: professionalAddress,
+                professional_id: professionalId,
+                plan_type: planType,
+                bookings: formattedBookings,
+                total_amount: selectedRate
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Response Data:', data);
+            
+            if (data.status === 'success') {
+                toastr.success(data.message);
+                setTimeout(() => {
+                    window.location.href = "{{ route('user.booking') }}";
+                }, 1000);
+            } else {
+                toastr.error(data.message || 'Something went wrong.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            toastr.error('Server error. Please try again later.');
+        });
+    });
+
+    // Toggle Bio functionality
+    const bioShort = document.getElementById("bio-short");
+    const bioFull = document.getElementById("bio-full");
+    const toggleBtn = document.getElementById("toggle-bio");
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function () {
+            if (bioFull.style.display === "none") {
+                bioShort.style.display = "none";
+                bioFull.style.display = "block";
+                toggleBtn.textContent = "Read Less";
+            } else {
+                bioShort.style.display = "block";
+                bioFull.style.display = "none";
+                toggleBtn.textContent = "Read More";
+            }
+        });
+    }
+});
 </script>
 @endsection
-            

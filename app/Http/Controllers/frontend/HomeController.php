@@ -202,13 +202,32 @@ class HomeController extends Controller
             }
         }
 
+        // Fetch all existing bookings for this professional
+        $existingBookings = [];
+        
+        // Get booking time dates from database
+        $bookedTimeSlots = BookingTimedate::whereHas('booking', function($query) use ($id) {
+            $query->where('professional_id', $id)
+                  ->where('status', '!=', 'cancelled');
+        })->get();
+
+        // Format the booked time slots into a structured array
+        foreach ($bookedTimeSlots as $slot) {
+            $date = $slot->date;
+            if (!isset($existingBookings[$date])) {
+                $existingBookings[$date] = [];
+            }
+            $existingBookings[$date][] = $slot->time_slot;
+        }
+
         return view('frontend.sections.professional-details', compact(
             'profile',
             'availabilities',
             'services',
             'rates',
             'enabledDates',
-            'requestedService'
+            'requestedService',
+            'existingBookings'
         ), ['showFooter' => false]);
     }
 

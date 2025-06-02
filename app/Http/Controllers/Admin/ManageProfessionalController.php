@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Availability;
 use App\Models\Professional;
 use App\Models\ProfessionalService;
+use App\Models\Service;
 use App\Models\Profile;
 use App\Models\Rate;
 use Illuminate\Http\Request;
@@ -17,14 +18,18 @@ class ManageProfessionalController extends Controller
      */
     public function index(Request $request)
     {
+        // Get services for filtering dropdown
+        $services = Service::orderBy('name')->get();
+        
         // If the request is AJAX
         if ($request->ajax()) {
             $searchTerm = $request->input('search');
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
+            $serviceId = $request->input('service_id');
 
             // Build the query based on filters
-            $professionals = Professional::query();
+            $professionals = Professional::with(['professionalServices.service']);
 
             if ($searchTerm) {
                 $professionals = $professionals->where(function ($query) use ($searchTerm) {
@@ -33,8 +38,18 @@ class ManageProfessionalController extends Controller
                 });
             }
 
+            // Apply date filter if both dates are provided
             if ($startDate && $endDate) {
-                $professionals = $professionals->whereBetween('created_at', [$startDate, $endDate]);
+                // Ensure proper date format for database query
+                $professionals = $professionals->whereDate('created_at', '>=', date('Y-m-d', strtotime($startDate)))
+                                              ->whereDate('created_at', '<=', date('Y-m-d', strtotime($endDate)));
+            }
+            
+            // Filter by service if selected
+            if ($serviceId) {
+                $professionals = $professionals->whereHas('professionalServices', function($query) use ($serviceId) {
+                    $query->where('service_id', $serviceId);
+                });
             }
 
             // Fetch filtered professionals
@@ -46,11 +61,9 @@ class ManageProfessionalController extends Controller
         }
 
         // Return the view for initial page load
-        $professionals = Professional::latest()->paginate(10);
-        return view('admin.manage-professional.index', compact('professionals'));
+        $professionals = Professional::with(['professionalServices.service'])->latest()->paginate(10);
+        return view('admin.manage-professional.index', compact('professionals', 'services'));
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -75,7 +88,7 @@ class ManageProfessionalController extends Controller
     {
         $profiles = Profile::where('professional_id', $id)->with('professional')->get();
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
-        $services = ProfessionalService::where('professional_id', $id)->with('professional')->get();
+        $services = ProfessionalService::where('professional_id', $id)->with(['professional', 'service'])->get();
         $rates = Rate::where('professional_id', $id)->with('professional')->get();
 
         return view('admin.manage-professional.show', compact('profiles', 'availabilities', 'services', 'rates'));
@@ -105,6 +118,7 @@ class ManageProfessionalController extends Controller
     {
         //
     }
+    
     public function updateMargin(Request $request, string $id)
     {
         $request->validate([
@@ -114,9 +128,6 @@ class ManageProfessionalController extends Controller
         $professional->margin = $request->input('margin_percentage');
         
         $professional->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Margin updated successfully.'
-        ]);
+        return redirect()->back()->with('success', 'Margin updated successfully.');
     }
 }

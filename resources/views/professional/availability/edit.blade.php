@@ -75,7 +75,7 @@
                         <select class="form-control" name="session_duration" required>
                             @foreach([30, 45, 60, 90, 120] as $duration)
                                 <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
-                                    {{ $duration }} {{ $duration >= 60 ? 'minutes' : '' }}
+                                    {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
                                 </option>
                             @endforeach
                         </select>
@@ -104,7 +104,7 @@
                                 </div>
                                 <label>To</label>
                                 <div class="time-input-group">
-                                    <input type="text" class="form-control timepicker" name="end_time[]" value="{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}" required>
+                                    <input type="text" class="form-control timepicker" name="end_time[]" value="{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}" required readonly>
                                 </div>
                                 <button type="button" class="remove-slot-btn" title="Remove slot">
                                     <i class="fas fa-trash"></i>
@@ -135,18 +135,78 @@
 document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
+    const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
 
+    // Get the selected session duration in minutes
+    function getSessionDuration() {
+        return parseInt(sessionDurationSelect.value);
+    }
+    
+    // Initialize Flatpickr with duration-based settings
     function initializeFlatpickr() {
-        flatpickr(".timepicker", {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "h:i K",
-            time_24hr: false,
-            minuteIncrement: 5,
-            disableMobile: true 
+        const duration = getSessionDuration();
+        
+        // Destroy existing instances first to prevent duplicates
+        document.querySelectorAll('.timepicker').forEach(el => {
+            if (el._flatpickr) {
+                el._flatpickr.destroy();
+            }
+        });
+        
+        // Initialize start time pickers
+        document.querySelectorAll('input[name="start_time[]"]').forEach(el => {
+            flatpickr(el, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                time_24hr: false,
+                minuteIncrement: duration,
+                disableMobile: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    // When start time changes, update end time
+                    if (dateStr) {
+                        const timeSlot = instance.element.closest('.time-slot');
+                        const endTimeInput = timeSlot.querySelector('input[name="end_time[]"]');
+                        
+                        // Calculate end time based on duration
+                        const startTime = new Date(`1/1/2023 ${dateStr}`);
+                        const endTime = new Date(startTime.getTime() + (duration * 60 * 1000));
+                        
+                        // Format end time for display
+                        const hours = endTime.getHours();
+                        const minutes = endTime.getMinutes();
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        const formattedHours = hours % 12 || 12;
+                        const formattedMinutes = minutes.toString().padStart(2, '0');
+                        const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+                        
+                        // Set the end time value
+                        if (endTimeInput._flatpickr) {
+                            endTimeInput._flatpickr.setDate(formattedTime);
+                        } else {
+                            endTimeInput.value = formattedTime;
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Initialize end time pickers (readonly)
+        document.querySelectorAll('input[name="end_time[]"]').forEach(el => {
+            flatpickr(el, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                time_24hr: false,
+                minuteIncrement: duration,
+                disableMobile: true,
+                allowInput: false,
+                clickOpens: false
+            });
         });
     }
 
+    // Create new time slot
     function createTimeSlot(start = '', end = '') {
         const div = document.createElement('div');
         div.classList.add('time-slot');
@@ -157,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <label>To</label>
             <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="end_time[]" value="${end}" required placeholder="End Time">
+                <input type="text" class="form-control timepicker" name="end_time[]" value="${end}" required placeholder="End Time" readonly>
             </div>
             <button type="button" class="remove-slot-btn" title="Remove slot">
                 <i class="fas fa-trash"></i>
@@ -167,20 +227,85 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeFlatpickr();
     }
 
+    // Add new time slot when button is clicked
     addSlotBtn.addEventListener('click', () => createTimeSlot());
 
+    // Remove time slot
     timeSlotsContainer.addEventListener('click', function(e) {
         if (e.target.closest('.remove-slot-btn')) {
             e.target.closest('.time-slot').remove();
         }
     });
+    
+    // Recalculate time slots when duration changes
+    sessionDurationSelect.addEventListener('change', function() {
+        // Re-initialize all pickers with new duration
+        initializeFlatpickr();
+        
+        // Reset any existing end times to match new duration
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            const startInput = slot.querySelector('input[name="start_time[]"]');
+            const endInput = slot.querySelector('input[name="end_time[]"]');
+            
+            if (startInput.value) {
+                // Trigger onChange event to recalculate end time
+                if (startInput._flatpickr) {
+                    const currentValue = startInput.value;
+                    startInput._flatpickr.setDate(currentValue);
+                }
+            }
+        });
+    });
 
+    // Initialize Flatpickr for existing time slots
     initializeFlatpickr();
 
     $('#availabilityForm').submit(function(e) {
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
+        
+        // Validation: Check if at least one weekday is selected
+        const selectedWeekdays = document.querySelectorAll('input[name="weekdays[]"]:checked');
+        if (selectedWeekdays.length === 0) {
+            toastr.error("Please select at least one weekday");
+            return false;
+        }
+        
+        // Validation: Check if all time slots are filled
+        const timeSlots = document.querySelectorAll('.time-slot');
+        for (const slot of timeSlots) {
+            const startTime = slot.querySelector('input[name="start_time[]"]').value;
+            const endTime = slot.querySelector('input[name="end_time[]"]').value;
+            
+            if (!startTime || !endTime) {
+                toastr.error("Please fill all time slots");
+                return false;
+            }
+        }
+        
+        // Validation: Check for overlapping time slots
+        const timeRanges = Array.from(timeSlots).map(slot => {
+            const startTime = slot.querySelector('input[name="start_time[]"]').value;
+            const endTime = slot.querySelector('input[name="end_time[]"]').value;
+            return { start: startTime, end: endTime };
+        });
+        
+        // Sort by start time for easier comparison
+        timeRanges.sort((a, b) => {
+            return new Date(`1/1/2023 ${a.start}`) - new Date(`1/1/2023 ${b.start}`);
+        });
+        
+        // Check for overlaps
+        for (let i = 0; i < timeRanges.length - 1; i++) {
+            const currentEnd = new Date(`1/1/2023 ${timeRanges[i].end}`);
+            const nextStart = new Date(`1/1/2023 ${timeRanges[i+1].start}`);
+            
+            if (currentEnd > nextStart) {
+                toastr.error("Time slots cannot overlap. Please adjust your schedule.");
+                return false;
+            }
+        }
 
         $.ajax({
             url: "{{ route('professional.availability.update', $availability->id) }}",

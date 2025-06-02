@@ -5,23 +5,52 @@ namespace App\Http\Controllers\Professional;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
-use PDF;
+use Carbon\Carbon;
 
 class BillingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $professional = auth()->user(); 
-        $marginPercentage = $professional->margin; 
+        $professional = Auth::guard('professional')->user();
+        $marginPercentage = $professional->margin;
+        
+        // Start with base query
+        $query = Booking::where('professional_id', Auth::guard('professional')->id());
+        
+        // Apply date filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        // Apply plan type filter
+        if ($request->filled('plan_type')) {
+            $query->where('plan_type', $request->plan_type);
+        }
+        
+        // Apply payment status filter
+        if ($request->filled('payment_status')) {
+            $query->where('paid_status', $request->payment_status);
+        }
+        
         // Get bookings
-        $bookings = Booking::where('professional_id', Auth::guard('professional')->id())
-            ->select('id', 'customer_name', 'plan_type', 'month', 'amount')
+        $bookings = $query->select('id', 'customer_name', 'plan_type', 'month', 'amount', 'transaction_number', 'paid_status', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
-
-        // Calculate margin deductions for each booking
+            
+        // Fill in month if not present and calculate margins
         foreach ($bookings as $booking) {
+            // Set month if not present
+            if (empty($booking->month)) {
+                $booking->month = Carbon::parse($booking->created_at)->format('F Y');
+            }
+            
+            // Calculate margin deductions
             $booking->margin_amount = ($booking->amount * $marginPercentage) / 100;
             $booking->net_amount = $booking->amount - $booking->margin_amount;
         }
@@ -101,15 +130,20 @@ class BillingController extends Controller
         $marginAmount = ($booking->amount * $marginPercentage) / 100;
         $netAmount = $booking->amount - $marginAmount;
 
-        $pdf = PDF::loadView('professional.billing.invoice', [
-            'booking' => $booking,
-            'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
-            'invoice_date' => $booking->created_at->format('d M Y'),
-            'marginPercentage' => $marginPercentage,
-            'marginAmount' => $marginAmount,
-            'netAmount' => $netAmount,
-        ]);
+        try {
+            $pdf = Pdf::loadView('professional.billing.invoice', [
+                'booking' => $booking,
+                'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'invoice_date' => $booking->created_at->format('d M Y'),
+                'marginPercentage' => $marginPercentage,
+                'marginAmount' => $marginAmount,
+                'netAmount' => $netAmount,
+                'professional' => $professional,
+            ]);
 
-        return $pdf->download('invoice-' . $booking->id . '.pdf');
+            return $pdf->download('invoice-' . $booking->id . '.pdf');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate invoice: ' . $e->getMessage());
+        }
     }
 }
