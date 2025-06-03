@@ -65,6 +65,7 @@
         border-radius: 2px;
     }
 
+   
     /* Breadcrumb */
     .breadcrumb {
         list-style: none;
@@ -441,6 +442,8 @@
         }
     }
 
+
+
     /* Add these styles for the gallery image deletion feature */
     .gallery-image-container {
         position: relative;
@@ -500,6 +503,8 @@
         margin-right: 10px;
         margin-bottom: 10px;
     }
+
+
 </style>
 @endsection
 @section('content')
@@ -650,6 +655,13 @@
         </form>
     </div>
 </div>
+<style>
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .user-profile-wrapper {
+        margin-top: -57px;
+    }
+}
+</style>
 @endsection
 
 @section('scripts')

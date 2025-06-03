@@ -2813,9 +2813,9 @@ typography
 /* Start::button colors */
 /* btn-primary starts */
 .btn-primary {
-  background: linear-gradient(to right, #FF4500, #FFA500, #FFD700, #007FFF) !important;
+  background: rgb(15, 15, 88) !important;
   border:none;
-  color: #141212 !important;
+  color: #f6f5f5 !important;
 }
 .btn-primary:hover {
   background-color: rgba(var(--primary-rgb), 0.9) !important;

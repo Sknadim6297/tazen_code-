@@ -261,6 +261,16 @@
         </div>
     </div>
 </div>
+<style>
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .user-profile-wrapper {
+        margin-top: -57px;
+    }
+    .btn {
+    padding: 6px 6px;
+}
+</style>
+
 @endsection
 
 @section('scripts')
