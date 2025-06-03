@@ -1140,30 +1140,24 @@ a.btn_explore:hover {
     transform: scale(1.02);
     transition: all 0.4s ease;
 }
-.fun-facts-cards .container .card-one{
-background-image: url(../img/new-icons/7.jpg);
-background-repeat: repeat;
-background-size: cover;
-background-position: center;
-/* background-color: #8C68C8; */
+.fun-facts-cards .container .card-one {
+    /* background-image: url(../img/new-icons/7.jpg); */
+    /* background-repeat: repeat; */
+    /* background-size: cover; */
+    /* background-position: center; */
+    background-color: #152a70;
     border-radius: 15px;
 }
 
+
 .fun-facts-cards .container .card-two{
-    background-image: url(../img/new-icons/8.jpg);
-    background-repeat: repeat;
-    background-size: cover;
-    background-position: center;
+     background-color: #c51010;
     border-radius: 15px;
 }
 
 .fun-facts-cards .container .card-three{  
-    background-image: url(../img/new-icons/9.jpg);
-    background-repeat: repeat;
-    background-size: cover;
-    background-position: center;
-    height: 280px;
-border-radius: 22px;
+    background-color: #f39c12;
+    border-radius: 15px;
 }
 
 .fun-facts-cards .container .third-card .card-three .text-content{ 
@@ -1195,25 +1189,16 @@ border-radius: 22px;
 }
 .fun-facts-cards .container  .right .row .third-card .card-three{
     /* background-color: #D38135; */
-    background-image: url(../img/new-icons/11.jpg);
-    background-repeat: repeat;
-    background-size: cover;
-    background-position: center;
-    height: 280px;
+     background-color: #152a70;
+    border-radius: 15px;
 }
 .fun-facts-cards .container  .right .row .first-card .card-one{
-    /* background-color: #8C68C8; */
-     background-image: url(../img/new-icons/7.jpg);
-    background-repeat: repeat;
-    background-size: cover;
-    background-position: center;
+    background-color: #c51010;
+    border-radius: 15px;
 }
 .fun-facts-cards .container  .right .row .second-card .card-two{
-    /* background-color: #5A79D6; */
-     background-image: url(../img/new-icons/10.jpg);
-    background-repeat: repeat;
-    background-size: cover;
-    background-position: center;
+     background-color: #f39c12;
+    border-radius: 15px;
 }
 
 /* fun-fact end  */
@@ -1417,7 +1402,7 @@ background: conic-gradient(from 315deg, #0A37D8, #9E9019);
 .about-page-counter .row .col-lg-6 .ex-card .d-flex{
 
 border-radius: 50%;
-background: linear-gradient(11deg, #709d03 0.01%, #039d99 100%);
+background-color: #ffd414de;
 height: 90px;
 width: 120px;
 padding: 29px 0px;
@@ -1435,17 +1420,11 @@ margin-bottom: 0px;
     color: white;
 }
 .about-page-counter .row .col-lg-6 .ex-card:hover { 
-   background: linear-gradient(135deg, #f39c12, #c51010, #152a70);
+   /* background: linear-gradient(135deg, #f39c12, #c51010, #152a70); */
     transform: scale(1.05) !important;
     transition: all 0.4s ease !important;
 }
-.about-page-counter .row .col-lg-6 .ex-card:hover .d-flex { 
 
-  
-    background: linear-gradient(11deg, #039d99 0.01%, #709d03 100%);
- 
-  
-}
 /* about-page faqs  */
 .faq span {
     background-color: #000000;
