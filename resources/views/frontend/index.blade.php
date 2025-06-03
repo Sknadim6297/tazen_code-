@@ -32,6 +32,10 @@
 			margin-top: 14px;
 		}
 
+		.fun-facts-cards .container .card {
+			margin-right: 12px
+		}
+
 		}
 		
     </style>
@@ -207,7 +211,7 @@
 		</section>
 		<!-- second popups  -->
 
-		<section class=" home-about-section py-5" style="background: linear-gradient(200deg, #ffd414d4, #99b1f699, #dc6c49);}">
+		<section class=" home-about-section py-5" style="background-color:#f4cf2d73;">
 			<div class="container">
 				@foreach($about_us as $aboutus)
 				<div class="row">
@@ -656,7 +660,7 @@
 			</div>
 		</div>
 		<!-- end blog  -->
-		<section style="background-color: #FFF2E1;">
+		<section style="background-color: #ffd41473;">
 			<div class="call_section version_2 lazy">
 				<div class="container clearfix">
 					<div class="row">

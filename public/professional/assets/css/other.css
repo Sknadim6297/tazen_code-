@@ -40,11 +40,7 @@
         padding: 10px 20px;
         font-weight: 600;
     }
-    .btn-secondary {
-        background-color: #f3f4f6;
-        border: 1px solid #d1d5db;
-        color: #374151;
-    }
+    
     .btn-secondary:hover {
         background-color: #e5e7eb;
     }
@@ -90,3 +86,9 @@
             flex-direction: column;
         }
     }
+
+    .btn-secondary {
+    background-color: #093794;
+    border: 1px solid #d1d5db;
+    color: #ffffff;
+}

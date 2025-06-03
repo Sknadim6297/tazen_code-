@@ -282,7 +282,7 @@
     </section>
     
     <!-- popular category section  -->
-   <section style="background-color: #FFF2E1;">
+   <section style="background-color: #f8f9fa;">
         <div class="container service-container py-5">
             <div class="row heading">
                 <div class="col">

@@ -102,8 +102,6 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <!-- Example buttons -->
-                                                    <a href="{{ route('admin.logo.edit', $logo->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                                     <form action="{{ route('admin.logo.destroy', $logo->id) }}" method="POST" style="display:inline-block">
                                                         @csrf
                                                         @method('DELETE')
@@ -139,8 +137,6 @@
             </div>
         </div>
         <!--End::row-2 -->
-
-
     </div>
 </div>
 @endsection

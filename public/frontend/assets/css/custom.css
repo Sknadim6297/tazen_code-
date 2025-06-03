@@ -13,7 +13,7 @@
 .need-help-service .container .text-center figure::before {
     position: absolute;
     top: 10%;
-    right: 60px;
+    right: 49px;
     content: "";
     height: 340px;
     width: 340px;
@@ -226,7 +226,7 @@ margin-top:8px ;
 /* event-list page edit  */
 /* every pages cta bg  */
 .cta-bg-color-new{
-    background-color: #FAF9F6;
+    background-color: #ffd41473;
 }
 
 /* submit-professional page style  */

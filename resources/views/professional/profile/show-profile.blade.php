@@ -703,6 +703,12 @@ body {
     box-shadow: 0 6px 10px -1px rgba(79, 70, 229, 0.2), 0 4px 6px -1px rgba(79, 70, 229, 0.15);
 }
 
+
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .user-profile-wrapper{
+                margin-top: -57px;
+            }
+}
 /* Additional responsive styles */
 @media (max-width: 640px) {
     .content-wrapper {
