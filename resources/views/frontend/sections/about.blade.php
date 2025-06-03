@@ -7,20 +7,34 @@
     <style>
         .text{
 		color: white;
-	}
+	    }
 
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
     .fun-facts-cards .container .card-two {
         margin-top: 20px;
     }
 
-    .about-page-counter .row .col-lg-6 .ex-card .d-flex {
-    border-radius: 50%;
-    background: linear-gradient(11deg, #709d03 0.01%, #039d99 100%);
-    height: 72px;
-    width: 120px;
-    padding: 29px 0px;
-}
+    .fun-facts-cards .container .card{
+        margin-right: 13px;
+    }
+    .about-page-counter .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .about-page-counter .row {
+        margin: 0 -15px;
+    }
+
+    .about-page-counter .col-lg-6 {
+        padding: 0 15px;
+    }
+
+    .about-page-counter .ex-card {
+        width: 100%;
+        margin-bottom: 20px;
+    }
 
     .fun-facts-cards .container .right .row .third-card .card-three {
         margin-top: 14px;
@@ -31,6 +45,9 @@
     }
     .counter-section-info .container {
         text-align: center;
+    }
+    .about-page-counter .row .col-lg-6 .ex-card{
+        width: 115%;
     }
 
     .counter-section-info .row {
@@ -72,6 +89,10 @@
 
     .counter-section-info .btn_1 {
         margin-top: 1rem;
+    }
+    .about-page-counter .row .col-lg-6 .ex-card .d-flex {
+        height: 73px;
+        background-color: #ffd41473
     }
 }
     </style>
@@ -221,7 +242,7 @@
         </div>
         @endforeach
     </section>
-    <section class="home-about-section py-5" style="background-color: #FFF2E1;">
+    <section class="home-about-section py-5" style="background-color: #ffd41473;">
         <div class="container">
          @foreach($about_us as $aboutus)
          <div class="row">

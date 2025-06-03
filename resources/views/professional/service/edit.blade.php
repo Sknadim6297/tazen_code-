@@ -1,6 +1,7 @@
 @extends('professional.layout.layout')
 @section('styles')
 <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
+
 @endsection
 
 @section('content')
@@ -117,6 +118,13 @@
     </form>     
     
 </div>
+<style>
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .user-profile-wrapper {
+        margin-top: -57px;
+    }
+}
+</style>
 @endsection
 @section('scripts')
 <script>

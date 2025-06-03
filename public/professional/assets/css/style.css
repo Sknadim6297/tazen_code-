@@ -516,6 +516,8 @@ textarea.form-control {
     cursor: pointer;
     transition: all 0.3s;
     border: none;
+        background-color: darkblue;
+    color: white;
 }
 
 .btn-primary {

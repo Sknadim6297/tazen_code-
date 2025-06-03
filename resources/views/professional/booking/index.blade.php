@@ -134,7 +134,7 @@
     }
 
     .btn-link {
-        color: #007bff;
+        color: #ffffff;
         text-decoration: none;
     }
 
@@ -789,6 +789,85 @@
         white-space: nowrap;
     }
 }
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+         /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .table-responsive-container {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+        
+        /* Ensure the table takes full width of container */
+        .table {
+            width: 100%;
+            table-layout: auto;
+            white-space: nowrap;
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 20px 10px;
+        }
+        
+        /* Fix card width */
+        .card {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure the card body doesn't cause overflow */
+        .card-body {
+            padding: 10px 5px;
+        }
+        
+        /* Add scrollbar styling */
+        .table-responsive-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+            .user-profile-wrapper{
+                margin-top: -57px;
+            }
+    }
 </style>
 @endsection
 
