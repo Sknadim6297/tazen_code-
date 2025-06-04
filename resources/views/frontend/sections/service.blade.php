@@ -62,15 +62,14 @@
                                 </div>
                             </div>
                             <!-- /row -->
-                            <div class="search_trends">
-                                <h5>Trending:</h5>
-                                <ul>
-                                    <li><a href="#0">doctor</a></li>
-                                    <li><a href="#0">lawyer</a></li>
-                                    <li><a href="#0">teacher</a></li>
-                                    <li><a href="#0">psychologist</a></li>
-                                </ul>
-                            </div>
+                            <div class="search_trends new-search_trends">
+    <h5>Trending:</h5>
+    <ul class="new-ul-list-header">
+        @foreach($services->take(4) as $service)
+            <li><a href="{{ url('/service/' . $service->id) }}">{{ strtolower($service->name) }}</a></li>
+        @endforeach
+    </ul>
+</div>
                         </form>
                     </div>
                 </div>
@@ -81,7 +80,7 @@
     
     <!-- form area  -->
     <div id="progressModel" class="model">
-        <div class="model-content mx-auto">
+        <div class="model-content mx-auto"> 
             <span class="close" id="closeModel">&times;</span>
             <div class="img"></div>
 
@@ -104,6 +103,48 @@
                             <label>
                                 <input type="checkbox" name="option" value="option-1" required>
                                 <span class="text-span">option two</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
+                            </label>
+                        </div>
+
+                        <div class="question question-3">
+                            <label>
+                                <input type="checkbox" name="option" value="option-1" required>
+                                <span class="text-span">option three</span>
                             </label>
                         </div>
 
@@ -198,7 +239,9 @@
                     <h1>{{ $service->detail->about_heading }}</h1>
                     <p>{{ $service->detail->about_subheading }}</p>
                     <p>{{ $service->detail->about_description }}</p>
-                    <p class="add_top_30"><a href="#0" class="btn_1">Start Searching</a></p>
+                    <p class="add_top_30">
+                        <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Start Searching</button>
+                    </p>
                 </div>
                 <div class="col-lg-5 text-center">
                     <figure>
@@ -233,7 +276,9 @@
                     <div class="counter-hero-info">
                         <h1 class="text-white">{{ $service->detail->content_heading }}</h1>
                         <p class="text-white">{{ $service->detail->content_sub_heading }}</p>
-                        <p class="add_top_30"><a href="#0" class="btn_1">Start Searching</a></p>
+                        <p class="add_top_30">
+                            <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Start Searching</button>
+                        </p>
                     </div>
                 </div>
                 <div class="col-lg-6 counter-section">
@@ -413,6 +458,41 @@
         </div>
     </section>
     <!--/call_section-->
+
+    <!-- MCQ Modal -->
+<div class="modal fade" id="mcqModal" tabindex="-1" aria-labelledby="mcqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mcqModalLabel">{{ $service->name }} Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" id="questionProgress" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+                <form id="mcqForm">
+                    @csrf
+                    <input type="hidden" name="service_id" id="service_id" value="{{ $service->id }}">
+                    <div id="questionsContainer">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading questions...</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="prevBtn" style="display: none;">Previous</button>
+                <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                <button type="button" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 </main>
 
 <script>
@@ -442,5 +522,254 @@
             }
         });
     });
+</script>
+@endsection
+
+@section('script')
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Get modal elements
+    const mcqModal = document.getElementById('mcqModal');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('questionProgress');
+    const serviceId = document.getElementById('service_id').value;
+
+    let questions = [];
+    let currentQuestionIndex = 0;
+    
+    document.querySelectorAll('.service-search-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Search button clicked, loading questions');
+            loadQuestions();
+        });
+    });
+    
+
+    document.getElementById('openPopups')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Find button clicked, loading questions');
+        loadQuestions();
+    });
+    
+    // Function to load questions from API
+    function loadQuestions() {
+        // Show loading state
+        questionsContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading questions...</p>
+            </div>
+        `;
+        
+        // Open the modal
+        const modal = new bootstrap.Modal(mcqModal);
+        modal.show();
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        console.log(`Fetching questions for service ID: ${serviceId}`);
+        console.log(`CSRF Token: ${csrfToken ? 'Found' : 'Not found'}`);
+        
+        // Fetch questions from API
+        fetch(`/service/${serviceId}/questions`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => {
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response.headers);
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error("Error response body:", text);
+                    throw new Error('Network response was not ok: ' + response.status);
+                });
+            }
+            
+            return response.json().catch(err => {
+                console.error("JSON parse error:", err);
+                throw new Error('Invalid JSON response');
+            });
+        })
+        .then(data => {
+            console.log("Questions data received:", data);
+            
+            if (data.status === 'success' && data.questions && data.questions.length > 0) {
+                questions = data.questions;
+                console.log(`Loaded ${questions.length} questions:`, questions);
+                
+                // Reset to first question
+                currentQuestionIndex = 0;
+                renderQuestion(0);
+            } else {
+                console.warn("No questions found or error in response:", data);
+                questionsContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h5>No Questions Available</h5>
+                        <p>There are currently no questions set up for this service.</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching questions:", error);
+            questionsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>Error Loading Questions</h5>
+                    <p>${error.message}</p>
+                    <p>Please try refreshing the page.</p>
+                </div>
+            `;
+        });
+    }
+    
+    // Function to render a specific question by index
+    function renderQuestion(index) {
+        if (!questions || index < 0 || index >= questions.length) {
+            console.warn("Invalid question index:", index, "Total questions:", questions.length);
+            return;
+        }
+        
+        const question = questions[index];
+        currentQuestionIndex = index;
+        
+        console.log(`Rendering question ${index + 1}/${questions.length}:`, question);
+        
+      
+        questionsContainer.innerHTML = `
+            <div class="question-item">
+                <h4 class="mb-4">${index + 1}. ${question.question}</h4>
+                <div class="options">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt1" value="${question.answer1}">
+                        <label class="form-check-label" for="q${question.id}_opt1">${question.answer1}</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt2" value="${question.answer2}">
+                        <label class="form-check-label" for="q${question.id}_opt2">${question.answer2}</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt3" value="${question.answer3}">
+                        <label class="form-check-label" for="q${question.id}_opt3">${question.answer3}</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt4" value="${question.answer4}">
+                        <label class="form-check-label" for="q${question.id}_opt4">${question.answer4}</label>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update button visibility
+        prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
+        nextBtn.style.display = index < questions.length - 1 ? 'inline-block' : 'none';
+        submitBtn.style.display = index === questions.length - 1 ? 'inline-block' : 'none';
+        
+        // Update progress bar
+        updateProgressBar(index);
+    }
+    
+    // Function to update progress bar
+    function updateProgressBar(index) {
+        const progress = questions.length > 0 ? Math.round(((index + 1) / questions.length) * 100) : 0;
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = `${progress}%`;
+    }
+    
+    // Event listeners for navigation buttons
+    nextBtn.addEventListener('click', function() {
+        if (currentQuestionIndex < questions.length - 1) {
+            renderQuestion(currentQuestionIndex + 1);
+        }
+    });
+    
+    prevBtn.addEventListener('click', function() {
+        if (currentQuestionIndex > 0) {
+            renderQuestion(currentQuestionIndex - 1);
+        }
+    });
+    
+    // Submit answers
+    submitBtn.addEventListener('click', function() {
+        const answers = [];
+        const form = document.getElementById('mcqForm');
+        
+        questions.forEach(question => {
+            const selectedOption = form.querySelector(`input[name="q${question.id}"]:checked`);
+            if (selectedOption) {
+                answers.push({
+                    question_id: question.id,
+                    answer: selectedOption.value
+                });
+            }
+        });
+        
+        // Check if all questions are answered
+        if (answers.length < questions.length) {
+            alert('Please answer all questions before submitting.');
+            return;
+        }
+        
+        console.log("Submitting answers:", answers);
+        
+        // Submit form data
+        const formData = new FormData();
+        formData.append('service_id', serviceId);
+        formData.append('answers', JSON.stringify(answers));
+        formData.append('_token', document.querySelector('input[name="_token"]').value);
+        
+        fetch('{{ route("submitQuestionnaire") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Submission response:", data);
+            
+            if (data.success) {
+                questionsContainer.innerHTML = `
+                    <div class="alert alert-success">
+                        <h4>Thank you for completing the questionnaire!</h4>
+                        <p>You will be redirected to professionals page shortly...</p>
+                    </div>
+                `;
+                
+                // Hide navigation buttons
+                nextBtn.style.display = 'none';
+                prevBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.href = "{{ route('professionals') }}";
+                }, 2000);
+            } else if (data.redirect_to) {
+                
+                toastr.error('Please log in to continue');
+                window.location.href = data.redirect_to;
+            } else {
+                toastr.error('There was an error submitting your answers. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting questionnaire:', error);
+            toastr.error('There was an error submitting your answers. Please try again.');
+        });
+    });
+});
 </script>
 @endsection

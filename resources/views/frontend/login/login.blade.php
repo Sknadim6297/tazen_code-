@@ -68,6 +68,18 @@
 					</div>
 					<div class="float-end"><a href="{{ route('forgot.form') }}">Forgot Password?</a></div>
 				</div>
+
+				<!-- Add Terms and Conditions checkbox -->
+				<div class="form-group mb-3">
+					<label class="container_check">I accept the <a href="{{ route('user.terms') }}" target="_blank">Terms and Conditions</a>
+						<input type="checkbox" name="terms_accepted" id="terms_accepted">
+						<span class="checkmark"></span>
+					</label>
+					<div class="invalid-feedback" id="terms-error">
+						You must accept the Terms and Conditions to continue.
+					</div>
+				</div>
+
 				<button type="submit" class="btn_1 full-width">Login to Tazen</button>
 				<div class="text-center add_top_10">New to Tazen? <strong><a href="{{ route('register') }}">Sign up!</a></strong></div>
 			</form>
@@ -86,6 +98,14 @@
 	<script>
 	$('#loginForm').submit(function(e) {
     e.preventDefault();
+    
+    // Check if terms checkbox is checked
+    if (!$('#terms_accepted').is(':checked')) {
+        $('#terms-error').show();
+        toastr.error('You must accept the Terms and Conditions to continue.');
+        return false;
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect') || "{{ route('home') }}";
     let formData = $(this).serializeArray();
@@ -114,7 +134,17 @@
     });
 });
 
-
+$(document).ready(function() {
+    // Hide error message when checkbox is checked
+    $('#terms_accepted').change(function() {
+        if($(this).is(':checked')) {
+            $('#terms-error').hide();
+        }
+    });
+    
+    // Initially hide the error message
+    $('#terms-error').hide();
+});
 	</script>
 	
 	<script>
