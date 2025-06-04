@@ -1,10 +1,10 @@
-	<!-- Start::main-sidebar -->
+<!-- Start::main-sidebar -->
             
     <aside class="app-sidebar sticky" id="sidebar">
 
         <!-- Start::main-sidebar-header -->
         <div class="main-sidebar-header">
-            <a href="index-2.html" class="header-logo">
+            <a href="{{ route('admin.dashboard') }}" class="header-logo">
                 <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-logo" style="width: 130px; height: auto;">
                 <img src="assets/images/brand-logos/toggle-dark.png" alt="logo" class="toggle-dark">
                 <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-dark" style="width: 130px; height: 130px;">
@@ -245,6 +245,23 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="slide has-sub">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5z" />
+        </svg>
+        <span class="side-menu__label">Reviews</span>
+        <i class="ri-arrow-down-s-line side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu child1">
+        <li class="slide side-menu__label1">
+            <a href="javascript:void(0)">Reviews</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.reviews.index') }}" class="side-menu__item">Manage Reviews</a>
+        </li>
+    </ul>
+</li>
                     </li>
                     
 

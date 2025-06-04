@@ -107,15 +107,14 @@
 										</div>
 										<!-- /row -->
 									</div>
-									<div class="search_trends new-search_trends">
-										<h5>Trending:</h5>
-										<ul class="new-ul-list-header">
-											<li><a href="#0">doctor</a></li>
-											<li><a href="#0">lawyer</a></li>
-											<li><a href="#0">teacher</a></li>
-											<li><a href="#0">psychologist</a></li>
-										</ul>
-									</div>
+								<div class="search_trends new-search_trends">
+    <h5>Trending:</h5>
+    <ul class="new-ul-list-header">
+        @foreach($services->take(4) as $service)
+            <li><a href="{{ url('/service/' . $service->id) }}">{{ strtolower($service->name) }}</a></li>
+        @endforeach
+    </ul>
+</div>
 								</form>
 							</div>
 							@endforeach
