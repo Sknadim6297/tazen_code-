@@ -23,6 +23,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\LoginController;
 use App\Http\Controllers\Frontend\EventController;
 use App\Http\Controllers\Frontend\ServiceController;
+use App\Http\Controllers\Frontend\SearchController;
 
 // Customer & Professional
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
@@ -338,10 +339,33 @@ Route::middleware(['auth:professional'])->group(function () {
 });
 
 // Professional payment routes
-Route::middleware(['auth:admin'])->group(function() {
+Route::middleware(['auth:admin'])->group(function () {
     // Existing routes...
     Route::post('/admin/professional/payment/save', [App\Http\Controllers\Admin\BillingController::class, 'savePayment'])
         ->name('admin.professional.payment.save');
     Route::post('/admin/professional/payment/update-status', [App\Http\Controllers\Admin\BillingController::class, 'updatePaymentStatus'])
         ->name('admin.professional.payment.update-status');
+});
+
+Route::get('user/terms-and-conditions', function () {
+    return response()->file(public_path('pdf/user-terms-and-conditions.pdf'));
+})->name('user.terms');
+Route::get('professional/terms-and-conditions', function () {
+    return response()->file(public_path('pdf/professional-terms-and-conditions.pdf'));
+})->name('professional.terms');
+
+Route::get('/services/search', [HomeController::class, 'searchservice'])->name('services.search');
+
+// Admin review routes
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth:admin']], function () {
+    Route::get('reviews', [App\Http\Controllers\Admin\ReviewController::class, 'index'])
+        ->name('reviews.index');
+    Route::delete('reviews/{review}', [App\Http\Controllers\Admin\ReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
+});
+
+// Professional review routes
+Route::prefix('professional')->middleware(['auth:professional'])->name('professional.')->group(function () {
+    Route::get('/reviews', [App\Http\Controllers\Professional\ReviewController::class, 'index'])
+        ->name('reviews.index');
 });

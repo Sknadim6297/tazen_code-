@@ -44,4 +44,8 @@ class Professional extends Authenticatable
     {
         $this->notify(new \App\Notifications\ProfessionalResetPassword($token));
     }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }
