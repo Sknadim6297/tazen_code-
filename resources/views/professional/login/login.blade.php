@@ -20,27 +20,31 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-image: url("https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?cs=srgb&dl=pexels-hillaryfox-1595385.jpg&fm=jpg");
-background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-
-
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
         .toast-top-center {
-    top: 40px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-}
+            top: 40px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 9999 !important;
+        }
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
 <body>
     <div id="login">
-        	<figure>
-				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
-			</figure>
+        <figure>
+            <a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
+        </figure>
         <aside style="display:flex; flex-direction:column; gap:50px;">
             <h2 class="text-center">Professional Login</h2>
             <form id="loginForm">
@@ -63,9 +67,20 @@ background-repeat: no-repeat;
                             <span class="checkmark"></span>
                         </label>
                     </div>
-                  <div class="float-end">
-    <a id="forgot" href="{{ route('professional.forgot.form') }}">Forgot Password?</a>
-</div>
+                    <div class="float-end">
+                        <a id="forgot" href="{{ route('professional.forgot.form') }}">Forgot Password?</a>
+                    </div>
+                </div>
+
+                <!-- Add Terms and Conditions checkbox -->
+                <div class="form-group mb-3">
+                    <label class="container_check">I accept the <a href="{{ route('professional.terms') }}" target="_blank">Terms and Conditions</a>
+                        <input type="checkbox" name="terms_accepted" id="terms_accepted">
+                        <span class="checkmark"></span>
+                    </label>
+                    <div class="invalid-feedback" id="terms-error">
+                        You must accept the Terms and Conditions to continue.
+                    </div>
                 </div>
 
                 <button type="submit" class="btn_1 full-width">Login to Tazen</button>
@@ -89,6 +104,13 @@ background-repeat: no-repeat;
         $('#loginForm').submit(function (e) {
             e.preventDefault();
 
+            // Check if terms checkbox is checked
+            if (!$('#terms_accepted').is(':checked')) {
+                $('#terms-error').show();
+                toastr.error('You must accept the Terms and Conditions to continue.');
+                return false;
+            }
+
             const $form = $(this);
             const $submitBtn = $form.find('button[type="submit"]');
             $submitBtn.prop('disabled', true);
@@ -101,13 +123,15 @@ background-repeat: no-repeat;
                     "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
                 },
                 success: function (response) {
-					if (response.status === 'rejected') {
-        toastr.warning(response.message || "Your account has been rejected.");
-    } 
+                    if (response.status === 'rejected') {
+                        toastr.warning(response.message || "Your account has been rejected.");
+                    } else {
+                        toastr.success(response.message || "Login successful!");
+                    }
 
-    if (response.redirect_url) {
-        setTimeout(() => window.location.href = response.redirect_url, 1500);
-    }
+                    if (response.redirect_url) {
+                        setTimeout(() => window.location.href = response.redirect_url, 1500);
+                    }
                 },
                 error: function (xhr) {
                     if (xhr.status === 422) {
@@ -121,31 +145,43 @@ background-repeat: no-repeat;
                 }
             });
         });
+
+        $(document).ready(function() {
+            // Hide error message when checkbox is checked
+            $('#terms_accepted').change(function() {
+                if($(this).is(':checked')) {
+                    $('#terms-error').hide();
+                }
+            });
+            
+            // Initially hide the error message
+            $('#terms-error').hide();
+        });
     </script>
     <script>
-toastr.options = {
-    "positionClass": "toast-top-center",
-    "timeOut": "3000",
-    "closeButton": true,
-    "progressBar": true
-};
+        toastr.options = {
+            "positionClass": "toast-top-center",
+            "timeOut": "3000",
+            "closeButton": true,
+            "progressBar": true
+        };
 
-@if (session('success'))
-    toastr.success("{{ session('success') }}");
-@endif
+        @if (session('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
 
-@if (session('error'))
-    toastr.error("{{ session('error') }}");
-@endif
+        @if (session('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
 
-@if (session('warning'))
-    toastr.warning("{{ session('warning') }}");
-@endif
+        @if (session('warning'))
+            toastr.warning("{{ session('warning') }}");
+        @endif
 
-@if (session('info'))
-    toastr.info("{{ session('info') }}");
-@endif
-</script>
+        @if (session('info'))
+            toastr.info("{{ session('info') }}");
+        @endif
+    </script>
 </body>
 
 </html>

@@ -49,6 +49,12 @@
             <i class="fas fa-wallet"></i>
             <span>All Billing</span>
         </a>
+
+        <div class="menu-title">Reviews</div>
+        <a href="{{ route('professional.reviews.index') }}" class="menu-item {{ Route::is('professional.reviews.*') ? 'active' : '' }}">
+            <i class="fas fa-star"></i>
+            <span>My Reviews</span>
+        </a>
     </div>
 </div>
 

@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\BlogPost;
 use App\Models\EventDetail;
-
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 
@@ -160,7 +160,12 @@ class HomeController extends Controller
     public function professionalsDetails($id)
     {
         $requestedService = ProfessionalOtherInformation::where('professional_id', $id)->first();
-        $profile = Profile::with('professional')->where('professional_id', $id)->first();
+        $profile = Profile::with(['professional.reviews' => function ($query) {
+            $query->with(['user' => function ($q) {
+                $q->with('customerProfile');
+            }])->orderBy('created_at', 'desc');
+        }])->where('professional_id', $id)->first();
+
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
         $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
         $rates = Rate::where('professional_id', $id)->with('professional')->get();
@@ -204,11 +209,11 @@ class HomeController extends Controller
 
         // Fetch all existing bookings for this professional
         $existingBookings = [];
-        
+
         // Get booking time dates from database
-        $bookedTimeSlots = BookingTimedate::whereHas('booking', function($query) use ($id) {
+        $bookedTimeSlots = BookingTimedate::whereHas('booking', function ($query) use ($id) {
             $query->where('professional_id', $id)
-                  ->where('status', '!=', 'cancelled');
+                ->where('status', '!=', 'cancelled');
         })->get();
 
         // Format the booked time slots into a structured array
@@ -398,4 +403,5 @@ class HomeController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Service ID saved in session']);
     }
+    public function searchservice() {}
 }

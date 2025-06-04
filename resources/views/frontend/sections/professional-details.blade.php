@@ -431,7 +431,7 @@
                             
                             </div>
                             <!-- /tab -->
-                            <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
+                             <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
                                 <div class="card-header" role="tab" id="heading-B">
                                     <h5>
                                         <a class="collapsed" data-bs-toggle="collapse" href="#collapse-B" aria-expanded="false" aria-controls="collapse-B">
@@ -442,154 +442,101 @@
                                 <div id="collapse-B" class="collapse" role="tabpanel" aria-labelledby="heading-B">
                                     <div class="card-body reviews">
                                         <div class="row add_bottom_45 d-flex align-items-center">
-                                            
-                                            <div class="col-md-3">
-                                                <div id="review_summary">
-                                                    <strong>8.5</strong>
-                                                    <em>Superb</em>
-                                                    <small>Based on 4 reviews</small>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="col-md-9 reviews_sum_details">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <h6>Response time</h6>
-                                                        <div class="row">
-                                                            <div class="col-xl-10 col-lg-9 col-9">
-                                                                <div class="progress">
-                                                                    <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-2 col-lg-3 col-3"><strong>9.0</strong></div>
-                                                        </div>
-                                                        <!-- /row -->
-                                                        <h6>Service</h6>
-                                                        <div class="row">
-                                                            <div class="col-xl-10 col-lg-9 col-9">
-                                                                <div class="progress">
-                                                                    <div class="progress-bar" role="progressbar" style="width: 95%" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-2 col-lg-3 col-3"><strong>9.5</strong></div>
-                                                        </div>
-                                                        <!-- /row -->
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <h6>Communication</h6>
-                                                        <div class="row">
-                                                            <div class="col-xl-10 col-lg-9 col-9">
-                                                                <div class="progress">
-                                                                    <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-2 col-lg-3 col-3"><strong>6.0</strong></div>
-                                                        </div>
-                                                        <!-- /row -->
-                                                        <h6>Price</h6>
-                                                        <div class="row">
-                                                            <div class="col-xl-10 col-lg-9 col-9">
-                                                                <div class="progress">
-                                                                    <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-2 col-lg-3 col-3"><strong>6.0</strong></div>
-                                                        </div>
-                                                        <!-- /row -->
-                                                    </div>
-                                                </div>
-                                                <!-- /row -->
-                                            </div>
-                                        </div>
-                                                         <p class="text-end"><button type="button" class="btn_1" data-bs-toggle="modal" data-bs-target="#reviewModal"><i class="fas fa-star me-1"></i> Leave a review</button></p>
-                                        <div id="reviews">
-                                            <div class="review_card">
-                                                <div class="row">
-                                                    <div class="col-md-2 user_info">
-                                                        <figure><img src="img/avatar4.jpg" alt=""></figure>
-                                                        <h5>Lukas</h5>
-                                                    </div>
-                                                    <div class="col-md-10 review_content">
-                                                        <div class="clearfix add_bottom_15">
-                                                            <span class="rating">8.5<small>/10</small> <strong>Rating average</strong></span>
-                                                            <em>Published 54 minutes ago</em>
-                                                        </div>
-                                                        <h4>"Great!!"</h4>
-                                                        <p>Eos tollit ancillae ea, lorem consulatu qui ne, eu eros eirmod scaevola sea. Et nec tantas accusamus salutatus, sit commodo veritus te, erat legere fabulas has ut. Rebum laudem cum ea, ius essent fuisset ut. Viderer petentium cu his. Tollit molestie suscipiantur his et.</p>
-                                                        <ul>
-                                                            <li><a href="#0"><i class="icon_like"></i><span>Useful</span></a></li>
-                                                            <li><a href="#0"><i class="icon_dislike"></i><span>Not useful</span></a></li>
-                                                            <li><a href="#0"><i class="arrow_back"></i> <span>Reply</span></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <!-- /row -->
-                                            </div>
-                                            <!-- /review_card -->
-                                            <div class="review_card">
-                                                <div class="row">
-                                                    <div class="col-md-2 user_info">
-                                                        <figure><img src="img/avatar6.jpg" alt=""></figure>
-                                                        <h5>Lukas</h5>
-                                                    </div>
-                                                    <div class="col-md-10 review_content">
-                                                        <div class="clearfix add_bottom_15">
-                                                            <span class="rating">8.5<small>/10</small> <strong>Rating average</strong></span>
-                                                            <em>Published 10 Oct. 2019</em>
-                                                        </div>
-                                                        <h4>"Awesome Experience"</h4>
-                                                        <p>Eos tollit ancillae ea, lorem consulatu qui ne, eu eros eirmod scaevola sea. Et nec tantas accusamus salutatus, sit commodo veritus te, erat legere fabulas has ut. Rebum laudem cum ea, ius essent fuisset ut. Viderer petentium cu his. Tollit molestie suscipiantur his et.</p>
-                                                        <ul>
-                                                            <li><a href="#0"><i class="icon_like"></i><span>Useful</span></a></li>
-                                                            <li><a href="#0"><i class="icon_dislike"></i><span>Not useful</span></a></li>
-                                                            <li><a href="#0"><i class="arrow_back"></i> <span>Reply</span></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <!-- /row -->
-                                            </div>
-                                            <!-- /review_card -->
-                                            <div class="review_card">
-                                                <div class="row">
-                                                    <div class="col-md-2 user_info">
-                                                        <figure><img src="img/avatar1.jpg" alt=""></figure>
-                                                        <h5>Marika</h5>
-                                                    </div>
-                                                    <div class="col-md-10 review_content">
-                                                        <div class="clearfix add_bottom_15">
-                                                            <span class="rating">9.0<small>/10</small> <strong>Rating average</strong></span>
-                                                            <em>Published 11 Oct. 2019</em>
-                                                        </div>
-                                                        <h4>"Really great!!"</h4>
-                                                        <p>Eos tollit ancillae ea, lorem consulatu qui ne, eu eros eirmod scaevola sea. Et nec tantas accusamus salutatus, sit commodo veritus te, erat legere fabulas has ut. Rebum laudem cum ea, ius essent fuisset ut. Viderer petentium cu his. Tollit molestie suscipiantur his et.</p>
-                                                        <ul>
-                                                            <li><a href="#0"><i class="icon_like"></i><span>Useful</span></a></li>
-                                                            <li><a href="#0"><i class="icon_dislike"></i><span>Not useful</span></a></li>
-                                                            <li><a href="#0"><i class="arrow_back"></i> <span>Reply</span></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <!-- /row -->
-                                                <div class="row reply">
-                                                    <div class="col-md-2 user_info">
-                                                        <figure><img src="img/avatar.jpg" alt=""></figure>
-                                                    </div>
-                                                    <div class="col-md-10">
-                                                        <div class="review_content">
-                                                            <strong>Reply from Prozim</strong>
-                                                            <em>Published 3 minutes ago</em>
-                                                            <p><br>Hi Monika,<br><br>Eos tollit ancillae ea, lorem consulatu qui ne, eu eros eirmod scaevola sea. Et nec tantas accusamus salutatus, sit commodo veritus te, erat legere fabulas has ut. Rebum laudem cum ea, ius essent fuisset ut. Viderer petentium cu his. Tollit molestie suscipiantur his et.<br><br>Thanks</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- /reply -->
-                                            </div>
-                                            <!-- /review_card -->
-                                        </div>
-                                        <!-- /reviews -->
+                @php
+                    $reviews = $profile->professional->reviews ?? collect([]);
+                    $reviewCount = $reviews->count();
+                    $avgRating = $reviewCount > 0 ? number_format($reviews->avg('rating'), 1) : 0;
+                    
+                    // Rating text based on average score
+                    $ratingText = 'No ratings yet';
+                    if ($reviewCount > 0) {
+                        if ($avgRating >= 4.5) $ratingText = 'Excellent';
+                        elseif ($avgRating >= 4.0) $ratingText = 'Very Good';
+                        elseif ($avgRating >= 3.5) $ratingText = 'Good';
+                        elseif ($avgRating >= 3.0) $ratingText = 'Average';
+                        else $ratingText = 'Fair';
+                    }
+                @endphp
+                
+                <div class="col-md-3">
+                    <div id="review_summary">
+                        <strong>{{ $avgRating }}</strong>
+                        <em>{{ $ratingText }}</em>
+                        <small>Based on {{ $reviewCount }} {{ $reviewCount == 1 ? 'review' : 'reviews' }}</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-9 reviews_sum_details">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Rating</h6>
+                            <div class="row">
+                                <div class="col-xl-10 col-lg-9 col-9">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ $avgRating * 20 }}%" aria-valuenow="{{ $avgRating * 20 }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
+                                <div class="col-xl-2 col-lg-3 col-3"><strong>{{ $avgRating }}</strong></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-end">
+                <button type="button" class="btn_1" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    <i class="fas fa-star me-1"></i> Leave a review
+                </button>
+            </p>
+            
+            <div id="reviews">
+                @forelse($reviews as $review)
+                    <div class="review_card">
+                        <div class="row">
+                            <div class="col-md-2 user_info">
+                                @php
+                                    // Try to get profile image from customer_profiles table
+                                    $userPhoto = null;
+                                    if ($review->user && $review->user->customerProfile) {
+                                        $userPhoto = $review->user->customerProfile->photo;
+                                    }
+                                    // Fallback to default avatar
+                                    if (!$userPhoto) {
+                                        $userPhoto = 'img/avatar-placeholder.jpg';
+                                    }
+                                @endphp
+                                <figure class="mb-2">
+                                    <img src="{{ asset($userPhoto) }}" alt="{{ $review->user->name ?? 'Anonymous' }}" class="img-fluid rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
+                                </figure>
+                                <h5>{{ $review->user->name ?? 'Anonymous' }}</h5>
+                            </div>
+                            <div class="col-md-10 review_content">
+                                <div class="clearfix add_bottom_15">
+                                    <span class="rating">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $review->rating)
+                                                <i class="fas fa-star text-warning"></i>
+                                            @else
+                                                <i class="far fa-star text-muted"></i>
+                                            @endif
+                                        @endfor
+                                        <small class="ms-2">({{ $review->rating }}/5)</small>
+                                    </span>
+                                    <em>Published {{ $review->created_at->diffForHumans() }}</em>
+                                </div>
+                                <p>{{ $review->review_text }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="alert alert-info">
+                        <p class="mb-0 text-center">This professional doesn't have any reviews yet. Be the first to leave a review!</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
                             <!-- /tab -->
                             
                             <!-- New Gallery Tab -->
@@ -1163,75 +1110,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
-    // Review submission
-    const reviewForm = document.getElementById('reviewForm');
-    const submitReviewBtn = document.getElementById('submitReview');
-
-    if (submitReviewBtn) {
-        submitReviewBtn.addEventListener('click', function () {
-            if (reviewForm) {
-                const formData = new FormData(reviewForm);
-
-                // Append additional data if needed
-                // formData.append('key', 'value');
-
-                fetch("{{ route('user.review.store') }}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Review submission response:', data);
-                    if (data.status === 'success') {
-                        toastr.success(data.message);
-                        // Optionally, you can close the modal and reset the form
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
-                        if (modal) {
-                            modal.hide();
-                        }
-                        reviewForm.reset();
-                    } else {
-                        toastr.error(data.message || 'Failed to submit review.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error submitting review:', error);
-                    toastr.error('An error occurred. Please try again later.');
-                });
-            }
-        });
-    }
 });
 </script>
 <script>
-    // Star rating handling
     document.addEventListener('DOMContentLoaded', function() {
-        // Other existing code...
-        
-        // Star rating functionality
-        const ratingInputs = document.querySelectorAll('.star-rating input');
-        const ratingValueDisplay = document.getElementById('selected-rating');
-        const ratingTexts = [
-            'Select a rating',
-            'Poor',
-            'Fair',
-            'Good', 
-            'Very Good',
-            'Excellent'
-        ];
-        
-        ratingInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                const value = parseInt(this.value);
-                ratingValueDisplay.textContent = ratingTexts[value];
-            });
-        });
-        
-        // Review form submission
         const submitReviewBtn = document.getElementById('submitReview');
         if (submitReviewBtn) {
             submitReviewBtn.addEventListener('click', function() {
@@ -1272,14 +1154,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Show success message
+
                         toastr.success(data.message || 'Review submitted successfully!');
                         
                         // Close modal and reset form
                         const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
                         modal.hide();
-                        
-                        // Reload page after a short delay to show the new review
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
