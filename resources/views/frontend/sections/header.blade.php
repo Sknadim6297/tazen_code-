@@ -117,6 +117,8 @@
         6 => 'influencer.png',
         7 => 'psychologist.png',
         8 => 'dieticians.png',
+        9 => 'influencer.png',
+        10 => 'horoscope.png',
     ];
 @endphp
 

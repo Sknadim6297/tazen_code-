@@ -35,7 +35,7 @@ class ServiceMCQController extends Controller
         // Check if this service already has 5 questions
         $existingCount = ServiceMcq::where('service_id', $request->service_id)->count();
     
-        if ($existingCount >= 5) {
+        if ($existingCount >= 12) {
             return redirect()->back()->with('error', 'Only 5 questions allowed per service.');
         }
     
