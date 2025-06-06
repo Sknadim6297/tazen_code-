@@ -136,21 +136,65 @@ class HomeController extends Controller
     }
 
 
-    public function professionals()
+    public function professionals(Request $request)
     {
         $services = Service::all();
-        $selectedServiceId = Session::get('selected_service_id');
+        
+        // Get selected service ID either from request or session
+        $selectedServiceId = $request->input('service_id', Session::get('selected_service_id'));
 
         $professionalsQuery = Professional::with('profile', 'professionalServices')
             ->where('status', 'accepted');
 
+        // Filter by service
         if ($selectedServiceId) {
             $professionalsQuery->whereHas('professionalServices', function ($query) use ($selectedServiceId) {
                 $query->where('service_id', $selectedServiceId);
             });
         }
 
-        $professionals = $professionalsQuery->latest()->get();
+        // Filter by experience
+        if ($request->has('experience') && !empty($request->experience)) {
+            $expRange = $request->experience;
+            
+            if ($expRange == '10+') {
+                $professionalsQuery->whereHas('profile', function ($query) {
+                    $query->where('experience', '>=', 10);
+                });
+            } else {
+                list($minExp, $maxExp) = explode('-', $expRange);
+                $professionalsQuery->whereHas('profile', function ($query) use ($minExp, $maxExp) {
+                    $query->whereBetween('experience', [$minExp, $maxExp]);
+                });
+            }
+        }
+        
+        // Filter by price range
+        if ($request->has('price_range') && !empty($request->price_range)) {
+            $priceRange = $request->price_range;
+            
+            if (strpos($priceRange, '+') !== false) {
+                // Handle "5000+" type ranges
+                $minPrice = (int)str_replace('+', '', $priceRange);
+                $professionalsQuery->whereHas('profile', function ($query) use ($minPrice) {
+                    $query->where('starting_price', '>=', $minPrice);
+                });
+            } else {
+                // Handle "1000-3000" type ranges
+                list($minPrice, $maxPrice) = explode('-', $priceRange);
+                $professionalsQuery->whereHas('profile', function ($query) use ($minPrice, $maxPrice) {
+                    $query->whereBetween('starting_price', [$minPrice, $maxPrice]);
+                });
+            }
+        }
+
+        // Paginate results instead of getting all at once
+        $professionals = $professionalsQuery->latest()->paginate(12);
+        
+        // When using filters, we need to append them to pagination links
+        if ($request->hasAny(['experience', 'price_range', 'service_id'])) {
+            $professionals->appends($request->only(['experience', 'price_range', 'service_id']));
+        }
 
         return view('frontend.sections.gridlisting', compact('professionals', 'services'));
     }
@@ -404,4 +448,30 @@ class HomeController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Service ID saved in session']);
     }
     public function searchservice() {}
+
+    /**
+     * Search for services based on name
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchServices(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([
+                'services' => []
+            ]);
+        }
+
+        $services = Service::where('name', 'LIKE', "%{$query}%")
+            ->select('id', 'name')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'services' => $services
+        ]);
+    }
 }
