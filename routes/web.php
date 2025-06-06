@@ -369,3 +369,4 @@ Route::prefix('professional')->middleware(['auth:professional'])->name('professi
     Route::get('/reviews', [App\Http\Controllers\Professional\ReviewController::class, 'index'])
         ->name('reviews.index');
 });
+Route::get('/search-services', [HomeController::class, 'searchServices'])->name('search.services');

@@ -52,14 +52,17 @@
                         <p>{{ $service->detail->banner_sub_heading }}</p>
                         <form >
                             <div class="row g-0 custom-search-input">
-                                <div class="col-md-9">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" placeholder="Chat or Video Call ....">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="submit" id="openPopups" value="Find" onclick="return false;">
-                                </div>
+                              <div class="col-md-9">
+    <div class="form-group position-relative search-container">
+        <input class="form-control" type="text" id="serviceSearch" placeholder="Find a professional..." autocomplete="off">
+        <div id="searchResults" class="position-absolute w-100 mt-1 d-none" style="z-index: 1050;">
+            <!-- Search results will appear here -->
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <input type="submit" id="searchButton" value="Find">
+</div>
                             </div>
                             <!-- /row -->
                             {{-- <div class="search_trends new-search_trends">
@@ -811,6 +814,170 @@ document.addEventListener("DOMContentLoaded", function() {
             toastr.error('There was an error submitting your answers. Please try again.');
             submitBtn.disabled = false;
         });
+    });
+});
+</script>
+<script>
+    // Combined Live Search and Find Button functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('serviceSearch');
+    const searchResults = document.getElementById('searchResults');
+    const searchButton = document.getElementById('searchButton');
+    const searchForm = searchInput.closest('form');
+    let searchTimeout;
+    let currentResults = [];
+
+    // Prevent form submission
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleSearchButtonClick();
+        });
+    }
+
+    // Find button click event
+    searchButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        handleSearchButtonClick();
+    });
+
+    // Function to handle Find button click
+    function handleSearchButtonClick() {
+        const query = searchInput.value.trim();
+        
+        if (query.length < 2) {
+            toastr.warning('Please enter at least 2 characters to search');
+            return;
+        }
+        
+        // If we already have results from typing, use the first result
+        if (currentResults.length > 0) {
+            window.location.href = `/service/${currentResults[0].id}`;
+            return;
+        }
+        
+        // Otherwise, perform a search and navigate to first result
+        searchButton.disabled = true;
+        searchButton.value = 'Searching...';
+        
+        fetch(`/search-services?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                searchButton.disabled = false;
+                searchButton.value = 'Find';
+                
+                if (data.services && data.services.length > 0) {
+                    // If there's an exact match, go to that
+                    const exactMatch = data.services.find(service => 
+                        service.name.toLowerCase() === query.toLowerCase());
+                    
+                    if (exactMatch) {
+                        window.location.href = `/service/${exactMatch.id}`;
+                    } else {
+                        // Otherwise go to first result
+                        window.location.href = `/service/${data.services[0].id}`;
+                    }
+                } else {
+                    toastr.error('No matching services found. Please try a different search term.');
+                }
+            })
+            .catch(error => {
+                console.error('Error searching:', error);
+                searchButton.disabled = false;
+                searchButton.value = 'Find';
+                toastr.error('An error occurred while searching. Please try again.');
+            });
+    }
+
+    // Function to fetch search results for the dropdown
+    function fetchSearchResults(query) {
+        if (query.length < 2) {
+            searchResults.classList.add('d-none');
+            searchResults.innerHTML = '';
+            currentResults = [];
+            return;
+        }
+
+        fetch(`/search-services?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Store results for later use by the Find button
+                currentResults = data.services || [];
+                
+                if (currentResults.length > 0) {
+                    // Display search results
+                    searchResults.classList.remove('d-none');
+                    searchResults.innerHTML = `
+                        <div class="list-group shadow">
+                            ${currentResults.map(service => `
+                                <a href="/service/${service.id}" class="list-group-item list-group-item-action">
+                                    ${service.name}
+                                </a>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    // No results found
+                    searchResults.classList.remove('d-none');
+                    searchResults.innerHTML = `
+                        <div class="list-group shadow">
+                            <div class="list-group-item text-muted">No result found</div>
+                        </div>
+                    `;
+                }
+                
+                // Ensure proper positioning
+                searchResults.style.left = '0';
+                searchResults.style.right = 'auto';
+            })
+            .catch(error => {
+                console.error('Error fetching search results:', error);
+                currentResults = [];
+                searchResults.classList.add('d-none');
+            });
+    }
+
+    // Search input event for live results
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+
+        // Set new timeout for debounce
+        searchTimeout = setTimeout(() => {
+            fetchSearchResults(query);
+        }, 300);
+    });
+
+    // Handle keyboard navigation in search results
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !searchResults.classList.contains('d-none')) {
+            e.preventDefault();
+            
+            // Find the first result link and navigate to it
+            const firstResult = searchResults.querySelector('.list-group-item');
+            if (firstResult && firstResult.href) {
+                window.location.href = firstResult.href;
+            } else {
+                // If no results are visible, trigger the Find button
+                handleSearchButtonClick();
+            }
+        }
+    });
+
+    // Hide results when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.classList.add('d-none');
+        }
+    });
+
+    // Show results when input is focused
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            fetchSearchResults(this.value.trim());
+        }
     });
 });
 </script>
