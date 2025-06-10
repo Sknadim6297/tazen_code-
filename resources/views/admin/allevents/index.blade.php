@@ -67,13 +67,13 @@
                                     
                                                     {{-- Mini Heading --}}
                                                     <div class="col-xl-12">
-                                                        <label for="mini_heading" class="form-label">Mini Heading</label>
+                                                        <label for="mini_heading" class="form-label">Event Type</label>
                                                         <input type="text" class="form-control" id="mini_heading" name="mini_heading" placeholder="Enter Mini Heading" required>
                                                     </div>
                                     
                                                     {{-- Heading --}}
                                                     <div class="col-xl-12">
-                                                        <label for="heading" class="form-label">Main Heading</label>
+                                                        <label for="heading" class="form-label">Event Name</label>
                                                         <input type="text" class="form-control" id="heading" name="heading" placeholder="Enter Main Heading" required>
                                                     </div>
                                     
@@ -104,8 +104,8 @@
                                     <tr>
                                         <th scope="col">Event Image</th>
                                         <th scope="col">Date</th>
-                                        <th scope="col">Mini Heading</th>
-                                        <th scope="col">Heading</th>
+                                        <th scope="col">Event Type</th>
+                                        <th scope="col">Event Name</th>
                                         <th scope="col">Short Description</th>
                                         <th scope="col">Starting Fees</th>
                                         <th scope="col">Actions</th>

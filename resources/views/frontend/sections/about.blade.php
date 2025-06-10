@@ -248,7 +248,7 @@
          <div class="row">
              <div class="col-lg-6">
                  <div class="about-inside-content">
-                     <small>--- About Us ---</small>
+                    
                      <div class="main-about-content">
                          <h1>{{ $aboutus->heading }}</h1>
                          <p>{{ $aboutus->description }}</p>
