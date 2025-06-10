@@ -11,15 +11,6 @@
         <div class="item">
             <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
         </div>
-        <div class="item">
-            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-        </div>
-        <div class="item">
-            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-        </div>
-        <div class="item">
-            <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
-        </div> 
     </div>
 </div>
 
@@ -53,7 +44,7 @@
   justify-content: center;
   gap: 30px;">
                             <p>{{ $event->starting_date }} onwards</p>
-                            <p><i class="fa-solid fa-location-check"></i> Multiple Venues</p>
+                            <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->event_mode }}</p>
                             <p><span>Rs.{{ $event->starting_fees }}</span> onwards</p>
                         </div>
                     </div>
@@ -205,8 +196,8 @@
                 </div>
                 <div class="col-lg-3 pl-0">
                     <div class="share-option">
-                        <h6>Kolkata</h6>
-                        <p>Venue to be announced Kolkata</p>
+                        <h6>{{ $event->city }}</h6>
+                        <p>Venue to be announced {{ $event->city }}</p>
                         <div style="position: relative; width: 100%; max-width: 600px; height: 300px; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                             <iframe 
                                 src="{{ $event->map_link }}" 

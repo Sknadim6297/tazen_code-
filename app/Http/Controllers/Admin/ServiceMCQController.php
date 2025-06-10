@@ -5,15 +5,23 @@ use App\Http\Controllers\Controller;
 use App\Models\ServiceMCQ;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ServiceMCQController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mcqs = ServiceMCQ::with('service')->get();
+        $query = ServiceMCQ::with('service');
+
+        // Apply service filter if selected
+        if ($request->has('service_filter') && $request->service_filter != '') {
+            $query->where('service_id', $request->service_filter);
+        }
+
+        $servicemcqs = $query->latest()->get();
         $services = Service::all();
-        $servicemcqs = ServiceMCQ::with('service')->get();
-        return view('admin.servicemcq.index', compact('mcqs','services','servicemcqs'));
+
+        return view('admin.servicemcq.index', compact('servicemcqs', 'services'));
     }
 
     public function create()
@@ -23,34 +31,72 @@ class ServiceMCQController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'question' => 'required|string',
-            'answer1' => 'required|string',
-            'answer2' => 'required|string',
-            'answer3' => 'required|string',
-            'answer4' => 'required|string',
-        ]);
-    
-        // Check if this service already has 5 questions
-        $existingCount = ServiceMcq::where('service_id', $request->service_id)->count();
-    
-        if ($existingCount >= 12) {
-            return redirect()->back()->with('error', 'Only 5 questions allowed per service.');
+        try {
+            // Log the incoming request data
+            Log::info('ServiceMCQ Store Request:', $request->all());
+
+            $request->validate([
+                'service_id' => 'required|exists:services,id',
+                'question' => 'required|string',
+                'question_type' => 'required|in:text,mcq',
+                'options' => 'required_if:question_type,mcq|array',
+                'include_other' => 'boolean'
+            ]);
+        
+            // Check if this service already has 12 questions
+            $existingCount = ServiceMCQ::where('service_id', $request->service_id)->count();
+        
+            if ($existingCount >= 12) {
+                return redirect()->back()->with('error', 'Maximum 12 questions allowed per service.');
+            }
+        
+            $data = [
+                'service_id' => $request->service_id,
+                'question' => $request->question,
+                'question_type' => $request->question_type,
+                'has_other_option' => $request->has('include_other')
+            ];
+
+            if ($request->question_type === 'mcq') {
+                if (!$request->has('options') || empty($request->options)) {
+                    return redirect()->back()->with('error', 'At least one option is required for MCQ questions.');
+                }
+                
+                $options = array_filter($request->options); // Remove empty options
+                if (empty($options)) {
+                    return redirect()->back()->with('error', 'At least one valid option is required for MCQ questions.');
+                }
+
+                if ($request->has('include_other')) {
+                    $options[] = 'Other';
+                }
+                $data['options'] = $options;
+            } else {
+                // For text questions, set options to null
+                $data['options'] = null;
+            }
+
+            // Log the data being saved
+            Log::info('ServiceMCQ Data to be saved:', $data);
+        
+            $mcq = ServiceMCQ::create($data);
+            
+            // Log the created record
+            Log::info('ServiceMCQ Created:', ['id' => $mcq->id, 'data' => $mcq->toArray()]);
+        
+            return redirect()->back()->with('success', 'Question added successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation Error:', ['errors' => $e->errors()]);
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Error creating question: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Error creating question: ' . $e->getMessage())->withInput();
         }
-    
-        ServiceMcq::create([
-            'service_id' => $request->service_id,
-            'question' => $request->question,
-            'answer1' => $request->answer1,
-            'answer2' => $request->answer2,
-            'answer3' => $request->answer3,
-            'answer4' => $request->answer4,
-        ]);
-    
-        return redirect()->back()->with('success', 'Question added successfully.');
     }
-    
 
     public function show(ServiceMCQ $servicemcq)
     {
@@ -65,23 +111,47 @@ class ServiceMCQController extends Controller
 
     public function update(Request $request, ServiceMCQ $servicemcq)
     {
-        $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'question' => 'required|string',
-            'answer1' => 'required|string',
-            'answer2' => 'required|string',
-            'answer3' => 'required|string',
-            'answer4' => 'required|string',
-        ]);
+        try {
+            $request->validate([
+                'service_id' => 'required|exists:services,id',
+                'question' => 'required|string',
+                'question_type' => 'required|in:text,mcq',
+                'options' => 'required_if:question_type,mcq|array',
+                'include_other' => 'boolean'
+            ]);
 
-        $servicemcq->update($request->all());
+            $data = [
+                'service_id' => $request->service_id,
+                'question' => $request->question,
+                'question_type' => $request->question_type,
+                'has_other_option' => $request->has('include_other')
+            ];
 
-        return redirect()->route('admin.servicemcq.index')->with('success', 'MCQ updated successfully.');
+            if ($request->question_type === 'mcq') {
+                $options = $request->options;
+                if ($request->has('include_other')) {
+                    $options[] = 'Other';
+                }
+                $data['options'] = $options;
+            }
+
+            $servicemcq->update($data);
+
+            return redirect()->route('admin.servicemcq.index')->with('success', 'Question updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating question: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating question: ' . $e->getMessage());
+        }
     }
 
     public function destroy(ServiceMCQ $servicemcq)
     {
-        $servicemcq->delete();
-        return redirect()->route('admin.servicemcq.index')->with('success', 'MCQ deleted.');
+        try {
+            $servicemcq->delete();
+            return redirect()->route('admin.servicemcq.index')->with('success', 'Question deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting question: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting question: ' . $e->getMessage());
+        }
     }
 }

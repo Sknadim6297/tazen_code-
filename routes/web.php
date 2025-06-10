@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AboutBannerController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\MCQController;
+use App\Http\Controllers\Admin\HelpController;
 
 // Auth Controllers
 use App\Http\Controllers\Auth\AdminLoginController;
@@ -85,6 +86,8 @@ Route::get('/eventlist', function (Request $request) {
     $filter = $request->query('filter');
     $category = $request->query('category');
     $price_range = $request->query('price_range');
+    $city = $request->query('city');
+    $event_mode = $request->query('event_mode');
 
     $events = EventDetail::with('event'); // Eager load event relation
 
@@ -124,13 +127,29 @@ Route::get('/eventlist', function (Request $request) {
         }
     });
 
+    // Add city filter
+    if ($city) {
+        $events = $events->where('city', $city);
+    }
+
+    // Add event mode filter
+    if ($event_mode) {
+        $events = $events->where('event_mode', $event_mode);
+    }
+
     $events = $events->latest()->get(); // Order by latest
     $services = Service::latest()->get();
 
     // Get unique categories for the filter
     $categories = AllEvent::distinct()->pluck('mini_heading');
+    
+    // Get unique cities for the filter
+    $cities = EventDetail::distinct()->pluck('city')->filter();
+    
+    // Get unique event modes for the filter
+    $event_modes = ['online', 'offline'];
 
-    return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range'));
+    return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range', 'cities', 'city', 'event_modes', 'event_mode'));
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
     $event = Event::with('eventDetails')->findOrFail($id);
@@ -215,6 +234,12 @@ Route::get('contact', function () {
     $services = Service::latest()->get();
     return view('frontend.sections.contact', compact('contactbanners', 'contactdetails', 'services'));
 });
+
+Route::get('help', function () {
+    $services = Service::latest()->get();
+    return view('frontend.sections.help', compact('services'));
+});
+
 Route::get('influencer', function () {
     return view('frontend.sections.influencer');
 });
@@ -372,3 +397,11 @@ Route::prefix('professional')->middleware(['auth:professional'])->name('professi
 Route::get('/search-services', [HomeController::class, 'searchServices'])->name('search.services');
 Route::get('event-booking/success', [EventController::class, 'bookingSuccess'])
     ->name('event.booking.success');
+
+// Help & FAQ Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('help', \App\Http\Controllers\Admin\HelpController::class);
+});
+
+// Frontend Help & FAQ Route
+Route::get('/help', [\App\Http\Controllers\Admin\HelpController::class, 'frontend'])->name('help.index');
