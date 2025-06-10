@@ -84,9 +84,9 @@
                 </td>
                 <td>
                     <span class="fw-medium">{{ $professional->email }}</span>
-                </td>
+                </td> 
                 <td>
-                    <span class="fw-medium">{{ $professional->created_at }}</span>
+                    <span class="fw-medium">{{ $professional->created_at->format('d/m/Y') }}</span>
                 </td>
                 <td>
                     @if($professional->status == 'approved')

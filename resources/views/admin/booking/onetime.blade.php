@@ -124,16 +124,81 @@
                 <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
 
                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
-                                            <td>
-                                                <form action="{{ route('admin.add-link', ['id' => $booking->id]) }}" method="POST">
-                                                    @csrf
-                                                    <div class="d-flex">
-                                                        <input type="url" name="meeting_link" class="form-control" value="{{ $booking->meeting_link }}" placeholder="Add Link" required  style="width: 350px;">
-                                                        <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                                    </div>
-                                                </form>
-                                            </td>
-                       <td>Null</td>
+                                        <td>
+    @if($booking->timedates && $booking->timedates->count() > 0)
+        <!-- Button to open the modal -->
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#meetingLinkModal{{ $booking->id }}">
+            Manage Links <span class="badge bg-light text-dark">{{ $booking->timedates->count() }}</span>
+        </button>
+        
+        <!-- Modal for meeting links -->
+        <div class="modal fade" id="meetingLinkModal{{ $booking->id }}" tabindex="-1" aria-labelledby="meetingLinkModalLabel{{ $booking->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="meetingLinkModalLabel{{ $booking->id }}">Meeting Links for {{ $booking->customer_name }}'s Booking</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th>Meeting Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($booking->timedates as $timedate)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($timedate->date)->format('d M Y') }}</td>
+                                        <td>{!! str_replace(',', '<br>', $timedate->time_slot) !!}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $timedate->status == 'completed' ? 'success' : ($timedate->status == 'pending' ? 'warning' : 'info') }}">
+                                                {{ ucfirst($timedate->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form action="{{ route('admin.add-link') }}" method="POST" class="d-flex gap-2" style="width: 400px;">
+                                                @csrf
+                                                <input type="hidden" name="timedate_id" value="{{ $timedate->id }}">
+                                                <input type="url" name="meeting_link" class="form-control form-control-sm" 
+                                                       value="{{ $timedate->meeting_link ?? '' }}" 
+                                                       placeholder="Add Link" required>
+                                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                                
+                                                @if($timedate->meeting_link)
+                                                <a href="{{ $timedate->meeting_link }}" target="_blank" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-box-arrow-up-right"></i> Open
+                                                </a>
+                                                @endif
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <span class="text-muted">No dates available</span>
+    @endif
+</td>   
+                   <td>
+    @if($booking->payment_status === 'paid')
+        ₹{{ number_format($booking->amount, 2) }}
+    @else
+        <span class="text-muted">Not Paid</span>
+    @endif
+</td>
  <td>
     @if(!empty($booking->professional_documents))
         @foreach(explode(',', $booking->professional_documents) as $doc)

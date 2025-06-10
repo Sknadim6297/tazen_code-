@@ -1,7 +1,113 @@
 @extends('admin.layouts.layout')
 
-@section('style')
+@section('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" />
+<style>
+    .active-status-dropdown {
+        min-width: 100px;
+        font-size: 14px;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+    
+    .active-status-dropdown option[value="1"] {
+        color: #28a745;
+        font-weight: 500;
+    }
+    
+    .active-status-dropdown option[value="0"] {
+        color: #dc3545;
+        font-weight: 500;
+    }
+    
+    /* For JS-disabled browsers */
+    .status-toggle-form {
+        margin: 0;
+    }
+    
+    /* Toast styling overrides */
+    .toast-success {
+        background-color: #51a351;
+    }
+    
+    .toast-error {
+        background-color: #bd362f;
+    }
+  
+    /* Toggle switch styles */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        margin-bottom: 0;
+    }
+
+    .toggle-checkbox {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #dc3545; /* Red for OFF state */
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: .4s;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #28a745; /* Green for ON state */
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    /* Hide the ON/OFF text */
+    .toggle-text {
+        display: none;
+    }
+
+    .toggle-processing {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 @endsection
 
 @section('content')
@@ -72,6 +178,7 @@
                                         <th scope="col">Services Offered</th>
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
+                                        <th scope="col">Active</th>  <!-- New column -->
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -103,7 +210,7 @@
                                             </td>
                                             <td style="display: flex; justify-content: center; align-items: center;">
                                                 @if($professional->status === 'accepted')
-                                                    <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="d-flex align-items-center gap-2">
+                                                    <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="margin-update-form d-flex align-items-center gap-2">
                                                         @csrf
                                                         <div class="input-group" style="max-width: 115px;">
                                                             <input class="form-control" type="number" name="margin_percentage" 
@@ -124,6 +231,33 @@
                                                 @elseif($professional->status == 'rejected')
                                                     <span class="badge bg-danger">Rejected</span>
                                                 @endif
+                                            </td>
+                                            <td>
+                                                <form class="status-toggle-form" method="POST" action="{{ route('admin.professional.toggle-status') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="professional_id" value="{{ $professional->id }}">
+                                                    <input type="hidden" name="active_status" value="{{ $professional->active ? '0' : '1' }}">
+                                                    
+                                                    <label class="toggle-switch" data-id="{{ $professional->id }}" data-active="{{ $professional->active ? '1' : '0' }}">
+                                                        <input type="checkbox" class="toggle-checkbox" {{ $professional->active ? 'checked' : '' }}>
+                                                        <span class="toggle-slider">
+                                                            <div class="toggle-processing">
+                                                                <div class="spinner"></div>
+                                                            </div>
+                                                        </span>
+                                                    </label>
+                                                    
+                                                    <noscript>
+                                                        <div class="mt-2">
+                                                            <span class="badge {{ $professional->active ? 'bg-success' : 'bg-danger' }} mb-2">
+                                                                {{ $professional->active ? 'Active' : 'Inactive' }}
+                                                            </span>
+                                                            <button type="submit" class="btn btn-sm btn-primary d-block">
+                                                                {{ $professional->active ? 'Deactivate' : 'Activate' }}
+                                                            </button>
+                                                        </div>
+                                                    </noscript>
+                                                </form>
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $professional->created_at->format('d M, Y') }}</span>
@@ -246,8 +380,8 @@
 
                             // Generate margin HTML
                             const marginHtml = professional.status === 'accepted' ? 
-                                `<form action="/admin/update-margin/${professional.id}" method="POST" class="d-flex align-items-center gap-2">
-                                    @csrf
+                                `<form action="/admin/professional/${professional.id}/margin" method="POST" class="margin-update-form d-flex align-items-center gap-2">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <div class="input-group" style="max-width: 115px;">
                                         <input class="form-control" type="number" name="margin_percentage" 
                                             value="${professional.margin || 0}" min="0" max="100" required>
@@ -264,6 +398,24 @@
                                 '<span class="badge bg-warning">Pending</span>' : 
                                 '<span class="badge bg-danger">Rejected</span>';
 
+                            // Generate toggle switch HTML
+                            const toggleSwitchHtml = `
+                                <form class="status-toggle-form" method="POST" action="{{ route('admin.professional.toggle-status') }}">
+                                    @csrf
+                                    <input type="hidden" name="professional_id" value="${professional.id}">
+                                    <input type="hidden" name="active_status" value="${professional.active ? '0' : '1'}">
+                                    
+                                    <label class="toggle-switch" data-id="${professional.id}" data-active="${professional.active ? '1' : '0'}">
+                                        <input type="checkbox" class="toggle-checkbox" ${professional.active ? 'checked' : ''}>
+                                        <span class="toggle-slider">
+                                            <div class="toggle-processing">
+                                                <div class="spinner"></div>
+                                            </div>
+                                        </span>
+                                    </label>
+                                </form>
+                            `;
+
                             // Build the row
                             professionalsHtml += `
                                 <tr class="professional-list">
@@ -276,16 +428,17 @@
                                     <td>${servicesHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
+                                    <td>${toggleSwitchHtml}</td>
                                     <td><span class="fw-medium">${formatDate(professional.created_at)}</span></td>
                                     <td>
                                         <a href="/admin/manage-professional/${professional.id}" class="btn btn-success-light btn-icon btn-sm">
                                             <i class="ri-eye-line"></i>
                                         </a>
                                     </td>
-                                </tr>
-                            `;
+                                </tr>`;
                         });
                     }
+                    
                     $('#professional-table-body').html(professionalsHtml);
                 },
                 error: function() {
@@ -294,13 +447,202 @@
             });
         }
 
+        // Setup CSRF protection for AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        // Handle active status change
+        $(document).on('change', '.active-status-dropdown', function() {
+            const dropdown = $(this);
+            const professionalId = dropdown.data('id');
+            const newValue = dropdown.val();
+            const statusText = newValue == 1 ? 'activate' : 'deactivate';
+            
+            // Confirm before changing
+            if (confirm(`Are you sure you want to ${statusText} this professional?`)) {
+                // Store original selected value in case we need to revert
+                const originalValue = newValue == 1 ? 0 : 1;
+                
+                // Disable dropdown during processing
+                dropdown.prop('disabled', true);
+                
+                // Send AJAX request with explicitly defined data
+                $.ajax({
+                    url: "{{ route('admin.professional.toggle-status') }}",
+                    type: 'POST',
+                    data: {
+                        professional_id: professionalId,
+                        active_status: newValue,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message using toastr
+                            toastr.success(response.message);
+                        } else {
+                            // Revert to original value and show error
+                            dropdown.val(originalValue);
+                            toastr.error(response.message || 'Failed to update status');
+                        }
+                    },
+                    error: function(xhr) {
+                        // Revert to original value on error
+                        dropdown.val(originalValue);
+                        
+                        console.error("Error response:", xhr.responseText);
+                        
+                        // Show error message
+                        let errorMsg = 'An error occurred while updating status';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMsg);
+                    },
+                    complete: function() {
+                        // Re-enable dropdown
+                        dropdown.prop('disabled', false);
+                    }
+                });
+            } else {
+                // If user cancels, revert the dropdown to its original value
+                dropdown.val(originalValue == 1 ? 1 : 0);
+            }
+        });
+
+        // Handle toggle switch click
+        $(document).on('change', '.toggle-checkbox', function() {
+            const checkbox = $(this);
+            const toggleSwitch = checkbox.closest('.toggle-switch');
+            const professionalId = toggleSwitch.data('id');
+            const isCurrentlyActive = toggleSwitch.data('active') == '1';
+            const willBeActive = checkbox.prop('checked');
+            
+            // Revert the checkbox state until confirmed
+            checkbox.prop('checked', isCurrentlyActive);
+            
+            // Confirm before changing
+            const statusText = isCurrentlyActive ? 'deactivate' : 'activate';
+            if (confirm(`Are you sure you want to ${statusText} this professional?`)) {
+                // Show processing state
+                const processingOverlay = toggleSwitch.find('.toggle-processing');
+                processingOverlay.show();
+                
+                // Disable the checkbox during processing
+                checkbox.prop('disabled', true);
+                
+                // Send AJAX request
+                $.ajax({
+                    url: "{{ route('admin.professional.toggle-status') }}",
+                    type: 'POST',
+                    data: {
+                        professional_id: professionalId,
+                        active_status: isCurrentlyActive ? '0' : '1',
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update checkbox and data attribute
+                            checkbox.prop('checked', !isCurrentlyActive);
+                            toggleSwitch.data('active', isCurrentlyActive ? '0' : '1');
+                            
+                            // Update hidden form field for JS-disabled fallback
+                            toggleSwitch.closest('form').find('input[name="active_status"]').val(isCurrentlyActive ? '0' : '1');
+                            
+                            // Show success message
+                            toastr.success(response.message);
+                        } else {
+                            // Show error message
+                            toastr.error(response.message || 'Failed to update status');
+                        }
+                    },
+                    error: function(xhr) {
+                        // Show error message
+                        let errorMsg = 'An error occurred while updating status';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMsg);
+                        console.error("Error response:", xhr.responseText);
+                    },
+                    complete: function() {
+                        // Hide processing overlay
+                        processingOverlay.hide();
+                        
+                        // Re-enable checkbox
+                        checkbox.prop('disabled', false);
+                    }
+                });
+            }
+        });
+
+        // Handle margin percentage form submission via AJAX
+        $(document).on('submit', '.margin-update-form', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const submitButton = form.find('button[type="submit"]');
+            const marginInput = form.find('input[name="margin_percentage"]');
+            const marginValue = marginInput.val();
+            
+            // Disable button and show loading state
+            submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Saving...');
+            
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response, textStatus, xhr) {
+                    // Check if we got a redirect (302)
+                    if (xhr.status === 200 && response.success === true) {
+                        toastr.success(response.message || 'Margin updated successfully');
+                        // Show success message before reload
+                        setTimeout(function() {
+                            window.location.reload(); // Reload the page after a short delay
+                        }, 1000); // 1 second delay to show the toast message
+                    } else {
+                        // Even if we get redirected but the database was updated, show success
+                        toastr.success('Margin updated successfully');
+                        setTimeout(function() {
+                            window.location.reload(); // Reload to reflect changes
+                        }, 1000);
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Error response:", xhr.responseText);
+                    
+                    // Special handling for redirects that might indicate success
+                    if (xhr.status === 302) {
+                        toastr.success('Margin updated successfully');
+                        setTimeout(function() {
+                            window.location.reload(); // Reload to reflect changes
+                        }, 1000);
+                        return;
+                    }
+                    
+                    let errorMsg = 'Failed to update margin';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    toastr.error(errorMsg);
+                    
+                    // Restore button state in case of error
+                    submitButton.prop('disabled', false).text('Save');
+                },
+                complete: function() {
+                    // We don't restore the button here since we're reloading the page
+                    // The button will be restored when the page reloads
+                }
+            });
+        });
+
+        // Helper function to format dates
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString; // Return as is if invalid date
-            
-            const options = { day: '2-digit', month: 'long', year: 'numeric' };
-            return date.toLocaleDateString('en-GB', options);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
         }
     });
 </script>

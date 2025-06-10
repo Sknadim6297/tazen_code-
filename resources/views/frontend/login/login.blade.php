@@ -80,7 +80,7 @@
 					</div>
 				</div>
 
-				<button type="submit" class="btn_1 full-width">Login to Tazen</button>
+				<button type="submit" class="btn_1 full-width">Log In – Customer to Tazen</button>
 				<div class="text-center add_top_10">New to Tazen? <strong><a href="{{ route('register') }}">Sign up!</a></strong></div>
 			</form>
 			
@@ -144,6 +144,16 @@ $(document).ready(function() {
     
     // Initially hide the error message
     $('#terms-error').hide();
+    
+    // Check for registered email in localStorage
+    const registeredEmail = localStorage.getItem('registered_email');
+    if (registeredEmail) {
+        $('#email').val(registeredEmail);
+        $('#password').focus();
+        
+        // Clear the stored email after using it once
+        localStorage.removeItem('registered_email');
+    }
 });
 	</script>
 	

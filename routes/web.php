@@ -370,3 +370,5 @@ Route::prefix('professional')->middleware(['auth:professional'])->name('professi
         ->name('reviews.index');
 });
 Route::get('/search-services', [HomeController::class, 'searchServices'])->name('search.services');
+Route::get('event-booking/success', [EventController::class, 'bookingSuccess'])
+    ->name('event.booking.success');

@@ -15,7 +15,6 @@ class Rate extends Model
         'num_sessions',
         'rate_per_session',
         'final_rate',
-        'duration',
     ];
     public function professional()
     {

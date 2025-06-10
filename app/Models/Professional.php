@@ -16,6 +16,7 @@ class Professional extends Authenticatable
         'password',
         'phone',
         'status',
+        'active', // Add this
     ];
 
     protected $hidden = [
