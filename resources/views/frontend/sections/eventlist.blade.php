@@ -17,7 +17,23 @@
 
 <main class="bg_color">
 
-    <div class="filters_full element_to_stick version_2">
+    <div class="hero_single blog-head" style="background-image:{{ asset('frontend/assets/img/event-banner.jpg') }} ;">
+        <!-- Content inside the div, if needed -->    
+     <div class="opacity-mask" data-opacity-mask="rgba(0, 0, 0, 0.4)">
+         <div class="container">
+             <div class="row">
+                 <div class="col-xl-12 col-lg-12">
+                     <h1>Events Page</h1>
+                     <p>Looking for the perfect event? We've got you covered!</p>
+                     
+                 </div>
+             </div>
+             <!-- /row -->
+         </div>
+     </div>
+    </div>
+
+    {{-- <div class="filters_full element_to_stick version_2">
         <div class="container clearfix">
             <div class="sort_select">
                 <select name="sort" id="sort">
@@ -32,7 +48,7 @@
                 <input type="text" class="form-control" placeholder="Search again...">
             </div>
             <a class="btn_search_mobile btn_filters" data-bs-toggle="collapse" href="#collapseSearch"><i class="icon_search"></i></a>
-        </div>
+        </div> --}}
       
     <div class="collapse" id="collapseMap">
         <div id="map" class="map"></div>
@@ -84,16 +100,50 @@
                     
                     <!-- /filter_type -->
                     <div class="filter_type">
-                        <h4><a href="#filter_3" data-bs-toggle="collapse" class="closed">Distance</a></h4>
+                        <h4><a href="#filter_3" data-bs-toggle="collapse" class="closed">City</a></h4>
                         <div class="collapse" id="filter_3">
-                            <div class="range_input">Radius around destination <span></span> km</div>
-                            <div class="add_bottom_15"><input type="range" min="10" max="100" step="10" value="30" data-orientation="horizontal"></div>
+                            <ul>
+                                @foreach($cities as $cityName)
+                                <li>
+                                    <label class="container_check">{{ $cityName }}
+                                        <input type="checkbox" name="city" value="{{ $cityName }}"
+                                            {{ request('city') == $cityName ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['city' => $cityName]) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                @endforeach
+                            </ul>
                         </div>
                     </div>
                     <!-- /filter_type -->
                     <div class="filter_type">
-                        <h4><a href="#filter_4" data-bs-toggle="collapse" class="closed">Price</a></h4>
+                        <h4><a href="#filter_4" data-bs-toggle="collapse" class="closed">Event Mode</a></h4>
                         <div class="collapse" id="filter_4">
+                            <ul>
+                                <li>
+                                    <label class="container_check">Online
+                                        <input type="checkbox" name="event_mode" value="online"
+                                            {{ request('event_mode') == 'online' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['event_mode' => 'online']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">Offline
+                                        <input type="checkbox" name="event_mode" value="offline"
+                                            {{ request('event_mode') == 'offline' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['event_mode' => 'offline']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /filter_type -->
+                    <div class="filter_type">
+                        <h4><a href="#filter_5" data-bs-toggle="collapse" class="closed">Price</a></h4>
+                        <div class="collapse" id="filter_5">
                             <ul>
                                 <li>
                                     <label class="container_check">₹100 — ₹200

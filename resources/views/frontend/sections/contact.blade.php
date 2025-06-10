@@ -72,7 +72,7 @@
                         <input class="form-control" type="text" placeholder="Name" id="name_contact" name="name_contact">
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="email" placeholder="Email" id="email_contact" name="email_contact">
+                        <input class="form-control" type="email" placeholder="Email" id="email_contact" name="email_contact" value="{{ request('email') }}">
                     </div>
                     <div class="form-group">
                         <textarea class="form-control" style="height: 150px;" placeholder="Message" id="message_contact" name="message_contact"></textarea>

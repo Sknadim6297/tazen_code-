@@ -251,6 +251,15 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+
+    .profile-cover {
+        width: 990px;
+        height: 300px;
+        object-fit: cover;
+        object-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
     </style>
 @endsection
 @section('content')
@@ -259,7 +268,7 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="box_general">
                      <div>
-                        <img src="{{ asset($profile->photo) }}" alt="" class="img-fluid" width="990" height="300">
+                        <img src="{{ asset($profile->photo) }}" alt="" class="img-fluid profile-cover">
                     </div>
                     <div class="main_info_wrapper">
                         <div class="main_info clearfix">

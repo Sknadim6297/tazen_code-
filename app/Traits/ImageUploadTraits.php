@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 
 trait ImageUploadTraits
@@ -12,28 +12,32 @@ trait ImageUploadTraits
   public function uploadImage(Request $request, $inputName, $path)
   {
     if ($request->hasFile($inputName)) {
-
-      $image = $request->{$inputName};
-      $text = $image->getClientOriginalExtension();
-      $imageName = 'media_' . uniqid() . '.' . $text;
-      $image->move(public_path($path), $imageName);
-      return $path . '/' . $imageName;
+      $image = $request->file($inputName);
+      $imageName = 'media_' . uniqid() . '.' . $image->getClientOriginalExtension();
+      
+      // Store the image in the specified path
+      $path = $image->storeAs($path, $imageName, 'public');
+      
+      return $path;
     }
+    return null;
   }
   // Upload Multipal Image Upload
   public function uploadMultipleImage(Request $request, $inputName, $path)
   {
     if ($request->hasFile($inputName)) {
       $imagePaths = [];
-      $images = $request->{$inputName};
+      $images = $request->file($inputName);
+      
       foreach ($images as $image) {
-        $text = $image->getClientOriginalExtension();
-        $imageName = 'media_' . uniqid() . '.' . $text;
-        $image->move(public_path($path), $imageName);
-        $imagePaths[] = $path . '/' . $imageName;
+        $imageName = 'media_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $imagePath = $image->storeAs($path, $imageName, 'public');
+        $imagePaths[] = $imagePath;
       }
+      
       return $imagePaths;
     }
+    return [];
   }
 
   // Function For Edit Image And Old Image Delete
@@ -41,24 +45,27 @@ trait ImageUploadTraits
   public function updateImage(Request $request, $inputName, $path, $oldPath = null)
   {
     if ($request->hasFile($inputName)) {
-
-      if (File::exists(public_path($oldPath))) {
-        File::delete(public_path($oldPath));
+      // Delete old image if exists
+      if ($oldPath && Storage::exists($oldPath)) {
+        Storage::delete($oldPath);
       }
 
-      $image = $request->{$inputName};
-      $text = $image->getClientOriginalExtension();
-      $imageName = 'media_' . uniqid() . '.' . $text;
-      $image->move(public_path($path), $imageName);
-      return $path . '/' . $imageName;
+      $image = $request->file($inputName);
+      $imageName = 'media_' . uniqid() . '.' . $image->getClientOriginalExtension();
+      
+      // Store the new image
+      $path = $image->storeAs($path, $imageName, 'public');
+      
+      return $path;
     }
+    return $oldPath;
   }
 
   // Delete Image
   public function deleteImage(string $path)
   {
-    if (File::exists(public_path($path))) {
-      File::delete(public_path($path));
+    if (Storage::exists($path)) {
+      Storage::delete($path);
     }
   }
 }

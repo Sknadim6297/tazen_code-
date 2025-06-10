@@ -44,8 +44,22 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         @endif
-                        <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Testimonials</button>
+                        <div class="d-flex gap-2">
+                            {{-- Service Filter --}}
+                            <form action="{{ route('admin.servicemcq.index') }}" method="GET" class="d-flex gap-2">
+                                <select name="service_filter" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Services</option>
+                                    @foreach($services as $service)
+                                        <option value="{{ $service->id }}" {{ request('service_filter') == $service->id ? 'selected' : '' }}>
+                                            {{ $service->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if(request('service_filter'))
+                                    <a href="{{ route('admin.servicemcq.index') }}" class="btn btn-light">Clear Filter</a>
+                                @endif
+                            </form>
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create MCQ</button>
                             <!-- Start::add task modal -->
                             
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
@@ -56,11 +70,20 @@
                                         @csrf
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h6 class="modal-title">Add MCQ Question for Service</h6>
+                                                <h6 class="modal-title">Add Question for Service</h6>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                     
                                             <div class="modal-body px-4">
+                                                @if($errors->any())
+                                                    <div class="alert alert-danger">
+                                                        <ul>
+                                                            @foreach($errors->all() as $error)
+                                                                <li>{{ $error }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                @endif
                                                 <div class="row gy-3">
                                     
                                                     {{-- Service Name Dropdown --}}
@@ -74,30 +97,45 @@
                                                         </select>
                                                     </div>
                                     
-                                                    {{-- One Question and 4 Answers --}}
+                                                    {{-- Question Type Selection --}}
+                                                    <div class="col-xl-12">
+                                                        <label class="form-label">Question Type</label>
+                                                        <select name="question_type" id="question_type" class="form-control" required onchange="toggleQuestionType()">
+                                                            <option value="text">Text Question</option>
+                                                            <option value="mcq">Multiple Choice Question</option>
+                                                        </select>
+                                                    </div>
+                                    
+                                                    {{-- Question Input --}}
                                                     <div class="col-xl-12 mt-4">
                                                         <label class="form-label">Question</label>
                                                         <input type="text" class="form-control" name="question" placeholder="Enter Question" required>
                                                     </div>
                                     
-                                                    <div class="col-xl-6">
-                                                        <label class="form-label">Answer 1</label>
-                                                        <input type="text" class="form-control" name="answer1" placeholder="Answer 1" required>
-                                                    </div>
-                                    
-                                                    <div class="col-xl-6">
-                                                        <label class="form-label">Answer 2</label>
-                                                        <input type="text" class="form-control" name="answer2" placeholder="Answer 2" required>
-                                                    </div>
-                                    
-                                                    <div class="col-xl-6">
-                                                        <label class="form-label">Answer 3</label>
-                                                        <input type="text" class="form-control" name="answer3" placeholder="Answer 3" required>
-                                                    </div>
-                                    
-                                                    <div class="col-xl-6">
-                                                        <label class="form-label">Answer 4</label>
-                                                        <input type="text" class="form-control" name="answer4" placeholder="Answer 4" required>
+                                                    {{-- MCQ Options Container --}}
+                                                    <div id="mcq_options_container" class="col-xl-12" style="display: none;">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <label class="form-label mb-0">Options</label>
+                                                            <button type="button" class="btn btn-sm btn-primary" onclick="addOption()">Add Option</button>
+                                                        </div>
+                                                        <div id="options_container">
+                                                            <div class="option-row mb-2">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control" name="options[]" placeholder="Option 1" required>
+                                                                    <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {{-- Other Option --}}
+                                                        <div class="mt-3">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" id="include_other" name="include_other" value="1">
+                                                                <label class="form-check-label" for="include_other">
+                                                                    Include "Other" option
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                     
                                                 </div>
@@ -109,6 +147,54 @@
                                             </div>
                                         </div>
                                     </form>
+                                    
+                                    <script>
+                                        let optionCount = 1;
+                                        
+                                        function addOption() {
+                                            const container = document.getElementById('options_container');
+                                            const newOption = document.createElement('div');
+                                            newOption.className = 'option-row mb-2';
+                                            optionCount++;
+                                            
+                                            newOption.innerHTML = `
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" name="options[]" placeholder="Option ${optionCount}" required>
+                                                    <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove</button>
+                                                </div>
+                                            `;
+                                            
+                                            container.appendChild(newOption);
+                                        }
+                                        
+                                        function removeOption(button) {
+                                            button.closest('.option-row').remove();
+                                        }
+                                        
+                                        function toggleQuestionType() {
+                                            const questionType = document.getElementById('question_type').value;
+                                            const mcqContainer = document.getElementById('mcq_options_container');
+                                            
+                                            if (questionType === 'mcq') {
+                                                mcqContainer.style.display = 'block';
+                                                // Make options required for MCQ
+                                                document.querySelectorAll('input[name="options[]"]').forEach(input => {
+                                                    input.required = true;
+                                                });
+                                            } else {
+                                                mcqContainer.style.display = 'none';
+                                                // Remove required attribute for text questions
+                                                document.querySelectorAll('input[name="options[]"]').forEach(input => {
+                                                    input.required = false;
+                                                });
+                                            }
+                                        }
+
+                                        // Initialize form state
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            toggleQuestionType();
+                                        });
+                                    </script>
                                     
                                     
                                     
@@ -124,11 +210,9 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Service Name</th>
+                                        <th>Question Type</th>
                                         <th>Question</th>
-                                        <th>Answer 1</th>
-                                        <th>Answer 2</th>
-                                        <th>Answer 3</th>
-                                        <th>Answer 4</th>
+                                        <th>Options</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -138,14 +222,32 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $mcq->service->name ?? 'N/A' }}</td>
+                                            <td>
+                                                <span class="badge {{ $mcq->question_type === 'mcq' ? 'bg-primary' : 'bg-info' }}">
+                                                    {{ strtoupper($mcq->question_type) }}
+                                                </span>
+                                            </td>
                                             <td>{{ $mcq->question }}</td>
-                                            <td>{{ $mcq->answer1 }}</td>
-                                            <td>{{ $mcq->answer2 }}</td>
-                                            <td>{{ $mcq->answer3 }}</td>
-                                            <td>{{ $mcq->answer4 }}</td>
+                                            <td>
+                                                @if($mcq->question_type === 'mcq')
+                                                    @if($mcq->options)
+                                                        <ul class="list-unstyled mb-0">
+                                                            @foreach($mcq->options as $option)
+                                                                <li>{{ $option }}</li>
+                                                            @endforeach
+                                                            @if($mcq->has_other_option)
+                                                                <li class="text-muted"><em>Other</em></li>
+                                                            @endif
+                                                        </ul>
+                                                    @else
+                                                        <span class="text-muted">No options</span>
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">Text Question</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <a href="{{ route('admin.servicemcq.edit', $mcq->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                
                                                 <form action="{{ route('admin.servicemcq.destroy', $mcq->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('DELETE')

@@ -224,6 +224,16 @@
                                 </ul>
                             </li>
 
+                            <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">Help Page
+                                    <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
+                        <ul class="slide-menu child2">
+                            <li class="slide">
+                                <a href="{{ route('admin.help.index') }}" class="side-menu__item">FAQ</a>
+                            </li>
+                        </ul>
+                    </li>
+
                         </ul>
                         <li class="slide has-sub">
                         <a href="{{ route('admin.eventpage.index') }}" class="side-menu__item">

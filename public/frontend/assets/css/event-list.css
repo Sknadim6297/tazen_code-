@@ -4678,7 +4678,7 @@ nav.main-menu ul.menu li > ul.mega-submenu li a:hover, .ttm-toggle-title-bgcolor
 .comment-body, .ttm-single-product-details ul.tabs li a, 
 nav.main-menu ul.menu li ul.mega-submenu li:not(.mega-menu-item).active > a, .coupon_toggle .coupon_code, 
 .checkout #payment {
-    background-color: #ffffff;
+    background-color: #ffffff00;
 }
 .ttm-icon.ttm-icon_element-border.ttm-icon_element-color-grey {
     border-color: #f7f7ff;
