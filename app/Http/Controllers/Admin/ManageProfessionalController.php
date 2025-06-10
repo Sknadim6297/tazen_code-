@@ -119,15 +119,76 @@ class ManageProfessionalController extends Controller
         //
     }
     
-    public function updateMargin(Request $request, string $id)
+    public function updateMargin(Request $request, $id)
     {
-        $request->validate([
-            'margin_percentage' => 'required|numeric|min:0|max:100',
-        ]);
-        $professional = Professional::findOrFail($id);
-        $professional->margin = $request->input('margin_percentage');
-        
-        $professional->save();
-        return redirect()->back()->with('success', 'Margin updated successfully.');
+        try {
+            $request->validate([
+                'margin_percentage' => 'required|numeric|min:0|max:100',
+            ]);
+
+            $professional = \App\Models\Professional::findOrFail($id);
+            $professional->margin = $request->margin_percentage;
+            $professional->save();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Margin updated successfully',
+                    'margin' => $professional->margin
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Margin updated successfully');
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating margin: ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->back()->with('error', 'Error updating margin: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Toggle active status of a professional
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function toggleStatus(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'professional_id' => 'required|exists:professionals,id',
+                'active_status' => 'required|in:0,1',
+            ]);
+            
+            $professional = Professional::findOrFail($request->professional_id);
+            $professional->active = (bool)$request->active_status;
+            $professional->save();
+            
+            $statusText = $request->active_status ? 'activated' : 'deactivated';
+            $message = "Professional {$professional->name} has been {$statusText} successfully.";
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
+            }
+            
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Failed to update status: " . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', "Failed to update status: " . $e->getMessage());
+        }
     }
 }

@@ -34,7 +34,6 @@
                             <th>No. of Sessions</th>
                             <th>Rate/Session (₹)</th>
                             <th>Final Rate (₹)</th>
-                            <th>Duration</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -45,7 +44,6 @@
                                 <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
                                 <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
                                 <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
-                                <td data-label="Duration">{{ $rate->duration }} min</td>
                                 <td data-label="Actions">
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('professional.rate.edit', $rate->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">

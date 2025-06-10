@@ -1,7 +1,9 @@
-     <!-- Sidebar -->
+<!-- Sidebar -->
      <div class="sidebar">
         <div class="sidebar-header">
-            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" height="80">
+            <a href="{{ route('home') }}">
+                <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" height="80">
+            </a>
             <i class="fas fa-times close-sidebar"></i>
         </div> 
 
@@ -11,7 +13,11 @@
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
-
+            
+             <a href="{{ route('home') }}" class="menu-item {{ Route::is('user.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Back to Home</span>
+            </a>
             <div class="menu-title">Manage</div>
             <a href="{{ route('user.profile.index') }}" class="menu-item {{ Route::is('user.profile.*') ? 'active' : '' }}">
                 <i class="fas fa-user-cog"></i>
@@ -49,10 +55,17 @@
         .menu-item.active i {
             color: white;
         }
-        
-        .menu-item:hover {
-            background: rgba(255, 69, 0, 0.1);
-            border-radius: 5px;
-            margin: 2px 0;
-        }
+
+        .sidebar-header a {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-header a:hover {
+    transform: scale(1.05);
+}
+
+.sidebar-header a:active {
+    transform: scale(0.98);
+}
     </style>

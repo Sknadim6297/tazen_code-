@@ -93,7 +93,8 @@
 	<script src="{{ asset('frontend/assets/js/pw_strenght.js') }}"></script>	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-  <script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
 $('#registerForm').submit(function(e) {
     e.preventDefault();
 
@@ -106,8 +107,25 @@ $('#registerForm').submit(function(e) {
         },
         success: function(response) {
             if (response.status === 'success') {
-                toastr.success(response.message);
-                window.location.href = "{{ route('login') }}";
+                // Store the email in localStorage for autofill
+                if (response.registered_email) {
+                    localStorage.setItem('registered_email', response.registered_email);
+                }
+                
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Registration Successful!',
+                    text: response.message,
+                    confirmButtonColor: '#152a70',
+                    confirmButtonText: 'Login Now'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = response.redirect_url;
+                    } else {
+                        window.location.href = response.redirect_url;
+                    }
+                });
             } else {
                 toastr.error(response.message);
             }
