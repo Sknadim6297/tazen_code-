@@ -59,24 +59,106 @@
                 #top_menu .btn_access i {
                     margin-right: 5px;
                 }
+
+                /* Mobile menu service items styling */
+                .main-menu ul li.submenu ul li {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 15px;
+                }
+
+                .main-menu ul li.submenu ul li img {
+                    width: 38px;
+                    height: 49px;
+                    object-fit: contain;
+                    margin: 0;
+                }
+
+                .main-menu ul li.submenu ul li a {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 14px;
+                }
             }
+
             @media (max-width: 767px) {
-    ul#top_menu>li a.btn_access {
-        padding: 6px 0px;
-                font-size: 11px;
-    }
-}
+                ul#top_menu>li a.btn_access {
+                    padding: 6px 0px;
+                    font-size: 11px;
+                }
+            }
 
-@media (max-width: 991px) {
-    #logo img {
-        width: auto;
-        height: 50px;
-        margin-right: 260px;
-        margin-top: 0;
+            @media (max-width: 991px) {
+                #logo img {
+                    width: auto;
+                    height: 50px;
+                    margin-right: 260px;
+                    margin-top: 0;
+                }
+            }
+            @media only screen and (min-width: 768px) and (max-width: 1024px){
+                /* @media (max-width: 767px) { */
+                #top_menu {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    padding: 10px;
+                }
+                
+                #top_menu li {
+                    width: 100%;
+                }
+                
+                #top_menu .btn_access {
+                    width: 100%;
+                    text-align: center;
+                    padding: 8px 15px;
+                    font-size: 14px;
+                }
+                
+                #top_menu .btn_access i {
+                    margin-right: 5px;
+                }
 
-    }
-}
+                /* Mobile menu service items styling */
+                .main-menu ul li.submenu ul li {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 15px;
+                }
 
+                .main-menu ul li.submenu ul li img {
+                    width: 38px;
+                    height: 49px;
+                    object-fit: contain;
+                    margin: 0;
+                }
+
+                .main-menu ul li.submenu ul li a {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 14px;
+                }
+            }
+
+            /* @media (max-width: 767px) {
+                ul#top_menu>li a.btn_access {
+                    padding: 6px 0px;
+                    font-size: 11px;
+                }
+            }
+
+            @media (max-width: 991px) {
+                #logo img {
+                    width: auto;
+                    height: 50px;
+                    margin-right: 260px;
+                    margin-top: 0;
+                }
+            } */
+            
         </style>
         
         <!-- /top_menu -->
@@ -127,7 +209,7 @@
     <ul>
         @foreach ($dropdown_services as $service)
             @php
-                $icon = $icons[$service->id] ?? 'default.png';
+                $icon = $icons[$service->id] ?? 'influencer.png';
             @endphp
             <li>
                 <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/' . $icon) }}" alt="{{ $service->name }}">
