@@ -84,7 +84,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/booking/freehand', [BookingController::class, 'freeHandBooking'])->name('freehand');
     Route::get('/booking/monthly', [BookingController::class, 'monthlyBooking'])->name('monthly');
     Route::get('/booking/quaterly', [BookingController::class, 'quaterlyBooking'])->name('quaterly');
-    Route::post('booking/add-link', [BookingController::class, 'addMeetingLink'])->name('add-link');
+Route::post('/booking/add-link', [App\Http\Controllers\Admin\BookingController::class, 'addMeetingLink'])->name('add-link');
 
 
     Route::post('/professional/reject/{id}', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
@@ -102,4 +102,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('professional-billing', [App\Http\Controllers\Admin\BillingController::class, 'professionalBilling'])->name('professional.billing');
     Route::get('customer-billing', [App\Http\Controllers\Admin\CustomerBillingController::class, 'index'])->name('customer.billing');
 
+    Route::post('/admin/professionals/toggle-status', [ManageProfessionalController::class, 'toggleStatus'])->name('professional.toggle-status');
+
+    
 });

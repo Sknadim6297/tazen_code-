@@ -70,13 +70,12 @@ class LoginController extends Controller
         'password' => Hash::make($request->password),
     ]);
 
-    // Log in the user
-    Auth::login($user);
-
-    // Return success response
+    // Return success response with redirect to login
     return response()->json([
         'status'  => 'success',
-        'message' => 'Registration successful, you are now logged in.',
+        'message' => 'Your account has been created. Please login.',
+        'redirect_url' => route('login'),
+        'registered_email' => $request->email
     ]);
 }
 

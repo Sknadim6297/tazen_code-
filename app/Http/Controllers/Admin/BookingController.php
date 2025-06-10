@@ -261,15 +261,39 @@ class BookingController extends Controller
     public function addMeetingLink(Request $request)
     {
         $request->validate([
-            'timedate_id' => 'required|exists:booking_timedates,id',
+            'timedate_id' => 'required_without:id|exists:booking_timedates,id',
+            'id' => 'required_without:timedate_id|exists:bookings,id',
             'meeting_link' => 'required|url',
         ]);
 
-        $timedate = BookingTimedate::find($request->timedate_id);
-        $timedate->meeting_link = $request->meeting_link;
-        $timedate->save();
+        try {
+            if ($request->has('timedate_id')) {
+                // Case 1: Using specific timedate_id from the dropdown
+                $timedate = BookingTimedate::findOrFail($request->timedate_id);
+                $timedate->meeting_link = $request->meeting_link;
+                $timedate->save();
 
-        return back()->with('success', 'Meeting link added successfully.');
+                return redirect()->back()->with('success', 'Meeting link added successfully for the selected date.');
+            } else if ($request->has('id')) {
+                // Case 2: Using booking_id from the first form
+                $booking = Booking::findOrFail($request->id);
+                $timedate = $booking->timedates->first();
+
+                if ($timedate) {
+                    $timedate->meeting_link = $request->meeting_link;
+                    $timedate->save();
+
+                    return redirect()->back()->with('success', 'Meeting link added successfully for the booking.');
+                } else {
+                    return redirect()->back()->with('error', 'No timedate found for this booking.');
+                }
+            }
+
+            return redirect()->back()->with('error', 'Missing required parameters.');
+        } catch (\Exception $e) {
+
+            return redirect()->back()->with('error', 'Failed to save meeting link: ' . $e->getMessage());
+        }
     }
 
     public function show($id)

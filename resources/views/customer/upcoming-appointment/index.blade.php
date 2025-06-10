@@ -452,33 +452,28 @@
                 <tbody>
                     @foreach($bookings as $index => $booking)
                         @php
-                            // Filter for future timedates and get the first upcoming one
-                            $upcomingTimedate = $booking->timedates->filter(function ($timedate) {
-                                return \Carbon\Carbon::parse($timedate->date)->isFuture(); 
-                            })->first(); 
-                            
-                            // Calculate sessions taken (completed sessions)
-                            $sessionsTaken = $booking->timedates->where('status', 'completed')->count();
-                            
-                            // Get total booked sessions (actual number of sessions booked)
-                            $totalSessions = $booking->timedates->count();
-                            
-                            // Calculate remaining sessions
-                            $sessionsRemaining = $totalSessions - $sessionsTaken;
+                            // The timedate is already filtered to be the next upcoming one
+                            $upcomingTimedate = $booking->timedates->first();
                         @endphp
-            
-                        @if ($upcomingTimedate)
+                        
+                        @if($upcomingTimedate)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('d-m-Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('F') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('D') }}</td>
-                                <td>{{ $upcomingTimedate->time_slot}}</td>
-                                <td>{{ $booking->professional->name }}</td>
+                                <td>{{ $upcomingTimedate->time_slot }}</td>
+                                <td>{{ $booking->professional->name ?? 'Not Assigned' }}</td>
                                 <td>{{ $booking->service_name }}</td>
-                                <td>{{ $sessionsTaken }}</td>
-                                <td>{{ $sessionsRemaining }}</td>
-                                <td><button class="btn btn-primary" style="padding: 4px 8px;"><a href="{{ $booking->meeting_link }}" style="color:white">Join</a></button></td>
+                                <td>{{ $booking->sessions_taken ?? 0 }}</td>
+                                <td>{{ $booking->sessions_remaining ?? 0 }}</td>
+                                <td>
+                                    @if($upcomingTimedate->meeting_link)
+                                        <a href="{{ $upcomingTimedate->meeting_link }}" target="_blank" class="btn btn-primary" style="padding: 4px 8px;">Join</a>
+                                    @else
+                                        <span class="text-muted">No link</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="document-actions">
                                         @if($booking->customer_document)

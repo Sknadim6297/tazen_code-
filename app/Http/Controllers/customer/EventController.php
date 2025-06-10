@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\AllEvent;
 use App\Models\EventBooking;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,37 @@ class EventController extends Controller
         $bookings = EventBooking::with('event')->where('user_id', auth()->guard('user')->id())->get();
          
         return view('customer.event.index', compact('bookings'));
+    }
+
+    /**
+     * Display the event booking success page
+     */
+    public function bookingSuccess(Request $request)
+    {
+        // Get the latest booking if no session data is available
+        if (!session()->has('event_booking_data')) {
+            $booking = EventBooking::where('user_id', auth()->guard('user')->id())
+                ->latest()
+                ->first();
+                
+            if ($booking) {
+                $event = AllEvent::find($booking->event_id);
+                $user = auth()->guard('user')->user();
+                
+                return view('customer.booking.event_success', compact('booking', 'event', 'user'));
+            }
+            
+            // No booking found, redirect to bookings page with message
+            return redirect()->route('user.customer-event.index')
+                ->with('error', 'No booking information found. Please check your bookings list.');
+        }
+        
+        // Get booking data from session
+        $bookingData = session('event_booking_data');
+        $event = AllEvent::find($bookingData['event_id'] ?? null);
+        $user = auth()->guard('user')->user();
+        
+        return view('customer.booking.event_success', compact('bookingData', 'event', 'user'));
     }
 
     /**
