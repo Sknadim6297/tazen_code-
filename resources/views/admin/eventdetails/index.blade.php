@@ -51,14 +51,17 @@
                                                         <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*" required>
                                                     </div>
                                     
-                                                    {{-- Event Name --}}
                                                     {{-- Event Name (Dropdown from All Events) --}}
                                                     <div class="col-xl-6">
                                                         <label for="event_id" class="form-label">Event Name</label>
-                                                        <select class="form-select" name="event_id" id="event_id" required>
+                                                        <select class="form-select" name="event_id" id="event_id" required onchange="fetchEventDetails(this.value)">
                                                         <option value="" disabled selected>Select Event</option>
                                                         @foreach($allevents as $event)
-                                                        <option value="{{ $event->id }}">{{ $event->heading }}</option>
+                                                        <option value="{{ $event->id }}" 
+                                                            data-mini-heading="{{ $event->mini_heading }}" 
+                                                            data-fees="{{ $event->starting_fees }}">
+                                                            {{ $event->heading }}
+                                                        </option>
                                                         @endforeach
                                                         </select>
                                                     </div>
@@ -66,7 +69,7 @@
                                                     {{-- Event Type --}}
                                                     <div class="col-xl-6">
                                                         <label for="event_type" class="form-label">Event Type</label>
-                                                        <input type="text" class="form-control" name="event_type" id="event_type" placeholder="Enter Event Type" required>
+                                                        <input type="text" class="form-control" name="event_type" id="event_type" placeholder="Mini Heading" required readonly>
                                                     </div>
                                     
                                                     {{-- Event Details --}}
@@ -84,21 +87,41 @@
                                                     {{-- Starting Fees --}}
                                                     <div class="col-xl-6">
                                                         <label for="starting_fees" class="form-label">Starting Fees</label>
-                                                        <input type="number" class="form-control" name="starting_fees" id="starting_fees" placeholder="Enter Starting Fees" min="0" required>
+                                                        <input type="number" class="form-control" name="starting_fees" id="starting_fees" placeholder="Enter Starting Fees" min="0" required readonly>
                                                     </div>
-                                    
+
+                                                    {{-- City Name --}}
+                                                   
+
+                                                    {{-- Event Mode --}}
+                                                    <div class="col-xl-6">
+                                                        <label for="event_mode" class="form-label">Event Mode</label>
+                                                        <select class="form-select" name="event_mode" id="event_mode" required onchange="toggleCityField(this.value)">
+                                                            <option value="" disabled selected>Select Mode</option>
+                                                            <option value="online">Online</option>
+                                                            <option value="offline">Offline</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-xl-6" id="cityField">
+                                                        <label for="city" class="form-label">City Name</label>
+                                                        <select class="form-select" name="city" id="city" required>
+                                                            <option value="" disabled selected>Select City</option>
+                                                            <option value="Mumbai">Mumbai</option>
+                                                            <option value="Pune">Pune</option>
+                                                            <option value="Kolkata">Kolkata</option>
+                                                            <option value="Delhi">Delhi</option>
+                                                            <option value="Bangalore">Bangalore</option>
+                                                        </select>
+                                                    </div>
+
                                                     {{-- Event Gallery --}}
                                                     <div class="col-xl-12">
                                                         <label for="event_gallery" class="form-label">Event Gallery (Multiple Images)</label>
                                                         <input type="file" class="form-control" name="event_gallery[]" id="event_gallery" accept="image/*" multiple required>
                                                     </div>
                                     
-                                                    {{-- Map Location Link (NEW FIELD) --}}
-                                                    <div class="col-xl-12">
-                                                        <label for="map_link" class="form-label">Event Location Map Link</label>
-                                                        <input type="text" class="form-control" name="map_link" id="map_link" placeholder="Paste Google Map URL" required>
-                                                        <small class="text-muted">Example: https://www.google.com/maps/place/Chandannagar,+West+Bengal</small>
-                                                    </div>
+                            
                                     
                                                 </div>
                                             </div>
@@ -126,8 +149,9 @@
                                         <th>Details</th>
                                         <th>Start Date</th>
                                         <th>Fees</th>
+                                        <th>City</th>
+                                        <th>Mode</th>
                                         <th>Gallery</th>
-                                        <th>Map Link</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
@@ -138,24 +162,30 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                <img src="{{ asset('uploads/eventdetails/' . $event->banner_image) }}" width="70" height="50" alt="Banner">
+                                                <img src="{{ asset('storage/' . $event->banner_image) }}" width="70" height="50" alt="Banner">
                                             </td>
                                             <td>{{ $event->event->heading ?? 'N/A' }}</td>
                                             <td>{{ $event->event_type }}</td>
                                             <td>{{ \Illuminate\Support\Str::limit($event->event_details, 50) }}</td>
                                             <td>{{ \Carbon\Carbon::parse($event->starting_date)->format('d M Y') }}</td>
                                             <td>₹{{ $event->starting_fees }}</td>
+                                            <td>{{ $event->city }}</td>
+                                            <td>
+                                                <span class="badge {{ $event->event_mode === 'online' ? 'bg-success' : 'bg-primary' }}">
+                                                    {{ ucfirst($event->event_mode) }}
+                                                </span>
+                                            </td>
+                                            
                                             <td>
                                                 @php
                                                     $gallery = json_decode($event->event_gallery, true);
                                                 @endphp
                                                 @if($gallery && is_array($gallery))
                                                     @foreach($gallery as $img)
-                                                        <img src="{{ asset('uploads/eventgallery/' . $img) }}" width="40" height="40" class="rounded me-1 mb-1" alt="Gallery Image">
+                                                        <img src="{{ asset('storage/' . $img) }}" width="40" height="40" class="rounded me-1 mb-1" alt="Gallery Image">
                                                     @endforeach
                                                 @endif
                                             </td>
-                                            <td>{{ $event->map_link }}</td>
                                             <td>{{ $event->created_at->format('d M Y') }}</td>
                                             <td>
                                                 <a href="{{ route('admin.eventdetails.edit', $event->id) }}" class="btn btn-sm btn-primary">Edit</a>
@@ -199,4 +229,46 @@
 
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function fetchEventDetails(eventId) {
+    // Get the selected option
+    const selectedOption = document.querySelector(`#event_id option[value="${eventId}"]`);
+    
+    if (selectedOption) {
+        // Get the data attributes
+        const miniHeading = selectedOption.getAttribute('data-mini-heading');
+        const eventFees = selectedOption.getAttribute('data-fees');
+        
+        // Populate the fields
+        document.getElementById('event_type').value = miniHeading || '';
+        document.getElementById('starting_fees').value = eventFees || '';
+    }
+}
+
+function toggleCityField(mode) {
+    const cityField = document.getElementById('cityField');
+    const citySelect = document.getElementById('city');
+
+    if (mode === 'online') {
+        cityField.style.display = 'none';
+        citySelect.required = false;
+        citySelect.value = ''; // Clear city value
+    } else if (mode === 'offline') {
+        cityField.style.display = 'block';
+        citySelect.required = true;
+    }
+}
+
+// Clear fields when modal is closed
+document.getElementById('create-task').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('event_type').value = '';
+    document.getElementById('starting_fees').value = '';
+    document.getElementById('city').value = '';
+    document.getElementById('event_mode').value = '';
+    document.getElementById('cityField').style.display = 'none';
+});
+</script>
 @endsection

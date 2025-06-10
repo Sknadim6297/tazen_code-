@@ -5,9 +5,9 @@
                 <h3 data-bs-target="#collapse_1">Quick Links</h3>
                 <div class="collapse dont-collapse-sm links" id="collapse_1">
                     <ul>
-                        <li><a href="{{ route('professional.login') }}">Join Us</a></li>
-                        <li><a href="#">Help</a></li>
-                        <li><a href="{{ route('login') }}">Login</a></li>
+                        <li><a href="{{ route('professional.login') }}">Join Us as professional</a></li>
+                        <li><a href="{{ url('/help') }}">Help</a></li>
+                        <li><a href="{{ route('login') }}">Customer Login</a></li>
                         <li><a href="{{ route('blog.index') }}">Blog</a></li>
                         <li><a href="{{ url('/contact') }}">Contacts</a></li>
                         <li><a href="{{ url('/about') }}">About Us</a></li>
@@ -31,13 +31,10 @@
                 <div class="collapse dont-collapse-sm" id="collapse_4">
                     <div id="newsletter">
                         <div id="message-newsletter"></div>
-                        <form method="post" action="http://www.ansonika.com/prozim/assets/newsletter.php"
-                            name="newsletter_form" id="newsletter_form">
+                        <form onsubmit="redirectToContact(event)" name="newsletter_form" id="newsletter_form">
                             <div class="form-group">
-                                <input type="email" name="email_newsletter" id="email_newsletter"
-                                    class="form-control" placeholder="Your email">
-                                <button type="submit" id="submit-newsletter"><i
-                                        class="arrow_carrot-right"></i></button>
+                                <input type="email" name="email" id="email_newsletter" class="form-control" placeholder="Your email" required>
+                                <button type="submit" id="submit-newsletter"><i class="arrow_carrot-right"></i></button>
                             </div>
                         </form>
                     </div>
@@ -95,3 +92,11 @@
 <div id="toTop"></div><!-- Back to top button -->
 
 <div class="layer"></div><!-- Opacity Mask Menu Mobile -->
+
+<script>
+function redirectToContact(event) {
+    event.preventDefault();
+    var email = document.getElementById('email_newsletter').value;
+    window.location.href = '/contact?email=' + encodeURIComponent(email);
+}
+</script>

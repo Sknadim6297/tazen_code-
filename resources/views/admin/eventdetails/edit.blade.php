@@ -21,21 +21,24 @@
     
                 {{-- Event Name Dropdown --}}
                 <div class="col-xl-6">
-                    <label for="event_name" class="form-label">Event Name</label>
-                    <select class="form-select" name="event_name" id="event_name" required>
+                    <label for="event_id" class="form-label">Event Name</label>
+                    <select class="form-select" name="event_id" id="event_id" required onchange="fetchEventDetails(this.value)">
                         <option value="" disabled>Select Event</option>
                         @foreach(\App\Models\AllEvent::all() as $event)
-                            <option value="{{ $event->heading }}" {{ $eventdetail->event_name == $event->heading ? 'selected' : '' }}>
+                            <option value="{{ $event->id }}" 
+                                {{ $eventdetail->event_id == $event->id ? 'selected' : '' }}
+                                data-mini-heading="{{ $event->mini_heading }}"
+                                data-fees="{{ $event->starting_fees }}">
                                 {{ $event->heading }}
                             </option>
                         @endforeach
                     </select>
                 </div>
     
-                {{-- Event Type --}}
+                {{-- Event Type (Mini Heading) --}}
                 <div class="col-xl-6">
                     <label for="event_type" class="form-label">Event Type</label>
-                    <input type="text" class="form-control" name="event_type" id="event_type" value="{{ old('event_type', $eventdetail->event_type) }}" required>
+                    <input type="text" class="form-control" name="event_type" id="event_type" value="{{ old('event_type', $eventdetail->event_type) }}" required readonly>
                 </div>
     
                 {{-- Event Details --}}
@@ -53,7 +56,30 @@
                 {{-- Starting Fees --}}
                 <div class="col-xl-6">
                     <label for="starting_fees" class="form-label">Starting Fees</label>
-                    <input type="number" class="form-control" name="starting_fees" id="starting_fees" value="{{ old('starting_fees', $eventdetail->starting_fees) }}" min="0" required>
+                    <input type="number" class="form-control" name="starting_fees" id="starting_fees" value="{{ old('starting_fees', $eventdetail->starting_fees) }}" min="0" required readonly>
+                </div>
+
+                {{-- Event Mode --}}
+                <div class="col-xl-6">
+                    <label for="event_mode" class="form-label">Event Mode</label>
+                    <select class="form-select" name="event_mode" id="event_mode" required onchange="toggleCityField(this.value)">
+                        <option value="" disabled>Select Mode</option>
+                        <option value="online" {{ $eventdetail->event_mode === 'online' ? 'selected' : '' }}>Online</option>
+                        <option value="offline" {{ $eventdetail->event_mode === 'offline' ? 'selected' : '' }}>Offline</option>
+                    </select>
+                </div>
+
+                {{-- City Name (Only for Offline Mode) --}}
+                <div class="col-xl-6" id="cityField" style="display: {{ $eventdetail->event_mode === 'offline' ? 'block' : 'none' }};">
+                    <label for="city" class="form-label">City Name</label>
+                    <select class="form-select" name="city" id="city" {{ $eventdetail->event_mode === 'offline' ? 'required' : '' }}>
+                        <option value="" disabled selected>Select City</option>
+                        <option value="Mumbai" {{ $eventdetail->city === 'Mumbai' ? 'selected' : '' }}>Mumbai</option>
+                        <option value="Pune" {{ $eventdetail->city === 'Pune' ? 'selected' : '' }}>Pune</option>
+                        <option value="Kolkata" {{ $eventdetail->city === 'Kolkata' ? 'selected' : '' }}>Kolkata</option>
+                        <option value="Delhi" {{ $eventdetail->city === 'Delhi' ? 'selected' : '' }}>Delhi</option>
+                        <option value="Bangalore" {{ $eventdetail->city === 'Bangalore' ? 'selected' : '' }}>Bangalore</option>
+                    </select>
                 </div>
     
                 {{-- Event Gallery --}}
@@ -69,13 +95,6 @@
                     @endif
                 </div>
     
-                {{-- Map Location Link --}}
-                <div class="col-xl-12">
-                    <label for="map_link" class="form-label">Event Location Map Link</label>
-                    <input type="text" class="form-control" name="map_link" id="map_link" value="{{ old('map_link', $eventdetail->map_link) }}" placeholder="Paste Google Map URL">
-                    <small class="text-muted">Example: https://www.google.com/maps/place/Chandannagar,+West+Bengal</small>
-                </div>
-    
             </div>
     
             <div class="mt-4">
@@ -84,6 +103,51 @@
             </div>
         </form>
     </div>
-
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function fetchEventDetails(eventId) {
+    // Get the selected option
+    const selectedOption = document.querySelector(`#event_id option[value="${eventId}"]`);
+    
+    if (selectedOption) {
+        // Get the data attributes
+        const miniHeading = selectedOption.getAttribute('data-mini-heading');
+        const eventFees = selectedOption.getAttribute('data-fees');
+        
+        // Populate the fields
+        document.getElementById('event_type').value = miniHeading || '';
+        document.getElementById('starting_fees').value = eventFees || '';
+    }
+}
+
+function toggleCityField(mode) {
+    const cityField = document.getElementById('cityField');
+    const citySelect = document.getElementById('city');
+
+    if (mode === 'offline') {
+        cityField.style.display = 'block';
+        citySelect.required = true;
+    } else {
+        cityField.style.display = 'none';
+        citySelect.required = false;
+        citySelect.value = ''; // Clear city value
+    }
+}
+
+// Initialize fields on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const eventId = document.getElementById('event_id').value;
+    if (eventId) {
+        fetchEventDetails(eventId);
+    }
+    
+    const eventMode = document.getElementById('event_mode').value;
+    if (eventMode) {
+        toggleCityField(eventMode);
+    }
+});
+</script>
 @endsection
