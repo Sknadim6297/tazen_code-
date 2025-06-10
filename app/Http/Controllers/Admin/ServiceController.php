@@ -52,7 +52,6 @@ class ServiceController extends Controller
         return redirect()->back()->with('success', 'Service added successfully!');
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -70,51 +69,52 @@ class ServiceController extends Controller
         return view('admin.service.edit', compact('service'));
     }
 
-
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-{
-    $service = Service::findOrFail($id);
+    {
+        $service = Service::findOrFail($id);
 
-    $data = $request->validate([
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-        'status' => 'required|in:active,inactive',
-    ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'status' => 'required|in:active,inactive',
+        ]);
 
-    if ($request->hasFile('image')) {
-        // Delete old image if exists
-        if ($service->image && \Storage::disk('public')->exists($service->image)) {
-            \Storage::disk('public')->delete($service->image);
+        $data = [
+            'name' => $request->name,
+            'status' => $request->status,
+        ];
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($service->image && \Storage::disk('public')->exists($service->image)) {
+                \Storage::disk('public')->delete($service->image);
+            }
+            $data['image'] = $this->uploadImage($request, 'image', 'uploads/services');
         }
-        $data['image'] = $request->file('image')->store('services', 'public');
-    }
-    
 
-    $service->update($data);
-    return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');
-}
+        $service->update($data);
+        return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-{
-    $service = Service::findOrFail($id);
-    if ($service->image && \Storage::disk('public')->exists($service->image)) {
-        \Storage::disk('public')->delete($service->image);
+    {
+        $service = Service::findOrFail($id);
+        if ($service->image && \Storage::disk('public')->exists($service->image)) {
+            \Storage::disk('public')->delete($service->image);
+        }
+        $service->delete();
+        return back()->with('success', 'Service deleted successfully.');
     }
-    $service->delete();
-    return back()->with('success', 'Service deleted successfully.');
-}
 
     public function getMcqs($service_id)
-{
-    $mcqs = \App\Models\ServiceMCQ::where('service_id', $service_id)->first();
-
-    return response()->json($mcqs);
-}
-
+    {
+        $mcqs = \App\Models\ServiceMCQ::where('service_id', $service_id)->first();
+        return response()->json($mcqs);
+    }
 }

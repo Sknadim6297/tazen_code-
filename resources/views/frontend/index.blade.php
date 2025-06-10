@@ -253,7 +253,7 @@
 				<div class="row">
 					<div class="col-lg-6">
 						<div class="about-inside-content">
-							<small>--- About Us ---</small>
+							
 							<div class="main-about-content">
 								<h1>{{ $aboutus->heading }}</h1>
 								<p>{{ $aboutus->description }}</p>
@@ -441,7 +441,7 @@
 								<img src="{{ asset('storage/' . $eventDetail->event->card_image) }}" 
 									 data-src="{{ asset('storage/' . $eventDetail->event->card_image) }}"
 									 class="img-fluid lazy" alt="{{ $eventDetail->event->heading }}">
-								<a href="{{ route('event.details', $eventDetail->event->id) }}" class="strip_info">
+								<a href="{{ url('/allevent/' . $eventDetail->id) }}" class="strip_info">
 									<div class="item_title">
 										<h3>{{ $eventDetail->event->heading }}</h3>
 										<small>{{ $eventDetail->event->mini_heading }}</small>
@@ -775,24 +775,44 @@ $(document).ready(function(){
 				questionsContainer.innerHTML = questions.map((question, index) => `
 					<div class="question" id="question${question.id}" style="display: none;">
 						<h6>Question ${index + 1}: ${question.question}</h6>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer1" value="${question.answer1}" required>
-							<label class="form-check-label" for="q${question.id}answer1">${question.answer1}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer2" value="${question.answer2}" required>
-							<label class="form-check-label" for="q${question.id}answer2">${question.answer2}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer3" value="${question.answer3}" required>
-							<label class="form-check-label" for="q${question.id}answer3">${question.answer3}</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}answer4" value="${question.answer4}" required>
-							<label class="form-check-label" for="q${question.id}answer4">${question.answer4}</label>
-						</div>
+						${question.question_type === 'text' ? `
+							<div class="form-group">
+								<input type="text" class="form-control" name="q${question.id}" required>
+							</div>
+						` : `
+							<div class="options-container">
+								${question.options.map((option, optIndex) => `
+									<div class="form-check mb-2 d-flex align-items-center">
+										<input class="form-check-input" type="radio" 
+											name="q${question.id}" 
+											id="q${question.id}opt${optIndex}" 
+											value="${option}">
+										<label class="form-check-label me-2" for="q${question.id}opt${optIndex}">
+											${option}
+										</label>
+										${option === 'Other' ? `
+											<input type="text" class="form-control" 
+												name="q${question.id}_other" 
+												placeholder="Please specify..."
+												style="width: 60%;">
+										` : ''}
+									</div>
+								`).join('')}
+							</div>
+						`}
 					</div>
 				`).join('');
+			}
+
+			function toggleOtherInput(radio, questionId) {
+				const otherInput = document.getElementById(`otherInput${questionId}`);
+				if (radio.checked && radio.value === 'Other') {
+					otherInput.style.display = 'block';
+					otherInput.querySelector('input').required = true;
+				} else {
+					otherInput.style.display = 'none';
+					otherInput.querySelector('input').required = false;
+				}
 			}
 
 			function showQuestion(index) {
@@ -820,7 +840,7 @@ $(document).ready(function(){
 				}
 			});
 
-			// Single submit event listener
+			// Update the submit event listener
 			submitBtn.addEventListener("click", function () {
 				const formData = new FormData(form);
 				const answers = [];
@@ -829,13 +849,31 @@ $(document).ready(function(){
 				const questions = document.querySelectorAll('.question');
 				questions.forEach((question) => {
 					const questionId = question.id.replace('question', '');
-					const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+					const questionType = questions.find(q => q.id === `question${questionId}`).dataset.type;
 					
-					if (selectedAnswer) {
-						answers.push({
-							question_id: questionId,
-							answer: selectedAnswer.value
-						});
+					if (questionType === 'text') {
+						const textAnswer = question.querySelector('input[type="text"]');
+						if (textAnswer && textAnswer.value) {
+							answers.push({
+								question_id: questionId,
+								answer: textAnswer.value
+							});
+						}
+					} else {
+						const selectedOption = question.querySelector('input[type="radio"]:checked');
+						if (selectedOption) {
+							let answer = selectedOption.value;
+							if (answer === 'Other') {
+								const otherInput = question.querySelector(`input[name="q${questionId}_other"]`);
+								if (otherInput && otherInput.value) {
+									answer = otherInput.value;
+								}
+							}
+							answers.push({
+								question_id: questionId,
+								answer: answer
+							});
+						}
 					}
 				});
 

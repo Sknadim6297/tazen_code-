@@ -93,27 +93,27 @@
              <div class="col-lg-9">
                 <div class="row">
                     @foreach($blogPosts as $blogPost)
-                        <div class="col-md-6">
-                            <article class="blog">
-                                <figure>
+                        <div class="col-md-4">
+                            <article class="blog" style="max-width: 100%; margin-bottom: 20px;">
+                                <figure style="height: 200px; overflow: hidden;">
                                     <a href="{{ route('blog.show', $blogPost->id) }}">
-                                        <img src="{{ asset('storage/' . $blogPost->image) }}" alt="">
+                                        <img src="{{ asset('storage/' . $blogPost->image) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                                         <div class="preview"><span>Read more</span></div>
                                     </a>
                                 </figure>
-                                <div class="post_info">
+                                <div class="post_info" style="padding: 15px;">
                                     <small>{{ $blogPost->category }} - {{ $blogPost->created_at->format('d M Y') }}</small>
-                                    <h2><a href="{{ route('blog.show', $blogPost->id) }}">{{ $blogPost->blog->title }}</a></h2>
-                                    <p>{{ \Illuminate\Support\Str::limit($blogPost->content, 150) }}</p>
-                                    <ul>
+                                    <h2 style="font-size: 1.2rem; margin: 10px 0;"><a href="{{ route('blog.show', $blogPost->id) }}">{{ $blogPost->blog->title }}</a></h2>
+                                    <p style="font-size: 0.9rem;">{{ \Illuminate\Support\Str::limit($blogPost->content, 100) }}</p>
+                                    <ul style="margin-top: 10px;">
                                         <li>
-                                            <div class="thumb">
-                                                <img src="{{ asset('storage/' . $blogPost->author_avatar) }}" alt="">
+                                            <div class="thumb" style="width: 30px; height: 30px;">
+                                                <img src="{{ asset('storage/' . $blogPost->author_avatar) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
-                                            <a href="#">{{ $blogPost->author_name }}</a> 
+                                            <a href="#" style="font-size: 0.9rem;">{{ $blogPost->author_name }}</a> 
                                         </li>
                                         <li>
-                                            <a href="#"><i class="icon_comment_alt"></i> {{ $blogPost->comment_count}}</a>
+                                            <a href="#" style="font-size: 0.9rem;"><i class="icon_comment_alt"></i> {{ $blogPost->comment_count}}</a>
                                         </li>
                                     </ul>
                                 </div>
