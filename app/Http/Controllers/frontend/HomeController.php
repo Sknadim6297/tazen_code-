@@ -139,12 +139,14 @@ class HomeController extends Controller
     public function professionals(Request $request)
     {
         $services = Service::all();
-        
+
         // Get selected service ID either from request or session
         $selectedServiceId = $request->input('service_id', Session::get('selected_service_id'));
 
         $professionalsQuery = Professional::with('profile', 'professionalServices')
-            ->where('status', 'accepted');
+            ->where('status', 'accepted')
+            ->where('active', true);
+
 
         // Filter by service
         if ($selectedServiceId) {
@@ -156,7 +158,7 @@ class HomeController extends Controller
         // Filter by experience
         if ($request->has('experience') && !empty($request->experience)) {
             $expRange = $request->experience;
-            
+
             if ($expRange == '10+') {
                 $professionalsQuery->whereHas('profile', function ($query) {
                     $query->where('experience', '>=', 10);
@@ -168,11 +170,11 @@ class HomeController extends Controller
                 });
             }
         }
-        
+
         // Filter by price range
         if ($request->has('price_range') && !empty($request->price_range)) {
             $priceRange = $request->price_range;
-            
+
             if (strpos($priceRange, '+') !== false) {
                 // Handle "5000+" type ranges
                 $minPrice = (int)str_replace('+', '', $priceRange);
@@ -190,7 +192,7 @@ class HomeController extends Controller
 
         // Paginate results instead of getting all at once
         $professionals = $professionalsQuery->latest()->paginate(12);
-        
+
         // When using filters, we need to append them to pagination links
         if ($request->hasAny(['experience', 'price_range', 'service_id'])) {
             $professionals->appends($request->only(['experience', 'price_range', 'service_id']));

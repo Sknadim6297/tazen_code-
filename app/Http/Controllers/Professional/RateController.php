@@ -42,7 +42,6 @@ class RateController extends Controller
             'rateData.*.num_sessions' => 'required|integer|min:1',
             'rateData.*.rate_per_session' => 'required|numeric|min:0',
             'rateData.*.final_rate' => 'required|numeric|min:0',
-            'rateData.*.duration' => 'required|string|max:255',
         ]);
         $professionalId = Auth::guard('professional')->id();
 
@@ -57,7 +56,7 @@ class RateController extends Controller
                     'num_sessions' => $rate['num_sessions'],
                     'rate_per_session' => $rate['rate_per_session'],
                     'final_rate' => $rate['final_rate'],
-                    'duration' => $rate['duration'],
+
                 ]);
             }
             DB::commit();
@@ -108,7 +107,6 @@ class RateController extends Controller
             'num_sessions' => 'required|integer|min:1',
             'rate_per_session' => 'required|numeric|min:0',
             'final_rate' => 'required|numeric|min:0',
-            'duration' => 'required|string',
         ]);
 
         $rate = Rate::findOrFail($id);

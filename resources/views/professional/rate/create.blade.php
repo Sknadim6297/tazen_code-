@@ -30,7 +30,6 @@
                                 <th>No. of Sessions</th>
                                 <th>Rate Per Session (₹)</th>
                                 <th>Final Rate (₹)</th>
-                                <th>Duration</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -162,14 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><input type="number" class="form-control" value="0" min="0" step="100"></td>
             <td><input type="number" class="form-control final-rate" name="final_rate[]" readonly></td>
            <td>
-    <select class="form-control" id="durationSelect" onchange="toggleCustomDuration()">
-        <option value="30">30 minutes</option>
-        <option value="45">45 minutes</option>
-        <option value="60" selected>60 minutes</option>
-        <option value="90">90 minutes</option>
-        <option value="120">2 hours</option>
-
-    </select>
 </td>
             <td>
                 <div class="action-btn" title="Delete rate">
@@ -223,14 +214,12 @@ document.addEventListener('DOMContentLoaded', function() {
             let numSessions = parseInt(row.querySelector('td:nth-child(2) input').value) || 0;
             let ratePerSession = parseInt(row.querySelector('td:nth-child(3) input').value) || 0;
             let finalRate = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;  
-             let duration = row.querySelector('td:nth-child(5) select').value;
 
             rateData.push({
                 session_type: sessionType,
                 num_sessions: numSessions,
                 rate_per_session: ratePerSession,
                 final_rate: finalRate,
-                duration: duration
             });
         });
 

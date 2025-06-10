@@ -4,52 +4,121 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\BookingTimedate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class UpcomingAppointmentController extends Controller
 {
-
     public function index(Request $request)
     {
-        $query = Booking::with([
-            'timedates' => function ($q) {
-                $q->where('date', '>=', \Carbon\Carbon::today())
-                    ->orderBy('date', 'asc');
-            },
-            'professional' => function ($q) {
-                $q->select('id', 'name');
-            }
-        ])
-            ->where('user_id', Auth::guard('user')->id());
-        if ($request->filled('search_name')) {
-            $search = $request->search_name;
-            $query->whereHas(
-                'professional',
-                function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+        try {
+            // Log the start of the request for debugging
+            Log::info('Loading upcoming appointments page', ['user_id' => Auth::guard('user')->id()]);
+            
+            // Start with base query for the user's bookings
+            $query = Booking::with([
+                'professional' => function ($q) {
+                    $q->select('id', 'name');
                 }
-            );
-        }
-        if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
-            $query->whereHas('timedates', function ($q) use ($request) {
-                $q->whereBetween('booking_date', [$request->search_date_from, $request->search_date_to]);
-            });
-        } elseif ($request->filled('search_date_from')) {
-            $query->whereHas('timedates', function ($q) use ($request) {
-                $q->where('booking_date', '>=', $request->search_date_from);
-            });
-        } elseif ($request->filled('search_date_to')) {
-            $query->whereHas('timedates', function ($q) use ($request) {
-                $q->where('booking_date', '<=', $request->search_date_to);
-            });
-        }
+            ])->where('user_id', Auth::guard('user')->id());
 
-        $bookings = $query->get();
+            // Apply search filters if provided
+            if ($request->filled('search_name')) {
+                $search = $request->search_name;
+                $query->whereHas('professional', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
 
-        return view('customer.upcoming-appointment.index', compact('bookings'));
+            // Get the bookings
+            $allBookings = $query->get();
+            
+            Log::info('Found bookings', ['count' => $allBookings->count()]);
+            
+            // Group bookings by booking_id to ensure we only show one timedate per booking
+            $processedBookings = collect();
+            
+            foreach ($allBookings as $booking) {
+                try {
+                    // For each booking, get ALL timedates
+                    $allTimedates = BookingTimedate::where('booking_id', $booking->id)
+                        ->orderBy('date', 'asc')
+                        ->get();
+                    
+                    // Find the next upcoming timedate (first future date)
+                    $nextTimedate = $allTimedates->first(function ($timedate) {
+                        return Carbon::parse($timedate->date)->startOfDay()->gte(Carbon::today());
+                    });
+                    
+                    // Only add this booking if it has a future timedate
+                    if ($nextTimedate) {
+                        // Replace the timedates collection with just this single upcoming timedate
+                        $booking->setRelation('timedates', collect([$nextTimedate]));
+                        
+                        // Add calculated session information
+                        $booking->sessions_taken = $allTimedates->where('status', 'completed')->count();
+                        $booking->total_sessions = $allTimedates->count();
+                        $booking->sessions_remaining = $booking->total_sessions - $booking->sessions_taken;
+                        
+                        $processedBookings->push($booking);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing booking', [
+                        'booking_id' => $booking->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue with next booking even if this one fails
+                    continue;
+                }
+            }
+            
+            // Apply date filtering if requested
+            if ($request->filled('search_date_from') || $request->filled('search_date_to')) {
+                $processedBookings = $processedBookings->filter(function ($booking) use ($request) {
+                    $timedate = $booking->timedates->first();
+                    if (!$timedate) return false;
+                    
+                    $date = Carbon::parse($timedate->date);
+                    
+                    if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
+                        $from = Carbon::parse($request->search_date_from);
+                        $to = Carbon::parse($request->search_date_to);
+                        return $date->between($from, $to);
+                    } elseif ($request->filled('search_date_from')) {
+                        return $date->gte(Carbon::parse($request->search_date_from));
+                    } elseif ($request->filled('search_date_to')) {
+                        return $date->lte(Carbon::parse($request->search_date_to));
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            // Sort by the nearest upcoming date
+            $sortedBookings = $processedBookings->sortBy(function ($booking) {
+                $timedate = $booking->timedates->first();
+                return $timedate ? Carbon::parse($timedate->date)->timestamp : PHP_INT_MAX;
+            })->values();
+            
+            // Pass to view
+            $bookings = $sortedBookings;
+            
+            Log::info('Processed bookings', ['count' => $bookings->count()]);
+            
+            return view('customer.upcoming-appointment.index', compact('bookings'));
+        } catch (\Exception $e) {
+            Log::error('Error loading upcoming appointments', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Provide a friendly error message to the user
+            return redirect()->back()->with('error', 'An error occurred while loading your appointments. Please try again later.');
+        }
     }
 
 
@@ -121,13 +190,6 @@ class UpcomingAppointmentController extends Controller
 
             if ($request->hasFile('document')) {
                 $file = $request->file('document');
-
-                // Log file information
-                Log::info('File information:', [
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'size' => $file->getSize(),
-                ]);
                 if ($booking->customer_document && Storage::disk('public')->exists($booking->customer_document)) {
                     try {
                         Storage::disk('public')->delete($booking->customer_document);

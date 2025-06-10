@@ -9,33 +9,170 @@
         display: none;
         position: fixed;
         z-index: 1050;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(3px);
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .custom-modal-content {
         background-color: #fff;
         margin: 5% auto;
-        padding: 20px;
         width: 90%;
         max-width: 800px;
-        border-radius: 10px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         position: relative;
+        animation: slideDown 0.4s ease-out;
+        overflow: hidden;
+    }
+
+    @keyframes slideDown {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        background: linear-gradient(to right, #2c3e50, #3498db);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: none;
+    }
+
+    .modal-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.4rem;
+        color: white;
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
     }
 
     .custom-modal .close-modal {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 24px;
-        font-weight: bold;
-        color: #aaa;
+        color: white;
+        opacity: 0.8;
+        font-size: 28px;
         cursor: pointer;
+        transition: all 0.2s;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }
 
     .custom-modal .close-modal:hover {
-        color: #e74c3c;
+        opacity: 1;
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Enhanced Table Styles */
+    #appointmentDetailsTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e6e6e6;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #appointmentDetailsTable thead th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 2px solid #dee2e6;
+        text-align: left;
+    }
+
+    #appointmentDetailsTable tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-top: 1px solid #e9ecef;
+        color: #495057;
+        transition: background 0.2s;
+    }
+
+    #appointmentDetailsTable tbody tr:hover {
+        background-color: #f7fbff;
+    }
+
+    /* Status styles */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    /* Remarks section */
+    .remarks-cell {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .empty-state {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Footer actions */
+    .modal-footer {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-footer .btn {
+        padding: 8px 20px;
+        border-radius: 5px;
+        transition: all 0.3s;
     }
     .search-container {
         background: #f5f7fa;
@@ -205,22 +342,29 @@
         </table>
     </div>
 
-    <!-- Custom Appointment Details Modal -->
+    <!-- Enhanced Appointment Details Modal -->
     <div id="customModal" class="custom-modal">
         <div class="custom-modal-content">
-            <span class="close-modal">&times;</span>
-            <h4>Appointment Details</h4>
-            <table class="table table-bordered" id="appointmentDetailsTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time Slot(s)</th>
-                        <th>Status</th>
-                          <th>Summary/Remarks</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="modal-header">
+                <h4>Appointment Details</h4>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="table" id="appointmentDetailsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time Slot(s)</th>
+                            <th>Status</th>
+                            <th>Summary/Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
         </div>
     </div>
 
@@ -356,6 +500,41 @@
             padding: 15px;
         }
     }
+
+    /* Responsive styles for modal */
+@media screen and (max-width: 767px) {
+    .custom-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-header h4 {
+        font-size: 1.2rem;
+    }
+    
+    #appointmentDetailsTable thead th {
+        font-size: 0.7rem;
+        padding: 10px 5px;
+    }
+    
+    #appointmentDetailsTable tbody td {
+        padding: 10px 5px;
+    }
+    
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .remarks-cell {
+        max-width: 100px;
+    }
+    
+    .modal-body {
+        padding: 10px;
+        max-height: 70vh;
+    }
+}
 </style>
 @endsection
 @section('scripts')
@@ -372,14 +551,39 @@
 
             response.dates.forEach(item => {
                 const timeSlots = item.time_slot.join(', ');
-                const status = item.status ?? 'Pending';
+                const status = item.status ?? 'pending';
+                
+                // Generate status badge with appropriate class
+                let statusClass = '';
+                switch(status.toLowerCase()) {
+                    case 'completed':
+                        statusClass = 'status-completed';
+                        break;
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        break;
+                    default:
+                        statusClass = 'status-pending';
+                }
+                
+                const statusBadge = `<span class="status-badge ${statusClass}">${status}</span>`;
+                const formattedDate = new Date(item.date).toLocaleDateString('en-GB', {
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric'
+                });
+                
+                const remarks = item.remarks ? item.remarks : '<span class="empty-state">No remarks available</span>';
 
                 tbody.append(`
                     <tr>
-                        <td>${item.date}</td>
+                        <td>${formattedDate}</td>
                         <td>${timeSlots}</td>
-                        <td>${status}</td>
-                        <td>${item.remarks ?? 'No remarks'}</td>
+                        <td>${statusBadge}</td>
+                        <td class="remarks-cell">${remarks}</td>
                     </tr>
                 `);
             });
@@ -392,17 +596,16 @@
     });
 });
 
-// Close modal
-$(document).on('click', '.close-modal', function () {
-    $('#customModal').hide();  // Hides the modal
+// Close modal - both X button and the Close button in footer
+$(document).on('click', '.close-modal, .close-modal-btn', function () {
+    $('#customModal').hide();
 });
 
 // Close modal when clicking outside modal content
 $(window).on('click', function (e) {
     if ($(e.target).is('#customModal')) {
-        $('#customModal').hide();  // Hides the modal
+        $('#customModal').hide();
     }
 });
-
 </script>
 @endsection

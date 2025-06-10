@@ -1,7 +1,9 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="sidebar-header">
-        <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" style="align-items: center; justify-content: center; display: flex;" height="80">
+        <a href="{{ route('home') }}">
+            <img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" alt="Logo" class="sidebar-logo" style="align-items: center; justify-content: center; display: flex;" height="80">
+        </a>
         <i class="fas fa-times close-sidebar"></i>
     </div> 
     <div class="sidebar-menu">
@@ -74,5 +76,20 @@
         background: rgba(255, 69, 0, 0.1);
         border-radius: 5px;
         margin: 2px 0;
+    }
+    
+    /* Add styling for the logo link */
+    .sidebar-header a {
+        display: block;
+        text-decoration: none;
+        transition: transform 0.2s ease;
+    }
+    
+    .sidebar-header a:hover {
+        transform: scale(1.03);
+    }
+    
+    .sidebar-header a:active {
+        transform: scale(0.98);
     }
 </style>

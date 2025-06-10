@@ -85,9 +85,9 @@
                         <tbody>
                             @forelse($billings as $key => $billing)
                             @php
-                                $commissionRate = 20; 
-                                $professionalPay = $billing->amount * ((100 - $commissionRate) / 100);
-                                $amountEarned = $billing->amount * ($commissionRate / 100);
+                               $commissionRate = $billing->professional->margin; 
+                              $professionalPay = $billing->amount * ((100 - $commissionRate) / 100);
+                              $amountEarned = $billing->amount * ($commissionRate / 100);
                             @endphp
                             <tr>
                                 <td>{{ $key + 1 }}</td>

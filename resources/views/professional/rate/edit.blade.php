@@ -28,7 +28,6 @@
                             <th>No. of Sessions</th>
                             <th>Rate Per Session (₹)</th>
                             <th>Final Rate (₹)</th>
-                            <th>Duration</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,9 +48,6 @@
                             </td>
                             <td>
                                 <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control" name="duration" value="{{ $rates->duration }}" placeholder="e.g. 1 week">
                             </td>
                         </tr>
                     </tbody>
