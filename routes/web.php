@@ -50,7 +50,7 @@ use App\Models\BlogPost;
 use App\Models\Blog;
 use App\Models\Service;
 use App\Models\AllEvent;
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -404,4 +404,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Frontend Help & FAQ Route
-Route::get('/help', [\App\Http\Controllers\Admin\HelpController::class, 'frontend'])->name('help.index');
+Route::get('/help', [\App\Http\Controllers\Admin\HelpController::class, 'frontend'])->name('help.index');   
+Route::get('/check-auth-status', function () {
+    return response()->json([
+        'authenticated' => Auth::guard('user')->check()
+    ]);
+});
