@@ -26,27 +26,71 @@
             $totalBookings = Booking::where('professional_id', $professionalId)->count();
         @endphp
 
-        <div class="card card-primary">
-            <div class="card-icon">
-                <i class="fas fa-calendar-check"></i>
+        <!-- Total Bookings Card - Make it clickable -->
+        <a href="{{ route('professional.booking.index') }}" class="dashboard-card-link">
+            <div class="card card-primary">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="card-info">
+                    <h4>Total Bookings</h4>
+                    <h2 style="color: black">{{ $totalBookings }}</h2>
+                    <p class="positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
+                </div>
             </div>
-            <div class="card-info">
-                <h4>Total Bookings</h4>
-                <h2>{{ $totalBookings }}</h2>
-                <p class="positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
-            </div>
-        </div>
+        </a>
 
+<a href="{{ route('professional.billing.index') }}" class="dashboard-card-link">
         <div class="card card-success">
             <div class="card-icon">
                 <i class="fas fa-dollar-sign"></i>
             </div>
             <div class="card-info">
+                @php
+                    $professionalId = Auth::guard('professional')->id();
+                    
+                    // Get the total amount earned from bookings with paid_status = 'paid'
+                    $totalRevenue = \App\Models\Booking::where('professional_id', $professionalId)
+                        ->where('paid_status', 'paid')
+                        ->sum('amount');
+                        
+                    // Get the professional's margin rate from the professionals table
+                    $professional = \App\Models\Professional::find($professionalId);
+                    $marginRate = $professional->margin ?? 20; // Default to 20% if not set
+                    
+                    // Calculate actual professional earnings after deducting platform commission
+                    $actualEarnings = $totalRevenue * ((100 - $marginRate) / 100);
+                    
+                    // Calculate previous month's earnings for comparison
+                    $previousMonth = now()->subMonth();
+                    $prevMonthStart = $previousMonth->startOfMonth()->format('Y-m-d');
+                    $prevMonthEnd = $previousMonth->endOfMonth()->format('Y-m-d');
+                    
+                    $previousEarnings = \App\Models\Booking::where('professional_id', $professionalId)
+                        ->where('paid_status', 'paid')
+                        ->whereBetween('paid_date', [$prevMonthStart, $prevMonthEnd])
+                        ->sum('amount') * ((100 - $marginRate) / 100);
+                        
+                    // Calculate percentage change
+                    $percentChange = 0;
+                    if ($previousEarnings > 0) {
+                        $percentChange = (($actualEarnings - $previousEarnings) / $previousEarnings) * 100;
+                    }
+                    $isPositive = $percentChange >= 0;
+                @endphp
                 <h4>Total Revenue</h4>
-                <h2>₹12,600</h2>            
-                <p class="positive"><i class="fas fa-arrow-up"></i> 8% from last month</p>
+                <h2  style="color: black">₹{{ number_format($actualEarnings, 2) }}</h2>
+                @if($previousEarnings > 0)
+                    <p class="{{ $isPositive ? 'positive' : 'negative' }}">
+                        <i class="fas fa-arrow-{{ $isPositive ? 'up' : 'down' }}"></i> 
+                        {{ abs(round($percentChange)) }}% from last month
+                    </p>
+                @else
+                    <p>No earnings last month</p>
+                @endif
             </div>
         </div>
+        </a>
 
         @php
             $professionalId = Auth::guard('professional')->id();

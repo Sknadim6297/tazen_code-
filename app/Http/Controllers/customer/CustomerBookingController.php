@@ -156,14 +156,50 @@ class CustomerBookingController extends Controller
         return view('customer.booking.success');
     }
 
-    public function billing()
+    /**
+     * Display billing history with filters
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function billing(Request $request)
     {
-        $bookings = Booking::where('user_id', Auth::guard('user')->id())
+        $query = Booking::where('user_id', Auth::guard('user')->id())
             ->with('professional')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('customer.billing.index', compact('bookings'));
+            ->orderBy('created_at', 'desc');
+        
+        // Apply date range filter
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+        
+        // Apply service filter
+        if ($request->filled('service')) {
+            $query->where('service_name', $request->service);
+        }
+        
+        // Apply plan type filter
+        if ($request->filled('plan_type')) {
+            $query->where('plan_type', $request->plan_type);
+        }
+        
+        $bookings = $query->get();
+        
+        // Get all unique services for dropdown
+        $services = Booking::where('user_id', Auth::guard('user')->id())
+            ->distinct()
+            ->pluck('service_name')
+            ->filter()
+            ->values();
+        
+        return view('customer.billing.index', compact('bookings', 'services'));
     }
 
     public function downloadInvoice($id)
@@ -185,5 +221,84 @@ class CustomerBookingController extends Controller
     public function eventSuccess()
     {
         return view('customer.booking.event_success');
+    }
+    /**
+     * Export filtered billing transactions as PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportAllTransactions(Request $request)
+    {
+        $user = Auth::guard('user')->user();
+        $query = Booking::where('user_id', $user->id)
+            ->with('professional')
+            ->orderBy('created_at', 'desc');
+        
+        // Apply date range filter
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        } elseif ($request->filled('end_date')) {
+            $query->where('created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+        
+        // Apply service filter
+        if ($request->filled('service')) {
+            $query->where('service_name', $request->service);
+        }
+        
+        // Apply plan type filter
+        if ($request->filled('plan_type')) {
+            $query->where('plan_type', $request->plan_type);
+        }
+        
+        $bookings = $query->get();
+        
+        // Calculate summary data
+        $totalTransactions = $bookings->count();
+        $totalAmount = $bookings->sum('amount');
+        $planTypeSummary = $bookings->groupBy('plan_type')
+            ->map(function ($group) {
+                return [
+                    'count' => $group->count(),
+                    'amount' => $group->sum('amount')
+                ];
+            });
+        
+        // Add filter details to pass to the PDF
+        $filterInfo = [
+            'start_date' => $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+            'end_date' => $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present',
+            'service' => $request->filled('service') ? $request->service : 'All services',
+            'plan_type' => $request->filled('plan_type') ? ucwords(str_replace('_', ' ', $request->plan_type)) : 'All plans'
+        ];
+        
+        // Generate PDF
+        $pdf = PDF::loadView('customer.billing.transactions-pdf', [
+            'bookings' => $bookings,
+            'user' => $user,
+            'totalTransactions' => $totalTransactions,
+            'totalAmount' => $totalAmount,
+            'planTypeSummary' => $planTypeSummary,
+            'filterInfo' => $filterInfo,
+            'generatedDate' => now()->format('d M Y H:i:s')
+        ]);
+        
+        $pdf->setPaper('a4', 'portrait');
+        
+        // Generate filename with date and optional filters
+        $filename = 'billing_transactions';
+        if ($request->filled('plan_type')) {
+            $filename .= '_' . $request->plan_type;
+        }
+        $filename .= '_' . now()->format('Y_m_d_His') . '.pdf';
+        
+        // Return download response
+        return $pdf->download($filename);
     }
 }

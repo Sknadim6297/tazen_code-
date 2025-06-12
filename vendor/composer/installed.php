@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-sk_nadim',
         'version' => 'dev-sk_nadim',
-        'reference' => '3b6f532066a8bde44cf04f194860085edea16c72',
+        'reference' => '7d8df73a91bbc00756a7e9973a52f5a7e4a3d51f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -418,7 +418,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-sk_nadim',
             'version' => 'dev-sk_nadim',
-            'reference' => '3b6f532066a8bde44cf04f194860085edea16c72',
+            'reference' => '7d8df73a91bbc00756a7e9973a52f5a7e4a3d51f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

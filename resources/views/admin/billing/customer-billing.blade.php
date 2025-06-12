@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-        <div>
+            <div>
                 <h1 class="page-title fw-medium fs-18 mb-2">Customer Billing</h1>
                 <div>
                     <nav>
@@ -16,14 +16,19 @@
                     </nav>
                 </div>
             </div>
+            <!-- Add Export Button -->
+            <div>
+                <a href="{{ route('admin.customer.billing.export', request()->all()) }}" class="btn btn-primary">
+                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
+                </a>
+            </div>
         </div>
-        
         <!-- End Page Header -->
 
         <!-- Search Container -->
         <div class="card mb-4">
             <div class="card-body">
-                <form action="{{ route('admin.customer.billing') }}" method="GET">
+                <form action="{{ route('admin.customer.billing') }}" method="GET" id="searchForm">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Date Range</label>
@@ -51,9 +56,12 @@
                                 <option value="pending" {{ request('sms_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                             </select>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Search</button>
                             <a href="{{ route('admin.customer.billing') }}" class="btn btn-secondary">Reset</a>
+                            <button type="button" class="btn btn-success" id="exportFilteredBtn">
+                                <i class="fas fa-file-pdf me-1"></i> Export Filtered Data
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -102,4 +110,16 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        // Export filtered data button
+        $('#exportFilteredBtn').click(function() {
+            var formData = $('#searchForm').serialize();
+            window.location.href = "{{ route('admin.customer.billing.export') }}?" + formData;
+        });
+    });
+</script>
+@endsection
