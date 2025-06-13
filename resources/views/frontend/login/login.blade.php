@@ -95,66 +95,85 @@
     <script src="{{ asset('frontend/assets/validate.js') }}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<!-- Add SweetAlert CDN before your script -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 	<script>
-	$('#loginForm').submit(function(e) {
-    e.preventDefault();
-    
-    // Check if terms checkbox is checked
-    if (!$('#terms_accepted').is(':checked')) {
-        $('#terms-error').show();
-        toastr.error('You must accept the Terms and Conditions to continue.');
-        return false;
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get('redirect') || "{{ route('home') }}";
-    let formData = $(this).serializeArray();
-    formData.push({name: 'redirect', value: redirect});
-
-    $.ajax({
-        url: "{{ route('login.submit') }}",
-        method: "POST",
-        data: $.param(formData),
-        success: function(response) {
-            toastr.success(response.message);
-            setTimeout(function() {
-                window.location.href = response.redirect_url || "{{ route('home') }}";
-            }, 1500);
-        },
-        error: function(xhr) {
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                $.each(errors, function(key, value) {
-                    toastr.error(value[0]);
-                });
-            } else {
-                toastr.error(xhr.responseJSON.message || "Something went wrong");
-            }
-        }
-    });
-});
-
-$(document).ready(function() {
-    // Hide error message when checkbox is checked
-    $('#terms_accepted').change(function() {
-        if($(this).is(':checked')) {
-            $('#terms-error').hide();
-        }
-    });
-    
-    // Initially hide the error message
-    $('#terms-error').hide();
-    
-    // Check for registered email in localStorage
-    const registeredEmail = localStorage.getItem('registered_email');
-    if (registeredEmail) {
-        $('#email').val(registeredEmail);
-        $('#password').focus();
+	$(document).ready(function() {
+    $('#loginForm').submit(function(e) {
+        e.preventDefault();
         
-        // Clear the stored email after using it once
-        localStorage.removeItem('registered_email');
+        // Validate form
+        if (!$('#terms_accepted').is(':checked')) {
+            $('#terms-error').show();
+            toastr.error('You must accept the Terms and Conditions to continue.');
+            return false;
+        }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || "{{ route('home') }}";
+        let formData = $(this).serializeArray();
+        formData.push({name: 'redirect', value: redirect});
+        
+        loginUser(formData);
+    });
+
+    // Function to handle login with AJAX
+    function loginUser(formData, forceLogin = false) {
+        // Use the correct URL based on whether it's a force login or regular login
+        const url = forceLogin 
+            ? "{{ route('force.login') }}" 
+            : "{{ route('login.submit') }}";
+        
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: $.param(formData),
+            success: function(response) {
+                // Handle confirm_logout status - show SweetAlert
+                if (response.status === 'confirm_logout') {
+                    Swal.fire({
+                        title: 'Already Logged In',
+                        text: response.message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, log me in',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // User confirmed, resubmit with force_login flag
+                            loginUser(formData, true);
+                        }
+                    });
+                    return;
+                }
+                
+                // Normal login success
+                if (response.status === 'success') {
+                    toastr.success(response.message);
+                    setTimeout(function() {
+                        window.location.href = response.redirect_url;
+                    }, 1500);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    $.each(errors, function(key, value) {
+                        toastr.error(value[0]);
+                    });
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    toastr.error(xhr.responseJSON.message);
+                } else {
+                    toastr.error("Something went wrong");
+                }
+            }
+        });
     }
 });
+
 	</script>
 	
 	<script>
