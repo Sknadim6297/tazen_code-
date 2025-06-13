@@ -19,8 +19,8 @@
 
                         <div class="head">
                             <div class="title">
-                                <h3>{{ $professional['name'] ?? 'Booking Details' }}</h3>
-                                {{ $professional->profile->address ?? 'Booking Address is not available' }}</a>
+                                <h3>{{ Auth::guard('user')->user()->name ?? 'N/A' }}</h3>
+                                {{ Auth::guard('user')->user()->email ?? 'N/A' }}</a>
                             </div>
                         </div>
 
@@ -43,8 +43,8 @@
                                 <li>Plan type: <span>{{ isset($bookingData['plan_type']) ? ucwords(str_replace('_', ' ', $bookingData['plan_type'])) : 'N/A' }}</span></li>
                                 <li>Type: <span>Appointment</span></li>
                                 <li>Total Amount: <span>₹{{ number_format($bookingData['total_amount'] ?? 0, 2) }}</span></li>
-                                <li>Your name: <span>{{ Auth::guard('user')->user()->name ?? 'N/A' }}</span></li>
-                                <li>Your email: <span>{{ Auth::guard('user')->user()->email ?? 'N/A' }}</span></li>
+                                <li>Professional name: <span>{{ $professional['name'] ?? 'Booking Details' }}</span></li>
+                                <li>Professional Address: <span>{{ $professional->profile->address ?? 'Booking Address is not available' }}</span></li>
                             </ul>
                             <hr>
                             <h6>Enter contact number for the booking</h6>
