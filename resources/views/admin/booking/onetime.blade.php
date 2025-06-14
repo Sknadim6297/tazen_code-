@@ -15,40 +15,57 @@
                     </nav>
                 </div>
             </div>
-    <form action="{{ route('admin.onetime') }}" method="GET" class="d-flex gap-2">
-        
-    <div class="col-md-3">
-        <div class="card custom-card">
-            <input type="search" name="search" class="form-control" id="autoComplete" placeholder="Search">
-        </div>
-    </div>
-    <div class="col-md-3">
-        <select name="status" class="form-select">
-            <option value="">-- Select Status --</option>
-            @foreach ($statuses as $status)
-                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
-                    {{ ucfirst($status) }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-     <div class="col-md-4">
-        <div class="card-body">
-            <div class="form-group">
-                <div class="input-group">
-                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                    <input type="date" class="form-control"  placeholder="Choose Start Date" name="start_date" id="start_date">
-                    <span class="input-group-text">to</span>
-                    <input type="date" class="form-control"  placeholder="Choose End Date" name="end_date" id="end_date">
+
+            <!-- Updated form with filters and export button -->
+            <form action="{{ route('admin.onetime') }}" method="GET" class="d-flex gap-2 flex-wrap" id="filter-form">
+                <div class="col-md-2">
+                    <div class="card custom-card">
+                        <input type="search" name="search" value="{{ request('search') }}" class="form-control" id="autoComplete" placeholder="Search by name, phone">
+                    </div>
                 </div>
-            </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">-- Select Status --</option>
+                        @foreach ($statuses as $status)
+                            <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                {{ ucfirst($status) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="service" class="form-select">
+                        <option value="">-- Select Service --</option>
+                        @foreach ($services as $service)
+                            <option value="{{ $service }}" {{ request('service') == $service ? 'selected' : '' }}>
+                                {{ $service }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-body p-2">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                <input type="date" class="form-control" placeholder="Start Date" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                                <span class="input-group-text">to</span>
+                                <input type="date" class="form-control" placeholder="End Date" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="{{ route('admin.onetime') }}" class="btn btn-secondary">Reset</a>
+                        <a href="{{ route('admin.booking.onetime.export', request()->all()) }}" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Export
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
-    </div>
-    <div class="col-xl-2">
-        <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-</form>
-</div>
         <!-- Start::row-2 -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">

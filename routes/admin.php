@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\LogoController;
 use App\Http\Controllers\Admin\MCQController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\AllEventController;
+use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ManageCustomerController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Admin\ServiceMCQController;
 
 
 use App\Http\Controllers\Admin\ProfessionalRequestedController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\frontend\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -103,6 +105,13 @@ Route::post('/booking/add-link', [App\Http\Controllers\Admin\BookingController::
     Route::get('customer-billing', [App\Http\Controllers\Admin\CustomerBillingController::class, 'index'])->name('customer.billing');
 
     Route::post('/admin/professionals/toggle-status', [ManageProfessionalController::class, 'toggleStatus'])->name('professional.toggle-status');
+Route::get('professional/billing/export', [BillingController::class, 'exportBillingToPdf'])->name('professional.billing.export');
+Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
 
-    
+Route::get('event/export', [EventController::class, 'exportEventBookingsToPdf'])->name('event.export');
+Route::get('reviews/export', [ReviewController::class, 'exportReviewsToPdf'])->name('reviews.export');
+Route::get('booking/freehand/export', [BookingController::class, 'exportFreeHandBookingsToPdf'])->name('booking.freehand.export');
+Route::get('booking/monthly/export', [BookingController::class, 'exportMonthlyBookingsToPdf'])->name('booking.monthly.export');
+Route::get('booking/onetime/export', [BookingController::class, 'exportOneTimeBookingsToPdf'])->name('booking.onetime.export');
+Route::get('booking/quarterly/export', [BookingController::class, 'exportQuarterlyBookingsToPdf'])->name('booking.quarterly.export');
 });

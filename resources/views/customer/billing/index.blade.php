@@ -14,11 +14,62 @@
         </ul>
     </div>
 
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-header">
-            <h4>All Transactions</h4>
+            <h4>Filter Transactions</h4>
         </div>
         <div class="card-body">
+            <form action="{{ route('user.billing.index') }}" method="GET" id="filter-form">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="end_date">End Date</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="service">Service</label>
+                        <select id="service" name="service" class="form-control">
+                            <option value="">All Services</option>
+                            @foreach($services as $service)
+                                <option value="{{ $service }}" {{ request('service') == $service ? 'selected' : '' }}>
+                                    {{ $service }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="plan_type">Plan Type</label>
+                        <select id="plan_type" name="plan_type" class="form-control">
+                            <option value="">All Plans</option>
+                            <option value="monthly" {{ request('plan_type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="quarterly" {{ request('plan_type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
+                            <option value="one_time" {{ request('plan_type') == 'one_time' ? 'selected' : '' }}>One Time</option>
+                            <option value="free_hand" {{ request('plan_type') == 'free_hand' ? 'selected' : '' }}>Free Hand</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <a href="{{ route('user.billing.index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>All Transactions</h4>
+            <a href="{{ route('user.billing.export-all', request()->all()) }}" class="btn btn-primary">
+                <i class="fas fa-file-export"></i> Export as PDF
+            </a>
+        </div>
+        <div class="card-body">
+            @if($bookings->count() > 0)
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
@@ -51,141 +102,67 @@
                     </tbody>
                 </table>
             </div>
+            @else
+            <div class="alert alert-info">
+                No transactions found matching your filters. <a href="{{ route('user.billing.index') }}">Clear filters</a> to see all transactions.
+            </div>
+            @endif
         </div>
     </div>
 </div>
 
 <style>
-
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-    .btn-mm {
-   
-    font-size: 0.675rem;
-    
-}
-    }
-.badge {
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-weight: 500;
-    font-size: 0.85rem;
-}
-
-.badge-weekly {
-    background-color: rgba(56, 178, 172, 0.1);
-    color: #38b2ac;
-}
-
-.badge-monthly {
-    background-color: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-}
-
-.badge-quarterly {
-    background-color: rgba(237, 137, 54, 0.1);
-    color: #ed8936;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-}
-
-.data-table th,
-.data-table td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.data-table th {
-    background-color: #f7fafc;
-    font-weight: 600;
-    color: #4a5568;
-}
-
-.data-table tr:last-child td {
-    border-bottom: none;
-}
-
-.data-table tr:hover {
-    background-color: #f8fafc;
-}
-
-.btn-sm {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.875rem;
-    border-radius: 0.375rem;
-}
-
-@media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+    /* Your existing styles */
+    .form-control {
+        height: auto;
+        padding: 0.5rem 0.75rem;
     }
     
-    /* Make table container scrollable horizontally */
-    .table-responsive {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-        padding: 10px;
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
     }
     
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        min-width: 800px; /* Minimum width to ensure all columns are visible */
+    .card-header h4 {
+        margin-bottom: 0;
     }
     
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 15px 10px;
+    @media (max-width: 767px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
     }
     
-    /* Make table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-        padding: 8px;
-    }
-    
-    /* Adjust button sizes for mobile */
-    .btn-sm {
-        padding: 4px 8px;
-        font-size: 12px;
-    }
-    
-    /* Adjust badge sizes for mobile */
+    /* Existing badge styles */
     .badge {
-        padding: 4px 8px;
-        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: 500;
+        font-size: 0.85rem;
     }
     
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
+    .badge-weekly {
+        background-color: rgba(56, 178, 172, 0.1);
+        color: #38b2ac;
     }
     
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
+    .badge-monthly {
+        background-color: rgba(102, 126, 234, 0.1);
+        color: #667eea;
     }
-}
+    
+    .badge-quarterly {
+        background-color: rgba(237, 137, 54, 0.1);
+        color: #ed8936;
+    }
+    
+    .badge-one_time, .badge-free_hand {
+        background-color: rgba(90, 103, 216, 0.1);
+        color: #5a67d8;
+    }
 </style>
-@endsection 
+@endsection
