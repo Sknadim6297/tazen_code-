@@ -461,7 +461,7 @@ class HomeController extends Controller
     {
         $query = $request->input('query');
 
-        if (!$query || strlen($query) < 2) {
+        if (!$query || strlen($query) < 1) {
             return response()->json([
                 'services' => []
             ]);

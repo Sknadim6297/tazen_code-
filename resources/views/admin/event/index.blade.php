@@ -69,7 +69,7 @@
                     </nav>
                 </div>
             </div>
-          <form action="{{ route('admin.eventpage.index') }}" method="GET" class="d-flex gap-2">
+          <form action="{{ route('admin.eventpage.index') }}" method="GET" class="d-flex gap-2" id="searchForm">
 
     <div class="col-xl-2">
         <select name="status" class="form-control">
@@ -105,6 +105,12 @@
                     <div class="card-header justify-content-between">
                         <div class="card-title">
                             Total Professionals
+                        </div>
+                        <!-- Add Export Button -->
+                        <div>
+                            <a href="{{ route('admin.event.export', request()->all()) }}" class="btn btn-primary">
+                                <i class="fas fa-file-pdf me-1"></i> Export to PDF
+                            </a>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -182,4 +188,13 @@
 @endsection
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Export filtered data button
+        $('#exportFilteredBtn').click(function() {
+            var formData = $('#searchForm').serialize();
+            window.location.href = "{{ route('admin.event.export') }}?" + formData;
+        });
+    });
+</script>
 @endsection

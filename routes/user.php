@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Customer\BookingController;
+use App\Http\Controllers\Customer\CustomerBookingController;
 use App\Http\Controllers\Customer\EventController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
@@ -68,4 +69,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/payment/failed', [BookingController::class, 'paymentFailed'])->name('booking.payment.failed');
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
+
+Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
+    ->name('billing.export-all');
 });

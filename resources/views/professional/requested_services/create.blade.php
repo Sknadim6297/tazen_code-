@@ -88,13 +88,13 @@
         <div class="form-col">
             <div class="form-group">
                 <label>College Name *</label>
-                <input type="text" name="college_name[]" class="form-control" placeholder="Enter college name" required>
+                <input type="text" name="college_name[]" class="form-control" placeholder="Enter college name">
             </div>
         </div>
         <div class="form-col">
             <div class="form-group">
                 <label>Degree *</label>
-                <input type="text" name="degree[]" class="form-control" placeholder="Enter degree" required>
+                <input type="text" name="degree[]" class="form-control" placeholder="Enter degree">
             </div>
         </div>
     </div>

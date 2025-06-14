@@ -559,29 +559,27 @@ document.addEventListener("DOMContentLoaded", function() {
     const prevBtn = document.getElementById('prevBtn');
     const submitBtn = document.getElementById('submitBtn');
     const progressBar = document.getElementById('questionProgress');
-    const serviceId = document.getElementById('service_id').value;
-
+    
     let questions = [];
     let currentQuestionIndex = 0;
     
-    document.querySelectorAll('.service-search-btn').forEach(button => {
+    // Handle all service-search-btn and Book Now buttons
+    document.querySelectorAll('.service-search-btn, .btn-custom[data-bs-toggle="modal"]').forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Search button clicked, loading questions');
-            loadQuestions();
+            // Get service ID from button data attribute or fallback to hidden input
+            const serviceId = this.getAttribute('data-service-id') || document.getElementById('service_id').value;
+            document.getElementById('service_id').value = serviceId;
+            
+            // Load questions for this service
+            loadQuestions(serviceId);
         });
     });
     
-
-    document.getElementById('openPopups')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Find button clicked, loading questions');
-        loadQuestions();
-    });
-    
-    // Function to load questions from API
-    function loadQuestions() {
-        // Show loading state
+    // Function to load questions from server
+    function loadQuestions(serviceId) {
+        console.log("Loading questions for service ID:", serviceId);
+        
+        // Reset container to loading state
         questionsContainer.innerHTML = `
             <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
@@ -591,73 +589,56 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
         `;
         
-        // Open the modal
-        const modal = new bootstrap.Modal(mcqModal);
-        modal.show();
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        console.log(`Fetching questions for service ID: ${serviceId}`);
-        console.log(`CSRF Token: ${csrfToken ? 'Found' : 'Not found'}`);
-        
-        // Fetch questions from API
+        // Make AJAX request
         fetch(`/service/${serviceId}/questions`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': csrfToken
             }
         })
         .then(response => {
-            console.log("Response status:", response.status);
-            console.log("Response headers:", response.headers);
-            
             if (!response.ok) {
-                return response.text().then(text => {
-                    console.error("Error response body:", text);
-                    throw new Error('Network response was not ok: ' + response.status);
-                });
+                throw new Error(`Network response error: ${response.status}`);
             }
-            
-            return response.json().catch(err => {
-                console.error("JSON parse error:", err);
-                throw new Error('Invalid JSON response');
-            });
+            return response.json();
         })
         .then(data => {
             console.log("Questions data received:", data);
             
-            if (data.status === 'success' && data.questions && data.questions.length > 0) {
+            if (data.questions && data.questions.length > 0) {
                 questions = data.questions;
-                console.log(`Loaded ${questions.length} questions:`, questions);
-                
-                // Reset to first question
                 currentQuestionIndex = 0;
                 renderQuestion(0);
+                updateProgressBar(0);
             } else {
-                console.warn("No questions found or error in response:", data);
                 questionsContainer.innerHTML = `
                     <div class="alert alert-warning">
                         <h5>No Questions Available</h5>
-                        <p>There are currently no questions set up for this service.</p>
+                        <p>There are currently no questions for this service.</p>
                     </div>
                 `;
+                updateProgressBar(0);
             }
         })
         .catch(error => {
-            console.error("Error fetching questions:", error);
+            console.error("Error loading questions:", error);
+            
             questionsContainer.innerHTML = `
                 <div class="alert alert-danger">
                     <h5>Error Loading Questions</h5>
-                    <p>${error.message}</p>
-                    <p>Please try refreshing the page.</p>
+                    <p>${error.message || 'Failed to load questions. Please try again later.'}</p>
                 </div>
             `;
+            updateProgressBar(0);
         });
     }
     
-    // Function to render a specific question by index
+    // Function to render a question
     function renderQuestion(index) {
         if (!questions || index < 0 || index >= questions.length) {
             console.warn("Invalid question index:", index, "Total questions:", questions.length);
@@ -669,30 +650,77 @@ document.addEventListener("DOMContentLoaded", function() {
         
         console.log(`Rendering question ${index + 1}/${questions.length}:`, question);
         
-      
+        // Create the question container with modern styling
         questionsContainer.innerHTML = `
             <div class="question-item">
-                <h4 class="mb-4">${index + 1}. ${question.question}</h4>
+                <div class="question-number badge bg-secondary mb-3">Question ${index + 1} of ${questions.length}</div>
+                <h4 class="mb-4 fw-bold">${question.question}</h4>
                 <div class="options">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt1" value="${question.answer1}">
-                        <label class="form-check-label" for="q${question.id}_opt1">${question.answer1}</label>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt2" value="${question.answer2}">
-                        <label class="form-check-label" for="q${question.id}_opt2">${question.answer2}</label>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt3" value="${question.answer3}">
-                        <label class="form-check-label" for="q${question.id}_opt3">${question.answer3}</label>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="q${question.id}" id="q${question.id}_opt4" value="${question.answer4}">
-                        <label class="form-check-label" for="q${question.id}_opt4">${question.answer4}</label>
-                    </div>
+                    ${createOptionElements(question, index)}
                 </div>
             </div>
         `;
+        
+        // Add event listeners to the newly created options
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all cards
+                document.querySelectorAll('.option-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+                
+                // Add active class to the clicked card
+                this.classList.add('active');
+                
+                // Check the radio button
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+                
+                // Handle "Other" option display
+                const value = radio.value;
+                const questionId = radio.name.replace('q', '');
+                const otherContainer = document.getElementById(`otherContainer${questionId}`);
+                
+                if (otherContainer) {
+                    otherContainer.style.display = value === 'Other' ? 'block' : 'none';
+                    if (value === 'Other') {
+                        setTimeout(() => {
+                            otherContainer.querySelector('input').focus();
+                        }, 100);
+                    }
+                }
+                
+                // Store answer in session storage
+                sessionStorage.setItem(`q${question.id}_answer`, value);
+            });
+        });
+        
+        // Check if there's a previously selected option
+        const savedAnswer = sessionStorage.getItem(`q${question.id}_answer`);
+        if (savedAnswer) {
+            const radio = document.querySelector(`input[name="q${question.id}"][value="${savedAnswer}"]`);
+            if (radio) {
+                radio.checked = true;
+                const card = radio.closest('.option-card');
+                if (card) {
+                    card.classList.add('active');
+                }
+                
+                // Check if it's an "Other" option
+                if (savedAnswer === 'Other') {
+                    const otherContainer = document.getElementById(`otherContainer${question.id}`);
+                    if (otherContainer) {
+                        otherContainer.style.display = 'block';
+                        const otherValue = sessionStorage.getItem(`q${question.id}_other`);
+                        if (otherValue) {
+                            otherContainer.querySelector('input').value = otherValue;
+                        }
+                    }
+                }
+            }
+        }
         
         // Update button visibility
         prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
@@ -703,7 +731,39 @@ document.addEventListener("DOMContentLoaded", function() {
         updateProgressBar(index);
     }
     
-    // Function to update progress bar
+    // Create HTML for question options
+    function createOptionElements(question, index) {
+        let options = '';
+        
+        // For answer1, answer2, etc. properties
+        for (let i = 1; i <= 4; i++) {
+            const answerKey = `answer${i}`;
+            if (question[answerKey] && question[answerKey].trim() !== '') {
+                options += `
+                    <div class="option-card mb-3">
+                        <div class="d-flex align-items-center">
+                            <input class="form-check-input me-3" type="radio" name="q${question.id}" id="q${question.id}_opt${i}" value="${question[answerKey]}">
+                            <label class="form-check-label w-100" for="q${question.id}_opt${i}" style="cursor: pointer;">${question[answerKey]}</label>
+                        </div>
+                        ${question[answerKey] === 'Other' ? createOtherOptionInput(question.id) : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        return options;
+    }
+    
+    // Create HTML for "Other" option input
+    function createOtherOptionInput(questionId) {
+        return `
+            <div id="otherContainer${questionId}" class="mt-2 ps-4" style="display: none;">
+                <input type="text" class="form-control" name="q${questionId}_other" placeholder="Please specify..." style="border-radius: 6px;">
+            </div>
+        `;
+    }
+    
+    // Update the progress bar
     function updateProgressBar(index) {
         const progress = questions.length > 0 ? Math.round(((index + 1) / questions.length) * 100) : 0;
         progressBar.style.width = `${progress}%`;
@@ -711,13 +771,23 @@ document.addEventListener("DOMContentLoaded", function() {
         progressBar.textContent = `${progress}%`;
     }
     
-    // Event listeners for navigation buttons
+    // Navigation: Next button click
     nextBtn.addEventListener('click', function() {
+        // Validate current question
+        const currentQuestion = questions[currentQuestionIndex];
+        const selectedOption = document.querySelector(`input[name="q${currentQuestion.id}"]:checked`);
+        
+        if (!selectedOption) {
+            alert('Please select an answer to continue');
+            return;
+        }
+        
         if (currentQuestionIndex < questions.length - 1) {
             renderQuestion(currentQuestionIndex + 1);
         }
     });
     
+    // Navigation: Previous button click
     prevBtn.addEventListener('click', function() {
         if (currentQuestionIndex > 0) {
             renderQuestion(currentQuestionIndex - 1);
@@ -726,94 +796,103 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Submit answers
     submitBtn.addEventListener('click', function() {
-        const answers = [];
-        const form = document.getElementById('mcqForm');
+        // Check if all questions are answered
         const unansweredQuestions = [];
         
-        // Check each question
-        questions.forEach((question, index) => {
-            const selectedOption = form.querySelector(`input[name="q${question.id}"]:checked`);
-            
-            if (selectedOption) {
-                // Add to answers if selected
-                answers.push({
-                    question_id: question.id,
-                    answer: selectedOption.value
-                });
-            } else {
-                // Track which questions are unanswered
-                unansweredQuestions.push(index + 1);
+        questions.forEach((question, idx) => {
+            const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
+            if (!selectedOption) {
+                unansweredQuestions.push(idx + 1);
             }
         });
         
-        // Check if all questions are answered
-        if (answers.length < questions.length) {
-            // Show which questions are missing answers
-            const missingQs = unansweredQuestions.join(', ');
-            alert(`Please answer all questions before submitting. Missing answers for question(s): ${missingQs}`);
+        if (unansweredQuestions.length > 0) {
+            alert(`Please answer all questions. Missing answer for question(s): ${unansweredQuestions.join(', ')}`);
             return;
         }
         
-        console.log("Submitting answers:", answers);
-        
-        // Submit form data
-        const formData = new FormData();
-        formData.append('service_id', serviceId);
-        formData.append('answers', JSON.stringify(answers));
-        formData.append('_token', document.querySelector('input[name="_token"]').value);
-        
-        // Add loading state
-        questionsContainer.innerHTML += `
-            <div class="text-center py-3" id="submission-loading">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Submitting...</span>
-                </div>
-                <p class="mt-2">Submitting your answers...</p>
-            </div>
-        `;
-        submitBtn.disabled = true;
-        
-        fetch('{{ route("submitQuestionnaire") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        // Collect answers
+        const answers = [];
+        questions.forEach(question => {
+            const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
+            if (selectedOption) {
+                let value = selectedOption.value;
+                
+                // Handle "Other" option
+                if (value === 'Other') {
+                    const otherInput = document.querySelector(`input[name="q${question.id}_other"]`);
+                    if (otherInput && otherInput.value.trim()) {
+                        value = otherInput.value.trim();
+                    }
+                }
+                
+                answers.push({
+                    question_id: question.id,
+                    answer: value
+                });
             }
+        });
+        
+        // Disable submit button and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting...';
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        // Submit answers
+        fetch('/submit-questionnaire', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json', 
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                service_id: document.getElementById('service_id').value,
+                answers: answers
+            })
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Submission response:", data);
-            
             if (data.success) {
-                questionsContainer.innerHTML = `
-                    <div class="alert alert-success">
-                        <h4>Thank you for completing the questionnaire!</h4>
-                        <p>You will be redirected to professionals page shortly...</p>
-                    </div>
-                `;
+                // Clear session storage for this questionnaire
+                questions.forEach(question => {
+                    sessionStorage.removeItem(`q${question.id}_answer`);
+                    sessionStorage.removeItem(`q${question.id}_other`);
+                });
                 
-                // Hide navigation buttons
-                nextBtn.style.display = 'none';
-                prevBtn.style.display = 'none';
-                submitBtn.style.display = 'none';
+                // Show success message
+                alert(data.message || 'Thank you! Your answers have been submitted successfully.');
                 
-                // Redirect after a delay
-                setTimeout(() => {
-                    window.location.href = "{{ route('professionals') }}";
-                }, 2000);
-            } else if (data.redirect_to) {
-                toastr.error('Please log in to continue');
-                window.location.href = data.redirect_to;
+                // Close modal
+                const modalInstance = bootstrap.Modal.getInstance(mcqModal);
+                modalInstance.hide();
+                
+                // Redirect if needed
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
             } else {
-                toastr.error('There was an error submitting your answers. Please try again.');
+                alert(data.message || 'There was an error submitting your answers. Please try again.');
                 submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit';
             }
         })
         .catch(error => {
-            console.error('Error submitting questionnaire:', error);
-            toastr.error('There was an error submitting your answers. Please try again.');
+            console.error('Error submitting answers:', error);
+            alert('There was a problem submitting your answers. Please try again.');
             submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Submit';
         });
+    });
+    
+    // Store "Other" input values
+    document.addEventListener('input', function(e) {
+        if (e.target.name && e.target.name.includes('_other')) {
+            const questionId = e.target.name.replace('q', '').replace('_other', '');
+            sessionStorage.setItem(`q${questionId}_other`, e.target.value);
+        }
     });
 });
 </script>

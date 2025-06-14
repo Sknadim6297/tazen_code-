@@ -5,6 +5,7 @@
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newsliders.css') }}">
 	<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 	 <style>
         /* Hide video and show image on mobile */
         @media (max-width: 992px) {
@@ -736,191 +737,508 @@ $(document).ready(function(){
 </script>
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			const questionsContainer = document.getElementById("questionsContainer");
-			const nextBtn = document.getElementById("nextBtn");
-			const prevBtn = document.getElementById("prevBtn");
-			const submitBtn = document.getElementById("submitBtn");
-			const form = document.getElementById("mcqForm");
-			const serviceIdInput = document.getElementById("service_id");
+    const questionsContainer = document.getElementById("questionsContainer");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("mcqForm");
+    const serviceIdInput = document.getElementById("service_id");
+    const modalCloseBtn = document.querySelector("#mcqModal .btn-close");
+    const cancelBtn = document.querySelector("#mcqModal .btn-secondary");
 
-			let currentQuestion = 0;
-			let questions = [];
+    let currentQuestion = 0;
+    let questions = [];
+    
+    // Enhance modal design
+    styleModalForModernLook();
 
-			// Handle Book Now button clicks
-			document.querySelectorAll('.book-now').forEach(button => {
-				button.addEventListener('click', function() {
-					const serviceId = this.dataset.serviceId;
-					serviceIdInput.value = serviceId;
-					loadQuestions(serviceId);
-				});
-			});
+    // Handle Book Now button clicks
+    document.querySelectorAll('.book-now').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const serviceId = this.dataset.serviceId;
+            serviceIdInput.value = serviceId;
+            
+            // Check if user is logged in
+            checkLoginStatus(serviceId);
+        });
+    });
+    
+    // Check if user is logged in before showing modal
+    function checkLoginStatus(serviceId) {
+        fetch('/check-auth-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.authenticated) {
+                    // User is logged in, proceed with loading questions
+                    $('#mcqModal').modal('show');
+                    loadQuestions(serviceId);
+                } else {
+                    // User is not logged in, show message and redirect
+                    Swal.fire({
+                        title: 'Authentication Required',
+                        text: 'Please login to book this service',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Login Now',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            confirmButton: 'btn btn-primary',
+                            cancelButton: 'btn btn-secondary'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirect to login page with return URL to come back to this page
+                            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error checking authentication status:', error);
+                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+            });
+    }
 
-			function loadQuestions(serviceId) {
-				fetch(`/service/${serviceId}/questions`)
-					.then(response => response.json())
-					.then(data => {
-						if (data.status === 'success') {
-							questions = data.questions;
-							renderQuestions();
-							showQuestion(0);
-						}
-					})
-					.catch(error => {
-						console.error('Error loading questions:', error);
-						toastr.error('Failed to load questions. Please try again.');
-					});
-			}
+    // Handle confirmation when closing the modal
+    function handleModalClose(e) {
+        e.preventDefault();
+        
+        if (questions.length > 0) {
+            // Show confirmation dialog with standard confirm
+            if (confirm('Your progress will be lost if you cancel now. Are you sure?')) {
+                // Reset and close modal
+                resetModal();
+                $('#mcqModal').modal('hide');
+            }
+        } else {
+            // No questions loaded yet, just close
+            $('#mcqModal').modal('hide');
+        }
+    }
+    
+    // Reset modal state
+    function resetModal() {
+        questions = [];
+        currentQuestion = 0;
+        questionsContainer.innerHTML = '';
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+    }
+    
+    // Apply modern styling to modal
+    function styleModalForModernLook() {
+        const modal = document.getElementById('mcqModal');
+        if (!modal) return;
+        
+        const modalDialog = modal.querySelector('.modal-dialog');
+        const modalContent = modal.querySelector('.modal-content');
+        const modalHeader = modal.querySelector('.modal-header');
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalBody = modal.querySelector('.modal-body');
+        const modalFooter = modal.querySelector('.modal-footer');
+        
+        // Add modern styling classes
+        if (modalDialog) modalDialog.classList.add('modal-dialog-centered');
+        if (modalContent) {
+            modalContent.style.borderRadius = '12px';
+            modalContent.style.boxShadow = '0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07)';
+            modalContent.style.border = 'none';
+        }
+        
+        if (modalHeader) {
+            modalHeader.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+            modalHeader.style.background = 'linear-gradient(135deg, #f8f9fa, #ffffff)';
+            modalHeader.style.borderTopLeftRadius = '12px';
+            modalHeader.style.borderTopRightRadius = '12px';
+            modalHeader.style.padding = '20px 24px';
+        }
+        
+        if (modalTitle) {
+            modalTitle.style.fontSize = '1.25rem';
+            modalTitle.style.fontWeight = '600';
+        }
+        
+        if (modalBody) {
+            modalBody.style.padding = '24px';
+        }
+        
+        if (modalFooter) {
+            modalFooter.style.borderTop = '1px solid rgba(0,0,0,0.05)';
+            modalFooter.style.padding = '16px 24px';
+        }
+        
+        // Style the buttons
+        const buttons = modal.querySelectorAll('.modal-footer .btn');
+        buttons.forEach(button => {
+            button.style.borderRadius = '6px';
+            button.style.padding = '8px 16px';
+            button.style.fontWeight = '500';
+            button.style.transition = 'all 0.2s ease';
+        });
+        
+        // Style primary buttons
+        const primaryButtons = modal.querySelectorAll('.btn-primary');
+        primaryButtons.forEach(button => {
+            button.style.background = 'linear-gradient(135deg, #152a70, #c51010, #f39c12)';
+            button.style.borderColor = 'transparent';
+        });
+        
+        // Style success button
+        const successButton = modal.querySelector('.btn-success');
+        if (successButton) {
+            successButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            successButton.style.borderColor = 'transparent';
+        }
+    }
 
-			function renderQuestions() {
-				questionsContainer.innerHTML = questions.map((question, index) => `
-					<div class="question" id="question${question.id}" style="display: none;">
-						<h6>Question ${index + 1}: ${question.question}</h6>
-						${question.question_type === 'text' ? `
-							<div class="form-group">
-								<input type="text" class="form-control" name="q${question.id}" required>
-							</div>
-						` : `
-							<div class="options-container">
-								${question.options.map((option, optIndex) => `
-									<div class="form-check mb-2 d-flex align-items-center">
-										<input class="form-check-input" type="radio" 
-											name="q${question.id}" 
-											id="q${question.id}opt${optIndex}" 
-											value="${option}">
-										<label class="form-check-label me-2" for="q${question.id}opt${optIndex}">
-											${option}
-										</label>
-										${option === 'Other' ? `
-											<input type="text" class="form-control" 
-												name="q${question.id}_other" 
-												placeholder="Please specify..."
-												style="width: 60%;">
-										` : ''}
-									</div>
-								`).join('')}
-							</div>
-						`}
-					</div>
-				`).join('');
-			}
+    function loadQuestions(serviceId) {
+        // Show loading state
+        questionsContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Loading questions...</p></div>';
+        
+        fetch(`/service/${serviceId}/questions`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success' && Array.isArray(data.questions) && data.questions.length > 0) {
+                    questions = data.questions;
+                    currentQuestion = 0;
+                    renderQuestions();
+                    showQuestion(0);
+                } else {
+                    questionsContainer.innerHTML = '<div class="alert alert-warning my-3"><i class="fas fa-exclamation-circle me-2"></i>No questions available for this service. Please try another service or contact support.</div>';
+                    console.error("No questions found in response:", data);
+                }
+            })
+            .catch(error => {
+                questionsContainer.innerHTML = '<div class="alert alert-danger my-3"><i class="fas fa-exclamation-circle me-2"></i>Failed to load questions. Please try again.</div>';
+                console.error('Error loading questions:', error);
+                alert('Failed to load questions. Please try again.');
+            });
+    }
 
-			function toggleOtherInput(radio, questionId) {
-				const otherInput = document.getElementById(`otherInput${questionId}`);
-				if (radio.checked && radio.value === 'Other') {
-					otherInput.style.display = 'block';
-					otherInput.querySelector('input').required = true;
-				} else {
-					otherInput.style.display = 'none';
-					otherInput.querySelector('input').required = false;
-				}
-			}
+    function renderQuestions() {
+        questionsContainer.innerHTML = '';
+        
+        questions.forEach((question, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.id = `question${index}`; // Changed from question.id to index
+            questionDiv.style.display = 'none';
+            
+            // Question number indicator
+            const questionProgress = document.createElement('div');
+            questionProgress.className = 'question-progress mb-3';
+            questionProgress.innerHTML = `<span class="badge bg-primary">Question ${index + 1} of ${questions.length}</span>`;
+            questionDiv.appendChild(questionProgress);
+            
+            // Question heading
+            const heading = document.createElement('h6');
+            heading.className = 'mb-3 fw-bold';
+            heading.textContent = question.question || 'Question not available';
+            questionDiv.appendChild(heading);
+            
+            // Create input based on question type
+            if (question.question_type === 'text') {
+                // Text input
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group mt-4';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control form-control-lg';
+                input.name = `q${index}`; // Changed from question.id to index
+                input.required = true;
+                input.placeholder = 'Type your answer here...';
+                input.style.borderRadius = '8px';
+                input.style.padding = '12px';
+                input.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                
+                formGroup.appendChild(input);
+                questionDiv.appendChild(formGroup);
+            } else if (Array.isArray(question.options)) {
+                // Radio options
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options-container mt-4';
+                
+                question.options.forEach((option, optIndex) => {
+                    if (!option) return; // Skip empty options
+                    
+                    const formCheck = document.createElement('div');
+                    formCheck.className = 'form-check mb-3';
+                    formCheck.style.backgroundColor = '#f8f9fa';
+                    formCheck.style.borderRadius = '8px';
+                    formCheck.style.padding = '10px 41px';
+                    formCheck.style.border = '1px solid #e9ecef';
+                    formCheck.style.transition = 'all 0.2s ease';
+                    formCheck.style.cursor = 'pointer';
+                    
+                    const radio = document.createElement('input');
+                    radio.className = 'form-check-input me-2';
+                    radio.type = 'radio';
+                    radio.name = `q${index}`; // Changed from question.id to index
+                    radio.id = `q${index}opt${optIndex}`;
+                    radio.value = option;
+                    radio.required = true;
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label';
+                    label.htmlFor = `q${index}opt${optIndex}`;
+                    label.textContent = option;
+                    
+                    // Highlight selected option
+                    radio.addEventListener('change', function() {
+                        // Reset all options
+                        optionsContainer.querySelectorAll('.form-check').forEach(el => {
+                            el.style.backgroundColor = '#f8f9fa';
+                            el.style.borderColor = '#e9ecef';
+                        });
+                        
+                        // Highlight selected
+                        if (this.checked) {
+                            formCheck.style.backgroundColor = '#e8f4ff';
+                            formCheck.style.borderColor = '#2196f3';
+                        }
+                    });
+                    
+                    formCheck.appendChild(radio);
+                    formCheck.appendChild(label);
+                    
+                    // Add "Other" text field if this option is "Other"
+                    if (option === 'Other') {
+                        radio.addEventListener('change', function() {
+                            const otherInputContainer = document.getElementById(`otherContainer${index}`);
+                            if (this.checked && otherInputContainer) {
+                                otherInputContainer.style.display = 'block';
+                                otherInputContainer.querySelector('input').required = true;
+                                otherInputContainer.querySelector('input').focus();
+                            } else if (otherInputContainer) {
+                                otherInputContainer.style.display = 'none';
+                                otherInputContainer.querySelector('input').required = false;
+                            }
+                        });
+                        
+                        const otherContainer = document.createElement('div');
+                        otherContainer.id = `otherContainer${index}`;
+                        otherContainer.className = 'mt-2 ps-4';
+                        otherContainer.style.display = 'none';
+                        
+                        const otherInput = document.createElement('input');
+                        otherInput.type = 'text';
+                        otherInput.className = 'form-control';
+                        otherInput.name = `q${index}_other`;
+                        otherInput.placeholder = 'Please specify...';
+                        otherInput.style.borderRadius = '6px';
+                        
+                        otherContainer.appendChild(otherInput);
+                        formCheck.appendChild(otherContainer);
+                    }
+                    
+                    // Make entire option div clickable
+                    formCheck.addEventListener('click', function(e) {
+                        if (e.target !== radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change'));
+                        }
+                    });
+                    
+                    optionsContainer.appendChild(formCheck);
+                });
+                
+                questionDiv.appendChild(optionsContainer);
+            } else {
+                // Fallback for missing options
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-warning';
+                alert.textContent = 'No options available for this question.';
+                questionDiv.appendChild(alert);
+            }
+            
+            questionDiv.appendChild(document.createElement('hr'));
+            
+            questionsContainer.appendChild(questionDiv);
+        });
+        
+        // If no questions were rendered, show a message
+        if (questionsContainer.children.length === 0) {
+            questionsContainer.innerHTML = '<div class="alert alert-warning my-3">No questions found for this service.</div>';
+        }
+    }
 
-			function showQuestion(index) {
-				const questionElements = document.querySelectorAll('.question');
-				questionElements.forEach((q, i) => {
-					q.style.display = i === index ? "block" : "none";
-				});
-				
-				prevBtn.style.display = index > 0 ? "inline-block" : "none";
-				nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
-				submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
-			}
+    function showQuestion(index) {
+        // Validate index
+        if (index < 0 || index >= questions.length || !questions[index]) {
+            console.error('Invalid question index:', index, 'Questions:', questions);
+            return;
+        }
+        
+        // Hide all questions
+        document.querySelectorAll('.question').forEach(question => {
+            question.style.display = 'none';
+        });
+        
+        // Show the current question
+        const currentQuestionElement = document.getElementById(`question${index}`);
+        if (currentQuestionElement) {
+            currentQuestionElement.style.display = 'block';
+        } else {
+            console.error(`Question element with id question${index} not found`);
+            return;
+        }
+        
+        // Update navigation buttons
+        prevBtn.style.display = index > 0 ? "inline-block" : "none";
+        nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
+        submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+    }
 
-			nextBtn.addEventListener("click", function () {
-				if (currentQuestion < questions.length - 1) {
-					currentQuestion++;
-					showQuestion(currentQuestion);
-				}
-			});
+    // Navigation buttons event listeners
+    nextBtn.addEventListener("click", function () {
+        // Validate current question
+        const currentQuestionElement = document.getElementById(`question${currentQuestion}`);
+        if (!currentQuestionElement) return;
+        
+        const inputs = currentQuestionElement.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
+                (input.type === 'text' && !input.value.trim())) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            alert('Please answer the question before proceeding.');
+            return;
+        }
+        
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    });
 
-			prevBtn.addEventListener("click", function () {
-				if (currentQuestion > 0) {
-					currentQuestion--;
-					showQuestion(currentQuestion);
-				}
-			});
+    prevBtn.addEventListener("click", function () {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    });
 
-			// Update the submit event listener
-			submitBtn.addEventListener("click", function () {
-				const formData = new FormData(form);
-				const answers = [];
-				
-				// Get all questions
-				const questions = document.querySelectorAll('.question');
-				questions.forEach((question) => {
-					const questionId = question.id.replace('question', '');
-					const questionType = questions.find(q => q.id === `question${questionId}`).dataset.type;
-					
-					if (questionType === 'text') {
-						const textAnswer = question.querySelector('input[type="text"]');
-						if (textAnswer && textAnswer.value) {
-							answers.push({
-								question_id: questionId,
-								answer: textAnswer.value
-							});
-						}
-					} else {
-						const selectedOption = question.querySelector('input[type="radio"]:checked');
-						if (selectedOption) {
-							let answer = selectedOption.value;
-							if (answer === 'Other') {
-								const otherInput = question.querySelector(`input[name="q${questionId}_other"]`);
-								if (otherInput && otherInput.value) {
-									answer = otherInput.value;
-								}
-							}
-							answers.push({
-								question_id: questionId,
-								answer: answer
-							});
-						}
-					}
-				});
-
-				// Add answers to formData as a JSON string
-				formData.append('answers', JSON.stringify(answers));
-				formData.append('service_id', document.getElementById('service_id').value);
-
-				fetch("{{ route('submitQuestionnaire') }}", {
-					method: "POST",
-					headers: {
-						"X-CSRF-TOKEN": "{{ csrf_token() }}",
-						"Accept": "application/json",
-					},
-					body: formData,
-				})
-				.then(response => {
-					if (!response.ok) {
-						return response.json().then(err => {
-							throw err;
-						});
-					}
-					return response.json();
-				})
-				.then((data) => {
-					if (data.success) {
-						toastr.success("Thanks for your feedback!");
-						setTimeout(() => {
-						 window.location.href = "{{ route('professionals') }}";
-						}, 3000);
-					}
-				})
-				.catch(error => {
-					if (error.errors) {
-						Object.values(error.errors).forEach(msgArray => {
-							msgArray.forEach(msg => {
-								toastr.error(msg);
-							});
-						});
-					} else if (error.message) {
-						toastr.error(error.message);
-					} else {
-						toastr.error("Something went wrong. Please try again.");
-					}
-					console.error("Validation or Server Error:", error);
-				});
-			});
-		});
+    // Submit button event listener
+    submitBtn.addEventListener("click", function() {
+        // Validate last question
+        const lastQuestionElement = document.getElementById(`question${currentQuestion}`);
+        if (!lastQuestionElement) return;
+        
+        const inputs = lastQuestionElement.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
+                (input.type === 'text' && !input.value.trim())) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please Answer',
+                text: 'Please answer the question before submitting.'
+            });
+            return;
+        }
+        
+        // Create FormData and collect answers
+        const formData = new FormData(form);
+        const answers = [];
+        
+        // Collect all answers
+        questions.forEach((question, index) => {
+            if (question.question_type === 'text') {
+                const textInput = document.querySelector(`input[name="q${index}"]`);
+                if (textInput && textInput.value.trim()) {
+                    answers.push({
+                        question_id: question.id,
+                        question: question.question,
+                        answer: textInput.value.trim()
+                    });
+                }
+            } else {
+                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selectedOption) {
+                    let answer = selectedOption.value;
+                    
+                    // If "Other" is selected, get the other input value
+                    if (answer === 'Other') {
+                        const otherInput = document.querySelector(`input[name="q${index}_other"]`);
+                        if (otherInput && otherInput.value.trim()) {
+                            answer = otherInput.value.trim();
+                        }
+                    }
+                    
+                    answers.push({
+                        question_id: question.id,
+                        question: question.question,
+                        answer: answer
+                    });
+                }
+            }
+        });
+        
+        // Add answers to FormData
+        formData.append('answers', JSON.stringify(answers));
+        
+        // Set the submit button to loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        
+        // Submit using fetch API
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => Promise.reject(data));
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Thank You!',
+                text: 'Your questionnaire has been submitted successfully.',
+                confirmButtonText: 'Find Professionals'
+            }).then(() => {
+                // Explicitly redirect to professionals page
+                window.location.href = "/professionals";
+            });
+            
+            // Reset modal
+            resetModal();
+            $('#mcqModal').modal('hide');
+        })
+        .catch(error => {
+            console.error('Submission error:', error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Submit';
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: error.message || 'Something went wrong. Please try again.'
+            });
+        });
+    });
+});
 	</script>
 		
 	<script>
@@ -951,8 +1269,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleSearchButtonClick() {
         const query = searchInput.value.trim();
         
-        if (query.length < 2) {
-            toastr.warning('Please enter at least 2 characters to search');
+        // Changed from query.length < 2 to query.length < 1
+        if (query.length < 1) {
+            toastr.warning('Please enter at least 1 character to search');
             return;
         }
         
@@ -997,7 +1316,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch search results for the dropdown
     function fetchSearchResults(query) {
-        if (query.length < 2) {
+        // Changed from query.length < 2 to query.length < 1
+        if (query.length < 1) {
             searchResults.classList.add('d-none');
             searchResults.innerHTML = '';
             currentResults = [];
@@ -1081,12 +1401,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show results when input is focused
     searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
+        // Changed from this.value.trim().length >= 2 to this.value.trim().length >= 1
+        if (this.value.trim().length >= 1) {
             fetchSearchResults(this.value.trim());
         }
     });
 });
+
 	</script>
 
-	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  @endsection

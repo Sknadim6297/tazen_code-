@@ -189,13 +189,13 @@
                         <div class="form-col">
                             <div class="form-group">
                                 <label>College Name *</label>
-                                <input type="text" name="college_name[]" class="form-control" value="{{ $college }}" placeholder="Enter college name" required>
+                                <input type="text" name="college_name[]" class="form-control" value="{{ $college }}" placeholder="Enter college name" >
                             </div>
                         </div>
                         <div class="form-col">
                             <div class="form-group">
                                 <label>Degree *</label>
-                                <input type="text" name="degree[]" class="form-control" value="{{ $education['degree'][$key] }}" placeholder="Enter degree" required>
+                                <input type="text" name="degree[]" class="form-control" value="{{ $education['degree'][$key] }}" placeholder="Enter degree" >
                             </div>
                         </div>
                         @if($key > 0)

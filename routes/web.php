@@ -50,7 +50,7 @@ use App\Models\BlogPost;
 use App\Models\Blog;
 use App\Models\Service;
 use App\Models\AllEvent;
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -142,10 +142,10 @@ Route::get('/eventlist', function (Request $request) {
 
     // Get unique categories for the filter
     $categories = AllEvent::distinct()->pluck('mini_heading');
-    
+
     // Get unique cities for the filter
     $cities = EventDetail::distinct()->pluck('city')->filter();
-    
+
     // Get unique event modes for the filter
     $event_modes = ['online', 'offline'];
 
@@ -405,3 +405,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 // Frontend Help & FAQ Route
 Route::get('/help', [\App\Http\Controllers\Admin\HelpController::class, 'frontend'])->name('help.index');
+Route::get('/check-auth-status', function () {
+    return response()->json([
+        'authenticated' => Auth::guard('user')->check()
+    ]);
+});
+
+Route::post('/force-login', [App\Http\Controllers\Frontend\LoginController::class, 'forceLogin'])->name('force.login');
+
+Route::middleware(['auth:user', 'check.active.session'])->group(function () {
+    Route::get('/user/dashboard', function () {
+        return view('user.dashboard');
+    })->name('user.dashboard');
+});

@@ -16,6 +16,12 @@
                     </nav>
                 </div>
             </div>
+            <!-- Add Export Button -->
+            <div>
+                <a href="{{ route('admin.reviews.export', request()->all()) }}" class="btn btn-primary">
+                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
+                </a>
+            </div>
         </div>
         
         <!-- End Page Header -->
@@ -46,9 +52,12 @@
                             <label class="form-label">Professional Name</label>
                             <input type="text" class="form-control" name="professional" value="{{ request('professional') }}" placeholder="Search by name">
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Apply Filters</button>
                             <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary">Clear Filters</a>
+                            <button type="button" class="btn btn-success" id="exportFilteredBtn">
+                                <i class="fas fa-file-pdf me-1"></i> Export Filtered Data
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -119,4 +128,16 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        // Export filtered data button
+        $('#exportFilteredBtn').click(function() {
+            var formData = $('#filter-form').serialize();
+            window.location.href = "{{ route('admin.reviews.export') }}?" + formData;
+        });
+    });
+</script>
 @endsection
