@@ -25,9 +25,10 @@
             </div>
             <div class="col-lg-4 text-end">
                 <button class="btn unique-btn" id="bookNowBtn"
-                    data-event-id="{{ $event->id }}"
-                    data-location="Kolkata"
-                    data-type="offline"
+                    data-event-id="{{ $event->event_id ?? $event->id }}"
+                    data-event-name="{{ $event->eventDetails->heading ?? $event->name ?? 'Event' }}"
+                    data-location="{{ $event->city ?? 'Kolkata' }}"
+                    data-type="{{ $event->event_mode ?? 'offline' }}"
                     data-event-date="{{ $event->starting_date }}"
                     data-amount="{{ $event->starting_fees }}">
                     Book Now
@@ -299,13 +300,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let eventDetails = {}; 
     bookNowBtn.addEventListener('click', function () {
+        // Get event details from data attributes
         eventDetails = {
             event_id: this.getAttribute('data-event-id'),
+            event_name: this.getAttribute('data-event-name') || 'Event', // Get the event name with fallback
             location: this.getAttribute('data-location'),
             type: this.getAttribute('data-type'),
             event_date: this.getAttribute('data-event-date'),
             amount: parseFloat(this.getAttribute('data-amount')) || 0
         };
+
+        // Log for debugging
+        console.log('Event details:', eventDetails);
 
         bookingForm.reset();
         eventIdInput.value = eventDetails.event_id;
@@ -314,12 +320,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     personsInput.addEventListener('input', function () {
-    const persons = parseInt(this.value) || 0;
-    const amount = parseFloat(eventDetails.amount) || 0;
-    const total = persons * amount;
-    totalPrice.textContent = `₹${total.toFixed(2)}`;
-});
-
+        const persons = parseInt(this.value) || 0;
+        const amount = parseFloat(eventDetails.amount) || 0;
+        const total = persons * amount;
+        totalPrice.textContent = `₹${total.toFixed(2)}`;
+    });
 
     bookingForm.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -327,8 +332,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const phone = phoneInput.value.trim();
         const persons = parseInt(personsInput.value);
 
-        if (!phone || phone.length !== 10 || isNaN(persons) || persons < 1) {
-            toastr.error('Please enter valid phone number and persons.');
+        // Validate form data
+        if (!phone || phone.length !== 10) {
+            toastr.error('Please enter a valid 10-digit phone number');
+            return;
+        }
+
+        if (isNaN(persons) || persons < 1) {
+            toastr.error('Please enter a valid number of persons');
             return;
         }
 
@@ -339,6 +350,10 @@ document.addEventListener('DOMContentLoaded', function () {
             total_price: persons * eventDetails.amount
         };
 
+        // Log what's being sent
+        console.log('Submitting data:', finalData);
+
+        // First check login and save booking data in session
         fetch("{{ route('user.check.login') }}", {
             method: 'POST',
             headers: {
@@ -356,14 +371,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error('Unauthorized');
             }
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json().then(errData => {
+                    throw new Error(errData.message || `HTTP error! status: ${res.status}`);
+                });
             }
             return res.json();
         })
-        .then(data => {
+        .then(data => { // Fixed: Missing parenthesis after "then"
             if (data.status === 'success') {
                 toastr.success(data.message || 'Booking saved successfully!');
-                window.location.href = "{{ route('user.booking.summary') }}";
+                // Close modal before redirecting
+                bookingModal.hide();
+                setTimeout(() => {
+                    window.location.href = "{{ route('user.booking.summary') }}";
+                }, 1500);
             } else {
                 toastr.error(data.message || 'Something went wrong.');
             }
@@ -371,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             if (error.message !== 'Unauthorized') {
                 console.error('Fetch error:', error);
-                toastr.error('Request failed or response not valid JSON.');
+                toastr.error(error.message || 'Request failed.');
             }
         });
     });

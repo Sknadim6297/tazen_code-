@@ -82,7 +82,7 @@
                                     <li>Location: <span>{{ $booking->location ?? 'N/A' }}</span></li>
                                     <li>Type: <span>{{ ucfirst($booking->type ?? $booking->session_type ?? 'N/A') }}</span></li>
                                     <li>Persons: <span>{{ $booking->persons ?? 'N/A' }}</span></li>
-                                    <li>Phone: <span>{{ $booking->customer_phone ?? $user->phone ?? 'N/A' }}</span></li>
+                                    <li>Phone: <span>{{ $booking->phone ?? $user->phone ?? 'N/A' }}</span></li>
                                     <li>Your Name: <span>{{ $user->name ?? 'N/A' }}</span></li>
                                     <li>Your Email: <span>{{ $user->email ?? 'N/A' }}</span></li>
                                 @else

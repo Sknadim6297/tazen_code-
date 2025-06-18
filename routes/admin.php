@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\EventDetailsController;
 use App\Http\Controllers\Admin\AboutExperienceController;
 use App\Http\Controllers\Admin\AboutHowWeWorkController;
 use App\Http\Controllers\Admin\AboutFAQController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ServiceDetailsController;
 use App\Http\Controllers\Admin\EventFAQController;
@@ -86,7 +87,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/booking/freehand', [BookingController::class, 'freeHandBooking'])->name('freehand');
     Route::get('/booking/monthly', [BookingController::class, 'monthlyBooking'])->name('monthly');
     Route::get('/booking/quaterly', [BookingController::class, 'quaterlyBooking'])->name('quaterly');
-Route::post('/booking/add-link', [App\Http\Controllers\Admin\BookingController::class, 'addMeetingLink'])->name('add-link');
+    Route::post('/booking/add-link', [App\Http\Controllers\Admin\BookingController::class, 'addMeetingLink'])->name('add-link');
 
 
     Route::post('/professional/reject/{id}', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
@@ -105,13 +106,17 @@ Route::post('/booking/add-link', [App\Http\Controllers\Admin\BookingController::
     Route::get('customer-billing', [App\Http\Controllers\Admin\CustomerBillingController::class, 'index'])->name('customer.billing');
 
     Route::post('/admin/professionals/toggle-status', [ManageProfessionalController::class, 'toggleStatus'])->name('professional.toggle-status');
-Route::get('professional/billing/export', [BillingController::class, 'exportBillingToPdf'])->name('professional.billing.export');
-Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
+    Route::get('professional/billing/export', [BillingController::class, 'exportBillingToPdf'])->name('professional.billing.export');
+    Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
 
-Route::get('event/export', [EventController::class, 'exportEventBookingsToPdf'])->name('event.export');
-Route::get('reviews/export', [ReviewController::class, 'exportReviewsToPdf'])->name('reviews.export');
-Route::get('booking/freehand/export', [BookingController::class, 'exportFreeHandBookingsToPdf'])->name('booking.freehand.export');
-Route::get('booking/monthly/export', [BookingController::class, 'exportMonthlyBookingsToPdf'])->name('booking.monthly.export');
-Route::get('booking/onetime/export', [BookingController::class, 'exportOneTimeBookingsToPdf'])->name('booking.onetime.export');
-Route::get('booking/quarterly/export', [BookingController::class, 'exportQuarterlyBookingsToPdf'])->name('booking.quarterly.export');
+    Route::get('event/export', [EventController::class, 'exportEventBookingsToPdf'])->name('event.export');
+    Route::get('reviews/export', [ReviewController::class, 'exportReviewsToPdf'])->name('reviews.export');
+    Route::get('booking/freehand/export', [BookingController::class, 'exportFreeHandBookingsToPdf'])->name('booking.freehand.export');
+    Route::get('booking/monthly/export', [BookingController::class, 'exportMonthlyBookingsToPdf'])->name('booking.monthly.export');
+    Route::get('booking/onetime/export', [BookingController::class, 'exportOneTimeBookingsToPdf'])->name('booking.onetime.export');
+    Route::get('booking/quarterly/export', [BookingController::class, 'exportQuarterlyBookingsToPdf'])->name('booking.quarterly.export');
+    Route::get('/events/export/excel', [EventController::class, 'exportEventBookingsToExcel'])
+        ->name('event.export.excel');
 });
+
+Route::resource('admin-users', AdminUserController::class)->middleware('super_admin');

@@ -85,6 +85,10 @@
                 <td>Total Professional Pay</td>
                 <td>&#8377;{{ number_format($totalProfessionalPay, 2) }}</td>
             </tr>
+            <tr>
+    <th>Service:</th>
+    <td>{{ $filterInfo['service'] }}</td>
+</tr>
         </table>
     </div>
     

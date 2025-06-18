@@ -1,3 +1,4 @@
+<!-- filepath: c:\xampp\htdocs\tazen_marge_code\Tazen_multi\resources\views\admin\manage-professional\index.blade.php -->
 @extends('admin.layouts.layout')
 
 @section('styles')
@@ -56,7 +57,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #dc3545; /* Red for OFF state */
+        background-color: #dc3545; 
         transition: .4s;
         border-radius: 34px;
     }
@@ -74,14 +75,12 @@
     }
 
     input:checked + .toggle-slider {
-        background-color: #28a745; /* Green for ON state */
+        background-color: #28a745; 
     }
 
     input:checked + .toggle-slider:before {
         transform: translateX(26px);
     }
-
-    /* Hide the ON/OFF text */
     .toggle-text {
         display: none;
     }
@@ -107,6 +106,109 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+    .margin-update-form {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .margin-input-container {
+        position: relative;
+        width: 160px;
+        height: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        transition: box-shadow 0.2s;
+        border: 1px solid #ced4da;
+    }
+    
+    .margin-input-container:focus-within {
+        box-shadow: 0 3px 8px rgba(78, 115, 223, 0.15);
+        border-color: #4e73df;
+    }
+    
+    .margin-input-container .form-control {
+        height: 40px;
+        padding-right: 40px;
+        font-size: 16px;
+        font-weight: 500;
+        border: none;
+        border-radius: 0;
+        text-align: center;
+        color: #3a3b45;
+    }
+    
+    .margin-input-container .input-group-text {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        border: none;
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #5a5c69;
+        border-left: 1px solid #ced4da;
+        width: 40px;
+        display: flex;
+        justify-content: center;
+        padding: 0;
+    }
+    
+    .margin-save-btn {
+        height: 40px;
+        min-width: 80px;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 6px;
+        background-color: #4e73df;
+        border-color: #4e73df;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+    }
+    
+    .margin-save-btn:hover {
+        background-color: #2e59d9;
+        border-color: #2653d4;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .margin-save-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+    
+    .margin-save-btn .spinner-border {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 5px;
+    }
+    
+    /* Not Applicable styling */
+    .not-applicable {
+        color: #6c757d;
+        font-style: italic;
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    /* Specialization badge styles */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+    
+    .bg-primary {
+        background-color: #4e73df !important;
+    }
 </style>
 @endsection
 
@@ -130,15 +232,25 @@
 
         <!-- Filter Section - Improved Design -->
         <form action="{{ route('admin.manage-professional.index') }}" method="GET" class="d-flex align-items-center gap-2 mb-4">
-            <div class="col-xl-3">
+            <div class="col-xl-2">
                 <input type="search" name="search" class="form-control form-control-sm" id="autoComplete" placeholder="Search by name or email">
             </div>
             
-            <div class="col-xl-3">
+            <div class="col-xl-2">
                 <select id="serviceFilter" name="service_id" class="form-select form-select-sm">
                     <option value="">All Services</option>
                     @foreach($services as $service)
                         <option value="{{ $service->id }}">{{ $service->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <!-- New Specialization filter -->
+            <div class="col-xl-2">
+                <select id="specializationFilter" name="specialization" class="form-select form-select-sm">
+                    <option value="">All Specializations</option>
+                    @foreach($specializations as $specialization)
+                        <option value="{{ $specialization }}">{{ $specialization }}</option>
                     @endforeach
                 </select>
             </div>
@@ -176,9 +288,10 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Services Offered</th>
+                                        <th scope="col">Specialization</th> <!-- New column -->
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Active</th>  <!-- New column -->
+                                        <th scope="col">Active</th> 
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -208,19 +321,26 @@
                                                     <span class="text-muted">No Services</span>
                                                 @endif
                                             </td>
-                                            <td style="display: flex; justify-content: center; align-items: center;">
+                                            <td>
+                                                @if($professional->profile && $professional->profile->specialization)
+                                                    <span class="badge bg-primary">{{ $professional->profile->specialization }}</span>
+                                                @else
+                                                    <span class="text-muted">Not specified</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
                                                 @if($professional->status === 'accepted')
-                                                    <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="margin-update-form d-flex align-items-center gap-2">
+                                                    <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="margin-update-form">
                                                         @csrf
-                                                        <div class="input-group" style="max-width: 115px;">
+                                                        <div class="margin-input-container">
                                                             <input class="form-control" type="number" name="margin_percentage" 
                                                                 value="{{ $professional->margin }}" min="0" max="100" required>
                                                             <span class="input-group-text">%</span>
                                                         </div>
-                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                        <button type="submit" class="btn btn-primary margin-save-btn">Save</button>
                                                     </form>
                                                 @else
-                                                    Not Applicable
+                                                    <span class="not-applicable">Not Applicable</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -296,6 +416,7 @@
             e.preventDefault();
             let searchTerm = $('#autoComplete').val();
             let serviceId = $('#serviceFilter').val();
+            let specializationFilter = $('#specializationFilter').val();
             let startDate = $('#start_date').val();
             let endDate = $('#end_date').val();
             
@@ -308,7 +429,7 @@
                 }
             }
             
-            filterData(startDate, endDate, searchTerm, serviceId);
+            filterData(startDate, endDate, searchTerm, serviceId, specializationFilter);
         });
 
         // Individual filter change handlers for immediate filtering
@@ -320,7 +441,7 @@
             }
         });
 
-        $('#serviceFilter').on('change', function() {
+        $('#serviceFilter, #specializationFilter').on('change', function() {
             $('form').submit();
         });
 
@@ -332,9 +453,9 @@
         });
 
         // Function to fetch data based on filters
-        function filterData(startDate = '', endDate = '', searchTerm = '', serviceId = '') {
+        function filterData(startDate = '', endDate = '', searchTerm = '', serviceId = '', specializationFilter = '') {
             // Show loading indicator
-            $('#professional-table-body').html('<tr><td colspan="9" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
+            $('#professional-table-body').html('<tr><td colspan="11" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
             
             // Format dates to ensure they're in YYYY-MM-DD format for backend
             if (startDate) {
@@ -354,13 +475,14 @@
                     search: searchTerm,
                     start_date: startDate,
                     end_date: endDate,
-                    service_id: serviceId
+                    service_id: serviceId,
+                    specialization: specializationFilter
                 },
                 success: function(response) {
                     let professionalsHtml = '';
                     
                     if (response.professionals.data.length === 0) {
-                        professionalsHtml = '<tr><td colspan="9" class="text-center">No professionals found matching your criteria</td></tr>';
+                        professionalsHtml = '<tr><td colspan="11" class="text-center">No professionals found matching your criteria</td></tr>';
                     } else {
                         $.each(response.professionals.data, function(index, professional) {
                             // Generate services HTML
@@ -377,19 +499,27 @@
                             } else {
                                 servicesHtml = '<span class="text-muted">No Services</span>';
                             }
+                            
+                            // Generate specialization HTML
+                            let specializationHtml = '';
+                            if (professional.profile && professional.profile.specialization) {
+                                specializationHtml = `<span class="badge bg-primary">${professional.profile.specialization}</span>`;
+                            } else {
+                                specializationHtml = '<span class="text-muted">Not specified</span>';
+                            }
 
                             // Generate margin HTML
                             const marginHtml = professional.status === 'accepted' ? 
-                                `<form action="/admin/professional/${professional.id}/margin" method="POST" class="margin-update-form d-flex align-items-center gap-2">
+                                `<form action="/admin/professional/${professional.id}/margin" method="POST" class="margin-update-form">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <div class="input-group" style="max-width: 115px;">
+                                    <div class="margin-input-container">
                                         <input class="form-control" type="number" name="margin_percentage" 
                                             value="${professional.margin || 0}" min="0" max="100" required>
                                         <span class="input-group-text">%</span>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <button type="submit" class="btn btn-primary margin-save-btn">Save</button>
                                 </form>` : 
-                                'Not Applicable';
+                                '<span class="not-applicable">Not Applicable</span>';
 
                             // Generate status badge
                             const statusBadge = professional.status === 'accepted' ? 
@@ -426,6 +556,7 @@
                                     <td><span class="fw-medium">${professional.name}</span></td>
                                     <td><span class="fw-medium">${professional.email}</span></td>
                                     <td>${servicesHtml}</td>
+                                    <td>${specializationHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
                                     <td>${toggleSwitchHtml}</td>
@@ -442,7 +573,7 @@
                     $('#professional-table-body').html(professionalsHtml);
                 },
                 error: function() {
-                    $('#professional-table-body').html('<tr><td colspan="9" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
+                    $('#professional-table-body').html('<tr><td colspan="11" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
                 }
             });
         }
