@@ -56,6 +56,22 @@
                                 <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                             </select>
                         </div>
+                        <!-- Add Service Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label">Service</label>
+                            <select class="form-select" name="service">
+                                <option value="">All Services</option>
+                                @foreach($serviceOptions as $serviceName)
+                                <option value="{{ $serviceName }}" {{ request('service') == $serviceName ? 'selected' : '' }}>
+                                    {{ $serviceName }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Search</label>
+                            <input type="text" class="form-control" name="search" placeholder="Search by name, email or phone" value="{{ request('search') }}">
+                        </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary">Search</button>
                             <a href="{{ route('admin.professional.billing') }}" class="btn btn-secondary">Reset</a>
@@ -94,7 +110,7 @@
                         <tbody>
                             @forelse($billings as $key => $billing)
                             @php
-                               $commissionRate = $billing->professional->margin; 
+                               $commissionRate = $billing->professional->margin ?? 0; 
                               $professionalPay = $billing->amount * ((100 - $commissionRate) / 100);
                               $amountEarned = $billing->amount * ($commissionRate / 100);
                             @endphp
@@ -102,7 +118,14 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $billing->created_at->format('d M Y') }}</td>
                                 <td>{{ $billing->customer_name }}</td>
-                                <td>{{ $billing->service_name }}</td>
+                                <td>
+                                    <!-- Highlight the service if it's filtered -->
+                                    @if(request('service') == $billing->service_name)
+                                        <span class="badge bg-info">{{ $billing->service_name }}</span>
+                                    @else
+                                        {{ $billing->service_name }}
+                                    @endif
+                                </td>
                                 <td>{{ $billing->professional->name ?? 'N/A' }}</td> 
                                 <td>{{ ucfirst(str_replace('_', ' ', $billing->plan_type)) }}</td>
                                 <td>₹{{ number_format($billing->amount, 2) }}</td>
@@ -258,6 +281,15 @@
 @section('scripts')
 <script>
     $(document).ready(function () {
+        // Add Select2 for better service selection (if Select2 is available)
+        if ($.fn.select2) {
+            $('select[name="service"]').select2({
+                placeholder: "Select a service",
+                allowClear: true,
+                width: '100%'
+            });
+        }
+        
         $('#paid_date').val(new Date().toISOString().split('T')[0]);
         $('.payment-toggle').change(function () {
             const isChecked = $(this).is(':checked');
@@ -368,7 +400,4 @@
         });
     }
 </script>
-
-
-
 @endsection

@@ -10,18 +10,16 @@
         <div class="row justify-content-center">
             <div class="col-lg-5">
                 <div class="box_booking_2">
-
-                    @if(session()->has('event_booking_data'))
+                    @if(isset($bookingData))
                         @php
-                            $bookingData = session('event_booking_data');
                             $event = \App\Models\AllEvent::find($bookingData['event_id'] ?? null);
                             $user = Auth::guard('user')->user();
-                            $amount = ($bookingData['total_price'] ?? $event->starting_fees ?? 0) * 100;
+                            $amount = ($bookingData['total_price'] ?? 0) * 100;
                         @endphp
 
                         <div class="head">
                             <div class="title">
-                                <h3>{{ $event->heading ?? 'Event Booking' }}</h3>
+                                <h3>{{ $bookingData['event_name'] ?? 'Event Booking' }}</h3>
                                 <p>{{ $bookingData['location'] ?? 'Location N/A' }} ({{ ucfirst($bookingData['type'] ?? '') }})</p>
                             </div>
                         </div>
@@ -29,11 +27,11 @@
                         <div class="main">
                             <h6>Event Booking Summary</h6>
                             <ul>
-                                <li>Event Name: <span>{{ $event->heading ?? 'N/A' }}</span></li>
-                                <li>Event Date: <span>{{ \Carbon\Carbon::parse($bookingData['event_date'])->format('d M Y') ?? 'N/A' }}</span></li>
-                                <li>Total Amount: <span>₹{{ number_format($amount / 100, 2) }}</span></li>
+                                <li>Event Name: <span>{{ $bookingData['event_name'] ?? ($event->heading ?? 'N/A') }}</span></li>
+                                <li>Event Date: <span>{{ isset($bookingData['event_date']) ? \Carbon\Carbon::parse($bookingData['event_date'])->format('d M Y') : 'N/A' }}</span></li>
+                                <li>Total Amount: <span>₹{{ number_format($bookingData['total_price'] ?? 0, 2) }}</span></li>
                                 <li>Status: <span>{{ ucfirst($event->status ?? 'Pending') }}</span></li>
-                                <li>Location: <span>{{ $bookingData['location'] ?? 'N/A' }}</span></li>
+                                <li>Location: <span>{{ $bookingData['location'] ?? ($event->city ?? 'N/A') }}</span></li>
                                 <li>Type: <span>{{ ucfirst($bookingData['type'] ?? 'N/A') }}</span></li>
                                 <li>Persons: <span>{{ $bookingData['persons'] ?? 'N/A' }}</span></li>
                                 <li>Phone: <span>{{ $bookingData['phone'] ?? 'N/A' }}</span></li>
@@ -50,7 +48,6 @@
                             <h6>No booking data available.</h6>
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>

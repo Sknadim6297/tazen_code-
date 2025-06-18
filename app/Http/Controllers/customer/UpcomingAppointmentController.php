@@ -16,10 +16,22 @@ class UpcomingAppointmentController extends Controller
     public function index(Request $request)
     {
         try {
-            // Log the start of the request for debugging
-            Log::info('Loading upcoming appointments page', ['user_id' => Auth::guard('user')->id()]);
-            
-            // Start with base query for the user's bookings
+            $serviceOptions = Booking::where('user_id', Auth::guard('user')->id())
+                ->select('service_name')
+                ->distinct()
+                ->whereNotNull('service_name')
+                ->where('service_name', '!=', '')
+                ->orderBy('service_name')
+                ->pluck('service_name');
+                
+            $planTypeOptions = Booking::where('user_id', Auth::guard('user')->id())
+                ->select('plan_type')
+                ->distinct()
+                ->whereNotNull('plan_type')
+                ->where('plan_type', '!=', '')
+                ->orderBy('plan_type')
+                ->pluck('plan_type');
+                
             $query = Booking::with([
                 'professional' => function ($q) {
                     $q->select('id', 'name');
@@ -29,9 +41,23 @@ class UpcomingAppointmentController extends Controller
             // Apply search filters if provided
             if ($request->filled('search_name')) {
                 $search = $request->search_name;
-                $query->whereHas('professional', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    $q->where('service_name', 'like', "%{$search}%")
+                      ->orWhere('plan_type', 'like', "%{$search}%")
+                      ->orWhereHas('professional', function ($q2) use ($search) {
+                          $q2->where('name', 'like', "%{$search}%");
+                      });
                 });
+            }
+            
+            // Apply service filter if provided
+            if ($request->filled('service') && $request->service !== 'all') {
+                $query->where('service_name', $request->service);
+            }
+            
+            // Apply plan type filter if provided
+            if ($request->filled('plan_type') && $request->plan_type !== 'all') {
+                $query->where('plan_type', $request->plan_type);
             }
 
             // Get the bookings
@@ -104,12 +130,18 @@ class UpcomingAppointmentController extends Controller
                 return $timedate ? Carbon::parse($timedate->date)->timestamp : PHP_INT_MAX;
             })->values();
             
+            // Format plan types for display
+            $formattedPlanTypes = [];
+            foreach ($planTypeOptions as $planType) {
+                $formattedPlanTypes[$planType] = $this->formatPlanType($planType);
+            }
+            
             // Pass to view
             $bookings = $sortedBookings;
             
             Log::info('Processed bookings', ['count' => $bookings->count()]);
             
-            return view('customer.upcoming-appointment.index', compact('bookings'));
+            return view('customer.upcoming-appointment.index', compact('bookings', 'serviceOptions', 'planTypeOptions', 'formattedPlanTypes'));
         } catch (\Exception $e) {
             Log::error('Error loading upcoming appointments', [
                 'error' => $e->getMessage(),
@@ -121,6 +153,21 @@ class UpcomingAppointmentController extends Controller
         }
     }
 
+    /**
+     * Format plan type for better display
+     */
+    private function formatPlanType($planType) 
+    {
+        if (empty($planType)) return null;
+        
+        // Handle special case for "one_time"
+        if (strtolower($planType) == 'one_time') {
+            return 'One Time';
+        }
+        
+        // Replace underscores with spaces and capitalize each word
+        return ucwords(str_replace('_', ' ', $planType));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -221,7 +268,6 @@ class UpcomingAppointmentController extends Controller
                         ]
                     ]);
                 } catch (\Exception $e) {
-                    Log::error('File storage error: ' . $e->getMessage());
                     return response()->json([
                         'success' => false,
                         'message' => 'Error storing file: ' . $e->getMessage()
