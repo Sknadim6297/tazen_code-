@@ -11,12 +11,20 @@ class CustomerBillingController extends Controller
 {
     public function index(Request $request)
     {
+        // Get all unique service names for the dropdown
+        $serviceOptions = Booking::select('service_name')
+            ->distinct()
+            ->whereNotNull('service_name')
+            ->where('service_name', '!=', '')
+            ->orderBy('service_name')
+            ->pluck('service_name');
+
         $query = Booking::with(['professional', 'user'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('customer_name', 'like', "%{$search}%")
-                      ->orWhere('service_name', 'like', "%{$search}%");
+                        ->orWhere('service_name', 'like', "%{$search}%");
                 });
             })
             ->when($request->filled('start_date') && $request->filled('end_date'), function ($query) use ($request) {
@@ -30,10 +38,20 @@ class CustomerBillingController extends Controller
             })
             ->when($request->filled('sms_status'), function ($query) use ($request) {
                 $query->where('sms_status', $request->sms_status);
+            })
+            ->when($request->filled('service'), function ($query) use ($request) {
+                $query->where('service_name', $request->service);
             });
 
-        $billings = $query->latest()->paginate(10);
+        try {
+            $billings = $query->latest()->paginate(10);
+        } catch (\Exception $e) {
+            $billings = collect(); 
 
-        return view('admin.billing.customer-billing', compact('billings'));
+            return view('admin.billing.customer-billing', compact('billings', 'serviceOptions'))
+                ->with('error', 'An error occurred while loading the billing data.');
+        }
+
+        return view('admin.billing.customer-billing', compact('billings', 'serviceOptions'));
     }
-} 
+}

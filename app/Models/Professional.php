@@ -17,6 +17,7 @@ class Professional extends Authenticatable
         'phone',
         'status',
         'active', // Add this
+        'margin', 
     ];
 
     protected $hidden = [
@@ -48,5 +49,9 @@ class Professional extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+    public function isActive()
+    {
+        return (bool) $this->active;
     }
 }

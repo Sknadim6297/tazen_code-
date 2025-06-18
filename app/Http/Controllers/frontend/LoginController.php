@@ -5,15 +5,25 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ActiveSession;
+use App\Models\OtpVerification;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Jenssegers\Agent\Agent;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
+    protected $otpService;
+    
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+    
     // Show login form
     public function showLoginForm()
     {
@@ -144,6 +154,72 @@ class LoginController extends Controller
         return view('frontend.login.register');
     }
 
+    /**
+     * Send OTP verification code
+     */
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        // Check if email already exists
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This email address is already registered.'
+            ], 422);
+        }
+
+        try {
+            // Generate and send OTP
+            $otp = $this->otpService->generate($request->email);
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTP has been sent to your email address.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send OTP: ' . $e->getMessage(), [
+                'email' => $request->email
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send verification code. Please try again later.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Verify OTP code
+     */
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|string|size:6', // Changed to string|size:6 to handle leading zeros
+        ]);
+
+        $result = $this->otpService->verify($request->email, $request->otp);
+
+        if ($result['success']) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $result['message']
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => $result['message'],
+            'error_type' => $result['error_type'] ?? 'unknown'
+        ], 422);
+    }
+    
+    /**
+     * Register a new user after OTP verification
+     */
     public function register(Request $request)
     {
         // Validation
@@ -152,22 +228,44 @@ class LoginController extends Controller
             'last_name'  => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|min:6|confirmed',
+            'otp'        => 'required|string|size:6', // Changed to string|size:6
         ]);
 
-        // Create user
-        $user = User::create([
-            'name'     => $request->first_name . ' ' . $request->last_name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        // Verify OTP code
+        $verification = $this->otpService->verify($request->email, $request->otp);
+        if (!$verification['success']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $verification['message'],
+                'error_type' => $verification['error_type'] ?? 'unknown'
+            ], 422);
+        }
 
-        // Return success response with redirect to login
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Your account has been created. Please login.',
-            'redirect_url' => route('login'),
-            'registered_email' => $request->email
-        ]);
+        try {
+            // Create user
+            $user = User::create([
+                'name'     => $request->first_name . ' ' . $request->last_name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            // Return success response with redirect to login
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Your account has been created. Please login.',
+                'redirect_url' => route('login'),
+                'registered_email' => $request->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create user: ' . $e->getMessage(), [
+                'email' => $request->email
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create your account. Please try again later.'
+            ], 500);
+        }
     }
 
     public function logout(Request $request)

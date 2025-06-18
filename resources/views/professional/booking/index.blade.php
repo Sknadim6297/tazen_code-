@@ -2,153 +2,216 @@
 
 @section('styles')
 <style>
-    /* Questionnaire styles */
-    .questionnaire-info {
-        margin-left: 8px;
-        padding: 2px 6px;
-        font-size: 12px;
-    }
-
-    .questionnaire-details {
-        padding: 15px;
-    }
-
-    .answers-list {
-        margin-top: 20px;
-    }
-
-    .answer-item {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-
-    .answer-item .question {
-        color: #2c3e50;
-        margin-bottom: 8px;
-        font-size: 14px;
-    }
-
-    .answer-item .answer {
-        color: #34495e;
-        margin-bottom: 0;
-        font-size: 14px;
-        padding-left: 20px;
-    }
-
-   /* Style for the slider container */
-.status-slider {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 30px;
-    cursor: pointer;
-}
-
-.status-slider.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-/* Hide the checkbox but keep its functionality */
-.status-slider input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-/* The slider track */
-.status-slider .slider {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 30px;
-    transition: 0.4s;
-}
-
-/* The round toggle knob */
-.status-slider .slider:before {
-    content: "";
-    position: absolute;
-    height: 22px;
-    width: 22px;
-    border-radius: 50%;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-}
-.status-slider input:checked + .slider {
-    background-color: #2196F3; 
-}
-.status-slider input:checked + .slider:before {
-    transform: translateX(30px);
-}
-.status-slider.disabled input:checked + .slider {
-    background-color: #ccc;
-}
+    /* Core layout styles */
     .content-wrapper {
         background-color: #f8f9fa;
-        padding: 20px;
+        padding: 1.5rem;
+        min-height: calc(100vh - 60px);
     }
-
+    
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+    
     .page-title h3 {
-        font-size: 22px;
+        font-size: 1.5rem;
         font-weight: 600;
-        margin-bottom: 10px;
+        margin-bottom: 0.5rem;
+        color: #333;
     }
 
+    /* Card styling */
     .card {
         background-color: #fff;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        padding: 15px;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
     }
 
+    /* Table styling */
     .table-wrapper {
         overflow-x: auto;
-        padding-right: 10px;
+        -webkit-overflow-scrolling: touch;
     }
-
+    
     .data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 13px;
+        font-size: 0.875rem;
     }
-
+    
     .data-table th,
     .data-table td {
-        padding: 10px;
-        border: 1px solid #dee2e6;
-        vertical-align: top;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        vertical-align: middle;
     }
-
+    
     .data-table th {
-        background-color: #f1f1f1;
+        background-color: #f5f7fa;
         font-weight: 600;
+        color: #495057;
+        white-space: nowrap;
+    }
+    
+    .data-table td {
+        color: #495057;
     }
 
-    .btn-link {
-        color: #ffffff;
+    /* Search container */
+    .search-container {
+        background: #fff;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .search-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .search-form .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .search-form label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-size: 0.875rem;
+    }
+    
+    .search-form select,
+    .search-form input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background-color: white;
+        color: #495057;
+        font-size: 0.875rem;
+    }
+    
+    .search-buttons {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        align-items: flex-end;
+    }
+
+    /* Buttons */
+    .btn-success, .btn-primary {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
         text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s;
     }
-
-    .btn-link:hover {
-        text-decoration: underline;
+    
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        cursor: pointer;
     }
-
-    .form-control {
-        font-size: 13px;
-        padding: 5px 8px;
+    
+    .btn-link {
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        display: inline-block;
     }
+    
+    .btn-success:hover, .btn-primary:hover { background-color: #218838; }
+    .btn-secondary:hover { background-color: #5a6268; }
+    .btn-info:hover { background-color: #138496; }
+    .btn-link:hover { background-color: #0069d9; }
 
-    /* Custom Modal */
-    .custom-modal {
+    /* Status badges */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 1rem;
+        text-transform: uppercase;
+    }
+    
+    .bg-success { background-color: #28a745 !important; color: white; }
+    .bg-warning { background-color: #ffc107 !important; color: #212529; }
+    
+    /* Status slider/toggle switch */
+    .status-slider {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+        cursor: pointer;
+    }
+    
+    .status-slider input { opacity: 0; width: 0; height: 0; }
+    
+    .status-slider .slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        border-radius: 30px;
+        transition: 0.4s;
+    }
+    
+    .status-slider .slider:before {
+        content: "";
+        position: absolute;
+        height: 22px;
+        width: 22px;
+        border-radius: 50%;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+    }
+    
+    .status-slider input:checked + .slider { background-color: #2196F3; }
+    .status-slider input:checked + .slider:before { transform: translateX(30px); }
+    .status-slider.disabled { cursor: not-allowed; opacity: 0.6; }
+    .status-slider.disabled input:checked + .slider { background-color: #ccc; }
+
+    /* Modal styles */
+    .custom-modal, .upload-modal {
         display: none;
         position: fixed;
         z-index: 9999;
@@ -159,303 +222,206 @@
         overflow: auto;
         background-color: rgba(0, 0, 0, 0.5);
     }
-
-    .custom-modal-content {
+    
+    .custom-modal-content, .upload-modal-content {
         background-color: #fff;
-        margin: 10% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 80%;
+        margin: 5% auto;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        width: 90%;
         max-width: 700px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
     }
-
-    .close-modal {
+    
+    .close-modal, .close-upload-modal {
         color: #aaa;
-        float: right;
-        font-size: 24px;
+        position: absolute;
+        right: 1.25rem;
+        top: 1rem;
+        font-size: 1.5rem;
         font-weight: bold;
         cursor: pointer;
     }
+    
+    .close-modal:hover, .close-upload-modal:hover { color: #000; }
 
-    .close-modal:hover {
-        color: #000;
+    /* Questionnaire styles */
+    .questionnaire-info {
+        margin-left: 0.5rem;
+        padding: 0.125rem 0.375rem;
+        font-size: 0.75rem;
+    }
+    
+    .questionnaire-details { padding: 1rem; }
+    
+    .answers-list { margin-top: 1.25rem; }
+    
+    .answer-item {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .answer-item .question {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .answer-item .answer {
+        color: #495057;
+        margin-bottom: 0;
+        font-size: 0.875rem;
+        padding-left: 1.25rem;
     }
 
-    .status-select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    .search-container {
-        background: #f5f7fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .search-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
+    /* Document display */
+    .document-preview {
+        display: inline-flex;
         align-items: center;
+        padding: 0.5rem 0.75rem;
+        margin: 0.25rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        transition: all 0.2s;
+        text-decoration: none;
     }
-
-    .search-form .form-group {
-        flex: 1;
-        min-width: 200px;
+    
+    .document-preview:hover {
+        background-color: #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .document-preview img {
+        width: 24px;
+        height: 24px;
+        margin-right: 0.5rem;
+    }
+    
+    .document-preview .doc-info {
         display: flex;
         flex-direction: column;
     }
-
-    .search-form label {
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #333;
+    
+    .document-preview .doc-name {
+        font-size: 0.75rem;
+        color: #495057;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .document-preview .doc-type {
+        font-size: 0.625rem;
+        color: #6c757d;
+    }
+    
+    .no-doc-message {
+        color: #6c757d;
+        font-style: italic;
+        padding: 0.625rem;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 0.375rem;
+        border: 1px dashed #dee2e6;
     }
 
-    .search-form input[type="text"],
-    .search-form input[type="date"] {
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 14px;
+    /* Upload form */
+    .upload-form {
+        margin-top: 1.25rem;
     }
-
-    .search-buttons {
-        display: flex;
-        gap: 10px;
+    
+    .upload-form .form-group {
+        margin-bottom: 1.25rem;
     }
-
-    .search-buttons button,
-    .search-buttons a {
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        text-decoration: none;
+    
+    .upload-form label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .upload-form input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background-color: #f8f9fa;
+    }
+    
+    .upload-form .btn-upload {
+        background-color: #007bff;
+        color: white;
+        padding: 0.625rem 1.25rem;
         border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+    }
+    
+    .upload-form .btn-upload:hover {
+        background-color: #0069d9;
     }
 
-    .btn-success {
-        background-color: #28a745;
-        color: white;
+    /* Responsive styles */
+    @media screen and (max-width: 767px) {
+        .content-wrapper {
+            padding: 1rem 0.5rem;
+        }
+        
+        .search-form {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .search-form .form-group {
+            width: 100%;
+        }
+        
+        .search-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .search-buttons button,
+        .search-buttons a {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .custom-modal-content,
+        .upload-modal-content {
+            width: 95%;
+            margin: 5% auto;
+            padding: 1rem;
+        }
     }
 
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .search-form {
+            flex-wrap: wrap;
+        }
+        
+        .search-form .form-group {
+            min-width: 48%;
+            flex: 0 0 48%;
+        }
+        
+        .search-buttons {
+            width: 100%;
+            justify-content: flex-start;
+        }
     }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-    .search-form select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    background-color: white;
-}
-
-/* Add these styles for the questionnaire modal */
-.questionnaire-details {
-    padding: 15px;
-}
-
-.answers-list {
-    margin-top: 20px;
-}
-
-.answer-item {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.answer-item .question {
-    color: #2c3e50;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.answer-item .answer {
-    color: #34495e;
-    margin-bottom: 0;
-    font-size: 14px;
-    padding-left: 20px;
-}
-
-.questionnaire-info {
-    margin-left: 8px;
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
-/* Add these new styles for document display */
-.document-preview {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    margin: 4px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.document-preview:hover {
-    background-color: #e9ecef;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.document-preview img {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-}
-
-.document-preview .doc-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.document-preview .doc-name {
-    font-size: 12px;
-    color: #495057;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.document-preview .doc-type {
-    font-size: 10px;
-    color: #6c757d;
-}
-
-.no-doc-message {
-    color: #6c757d;
-    font-style: italic;
-    padding: 10px;
-    text-align: center;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border: 1px dashed #dee2e6;
-}
-
-/* Add these new styles for status badges */
-.badge {
-    padding: 1px 5px;
-    font-size: 12px;
-    font-weight: 500;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.bg-success {
-    background-color: #28a745 !important;
-    color: white;
-}
-
-.bg-warning {
-    background-color: #ffc107 !important;
-    color: #000;
-}
-
-/* Add styles for upload modal */
-.upload-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.upload-modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 25px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.upload-modal-header {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.upload-modal-header h4 {
-    margin: 0;
-    font-size: 18px;
-    color: #333;
-}
-
-.close-upload-modal {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-}
-
-.close-upload-modal:hover {
-    color: #000;
-}
-
-.upload-form {
-    margin-top: 20px;
-}
-
-.upload-form .form-group {
-    margin-bottom: 20px;
-}
-
-.upload-form label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-}
-
-.upload-form input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-}
-
-.upload-form .btn-upload {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.upload-form .btn-upload:hover {
-    background-color: #0056b3;
-}
 </style>
 @endsection
+
 
 @section('content')
 <div class="content-wrapper">
@@ -546,6 +512,7 @@
                             <tbody>
                                 @foreach ($bookings as $booking)
                                 @php
+                                //   dd($booking);
                                 $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
                                     ? $booking->timedates
                                         ->filter(function($timedate) {
@@ -574,7 +541,17 @@
                           <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
 
                                 <td>
-                                    <a href="{{ $booking->meeting_link }}" target="_blank" class="btn btn-link">Join</a>
+                                    @if($booking->meeting_link)
+                                        <a href="{{ $booking->meeting_link }}" class="btn btn-link" target="_blank">
+                                            Join Meeting
+                                        </a>
+                                    @elseif($booking->timedates && $booking->timedates->count() > 0 && $booking->timedates->first()->meeting_link)
+                                        <a href="{{ $booking->timedates->first()->meeting_link }}" class="btn btn-link" target="_blank">
+                                            Join Meeting
+                                        </a>
+                                    @else
+                                        <span class="badge bg-warning">Meeting link not given by admin</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <button class="btn btn-info btn-sm view-details"
@@ -1170,7 +1147,7 @@ uploadForm.onsubmit = function(e) {
         if (data.success) {
             toastr.success(data.message);
             uploadModal.style.display = 'none';
-            location.reload(); // Reload to show new document
+            location.reload(); 
         } else {
             toastr.error(data.message || 'Upload failed');
         }

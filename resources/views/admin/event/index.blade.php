@@ -2,101 +2,125 @@
 @section('style')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" />
 <style>
-    /* Custom scrollbar for table on mobile */
+    /* Style for export buttons group */
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Style for filter form */
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+    }
+    
+    .filter-form .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .badge.highlighted {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
     @media (max-width: 768px) {
-        .main-content {
-            overflow: hidden !important;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-        .table-responsive {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            max-height: calc(100vh - 200px);
-            margin-bottom: 15px;
-        }
-        .table {
-            min-width: 1200px;
-            white-space: nowrap;
+        .filter-form {
+            flex-direction: column;
+            gap: 15px;
         }
         
-        /* Scrollbar styling */
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-            background-color: #f5f5f5;
-        }
-        .table-responsive::-webkit-scrollbar-thumb {
-            background-color: #888;
-            border-radius: 10px;
-        }
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background-color: #555;
-        }
-        .table-responsive::-webkit-scrollbar-track {
-            background-color: #f1f1f1;
-            border-radius: 10px;
+        .filter-form .form-group {
+            width: 100%;
         }
         
-        /* Fix form elements on mobile */
-        .page-header-breadcrumb form {
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .page-header-breadcrumb form .col-xl-2,
-        .page-header-breadcrumb form .col-xl-4 {
+        .export-buttons {
+            flex-direction: column;
             width: 100%;
-            max-width: 100%;
+        }
+        
+        .export-buttons a {
+            width: 100%;
         }
     }
 </style>
 @endsection
+
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">All Professionals</h1>
+                <h1 class="page-title fw-medium fs-18 mb-2">Event Bookings</h1>
                 <div>
                     <nav>
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">Professional</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">All Professional</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Events</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Event Bookings</li>
                         </ol>
                     </nav>
                 </div>
             </div>
-          <form action="{{ route('admin.eventpage.index') }}" method="GET" class="d-flex gap-2" id="searchForm">
-
-    <div class="col-xl-2">
-        <select name="status" class="form-control">
-            <option value=""> payment status</option>
-            @foreach($statusList as $status)
-                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
-                    {{ ucfirst($status) }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <div class="col-xl-4">
-        <input type="search" name="search" class="form-control" placeholder="Search by name or event" value="{{ request('search') }}">
-    </div>
-    <div class="col-xl-4">
-        <div class="input-group">
-            <input type="date" class="form-control" name="start_date" value="{{ request('start_date') }}">
-            <span class="input-group-text">to</span>
-            <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
         </div>
-    </div>
 
-    <div class="col-xl-2">
-        <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-</form>
+        @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        <!-- Search and Filter Container -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="{{ route('admin.eventpage.index') }}" method="GET" class="filter-form" id="searchForm">
+                    <div class="form-group">
+                        <label class="form-label">Payment Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            @foreach($statusList as $status)
+                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Event Mode</label>
+                        <select name="event_mode" class="form-select">
+                            <option value="">All Modes</option>
+                            @foreach($eventModes as $mode)
+                                <option value="{{ $mode }}" {{ request('event_mode') == $mode ? 'selected' : '' }}>
+                                    {{ ucfirst($mode) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Search</label>
+                        <input type="search" name="search" class="form-control" placeholder="Search by name or event" value="{{ request('search') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="start_date" value="{{ request('start_date') }}">
+                            <span class="input-group-text">to</span>
+                            <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="flex: 0 0 auto;">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="{{ route('admin.eventpage.index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="row">
@@ -104,12 +128,15 @@
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
                         <div class="card-title">
-                            Total Professionals
+                            Event Bookings ({{ $bookings->count() }})
                         </div>
-                        <!-- Add Export Button -->
-                        <div>
+                        <!-- Export Buttons -->
+                        <div class="export-buttons">
                             <a href="{{ route('admin.event.export', request()->all()) }}" class="btn btn-primary">
                                 <i class="fas fa-file-pdf me-1"></i> Export to PDF
+                            </a>
+                            <a href="{{ route('admin.event.export.excel', request()->all()) }}" class="btn btn-success">
+                                <i class="fas fa-file-excel me-1"></i> Export to Excel
                             </a>
                         </div>
                     </div>
@@ -136,24 +163,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($bookings as $index => $booking)
+                                    @forelse($bookings as $index => $booking)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $booking->user->name ?? 'N/A' }}</td>
                                             <td>{{ $booking->event->heading ?? 'N/A' }}</td>
                                             <td>{{ $booking->event_date }}</td>
                                             <td>{{ $booking->location ?? 'N/A' }}</td>
-                                            <td>{{ $booking->type ?? 'N/A' }}</td>
+                                            <td>
+                                                <!-- Highlight the type if it's filtered -->
+                                                @if(request('event_mode') == $booking->type)
+                                                    <span class="badge bg-info highlighted">{{ ucfirst($booking->type ?? 'N/A') }}</span>
+                                                @else
+                                                    {{ ucfirst($booking->type ?? 'N/A') }}
+                                                @endif
+                                            </td>
                                             <td>{{ $booking->persons ?? 'N/A' }}</td>
                                             <td>{{ $booking->phone ?? 'N/A' }}</td>
                                             <td>₹{{ number_format($booking->price, 2) }}</td>
                                             <td>₹{{ number_format($booking->total_price, 2) }}</td>
                                             <td>
-                                                <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST">
+                                                @if($booking->type == 'online')
+                                                <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                                     @csrf
-                                                    <input type="text" name="gmeet_link" class="form-control" value="{{ $booking->gmeet_link ?? 'N/A' }}">
-                                                    <button type="submit" class="btn btn-primary mt-1">Save</button>
+                                                    <input type="text" name="gmeet_link" class="form-control form-control-sm" value="{{ $booking->gmeet_link }}" placeholder="Enter Google Meet link">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
                                                 </form>
+                                                @else
+                                                <span class="text-muted">Not applicable</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 @if($booking->payment_status == 'success')
@@ -168,32 +206,34 @@
                                             <td>{{ $booking->payment_failure_reason ?? 'N/A' }}</td>
                                             <td>{{ $booking->created_at->format('Y-m-d H:i') }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                    <tr>
+                                        <td colspan="15" class="text-center py-3">No event bookings found</td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0 float-end">
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 @endsection
+
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Export filtered data button
-        $('#exportFilteredBtn').click(function() {
-            var formData = $('#searchForm').serialize();
-            window.location.href = "{{ route('admin.event.export') }}?" + formData;
+        // Your existing JavaScript...
+
+        // Handle Enter key on search input
+        $('input[name="search"]').keypress(function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#searchForm').submit();
+            }
         });
     });
 </script>
