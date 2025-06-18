@@ -48,6 +48,8 @@ return array(
     'Spatie\\LaravelPackageTools\\' => array($vendorDir . '/spatie/laravel-package-tools/src'),
     'Spatie\\LaravelIgnition\\' => array($vendorDir . '/spatie/error-solutions/legacy/laravel-ignition', $vendorDir . '/spatie/laravel-ignition/src'),
     'Spatie\\Ignition\\' => array($vendorDir . '/spatie/error-solutions/legacy/ignition', $vendorDir . '/spatie/ignition/src'),
+    'Spatie\\LaravelIgnition\\' => array($vendorDir . '/spatie/laravel-ignition/src', $vendorDir . '/spatie/error-solutions/legacy/laravel-ignition'),
+    'Spatie\\Ignition\\' => array($vendorDir . '/spatie/ignition/src', $vendorDir . '/spatie/error-solutions/legacy/ignition'),
     'Spatie\\FlareClient\\' => array($vendorDir . '/spatie/flare-client-php/src'),
     'Spatie\\ErrorSolutions\\' => array($vendorDir . '/spatie/error-solutions/src'),
     'Spatie\\Browsershot\\' => array($vendorDir . '/spatie/browsershot/src'),
