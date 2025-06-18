@@ -264,7 +264,7 @@
                     <p>{{ $service->detail->about_subheading }}</p>
                     <p>{{ $service->detail->about_description }}</p>
                     <p class="add_top_30">
-                        <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Start Searching</button>
+                        <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Start Searching</button>
                     </p>
                 </div>
                 <div class="col-lg-5 text-center">
@@ -301,7 +301,7 @@
                         <h1 class="text-white">{{ $service->detail->content_heading }}</h1>
                         <p class="text-white">{{ $service->detail->content_sub_heading }}</p>
                         <p class="add_top_30">
-                            <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Start Searching</button>
+                            <button class="btn_1 service-search-btn" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Start Searching</button>
                         </p>
                     </div>
                 </div>

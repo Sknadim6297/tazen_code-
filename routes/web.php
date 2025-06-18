@@ -51,6 +51,8 @@ use App\Models\Blog;
 use App\Models\Service;
 use App\Models\AllEvent;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ContactFormController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -174,25 +176,30 @@ Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestio
 
 Route::get('blog', function (Request $request) {
     $blogbanners = BlogBanner::latest()->get();
-    $blogPosts = BlogPost::latest()->get();
     $services = Service::latest()->get();
     $latestBlogs = BlogPost::latest()->take(3)->get();
     $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
         ->groupBy('category')
         ->get();
     $search = $request->input('search');
+    $category = $request->input('category');
 
     $blogPosts = BlogPost::with('blog')
         ->when($search, function ($query, $search) {
-            return $query->whereHas('blog', function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%');
+            return $query->where(function($q) use ($search) {
+                $q->whereHas('blog', function ($q) use ($search) {
+                    $q->where('title', 'like', '%' . $search . '%');
+                })
+                ->orWhere('category', 'like', '%' . $search . '%');
             });
         })
+        ->when($category, function ($query, $category) {
+            return $query->where('category', $category);
+        })
         ->latest()
-        ->get(); // or paginate() if needed
+        ->get();
 
-
-    return view('frontend.sections.blog', compact('blogbanners', 'blogPosts', 'services', 'latestBlogs', 'categoryCounts', 'search'));
+    return view('frontend.sections.blog', compact('blogbanners', 'blogPosts', 'services', 'latestBlogs', 'categoryCounts', 'search', 'category'));
 })->name('blog.index');
 Route::get('/blog-post/{id}', function ($id) {
     // Fetch the blog by ID
@@ -201,6 +208,11 @@ Route::get('/blog-post/{id}', function ($id) {
     $latestBlogs = BlogPost::latest()->take(3)->get();
     $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
         ->groupBy('category')
+        ->get();
+    $comments = \App\Models\Comment::where('blog_post_id', $id)
+        ->where('is_approved', true)
+        ->latest()
+        ->take(4)
         ->get();
 
     // Optional: Handle case where blog doesn't exist
@@ -211,7 +223,7 @@ Route::get('/blog-post/{id}', function ($id) {
     // Fetch latest services
     $services = Service::latest()->get();
 
-    return view('frontend.sections.blog-post', compact('blogPost', 'services', 'relatedBlog', 'latestBlogs', 'categoryCounts'));
+    return view('frontend.sections.blog-post', compact('blogPost', 'services', 'relatedBlog', 'latestBlogs', 'categoryCounts', 'comments'));
 })->name('blog.show');
 Route::get('eventdetails', function () {
     return view('frontend.sections.eventdetails');
@@ -307,6 +319,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('howworks', \App\Http\Controllers\Admin\HowworksController::class);
     Route::resource('about-banner', AboutBannerController::class);
     Route::get('/mcq-answers', [App\Http\Controllers\Admin\McqAnswerController::class, 'index'])->name('mcq-answers.index');
+    Route::get('/contact-forms', [App\Http\Controllers\Admin\ContactFormController::class, 'index'])->name('contact-forms.index');
+    Route::delete('/contact-forms/{contactForm}', [App\Http\Controllers\Admin\ContactFormController::class, 'destroy'])->name('contact-forms.destroy');
 });
 
 
@@ -379,6 +393,11 @@ Route::get('professional/terms-and-conditions', function () {
     return response()->file(public_path('pdf/professional-terms-and-conditions.pdf'));
 })->name('professional.terms');
 
+Route::get('terms', function () {
+    $services = Service::latest()->get();
+    return view('frontend.sections.terms', compact('services'));
+})->name('terms');
+
 Route::get('/services/search', [HomeController::class, 'searchservice'])->name('services.search');
 
 // Admin review routes
@@ -418,3 +437,12 @@ Route::middleware(['auth:user', 'check.active.session'])->group(function () {
         return view('user.dashboard');
     })->name('user.dashboard');
 });
+
+Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
+
+Route::post('/blog-post/{id}/comment', [App\Http\Controllers\CommentController::class, 'store'])->name('blog.comment.store');
+
+// Comment Management Routes
+Route::get('/blog-comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('admin.comments.index');
+Route::post('/blog-comments/{id}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('admin.comments.approve');
+Route::delete('/blog-comments/{id}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('admin.comments.destroy');
