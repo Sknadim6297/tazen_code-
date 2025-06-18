@@ -16,6 +16,13 @@ class BillingController extends Controller
 {
     public function professionalBilling(Request $request)
     {
+        // Get all unique service names for the dropdown
+        $serviceOptions = Booking::select('service_name')
+            ->distinct()
+            ->whereNotNull('service_name')
+            ->orderBy('service_name')
+            ->pluck('service_name');
+
         $billings = Booking::with(['professional', 'user'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
@@ -35,10 +42,12 @@ class BillingController extends Controller
             })
             ->when($request->filled('plan_type'), fn($q) => $q->where('plan_type', $request->plan_type))
             ->when($request->filled('payment_status'), fn($q) => $q->where('payment_status', $request->payment_status))
+            // Add service filter
+            ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
             ->latest()
             ->paginate(10);
 
-        return view('admin.billing.professional-billing', compact('billings'));
+        return view('admin.billing.professional-billing', compact('billings', 'serviceOptions'));
     }
 
     /**
@@ -69,6 +78,8 @@ class BillingController extends Controller
             })
             ->when($request->filled('plan_type'), fn($q) => $q->where('plan_type', $request->plan_type))
             ->when($request->filled('payment_status'), fn($q) => $q->where('payment_status', $request->payment_status))
+            // Add service filter to PDF export
+            ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
             ->latest();
 
         // Get all records without pagination for PDF
@@ -95,6 +106,7 @@ class BillingController extends Controller
             'end_date' => $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present',
             'plan_type' => $request->filled('plan_type') ? ucfirst(str_replace('_', ' ', $request->plan_type)) : 'All plans',
             'payment_status' => $request->filled('payment_status') ? ucfirst($request->payment_status) : 'All statuses',
+            'service' => $request->filled('service') ? $request->service : 'All services', // Add service to filter info
             'generated_at' => Carbon::now()->format('d M Y H:i:s'),
         ];
 
@@ -118,75 +130,126 @@ class BillingController extends Controller
     }
 
     /**
-     * Export customer billing data to PDF
-     * 
-     * @param Request $request
+     * Show customer billing records.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function customerBilling(Request $request)
+    {
+        // Get all unique service names for the dropdown
+        $serviceOptions = \App\Models\Booking::select('service_name')
+            ->distinct()
+            ->whereNotNull('service_name')
+            ->where('service_name', '!=', '')
+            ->orderBy('service_name')
+            ->pluck('service_name');
+
+        $query = \App\Models\Booking::with(['professional', 'user']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Date range filter
+        if ($request->filled(['start_date', 'end_date'])) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Plan type filter
+        if ($request->filled('plan_type')) {
+            $query->where('plan_type', $request->plan_type);
+        }
+
+        // SMS status filter
+        if ($request->filled('sms_status')) {
+            $query->where('sms_status', $request->sms_status);
+        }
+
+        // Service filter
+        if ($request->filled('service')) {
+            $query->where('service_name', $request->service);
+        }
+
+        // Get results with pagination
+        $billings = $query->latest()->paginate(10);
+
+        return view('admin.billing.customer-billing', compact('billings', 'serviceOptions'));
+    }
+
+    /**
+     * Export customer billing records to PDF.
+     *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function exportCustomerBillingToPdf(Request $request)
     {
-        // Build query with filters
-        $query = Booking::with(['professional', 'user'])
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('customer_name', 'like', "%{$request->search}%")
-                        ->orWhere('customer_email', 'like', "%{$request->search}%")
-                        ->orWhere('customer_phone', 'like', "%{$request->search}%");
-                });
-            })
-            ->when($request->filled(['start_date', 'end_date']), function ($query) use ($request) {
-                $query->whereBetween('created_at', [
-                    Carbon::parse($request->start_date)->startOfDay(),
-                    Carbon::parse($request->end_date)->endOfDay()
-                ]);
-            })
-            ->when($request->filled('plan_type'), fn($q) => $q->where('plan_type', $request->plan_type))
-            ->when($request->filled('sms_status'), fn($q) => $q->where('sms_status', $request->sms_status))
-            ->latest();
+        // Build query with the same filters
+        $query = \App\Models\Booking::with(['professional', 'user']);
 
-        // Get all records without pagination for PDF
-        $billings = $query->get();
-
-        // Calculate summary statistics
-        $totalAmount = 0;
-        $planCounts = [
-            'one_time' => 0,
-            'monthly' => 0,
-            'quarterly' => 0,
-            'free_hand' => 0,
-        ];
-
-        foreach ($billings as $billing) {
-            $totalAmount += $billing->amount;
-
-            // Count plan types
-            if (isset($planCounts[$billing->plan_type])) {
-                $planCounts[$billing->plan_type]++;
-            }
+        // Apply the same filters as above
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
+            });
         }
 
-        // Add filter information to pass to the view
+        if ($request->filled(['start_date', 'end_date'])) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($request->filled('plan_type')) {
+            $query->where('plan_type', $request->plan_type);
+        }
+
+        if ($request->filled('sms_status')) {
+            $query->where('sms_status', $request->sms_status);
+        }
+
+        // Service filter for PDF export
+        if ($request->filled('service')) {
+            $query->where('service_name', $request->service);
+        }
+
+        // Get all records without pagination for PDF
+        $billings = $query->latest()->get();
+
+        // Calculate totals
+        $totalAmount = $billings->sum('amount');
+
+        // Add filter information
         $filterInfo = [
-            'start_date' => $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
-            'end_date' => $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present',
+            'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+            'end_date' => $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Present',
             'plan_type' => $request->filled('plan_type') ? ucfirst(str_replace('_', ' ', $request->plan_type)) : 'All plans',
             'sms_status' => $request->filled('sms_status') ? ucfirst($request->sms_status) : 'All statuses',
-            'generated_at' => Carbon::now()->format('d M Y H:i:s'),
+            'service' => $request->filled('service') ? $request->service : 'All services',
+            'generated_at' => \Carbon\Carbon::now()->format('d M Y H:i:s'),
+            'total_amount' => $totalAmount
         ];
 
         // Generate PDF
-        $pdf = FacadePdf::loadView('admin.billing.customer-billing-pdf', compact(
-            'billings',
-            'totalAmount',
-            'planCounts',
-            'filterInfo'
-        ));
+        $pdf = FacadePdf::loadView('admin.billing.customer-billing-pdf', compact('billings', 'filterInfo'));
 
         // Set PDF options
         $pdf->setPaper('a4', 'landscape');
 
         // Generate filename with date
-        $filename = 'customer_billing_' . Carbon::now()->format('Y_m_d_His') . '.pdf';
+        $filename = 'customer_billing_' . \Carbon\Carbon::now()->format('Y_m_d_His') . '.pdf';
 
         // Return download response
         return $pdf->download($filename);

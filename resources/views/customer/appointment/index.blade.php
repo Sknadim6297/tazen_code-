@@ -203,7 +203,8 @@
     }
 
     .search-form input[type="text"],
-    .search-form input[type="date"] {
+    .search-form input[type="date"],
+    .search-form select {
         padding: 10px;
         border-radius: 6px;
         border: 1px solid #ccc;
@@ -242,8 +243,74 @@
     .btn-secondary:hover {
         background-color: #5a6268;
     }
-   
 
+    /* Service highlight */
+    .service-highlight {
+        background-color: #e7f3ff;
+    }
+    
+    /* Plan type highlight */
+    .plan-highlight {
+        background-color: #f0fff0;
+    }
+    
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-export {
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 6px;
+        text-align: center;
+    }
+    
+    .btn-pdf {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-excel {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* Plan type badge */
+    .plan-type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: #e3f2fd;
+        color: #0d47a1;
+        border: 1px solid #bbdefb;
+    }
+
+    .plan-type-premium {
+        background-color: #fce4ec;
+        color: #c2185b;
+        border-color: #f8bbd0;
+    }
+
+    .plan-type-standard {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border-color: #c8e6c9;
+    }
+
+    .plan-type-basic {
+        background-color: #ede7f6;
+        color: #4527a0;
+        border-color: #d1c4e9;
+    }
+
+    .plan-type-corporate {
+        background-color: #fff3e0;
+        color: #e65100;
+        border-color: #ffe0b2;
+    }
 </style>
 @endsection
 
@@ -260,35 +327,113 @@
             <li class="active">Appointment</li>
         </ul>
     </div>
-<div class="search-container">
-    <form action="{{ route('user.all-appointment.index') }}" method="GET" class="search-form">
-        <div class="form-group">
-            <label for="search_name">Search</label>
-            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
-        </div>
+    <div class="search-container">
+        <form action="{{ route('user.all-appointment.index') }}" method="GET" class="search-form">
+            <div class="form-group">
+                <label for="search_name">Search</label>
+                <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
+            </div>
 
-        <div class="form-group">
-            <label for="search_date_from">From Date</label>
-            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
-        </div>
+            <!-- Service Filter -->
+            <div class="form-group">
+                <label for="service">Service</label>
+                <select name="service" id="service" class="form-control">
+                    <option value="all">All Services</option>
+                    @foreach($serviceOptions as $service)
+                        <option value="{{ $service }}" {{ request('service') == $service ? 'selected' : '' }}>
+                            {{ $service }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+<!-- filepath: c:\xampp\htdocs\tazen_marge_code\Tazen_multi\resources\views\customer\appointment\index.blade.php -->
 
-        <div class="form-group">
-            <label for="search_date_to">To Date</label>
-            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
-        </div>
-
-        <div class="search-buttons">
-            <button type="submit" class="btn-success">Search</button>
-            <a href="{{ route('user.all-appointment.index') }}" class="btn-secondary">Reset</a>
-        </div>
-    </form>
+<!-- Add this helper function in the PHP section at the top of the blade file -->
+@php
+    /**
+     * Format plan type for display (e.g., "one_time" becomes "One Time")
+     */
+    function formatPlanType($planType) {
+        if (empty($planType)) return null;
+        
+        // Handle special case for "one_time"
+        if (strtolower($planType) == 'one_time') {
+            return 'One Time';
+        }
+        if( strtolower($planType) == 'no_plan') {
+            return 'No Plan';
+        }
+        if( strtolower($planType) == 'monthly') {
+            return 'Monthly';
+        }
+        if ( strtolower($planType) == 'quarterly') {
+            return 'Quarterly';
+        }
+        if ( strtolower($planType) == 'free_hand') {
+            return 'Free Hand';
+        }
+        
+        // Replace underscores with spaces and capitalize each word
+        $planType = str_replace('_', ' ', $planType);
+        return ucwords($planType);
+    }
+@endphp
+            <!-- Plan Type Filter -->
+            <!-- Update the plan type filter dropdown -->
+<div class="form-group">
+    <label for="plan_type">Plan Type</label>
+    <select name="plan_type" id="plan_type" class="form-control">
+        <option value="all">All Plans</option>
+        @foreach($planTypeOptions as $planType)
+            @php
+                $formattedPlanType = formatPlanType($planType);
+                // For value attribute, keep the original database value
+                $originalValue = $planType;
+            @endphp
+            <option value="{{ $originalValue }}" {{ request('plan_type') == $originalValue ? 'selected' : '' }}>
+                {{ $formattedPlanType }}
+            </option>
+        @endforeach
+    </select>
 </div>
 
+            <div class="form-group">
+                <label for="search_date_from">From Date</label>
+                <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="search_date_to">To Date</label>
+                <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+            </div>
+
+            <div class="search-buttons">
+                <button type="submit" class="btn-success">Search</button>
+                <a href="{{ route('user.all-appointment.index') }}" class="btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
 
     <!-- Appointments Summary -->
     <div class="content-section">
-        <div class="section-header mb-3">
-            <button class="btn btn-primary">Download Full Report</button>
+        <div class="section-header mb-3 d-flex justify-content-between align-items-center">
+            <h4>
+                Results: {{ $bookings->count() }} {{ Str::plural('appointment', $bookings->count()) }}
+                @if(request('service') && request('service') != 'all')
+                    for <strong>{{ request('service') }}</strong>
+                @endif
+                @if(request('plan_type') && request('plan_type') != 'all')
+                    with plan <strong>{{ request('plan_type') }}</strong>
+                @endif
+            </h4>
+            {{-- <div class="export-buttons">
+                <a href="{{ route('user.all-appointment.index', array_merge(request()->all(), ['export' => 'pdf'])) }}" class="btn-export btn-pdf">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </a>
+                <a href="{{ route('user.all-appointment.index', array_merge(request()->all(), ['export' => 'excel'])) }}" class="btn-export btn-excel">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </a>
+            </div> --}}
         </div>
 
         <table class="table table-bordered">
@@ -298,6 +443,7 @@
                     <th>Booking date</th>
                     <th>Professional Name</th>
                     <th>Service Category</th>
+                    <th>Plan Type</th>
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
@@ -305,40 +451,94 @@
                 </tr>
             </thead>
             <tbody>
-    @foreach ($bookings as $key => $booking)
+                @forelse ($bookings as $key => $booking)
+                    @php
+                        $totalSessions = $booking->timedates->count();
+                        $sessionsTaken = $booking->timedates->where('status', '!=', 'pending')->count();
+
+                        // Sessions remaining (count of 'pending' timedates)
+                        $sessionsRemaining = $totalSessions - $sessionsTaken;
+                        
+                        // Check if this service is the one being filtered
+                        $isFilteredService = request('service') == $booking->service_name;
+                        
+                        // Check if this plan type is the one being filtered
+                        $isFilteredPlan = request('plan_type') == $booking->plan_type;
+                        
+                        // Determine plan type class
+                        $planTypeClass = 'plan-type-badge';
+                        if (strtolower($booking->plan_type) == 'premium') {
+                            $planTypeClass .= ' plan-type-premium';
+                        } elseif (strtolower($booking->plan_type) == 'standard') {
+                            $planTypeClass .= ' plan-type-standard';
+                        } elseif (strtolower($booking->plan_type) == 'basic') {
+                            $planTypeClass .= ' plan-type-basic';
+                        } elseif (strtolower($booking->plan_type) == 'corporate') {
+                            $planTypeClass .= ' plan-type-corporate';
+                        }
+                    @endphp
+
+                    <tr class="{{ $isFilteredService ? 'service-highlight' : '' }} {{ $isFilteredPlan ? 'plan-highlight' : '' }}">
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $booking->timedates->first() ? \Carbon\Carbon::parse($booking->timedates->first()->date)->format('d-m-Y') : '-' }}</td>
+                        <td>{{ $booking->professional->name ?? 'No Professional' }}</td>
+                        <td>
+                            @if($isFilteredService)
+                                <strong>{{ $booking->service_name }}</strong>
+                            @else
+                                {{ $booking->service_name }}
+                            @endif
+                        </td>
+                      <!-- Change this part in the table row -->
+<td>
+    @if($booking->plan_type)
         @php
-            $totalSessions = $booking->timedates->count();
-            $sessionsTaken = $booking->timedates->where('status', '!=', 'pending')->count();
-
-            // Sessions remaining (count of 'pending' timedates)
-            $sessionsRemaining = $totalSessions - $sessionsTaken;
+            $formattedPlanType = formatPlanType($booking->plan_type);
+            
+            // Determine plan type class - use the raw value for class determination
+            $planTypeClass = 'plan-type-badge';
+            $planTypeLower = strtolower($booking->plan_type);
+            
+            if ($planTypeLower == 'premium') {
+                $planTypeClass .= ' plan-type-premium';
+            } elseif ($planTypeLower == 'standard') {
+                $planTypeClass .= ' plan-type-standard';
+            } elseif ($planTypeLower == 'basic') {
+                $planTypeClass .= ' plan-type-basic';
+            } elseif ($planTypeLower == 'corporate') {
+                $planTypeClass .= ' plan-type-corporate';
+            } elseif ($planTypeLower == 'one_time') {
+                $planTypeClass .= ' plan-type-one-time';
+            }
         @endphp
-
-        <tr>
-            <td>{{ $key + 1 }}</td>
-            <td>{{ $booking->timedates->first() ? \Carbon\Carbon::parse($booking->timedates->first()->date)->format('d-m-Y') : '-' }}</td>
-            <td>{{ $booking->professional->name ?? 'No Professional' }}</td>
-            <td>{{ $booking->service_name }}</td>
-            <td>{{ $sessionsTaken }}</td> <!-- Sessions taken -->
-            <td>{{ $sessionsRemaining }}</td> <!-- Sessions remaining -->
-            <td>
-                @if ($booking->professional_documents)
-                    <a href="{{ asset('storage/' . $booking->professional_documents) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
-                        <img src="{{ asset('images/pdf-icon.png') }}" alt="PDF" style="width: 20px;">
-                    </a>
-                @else
-                    No Documents
-                @endif
-            </td>
-            <td>
-                <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
-                    View Details
-                </button>
-            </td>
-        </tr>
-    @endforeach
-</tbody>
-
+        <span class="{{ $planTypeClass }}">{{ $formattedPlanType }}</span>
+    @else
+        <span class="empty-state">No Plan</span>
+    @endif
+</td>
+                        <td>{{ $sessionsTaken }}</td> <!-- Sessions taken -->
+                        <td>{{ $sessionsRemaining }}</td> <!-- Sessions remaining -->
+                        <td>
+                            @if ($booking->professional_documents)
+                                <a href="{{ asset('storage/' . $booking->professional_documents) }}" class="btn btn-sm btn-secondary mt-1" target="_blank">
+                                    <img src="{{ asset('images/pdf-icon.png') }}" alt="PDF" style="width: 20px;">
+                                </a>
+                            @else
+                                No Documents
+                            @endif
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="9" class="text-center">No appointments found</td>
+                    </tr>
+                @endforelse
+            </tbody>
         </table>
     </div>
 
@@ -395,7 +595,7 @@
         /* Ensure the table takes full width of container */
         .table {
             width: 100%;
-            min-width: 800px; /* Minimum width to ensure all columns are visible */
+            min-width: 900px; /* Increased minimum width to accommodate new column */
         }
         
         /* Fix the search container from overflowing */
@@ -433,6 +633,17 @@
             margin: 10% auto;
             padding: 15px;
         }
+        
+        /* Make the export buttons stack on mobile */
+        .export-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-export {
+            width: 100%;
+            margin-bottom: 5px;
+        }
     }
 
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
@@ -461,7 +672,7 @@
         /* Ensure the table takes full width of container */
         .table {
             width: 100%;
-            min-width: 800px; /* Minimum width to ensure all columns are visible */
+            min-width: 900px; /* Increased minimum width to accommodate new column */
         }
         
         /* Fix the search container from overflowing */

@@ -10,6 +10,9 @@ use App\Models\Service;
 use App\Models\Profile;
 use App\Models\Rate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ProfessionalDeactivated;
+use Illuminate\Support\Facades\DB;
 
 class ManageProfessionalController extends Controller
 {
@@ -20,16 +23,24 @@ class ManageProfessionalController extends Controller
     {
         // Get services for filtering dropdown
         $services = Service::orderBy('name')->get();
-        
+        $specializations = DB::table('profiles')
+            ->select('specialization')
+            ->whereNotNull('specialization')
+            ->distinct()
+            ->orderBy('specialization')
+            ->get()
+            ->pluck('specialization');
+
         // If the request is AJAX
         if ($request->ajax()) {
             $searchTerm = $request->input('search');
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
             $serviceId = $request->input('service_id');
+            $specializationFilter = $request->input('specialization');
 
             // Build the query based on filters
-            $professionals = Professional::with(['professionalServices.service']);
+            $professionals = Professional::with(['professionalServices.service', 'profile']);
 
             if ($searchTerm) {
                 $professionals = $professionals->where(function ($query) use ($searchTerm) {
@@ -42,13 +53,20 @@ class ManageProfessionalController extends Controller
             if ($startDate && $endDate) {
                 // Ensure proper date format for database query
                 $professionals = $professionals->whereDate('created_at', '>=', date('Y-m-d', strtotime($startDate)))
-                                              ->whereDate('created_at', '<=', date('Y-m-d', strtotime($endDate)));
+                    ->whereDate('created_at', '<=', date('Y-m-d', strtotime($endDate)));
             }
-            
+
             // Filter by service if selected
             if ($serviceId) {
-                $professionals = $professionals->whereHas('professionalServices', function($query) use ($serviceId) {
+                $professionals = $professionals->whereHas('professionalServices', function ($query) use ($serviceId) {
                     $query->where('service_id', $serviceId);
+                });
+            }
+            
+            // Filter by specialization if selected
+            if ($specializationFilter) {
+                $professionals = $professionals->whereHas('profile', function($query) use ($specializationFilter) {
+                    $query->where('specialization', $specializationFilter);
                 });
             }
 
@@ -61,8 +79,8 @@ class ManageProfessionalController extends Controller
         }
 
         // Return the view for initial page load
-        $professionals = Professional::with(['professionalServices.service'])->latest()->paginate(10);
-        return view('admin.manage-professional.index', compact('professionals', 'services'));
+        $professionals = Professional::with(['professionalServices.service', 'profile'])->latest()->paginate(10);
+        return view('admin.manage-professional.index', compact('professionals', 'services', 'specializations'));
     }
 
     /**
@@ -118,7 +136,7 @@ class ManageProfessionalController extends Controller
     {
         //
     }
-    
+
     public function updateMargin(Request $request, $id)
     {
         try {
@@ -150,7 +168,7 @@ class ManageProfessionalController extends Controller
             return redirect()->back()->with('error', 'Error updating margin: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Toggle active status of a professional
      *
@@ -164,21 +182,32 @@ class ManageProfessionalController extends Controller
                 'professional_id' => 'required|exists:professionals,id',
                 'active_status' => 'required|in:0,1',
             ]);
-            
+
             $professional = Professional::findOrFail($request->professional_id);
+            $wasActive = $professional->active;
             $professional->active = (bool)$request->active_status;
             $professional->save();
-            
+
             $statusText = $request->active_status ? 'activated' : 'deactivated';
             $message = "Professional {$professional->name} has been {$statusText} successfully.";
-            
+
+            // Send email notification for deactivation
+            if ($wasActive && !$professional->active) {
+                try {
+                    Mail::to($professional->email)->send(new ProfessionalDeactivated($professional));
+                    $message .= " Deactivation notification has been sent.";
+                } catch (\Exception $e) {
+                    $message .= " But failed to send notification email.";
+                }
+            }
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message
                 ]);
             }
-            
+
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             if ($request->ajax()) {
@@ -187,7 +216,7 @@ class ManageProfessionalController extends Controller
                     'message' => "Failed to update status: " . $e->getMessage()
                 ], 500);
             }
-            
+
             return redirect()->back()->with('error', "Failed to update status: " . $e->getMessage());
         }
     }

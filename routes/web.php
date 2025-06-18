@@ -275,7 +275,8 @@ Route::get('register', [LoginController::class, 'showRegisterForm'])->name('regi
 
 Route::post('login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('register', [LoginController::class, 'register'])->name('register.submit');
-
+Route::post('/register/send-otp', [App\Http\Controllers\Frontend\LoginController::class, 'sendOtp'])->name('register.send-otp');
+Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
 
 
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');

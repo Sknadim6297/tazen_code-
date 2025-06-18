@@ -32,7 +32,8 @@
     }
 
     .search-form input[type="text"],
-    .search-form input[type="date"] {
+    .search-form input[type="date"],
+    .search-form select {
         padding: 10px;
         border-radius: 6px;
         border: 1px solid #ccc;
@@ -71,240 +72,292 @@
     .btn-secondary:hover {
         background-color: #5a6268;
     }
+
+    /* Highlight row for filtered service */
+    .service-highlight {
+        background-color: #e7f3ff;
+    }
+    
+    /* Highlight row for filtered plan type */
+    .plan-highlight {
+        background-color: #f0fff0;
+    }
+    
+    /* Plan Type Badge Styles */
+    .plan-type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: #e3f2fd;
+        color: #0d47a1;
+        border: 1px solid #bbdefb;
+    }
+
+    .plan-type-premium {
+        background-color: #fce4ec;
+        color: #c2185b;
+        border-color: #f8bbd0;
+    }
+
+    .plan-type-standard {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border-color: #c8e6c9;
+    }
+
+    .plan-type-basic {
+        background-color: #ede7f6;
+        color: #4527a0;
+        border-color: #d1c4e9;
+    }
+
+    .plan-type-corporate {
+        background-color: #fff3e0;
+        color: #e65100;
+        border-color: #ffe0b2;
+    }
+    
+    .plan-type-one-time {
+        background-color: #e1f5fe;
+        color: #0277bd;
+        border-color: #b3e5fc;
+    }
+
     @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
+        /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .table-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+        }
+        
+        /* Ensure the table takes full width of container */
+        .data-table {
+            width: 100%;
+            table-layout: auto;
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 20px 10px;
+        }
+        
+        /* Fix card width */
+        .card {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure the card body doesn't cause overflow */
+        .card-body {
+            padding: 10px 5px;
+        }
+        
+        /* Optional: Make some table columns width-responsive */
+        .data-table th,
+        .data-table td {
+            white-space: nowrap;
+        }
+    }
+
+    /* Modal Styles */
+    .custom-modal {
+        display: none;
+        position: fixed;
         top: 0;
-        z-index: 10;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .custom-modal.show {
+        opacity: 1;
+    }
+
+    .custom-modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 0;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-20px);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .custom-modal.show .custom-modal-content {
+        transform: translateY(0);
+    }
+
+    .custom-modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .custom-modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .custom-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .custom-modal-close:hover {
+        color: #333;
+    }
+
+    .custom-modal-body {
+        padding: 1.5rem;
+    }
+
+    .custom-modal-footer {
+        padding: 1rem;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .file-preview {
+        margin-top: 1rem;
+        padding: 0.75rem;
         background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    .file-preview h6 {
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    /* Form Styles */
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.5rem;
         width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
     }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
     }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
+
+    /* Button Styles */
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
     }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
+
+    .btn-primary {
+        background-color: #007bff;
+        border: 1px solid #007bff;
+        color: #fff;
     }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
     }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: 1px solid #6c757d;
+        color: #fff;
     }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
     }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
+
+    /* Animation Classes */
+    .modal-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
     }
-}
 
-/* Modal Styles */
-.custom-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.custom-modal.show {
-    opacity: 1;
-}
-
-.custom-modal-content {
-    position: relative;
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 0;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    transform: translateY(-20px);
-    transition: transform 0.3s ease-in-out;
-}
-
-.custom-modal.show .custom-modal-content {
-    transform: translateY(0);
-}
-
-.custom-modal-header {
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.custom-modal-title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.custom-modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #666;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.custom-modal-close:hover {
-    color: #333;
-}
-
-.custom-modal-body {
-    padding: 1.5rem;
-}
-
-.custom-modal-footer {
-    padding: 1rem;
-    border-top: 1px solid #dee2e6;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-.file-preview {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.file-preview h6 {
-    margin-bottom: 0.5rem;
-    color: #495057;
-}
-
-/* Form Styles */
-.form-label {
-    font-weight: 500;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 0.5rem;
-    width: 100%;
-}
-
-.form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
-
-/* Button Styles */
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    border: 1px solid #007bff;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border: 1px solid #6c757d;
-    color: #fff;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-
-/* Animation Classes */
-.modal-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.modal-fade-out {
-    animation: fadeOut 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+    .modal-fade-out {
+        animation: fadeOut 0.3s ease-in-out;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0);
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    to {
-        opacity: 0;
-        transform: translateY(-20px);
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
     }
-}
 
-@media only screen and (min-width: 768px) and (max-width: 1024px) {
-
-         /* Fix header to prevent horizontal scrolling */
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+        /* Fix header to prevent horizontal scrolling */
         .page-header {
             position: sticky;
             top: 0;
@@ -391,6 +444,23 @@
 @endsection
 
 @section('content')
+@php
+    /**
+     * Format plan type for display (e.g., "one_time" becomes "One Time")
+     */
+    function formatPlanType($planType) {
+        if (empty($planType)) return null;
+        
+        // Handle special case for "one_time"
+        if (strtolower($planType) == 'one_time') {
+            return 'One Time';
+        }
+        
+        // Replace underscores with spaces and capitalize each word
+        $planType = str_replace('_', ' ', $planType);
+        return ucwords($planType);
+    }
+@endphp
 <div class="content-wrapper">
     <!-- Page Header -->
     <div class="page-header">
@@ -402,34 +472,67 @@
             <li class="active">upcoming-appointment</li>
         </ul>
     </div>
-<div class="search-container">
-    <form action="{{ route('user.upcoming-appointment.index') }}" method="GET" class="search-form">
-        <div class="form-group">
-            <label for="search_name">Search</label>
-            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
-        </div>
+    <div class="search-container">
+        <form action="{{ route('user.upcoming-appointment.index') }}" method="GET" class="search-form">
+            <div class="form-group">
+                <label for="search_name">Search</label>
+                <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
+            </div>
 
-        <div class="form-group">
-            <label for="search_date_from">From Date</label>
-            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
-        </div>
+            <!-- Service Filter -->
+            <div class="form-group">
+                <label for="service">Service</label>
+                <select name="service" id="service" class="form-control">
+                    <option value="all">All Services</option>
+                    @foreach($serviceOptions as $service)
+                        <option value="{{ $service }}" {{ request('service') == $service ? 'selected' : '' }}>
+                            {{ $service }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <!-- Plan Type Filter -->
+            <div class="form-group">
+                <label for="plan_type">Plan Type</label>
+                <select name="plan_type" id="plan_type" class="form-control">
+                    <option value="all">All Plans</option>
+                    @foreach($planTypeOptions as $planType)
+                        <option value="{{ $planType }}" {{ request('plan_type') == $planType ? 'selected' : '' }}>
+                            {{ formatPlanType($planType) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="search_date_to">To Date</label>
-            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
-        </div>
+            <div class="form-group">
+                <label for="search_date_from">From Date</label>
+                <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+            </div>
 
-        <div class="search-buttons">
-            <button type="submit" class="btn-success">Search</button>
-            <a href="{{ route('user.upcoming-appointment.index') }}" class="btn-secondary">Reset</a>
-        </div>
-    </form>
-</div>
+            <div class="form-group">
+                <label for="search_date_to">To Date</label>
+                <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+            </div>
+
+            <div class="search-buttons">
+                <button type="submit" class="btn-success">Search</button>
+                <a href="{{ route('user.upcoming-appointment.index') }}" class="btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
 
     <div class="content-section">
-        <div class="section-header">
-            
-            <button class="btn btn-primary">Add New Appointment</button>
+        <div class="section-header mb-3 d-flex justify-content-between align-items-center">
+            <h4>
+                Results: {{ $bookings->count() }} {{ Str::plural('appointment', $bookings->count()) }}
+                @if(request('service') && request('service') != 'all')
+                    for <strong>{{ request('service') }}</strong>
+                @endif
+                @if(request('plan_type') && request('plan_type') != 'all')
+                    with plan <strong>{{ formatPlanType(request('plan_type')) }}</strong>
+                @endif
+            </h4>
         </div>
         <div class="table-wrapper">
             <table class="data-table">
@@ -442,6 +545,7 @@
                         <th>Time</th>
                         <th>Professional Name</th>
                         <th>Service Category</th>
+                        <th>Plan Type</th>
                         <th>Sessions Taken</th>
                         <th>Sessions Remaining</th>
                         <th>Meet Link</th>
@@ -450,21 +554,56 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($bookings as $index => $booking)
+                    @forelse($bookings as $index => $booking)
                         @php
                             // The timedate is already filtered to be the next upcoming one
                             $upcomingTimedate = $booking->timedates->first();
+                            
+                            // Check if this service is being filtered
+                            $isFilteredService = request('service') == $booking->service_name;
+                            
+                            // Check if this plan type is being filtered
+                            $isFilteredPlan = request('plan_type') == $booking->plan_type;
+                            
+                            // Determine plan type class
+                            $planTypeClass = 'plan-type-badge';
+                            $planTypeLower = strtolower($booking->plan_type ?? '');
+                            
+                            if ($planTypeLower == 'premium') {
+                                $planTypeClass .= ' plan-type-premium';
+                            } elseif ($planTypeLower == 'standard') {
+                                $planTypeClass .= ' plan-type-standard';
+                            } elseif ($planTypeLower == 'basic') {
+                                $planTypeClass .= ' plan-type-basic';
+                            } elseif ($planTypeLower == 'corporate') {
+                                $planTypeClass .= ' plan-type-corporate';
+                            } elseif ($planTypeLower == 'one_time') {
+                                $planTypeClass .= ' plan-type-one-time';
+                            }
                         @endphp
                         
                         @if($upcomingTimedate)
-                            <tr>
+                            <tr class="{{ $isFilteredService ? 'service-highlight' : '' }} {{ $isFilteredPlan ? 'plan-highlight' : '' }}">
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('d-m-Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('F') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('D') }}</td>
                                 <td>{{ $upcomingTimedate->time_slot }}</td>
                                 <td>{{ $booking->professional->name ?? 'Not Assigned' }}</td>
-                                <td>{{ $booking->service_name }}</td>
+                                <td>
+                                    @if($isFilteredService)
+                                        <strong>{{ $booking->service_name }}</strong>
+                                    @else
+                                        {{ $booking->service_name }}
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($booking->plan_type)
+                                        <span class="{{ $planTypeClass }}">{{ formatPlanType($booking->plan_type) }}</span>
+                                    @else
+                                        <span class="text-muted">No Plan</span>
+                                    @endif
+                                </td>
                                 <td>{{ $booking->sessions_taken ?? 0 }}</td>
                                 <td>{{ $booking->sessions_remaining ?? 0 }}</td>
                                 <td>
@@ -508,11 +647,13 @@
                                 </td>
                             </tr>
                         @endif
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="13" class="text-center">No upcoming appointments found</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
-            
-           
         </div>
     </div>
 </div>
@@ -546,6 +687,7 @@
     </div>
 </div>
 @endsection
+
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
