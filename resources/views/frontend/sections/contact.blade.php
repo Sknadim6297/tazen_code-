@@ -67,21 +67,25 @@
         <div class="row">
             <div class="col-lg-4 col-md-6 add_bottom_25">
                 <div id="message-contact"></div>
-                <form>
+                <form method="POST" action="{{ route('contact.store') }}">
+                    @csrf
                     <div class="form-group">
-                        <input class="form-control" type="text" placeholder="Name" id="name_contact" name="name_contact">
+                        <input class="form-control" type="text" placeholder="Name" id="name_contact" name="name_contact" required>
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="email" placeholder="Email" id="email_contact" name="email_contact" value="{{ request('email') }}">
+                        <input class="form-control" type="email" placeholder="Email" id="email_contact" name="email_contact" value="{{ request('email') }}" required>
                     </div>
                     <div class="form-group">
-                        <textarea class="form-control" style="height: 150px;" placeholder="Message" id="message_contact" name="message_contact"></textarea>
+                        <input class="form-control" type="tel" placeholder="Phone Number" id="phone_contact" name="phone_contact" pattern="[0-9]{10}" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" style="height: 150px;" placeholder="Message" id="message_contact" name="message_contact" required></textarea>
                     </div>
                     <div class="form-group">
                         <input class="form-control" type="text" id="verify_contact" name="verify_contact" placeholder="Are you human? 3 + 1 =">
                     </div>
                     <div class="form-group">
-                        <input class="btn_1 full-width" type="submit" value="Submit" id="submit-contact">
+                        <input class="btn_1 full-width" type="submit" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12);" value="Submit" id="submit-contact">
                     </div>
                 </form>
             </div>
