@@ -4,6 +4,9 @@
         'pretty_version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
         'version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
         'reference' => 'e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
+        'pretty_version' => 'dev-tania',
+        'version' => 'dev-tania',
+        'reference' => '64da6d494ef6c2905826cb038af957ead00a4d05',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -446,6 +449,9 @@
             'pretty_version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
             'version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
             'reference' => 'e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
+            'pretty_version' => 'dev-tania',
+            'version' => 'dev-tania',
+            'reference' => '64da6d494ef6c2905826cb038af957ead00a4d05',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -874,8 +880,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '3.0.0',
-                1 => '1.0|2.0|3.0',
+                0 => '1.0|2.0|3.0',
+                1 => '3.0.0',
             ),
         ),
         'psr/simple-cache' => array(
