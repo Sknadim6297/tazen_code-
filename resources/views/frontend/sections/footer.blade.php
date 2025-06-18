@@ -60,9 +60,7 @@
                         <div class="styled-select lang-selector">
                             <select>
                                 <option value="English" selected>English</option>
-                                <option value="French">French</option>
-                                <option value="Spanish">Spanish</option>
-                                <option value="Russian">Russian</option>
+                               
                             </select>
                         </div>
                     </li>
@@ -70,7 +68,7 @@
                         <div class="styled-select currency-selector">
                             <select>
                                 <option value="INR" selected>INR</option>
-                                <option value="Euro">Euro</option>
+                                
                             </select>
                         </div>
                     </li>
@@ -79,8 +77,8 @@
             </div>
             <div class="col-lg-6">
                 <ul class="additional_links">
-                    <li><a href="#">Terms and conditions</a></li>
-                    <li><a href="#">Privacy</a></li>
+                    <li><a href="{{ url('/terms') }}">Terms and conditions</a></li>
+                    <li><a href="{{ url('/terms') }}">Privacy</a></li>
                     <li><span>© Tazen</span></li>
                 </ul>
             </div>

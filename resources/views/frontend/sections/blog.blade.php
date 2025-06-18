@@ -30,7 +30,7 @@
                  <div class="widget search_blog">
                     <form action="{{ route('blog.index') }}" method="GET">
                         <div class="form-group">
-                            <input type="text" name="search" id="search" class="form-control" placeholder="Search Blogs..." value="{{ request('search') }}">
+                            <input type="text" name="search" id="search" class="form-control" placeholder="Search Blogs or Categories..." value="{{ request('search') }}">
                             <span><input type="submit" value="Search"></span>
                         </div>
                     </form>
@@ -67,7 +67,7 @@
                     <ul class="cats">
                         @foreach($categoryCounts as $category)
                             <li>
-                                <a href="#">{{ $category->category }} <span>({{ $category->post_count }})</span></a>
+                                <a href="{{ route('blog.index', ['category' => $category->category]) }}">{{ $category->category }} <span>({{ $category->post_count }})</span></a>
                             </li>
                         @endforeach
                     </ul>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="tags">
                         @foreach($categoryCounts as $category)
-                            <a href="#">{{ $category->category }}</a>
+                            <a href="{{ route('blog.index', ['category' => $category->category]) }}">{{ $category->category }}</a>
                         @endforeach
                     </div>
                 </div>

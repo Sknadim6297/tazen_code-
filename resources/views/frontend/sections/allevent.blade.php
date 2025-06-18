@@ -12,7 +12,7 @@
             <img src="{{ asset('storage/' . $event->banner_image) }}" alt="" />
         </div>
     </div>
-</div>
+ </div>
 
 <div class="event-information my-5">
     <div class="container">
@@ -62,10 +62,28 @@
                     <div class="share-content">
                         <h2>Share this Event</h2>
                         <div class="share-button text-center">
-                            <i class="fa-brands fa-square-facebook"></i>
-                            <i class="fa-brands fa-square-x-twitter"></i>
-                            <i class="fa-brands fa-square-instagram"></i>
-                            <i class="fa-brands fa-square-whatsapp"></i>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(Request::url()) }}" 
+                               target="_blank" 
+                               class="share-link facebook">
+                                <i class="fa-brands fa-square-facebook"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text={{ urlencode($event->eventDetails->heading) }}&url={{ urlencode(Request::url()) }}" 
+                               target="_blank" 
+                               class="share-link twitter">
+                                <i class="fa-brands fa-square-x-twitter"></i>
+                            </a>
+                            <a href="https://api.whatsapp.com/send?text={{ urlencode($event->eventDetails->heading . ' - ' . Request::url()) }}" 
+                               target="_blank" 
+                               class="share-link whatsapp">
+                                <i class="fa-brands fa-square-whatsapp"></i>
+                            </a>
+                            <button onclick="copyToClipboard()" class="share-link instagram">
+                                <i class="fa-brands fa-square-instagram"></i>
+                            </button>
+                            
+                        </div>
+                        <div id="copyMessage" class="copy-message" style="display: none;">
+                            Event details copied! You can now paste this into your Instagram story or post.
                         </div>
                     </div>
                 </div>
@@ -95,13 +113,7 @@
                        
                         <h3>About Event Details</h3>
                         <p>
-                            <!-- Display first 80 words here -->
-                            {{-- <span id="short-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Numquam dolorum, soluta quibusdam consequuntur sunt ratione architecto deserunt...</span> --}}
-                            <!-- Rest of the text here -->
-                            <span id="full-text" style="display: none;">
-                                {{ $event->event_details }}
-                            </span>
-                            <a href="javascript:void(0);" id="read-more">Read More</a>
+                            {{ $event->event_details }}
                         </p>
 
                     </div>
@@ -261,6 +273,22 @@
 @section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Owl Carousel for gallery
+    $('.gallery-carousal').owlCarousel({
+        items: 1,
+        loop: true,
+        autoplay: true,
+        autoplayTimeout: 3000,
+        autoplaySpeed: 1000,
+        autoplayHoverPause: false,
+        smartSpeed: 1000,
+        // nav: true,
+        // navText: ['<i class="arrow_carrot-left"></i>', '<i class="arrow_carrot-right"></i>'],
+        dots: true,
+        animateOut: 'fadeOut',
+        animateIn: 'fadeIn'
+    });
+
     const bookNowBtn = document.getElementById('bookNowBtn');
     const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
     const eventIdInput = document.getElementById('event_id');
@@ -348,6 +376,91 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+function copyToClipboard() {
+    const eventDetails = `Check out this event: {{ $event->eventDetails->heading }}\n\n` +
+                        `Date: {{ $event->starting_date }}\n` +
+                        `Location: {{ $event->event_mode }}\n` +
+                        `Price: ₹{{ $event->starting_fees }}\n\n` +
+                        `More details: {{ Request::url() }}`;
+
+    navigator.clipboard.writeText(eventDetails).then(() => {
+        const copyMessage = document.getElementById('copyMessage');
+        copyMessage.style.display = 'block';
+        setTimeout(() => {
+            copyMessage.style.display = 'none';
+        }, 3000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+    });
+}
 </script>
+
+<style>
+.share-button {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.share-link {
+    font-size: 24px;
+    color: #666;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.share-link:hover {
+    transform: translateY(-3px);
+}
+
+.share-link.facebook:hover {
+    color: #1877f2;
+}
+
+.share-link.twitter:hover {
+    color: #1da1f2;
+}
+
+.share-link.whatsapp:hover {
+    color: #25d366;
+}
+
+.share-link.instagram:hover {
+    color: #e4405f;
+}
+
+.share-link.email:hover {
+    color: #ea4335;
+}
+
+.share-content h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.copy-message {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    color: #28a745;
+    font-size: 0.9rem;
+    text-align: center;
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+</style>
 
 @endsection
