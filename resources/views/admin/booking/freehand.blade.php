@@ -61,6 +61,9 @@
             <a href="{{ route('admin.booking.freehand.export', request()->all()) }}" class="btn btn-success">
                 <i class="fas fa-file-pdf"></i> Export
             </a>
+            <a href="{{ route('admin.booking.freehand.export-excel', request()->all()) }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
         </div>
     </div>
 </form>

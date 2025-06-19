@@ -15,6 +15,7 @@
     <link href="{{ asset('frontend/assets/css/account.css') }}" rel="stylesheet">
     <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
@@ -93,6 +94,31 @@
         </aside>
     </div>
 
+    <!-- Add this modal for deactivated accounts -->
+    <div class="modal fade" id="deactivatedModal" tabindex="-1" aria-labelledby="deactivatedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deactivatedModalLabel">Account Deactivated</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 48px;"></i>
+                    </div>
+                    <p>Your account has been deactivated by the administrator.</p>
+                    <p>Please contact support for assistance.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="mailto:support@tazen.com" class="btn btn-primary">
+                        <i class="fas fa-envelope me-2"></i>Contact Support
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/common_func.js') }}"></script>
@@ -134,7 +160,10 @@
                     }
                 },
                 error: function (xhr) {
-                    if (xhr.status === 422) {
+                    if (xhr.status === 403 && xhr.responseJSON.status === 'deactivated') {
+                        // Show deactivated account modal
+                        $('#deactivatedModal').modal('show');
+                    } else if (xhr.status === 422) {
                         $.each(xhr.responseJSON.errors, (key, value) => toastr.error(value[0]));
                     } else {
                         toastr.error(xhr.responseJSON.message || "An error occurred. Please try again.");
