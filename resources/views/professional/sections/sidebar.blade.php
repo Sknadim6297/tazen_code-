@@ -61,6 +61,12 @@
 </div>
 
 <style>
+    .sidebar {
+        max-height: 100vh;
+        overflow-y: auto;
+        /* Optional: for smooth scrolling */
+        scroll-behavior: smooth;
+    }
     .menu-item.active {
         background: linear-gradient(45deg, #FF4500, #FFA500);
         color: white;

@@ -131,13 +131,13 @@
                             Event Bookings ({{ $bookings->count() }})
                         </div>
                         <!-- Export Buttons -->
-                        <div class="export-buttons">
-                            <a href="{{ route('admin.event.export', request()->all()) }}" class="btn btn-primary">
-                                <i class="fas fa-file-pdf me-1"></i> Export to PDF
-                            </a>
-                            <a href="{{ route('admin.event.export.excel', request()->all()) }}" class="btn btn-success">
-                                <i class="fas fa-file-excel me-1"></i> Export to Excel
-                            </a>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-1"></i> Export Excel
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf me-1"></i> Export PDF
+                            </button>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -218,6 +218,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add this hidden form for export -->
+        <form id="export-form" method="GET" action="{{ route('admin.event.export') }}">
+            <input type="hidden" name="search" id="export-search">
+            <input type="hidden" name="status" id="export-status">
+            <input type="hidden" name="event_mode" id="export-event-mode">
+            <input type="hidden" name="start_date" id="export-start-date">
+            <input type="hidden" name="end_date" id="export-end-date">
+            <input type="hidden" name="type" id="export-type">
+        </form>
     </div>
 </div>
 @endsection
@@ -236,5 +246,32 @@
             }
         });
     });
+    
+    // Export data function
+    function exportData(type) {
+        console.log('Export requested:', type);
+        
+        // Set the export type explicitly
+        document.getElementById('export-type').value = type;
+        
+        // Set the values of the hidden inputs to current filter values
+        document.getElementById('export-search').value = document.querySelector('input[name="search"]')?.value || '';
+        document.getElementById('export-status').value = document.querySelector('select[name="status"]')?.value || '';
+        document.getElementById('export-event-mode').value = document.querySelector('select[name="event_mode"]')?.value || '';
+        document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]')?.value || '';
+        document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]')?.value || '';
+        
+        // Show a loading message (optional)
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Preparing ' + type.toUpperCase() + ' export...');
+        }
+        
+        // Debug what's being submitted
+        console.log('Form action:', document.getElementById('export-form').action);
+        console.log('Type value:', document.getElementById('export-type').value);
+        
+        // Submit the form
+        document.getElementById('export-form').submit();
+    }
 </script>
 @endsection

@@ -12,7 +12,7 @@ class CommentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'website' => 'nullable|url|max:255',
+            'mobile' => ['required', 'regex:/^[0-9]{10,15}$/'],
             'comment' => 'required|string'
         ]);
 
@@ -20,7 +20,7 @@ class CommentController extends Controller
             'blog_post_id' => $blogPostId,
             'name' => $request->name,
             'email' => $request->email,
-            'website' => $request->website,
+            'mobile' => $request->mobile,
             'comment' => $request->comment,
             'is_approved' => false // Comments need approval by default
         ]);

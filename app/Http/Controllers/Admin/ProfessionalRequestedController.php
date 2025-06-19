@@ -15,6 +15,7 @@ use App\Exports\ProfessionalsExport;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
+use Spatie\LaravelPdf\Facades\Pdf as FacadesPdf;
 
 class ProfessionalRequestedController extends Controller
 {
@@ -71,12 +72,56 @@ class ProfessionalRequestedController extends Controller
     }
 
     /**
-     * Export data to Excel
+     * Export data to Excel (CSV format)
      */
     private function exportToExcel($professionals)
     {
-        $filename = 'professionals_' . date('Y_m_d_His') . '.xlsx';
-        return Excel::download(new ProfessionalsExport($professionals), $filename);
+        try {
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="professionals_requested_' . date('Y_m_d_His') . '.csv"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+            
+            $callback = function() use ($professionals) {
+                $file = fopen('php://output', 'w');
+                
+                // Add headers
+                fputcsv($file, [
+                    'ID', 'Name', 'Email', 'Phone', 'Specialization', 
+                    'Experience', 'Address', 'Starting Price', 
+                    'Status', 'Registration Date', 'Rejection Reason'
+                ]);
+                
+                // Add data rows
+                foreach ($professionals as $professional) {
+                    $rejectionReason = $professional->professionalRejection->first() ? 
+                                      $professional->professionalRejection->first()->reason : 'N/A';
+                    
+                    fputcsv($file, [
+                        $professional->id,
+                        $professional->name,
+                        $professional->email,
+                        $professional->phone,
+                        $professional->profile ? $professional->profile->specialization : 'Not specified',
+                        $professional->profile ? $professional->profile->experience : 'Not specified',
+                        $professional->profile ? $professional->profile->address : 'Not specified',
+                        $professional->profile ? $professional->profile->starting_price : 'Not specified',
+                        ucfirst($professional->status),
+                        $professional->created_at->format('d/m/Y'),
+                        $rejectionReason
+                    ]);
+                }
+                
+                fclose($file);
+            };
+            
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export data: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -84,15 +129,17 @@ class ProfessionalRequestedController extends Controller
      */
     private function exportToPdf($professionals)
     {
-        $data = [
-            'professionals' => $professionals,
-            'title' => 'Professional Requests Report'
-        ];
-        
-        $pdf = FacadePdf::loadView('admin.Requested_professional.professionals', $data);
-        $filename = 'professionals_' . date('Y_m_d_His') . '.pdf';
-        
-        return $pdf->download($filename);
+        try {
+            $data = [
+                'professionals' => $professionals,
+                'title' => 'Requested Professionals Report',
+            ];
+            
+            $pdf = FacadesPdf::loadView('admin.Requested_professional.professionals', $data);
+            return $pdf->download('professionals_requested_' . date('Y_m_d_His') . '.pdf');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export data: ' . $e->getMessage());
+        }
     }
 
     public function approve(Request $request, $id)

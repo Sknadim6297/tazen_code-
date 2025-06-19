@@ -573,7 +573,7 @@
                 <div class="col-md-3 filter-group">
                     <label class="filter-label" for="payment_status">Payment Status</label>
                     <select class="filter-input" id="payment_status" name="payment_status">
-                        <option value="">All Statuses</option>
+                        <option value="">All Status</option>
                         <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
                         <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
                     </select>
