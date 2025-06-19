@@ -89,7 +89,7 @@
 						<ul>
 							@foreach($helps as $help)
 							<li>
-								<a href="#faq-{{ $help->id }}" data-bs-toggle="collapse" aria-expanded="false">
+								<a href="#faq-{{ $help->id }}" class="faq-toggle" data-faq-id="faq-{{ $help->id }}">
 									<i class="icon_documents_alt"></i>{{ $help->question }}
 								</a>
 								<div class="collapse" id="faq-{{ $help->id }}">
@@ -105,6 +105,28 @@
 		</div>
 			<!-- /container -->
 	</main>
+
+<style>
+.faq-question:hover { background: #f0f4ff; }
+.faq-item.active .faq-question { background: #e8f0fe; }
+.faq-answer { transition: all 0.2s; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.faq-toggle').forEach(function(q) {
+        q.addEventListener('click', function(e) {
+            e.preventDefault();
+            var faqId = this.getAttribute('data-faq-id');
+            var answer = document.getElementById(faqId);
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+            } else {
+                answer.classList.add('show');
+            }
+        });
+    });
+});
+</script>
 
 @push('scripts')
 <script>

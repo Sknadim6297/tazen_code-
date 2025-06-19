@@ -78,7 +78,7 @@
             <div class="col-lg-6">
                 <ul class="additional_links">
                     <li><a href="{{ url('/terms') }}">Terms and conditions</a></li>
-                    <li><a href="{{ url('/terms') }}">Privacy</a></li>
+                    <li><a href="{{ url('/privacy') }}">Privacy</a></li>
                     <li><span>© Tazen</span></li>
                 </ul>
             </div>

@@ -96,7 +96,7 @@
                             <li><a href="#"><i class="icon_folder-alt"></i> {{ $blogPost->category }}</a></li>
                             <li><i class="icon_calendar"></i> {{ $blogPost->published_at }}</li>
                             <li><a href="#"><i class="icon_pencil-edit"></i> {{ $blogPost->author_name }}</a></li>
-                            <li><a href="#"><i class="icon_comment_alt"></i> ({{ $blogPost->comment_count ?? 0 }}) Comments</a></li>
+                            {{-- <li><a href="#"><i class="icon_comment_alt"></i> ({{ $blogPost->comment_count ?? 0 }}) Comments</a></li> --}}
                         </ul>
                     </div>
                     <div class="post-content">
@@ -119,9 +119,9 @@
                             <div class="comment_right clearfix">
                                 <div class="comment_info">
                                     By <a href="#">{{ $comment->name }}</a><span>|</span>{{ $comment->created_at->format('d/m/Y') }}<span>|</span>
-                                    @if($comment->website)
+                                    {{-- @if($comment->website)
                                         <a href="{{ $comment->website }}" target="_blank">Website</a>
-                                    @endif
+                                    @endif --}}
                                 </div>
                                 <p>{{ $comment->comment }}</p>
                             </div>
@@ -148,7 +148,7 @@
                         </div>
                         <div class="col-md-4 col-sm-12">
                             <div class="form-group">
-                                <input type="url" name="website" id="website3" class="form-control" placeholder="Website">
+                                <input type="tel" name="mobile" id="mobile2" class="form-control" placeholder="Mobile Number" pattern="[0-9]{10,15}" maxlength="15" required>
                             </div>
                         </div>
                     </div>

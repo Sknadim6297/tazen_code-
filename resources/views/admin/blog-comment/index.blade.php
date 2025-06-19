@@ -39,7 +39,7 @@
                                         <th scope="col">Blog Post</th>
                                         <th scope="col">Commenter</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Website</th>
+                                        <th scope="col">Mobile</th>
                                         <th scope="col">Comment</th>
                                         <th scope="col">Date</th>
                                         <th scope="col">Status</th>
@@ -62,11 +62,7 @@
                                                 <span class="fw-medium">{{ $comment->email }}</span>
                                             </td>
                                             <td>
-                                                @if($comment->website)
-                                                    <a href="{{ $comment->website }}" target="_blank" class="fw-medium">{{ $comment->website }}</a>
-                                                @else
-                                                    <span class="fw-medium">N/A</span>
-                                                @endif
+                                                <span class="fw-medium">{{ $comment->mobile }}</span>
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ Str::limit($comment->comment, 50) }}</span>
@@ -140,7 +136,7 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <h6>Date:</h6>
-                                                            <p>{{ $comment->created_at->format('d M Y H:i:s') }}</p>
+                                                            <p>{{ $comment->created_at->format('d M Y') }}</p>
                                                         </div>
                                                         <div class="mb-3">
                                                             <h6>Status:</h6>

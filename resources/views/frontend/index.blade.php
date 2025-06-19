@@ -184,7 +184,9 @@
 						</div>
 					</div>
 				</div>
-				<div class="container py-5">
+				<div class="container py-5 position-relative">
+					<button class="carousel-arrow left-arrow" style="position:absolute;left:-40px;top:50%;transform:translateY(-50%);z-index:2;background:#fff;border:none;border-radius:50%;width:40px;height:40px;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa fa-chevron-left"></i></button>
+					<button class="carousel-arrow right-arrow" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);z-index:2;background:#fff;border:none;border-radius:50%;width:40px;height:40px;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa fa-chevron-right"></i></button>
 					<div class="row">
 						<div class="owl-carousel services-carousal">
 							@foreach($services as $service)
@@ -1412,3 +1414,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  @endsection
+
+
+<style>
+.carousel-arrow {
+    transition: background 0.2s;
+}
+.carousel-arrow:hover {
+    background: #f0f0f0;
+}
+@media (max-width: 991px) {
+    .carousel-arrow.left-arrow { left: 0; }
+    .carousel-arrow.right-arrow { right: 0; }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var $carousel = $('.services-carousal');
+    $('.left-arrow').on('click', function() {
+        $carousel.trigger('prev.owl.carousel');
+    });
+    $('.right-arrow').on('click', function() {
+        $carousel.trigger('next.owl.carousel');
+    });
+});
+</script>
