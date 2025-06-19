@@ -286,6 +286,126 @@
 @endsection
 @section('content')
 
+@php
+    // Get current user ID
+    $userId = Auth::guard('user')->id();
+    $today = \Carbon\Carbon::today();
+    $threeDaysLater = \Carbon\Carbon::today()->addDays(3);
+    
+    // Get upcoming appointments (future dates)
+    $upcomingAppointments = \App\Models\Booking::where('user_id', $userId)
+        ->whereHas('timedates', function($query) use ($today) {
+            $query->where('date', '>=', $today->format('Y-m-d'))
+                  ->whereIn('status', ['pending', 'confirmed']);
+        })
+        ->with(['timedates' => function($query) use ($today) {
+            $query->where('date', '>=', $today->format('Y-m-d'))
+                  ->whereIn('status', ['pending', 'confirmed'])
+                  ->orderBy('date', 'asc');
+        }])
+        ->get();
+        
+    // Count total upcoming appointments
+    $upcomingCount = 0;
+    foreach($upcomingAppointments as $appointment) {
+        $upcomingCount += $appointment->timedates->count();
+    }
+    
+    // Count today's appointments
+    $todayAppointments = \App\Models\Booking::where('user_id', $userId)
+        ->whereHas('timedates', function($query) use ($today) {
+            $query->where('date', $today->format('Y-m-d'))
+                  ->whereIn('status', ['pending', 'confirmed']);
+        })
+        ->with(['timedates' => function($query) use ($today) {
+            $query->where('date', $today->format('Y-m-d'))
+                  ->whereIn('status', ['pending', 'confirmed']);
+        }])
+        ->get();
+    
+    $todayCount = 0;
+    foreach($todayAppointments as $appointment) {
+        $todayCount += $appointment->timedates->count();
+    }
+    
+    // Get all appointments (including completed)
+    $allAppointments = \App\Models\Booking::where('user_id', $userId)
+        ->with('timedates')
+        ->get();
+    
+    $totalAppointments = 0;
+    $completedAppointments = 0;
+    
+    foreach($allAppointments as $appointment) {
+        if($appointment->timedates && $appointment->timedates->count() > 0) {
+            $totalAppointments += $appointment->timedates->count();
+            $completedAppointments += $appointment->timedates->where('status', 'completed')->count();
+        }
+    }
+    
+    // Get user's upcoming event bookings in next 3 days
+    $upcomingEventBookings = \App\Models\EventBooking::where('user_id', $userId)
+        ->whereHas('event', function($query) use ($today, $threeDaysLater) {
+            $query->whereBetween('date', [
+                $today->format('Y-m-d'), 
+                $threeDaysLater->format('Y-m-d')
+            ]);
+        })
+        ->with(['event' => function($query) {
+            $query->select('id', 'heading', 'short_description', 'card_image', 'date', 'starting_fees');
+        }])
+        ->get();
+    
+    // Get upcoming events for the event card section
+    try {
+        $events = \App\Models\AllEvent::where('date', '>=', $today->format('Y-m-d'))
+            ->orderBy('date', 'asc')
+            ->take(3)
+            ->get();
+            
+        // Get total active events
+        $totalEventCount = \App\Models\AllEvent::where('date', '>=', $today->format('Y-m-d'))->count();
+    } catch (\Exception $e) {
+        // If there's any issue, set to empty collection
+        $events = collect();
+        $totalEventCount = 0;
+    }
+    
+    // Get user's booked events (total count)
+    $bookedEvents = \App\Models\EventBooking::where('user_id', $userId)
+        ->count();
+    
+    // Get upcoming booked events count (in next 3 days)
+    $upcomingBookedEvents = $upcomingEventBookings->count();
+    
+    // Calculate total payments: Bookings + Event Bookings
+    $bookingPayments = \App\Models\Booking::where('user_id', $userId)
+        ->where('payment_status', 'paid')
+        ->sum('amount');
+        
+    $eventPayments = \App\Models\EventBooking::where('user_id', $userId)
+        ->where('payment_status', 'paid')
+        ->sum('total_price');
+        
+    $totalPayments = $bookingPayments + $eventPayments;
+    
+    // Get pending payments: Bookings + Event Bookings
+    $bookingPendingPayments = \App\Models\Booking::where('user_id', $userId)
+        ->where('payment_status', 'pending')
+        ->sum('amount');
+        
+    $eventPendingPayments = \App\Models\EventBooking::where('user_id', $userId)
+        ->where('payment_status', 'pending')
+        ->sum('total_price');
+        
+    $pendingPayments = $bookingPendingPayments + $eventPendingPayments;
+
+    // Get most recent events (for the Recent Events section)
+    $recentEvents = \App\Models\AllEvent::orderBy('created_at', 'desc') // Order by created_at to get most recent
+        ->take(3) // Get just the 3 most recent
+        ->get();
+@endphp
+
 <div class="content-wrapper">
     <!-- Page Header -->
     <div class="page-header">
@@ -307,10 +427,10 @@
             </div>
             <div class="card-info">
                 <h4>Upcoming Appointments</h4>
-                <h2>7</h2>
+                <h2>{{ $upcomingCount }}</h2>
                 <p class="positive">
                     <i class="fas fa-arrow-up"></i> 
-                    2 Today
+                    {{ $todayCount }} {{ $todayCount == 1 ? 'Today' : 'Today' }}
                 </p>
                 <div class="view-btn">
                     <i class="fas fa-eye"></i> View Appointments
@@ -325,10 +445,10 @@
             </div>
             <div class="card-info">
                 <h4>Total Appointments</h4>
-                <h2>24</h2>
+                <h2>{{ $totalAppointments }}</h2>
                 <p class="positive">
                     <i class="fas fa-check-circle"></i> 
-                    18 Completed
+                    {{ $completedAppointments }} Completed
                 </p>
                 <div class="view-btn">
                     <i class="fas fa-eye"></i> View All
@@ -337,101 +457,40 @@
         </a>
 
         <!-- Upcoming Events Card -->
-        <a href="" class="card card-warning">
+        <a href="{{ route('user.customer-event.index') }}" class="card card-warning">
             <div class="card-icon">
                 <i class="fas fa-calendar-day"></i>
             </div>
             <div class="card-info">
-                <h4>Events</h4>
-                <h2>12</h2>
+                <h4>Upcoming Events</h4>
+                <h2>{{ $totalEventCount }}</h2>
                 <p class="positive">
                     <i class="fas fa-calendar"></i> 
-                    3 Booked
+                    {{ $upcomingBookedEvents }} in next 3 days
                 </p>
                 <div class="view-btn">
-                    <i class="fas fa-eye"></i> Explore Events
+                    <i class="fas fa-eye"></i> View Events
                 </div>
             </div>
         </a>
 
         <!-- Total Payments Card -->
-        <a href="" class="card card-danger">
+        <a href="{{ route('user.billing.index') }}" class="card card-danger">
             <div class="card-icon">
                 <i class="fas fa-dollar-sign"></i>
             </div>
             <div class="card-info">
                 <h4>Total Payments</h4>
-                <h2>₹16,500</h2>
+                <h2>₹{{ number_format($totalPayments, 0) }}</h2>
                 <p class="negative">
                     <i class="fas fa-arrow-down"></i> 
-                    ₹2,500 Pending
+                    ₹{{ number_format($pendingPayments, 0) }} Pending
                 </p>
                 <div class="view-btn">
                     <i class="fas fa-eye"></i> View Payments
                 </div>
             </div>
         </a>
-    </div>
-
-    <!-- Recent Events Section -->
-    <div class="recent-events">
-        <h3 class="section-title">Upcoming Events</h3>
-        
-        <div class="event-cards">
-            <!-- Static Event Card 1 -->
-            <div class="event-card">
-                <div class="event-img">
-                    <img src="{{ asset('images/events/event1.jpg') }}" alt="Yoga Workshop">
-                    <div class="event-date">
-                        <i class="far fa-calendar-alt"></i> 28 Jun, 2025
-                    </div>
-                </div>
-                <div class="event-body">
-                    <h4 class="event-title">Yoga Workshop for Beginners</h4>
-                    <p class="event-desc">Join us for a beginner-friendly yoga workshop designed to introduce you to fundamental poses and breathing techniques.</p>
-                </div>
-                <div class="event-footer">
-                    <div class="event-price">₹1,200</div>
-                    <a href="" class="book-btn">View Details</a>
-                </div>
-            </div>
-
-            <!-- Static Event Card 2 -->
-            <div class="event-card">
-                <div class="event-img">
-                    <img src="{{ asset('images/events/event2.jpg') }}" alt="Mindfulness Retreat">
-                    <div class="event-date">
-                        <i class="far fa-calendar-alt"></i> 15 Jul, 2025
-                    </div>
-                </div>
-                <div class="event-body">
-                    <h4 class="event-title">Mindfulness Weekend Retreat</h4>
-                    <p class="event-desc">Escape the city for a weekend of mindfulness meditation, relaxation, and rejuvenation in a peaceful setting.</p>
-                </div>
-                <div class="event-footer">
-                    <div class="event-price">₹4,500</div>
-                    <a href="" class="book-btn">View Details</a>
-                </div>
-            </div>
-
-            <!-- Static Event Card 3 -->
-            <div class="event-card">
-                <div class="event-img">
-                    <img src="{{ asset('images/events/event3.jpg') }}" alt="Wellness Conference">
-                    <div class="event-date">
-                        <i class="far fa-calendar-alt"></i> 05 Aug, 2025
-                    </div>
-                </div>
-                <div class="event-body">
-                    <h4 class="event-title">Annual Wellness Conference</h4>
-                    <p class="event-desc">Join industry experts for talks, workshops, and networking opportunities focused on holistic health and wellness.</p>
-                </div>
-                <div class="event-footer">
-                    <div class="event-price">₹3,000</div>
-                    <a href="" class="book-btn">View Details</a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

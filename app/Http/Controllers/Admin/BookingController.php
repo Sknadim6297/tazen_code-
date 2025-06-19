@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 
@@ -19,12 +20,12 @@ class BookingController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('customer_name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
             })->orWhereHas('professional', function ($q) use ($searchTerm) {
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         // Add service filtering
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
@@ -42,7 +43,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->get();
         $statuses = ['pending', 'completed', 'cancelled'];
-        
+
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'one_time')
             ->distinct()
@@ -63,7 +64,7 @@ class BookingController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('customer_name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
             })->orWhereHas('professional', function ($q) use ($searchTerm) {
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
@@ -87,7 +88,7 @@ class BookingController extends Controller
 
         // Fetch the bookings
         $bookings = $query->latest()->get();
-        
+
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'free_hand')
             ->distinct()
@@ -154,7 +155,7 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         // Add service filtering
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
@@ -234,7 +235,7 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         // Add service filtering
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
@@ -253,7 +254,7 @@ class BookingController extends Controller
 
         // Fetch the bookings
         $bookings = $query->latest()->paginate(10);
-        
+
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'quarterly')
             ->distinct()
@@ -399,37 +400,37 @@ class BookingController extends Controller
     {
         $query = Booking::where('plan_type', 'free_hand')
             ->with(['professional', 'timedates', 'customerProfile']);
-        
+
         // Apply filters
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('customer_name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
+                    ->orWhere('customer_phone', 'like', '%' . $searchTerm . '%');
             })->orWhereHas('professional', function ($q) use ($searchTerm) {
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-        
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
-        
+
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
-        
+
         // Get all records without pagination
         $bookings = $query->latest()->get();
-        
+
         $today = now()->startOfDay();
-        
+
         // Process bookings to calculate sessions
         foreach ($bookings as $booking) {
             // Next booking date
@@ -437,13 +438,13 @@ class BookingController extends Controller
                 ->where('date', '>=', $today->format('Y-m-d'))
                 ->orderBy('date', 'asc')
                 ->first();
-                
+
             $booking->next_booking = $nextSession;
-            
+
             // Calculate completed and pending sessions
             $completedSessions = 0;
             $pendingSessions = 0;
-            
+
             if ($booking->timedates && $booking->timedates->count() > 0) {
                 foreach ($booking->timedates as $td) {
                     $slots = explode(',', $td->time_slot);
@@ -454,17 +455,17 @@ class BookingController extends Controller
                     }
                 }
             }
-            
+
             $booking->completed_sessions = $completedSessions;
             $booking->pending_sessions = $pendingSessions;
         }
-        
+
         // Calculate summary statistics
         $totalBookings = $bookings->count();
         $totalAmount = $bookings->where('payment_status', 'paid')->sum('amount');
         $completedSessions = $bookings->sum('completed_sessions');
         $pendingSessions = $bookings->sum('pending_sessions');
-        
+
         // Add filter information
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
@@ -474,7 +475,7 @@ class BookingController extends Controller
             'search' => $request->filled('search') ? $request->search : '',
             'generated_at' => now()->format('d M Y H:i:s'),
         ];
-        
+
         // Generate PDF
         $pdf = Pdf::loadView('admin.booking.freehand-pdf', compact(
             'bookings',
@@ -484,13 +485,13 @@ class BookingController extends Controller
             'pendingSessions',
             'filterInfo'
         ));
-        
+
         // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-        
+
         // Generate filename with date
         $filename = 'freehand_bookings_' . now()->format('Y_m_d_His') . '.pdf';
-        
+
         // Return download response
         return $pdf->download($filename);
     }
@@ -504,7 +505,7 @@ class BookingController extends Controller
     {
         $query = Booking::where('plan_type', 'monthly')
             ->with(['professional', 'timedates', 'customerProfile']);
-    
+
         // Apply filters
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -516,26 +517,26 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-        
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
-        
+
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
-        
+
         // Get all records without pagination
         $bookings = $query->latest()->get();
-        
+
         $today = now()->startOfDay();
-        
+
         // Process bookings to calculate sessions and add metadata
         foreach ($bookings as $booking) {
             // Calculate next booking date - only looking at future dates
@@ -543,11 +544,11 @@ class BookingController extends Controller
                 ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->startOfDay()->gte($today))
                 ->sortBy('date')
                 ->first();
-                
+
             // Calculate completed and pending sessions
             $completedSessions = 0;
             $pendingSessions = 0;
-            
+
             if ($booking->timedates && $booking->timedates->count() > 0) {
                 foreach ($booking->timedates as $td) {
                     $slots = explode(',', $td->time_slot);
@@ -558,18 +559,18 @@ class BookingController extends Controller
                     }
                 }
             }
-            
+
             $booking->nextBooking = $nextBooking;
             $booking->completed_sessions = $completedSessions;
             $booking->pending_sessions = $pendingSessions;
         }
-        
+
         // Calculate summary statistics
         $totalBookings = $bookings->count();
         $totalAmount = $bookings->where('payment_status', 'paid')->sum('amount');
         $completedSessions = $bookings->sum('completed_sessions');
         $pendingSessions = $bookings->sum('pending_sessions');
-        
+
         // Add filter information
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
@@ -579,7 +580,7 @@ class BookingController extends Controller
             'search' => $request->filled('search') ? $request->search : '',
             'generated_at' => now()->format('d M Y H:i:s'),
         ];
-        
+
         // Generate PDF
         $pdf = Pdf::loadView('admin.booking.monthly-pdf', compact(
             'bookings',
@@ -589,13 +590,13 @@ class BookingController extends Controller
             'pendingSessions',
             'filterInfo'
         ));
-        
+
         // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-        
+
         // Generate filename with date
         $filename = 'monthly_bookings_' . now()->format('Y_m_d_His') . '.pdf';
-        
+
         // Return download response
         return $pdf->download($filename);
     }
@@ -609,7 +610,7 @@ class BookingController extends Controller
     {
         $query = Booking::where('plan_type', 'one_time')
             ->with(['professional', 'timedates', 'customerProfile']);
-    
+
         // Apply filters
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -620,42 +621,42 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-        
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
-        
+
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
-        
+
         // Get all records without pagination
         $bookings = $query->latest()->get();
-        
+
         // Process bookings to add metadata
         foreach ($bookings as $booking) {
             // Get earliest upcoming date
-            $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
+            $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0
                 ? $booking->timedates
-                    ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->isFuture())
-                    ->sortBy('date')
-                    ->first()
+                ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->isFuture())
+                ->sortBy('date')
+                ->first()
                 : null;
-                
+
             $booking->earliest_timedate = $earliestTimedate;
         }
-        
+
         // Calculate summary statistics
         $totalBookings = $bookings->count();
         $totalAmount = $bookings->where('payment_status', 'paid')->sum('amount');
         $statusCounts = [];
-        
+
         foreach ($bookings as $booking) {
             $timedate = $booking->timedates->first();
             if ($timedate) {
@@ -666,7 +667,7 @@ class BookingController extends Controller
                 $statusCounts[$status]++;
             }
         }
-        
+
         // Add filter information
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
@@ -676,7 +677,7 @@ class BookingController extends Controller
             'search' => $request->filled('search') ? $request->search : '',
             'generated_at' => \Carbon\Carbon::now()->format('d M Y H:i:s'),
         ];
-        
+
         // Generate PDF
         $pdf = PDF::loadView('admin.booking.onetime-pdf', compact(
             'bookings',
@@ -685,13 +686,13 @@ class BookingController extends Controller
             'statusCounts',
             'filterInfo'
         ));
-        
+
         // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-        
+
         // Generate filename with date
         $filename = 'onetime_bookings_' . \Carbon\Carbon::now()->format('Y_m_d_His') . '.pdf';
-        
+
         // Return download response
         return $pdf->download($filename);
     }
@@ -705,7 +706,7 @@ class BookingController extends Controller
     {
         $query = Booking::where('plan_type', 'quarterly')
             ->with(['professional', 'timedates', 'customerProfile']);
-    
+
         // Apply filters
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -717,26 +718,26 @@ class BookingController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
-        
+
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-        
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
-        
+
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
-        
+
         // Get all records without pagination
         $bookings = $query->latest()->get();
-        
+
         $today = now()->startOfDay();
-        
+
         // Process bookings to calculate sessions
         foreach ($bookings as $booking) {
             // Get earliest upcoming date
@@ -746,11 +747,11 @@ class BookingController extends Controller
                 ->first();
 
             $booking->next_booking = $nextBooking;
-            
+
             // Calculate completed and pending sessions
             $completedSessions = 0;
             $pendingSessions = 0;
-            
+
             if ($booking->timedates && $booking->timedates->count() > 0) {
                 foreach ($booking->timedates as $td) {
                     $slots = explode(',', $td->time_slot);
@@ -761,10 +762,10 @@ class BookingController extends Controller
                     }
                 }
             }
-            
+
             $booking->completed_sessions = $completedSessions;
             $booking->pending_sessions = $pendingSessions;
-            
+
             // Get the latest meeting link from the most recent timedate with a link
             $latestTimedate = $booking->timedates()
                 ->whereNotNull('meeting_link')
@@ -773,13 +774,13 @@ class BookingController extends Controller
 
             $booking->latest_meeting_link = $latestTimedate ? $latestTimedate->meeting_link : null;
         }
-        
+
         // Calculate summary statistics
         $totalBookings = $bookings->count();
         $totalAmount = $bookings->where('payment_status', 'paid')->sum('amount');
         $completedSessions = $bookings->sum('completed_sessions');
         $pendingSessions = $bookings->sum('pending_sessions');
-        
+
         // Add filter information
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
@@ -789,7 +790,7 @@ class BookingController extends Controller
             'search' => $request->filled('search') ? $request->search : '',
             'generated_at' => \Carbon\Carbon::now()->format('d M Y H:i:s'),
         ];
-        
+
         // Generate PDF
         $pdf = PDF::loadView('admin.booking.quarterly-pdf', compact(
             'bookings',
@@ -799,14 +800,659 @@ class BookingController extends Controller
             'pendingSessions',
             'filterInfo'
         ));
-        
+
         // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-        
+
         // Generate filename with date
         $filename = 'quarterly_bookings_' . \Carbon\Carbon::now()->format('Y_m_d_His') . '.pdf';
-        
+
         // Return download response
         return $pdf->download($filename);
+    }
+
+    /**
+     * Export quarterly booking data to Excel
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportQuarterlyToExcel(Request $request)
+    {
+        try {
+            // Create a unique filename
+            $filename = 'quarterly_bookings_' . date('Y_m_d_His') . '.csv';
+
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+
+            // Build query with the same filters as the main view
+            $query = Booking::with(['professional', 'user', 'timedates'])
+                ->where('plan_type', 'quarterly')
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $query->where(function ($q) use ($request) {
+                        $q->where('customer_name', 'like', "%{$request->search}%")
+                            ->orWhere('customer_phone', 'like', "%{$request->search}%")
+                            ->orWhereHas('professional', function ($q) use ($request) {
+                                $q->where('name', 'like', "%{$request->search}%")
+                                    ->orWhere('phone', 'like', "%{$request->search}%");
+                            });
+                    });
+                })
+                ->when($request->filled('status'), fn($q) => $q->whereHas('timedates', function ($query) use ($request) {
+                    $query->where('status', $request->status);
+                }))
+                ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
+                ->when($request->filled(['start_date', 'end_date']), function ($query) use ($request) {
+                    $query->whereHas('timedates', function ($q) use ($request) {
+                        $q->whereBetween('date', [
+                            Carbon::parse($request->start_date)->startOfDay(),
+                            Carbon::parse($request->end_date)->endOfDay()
+                        ]);
+                    });
+                });
+
+            // Get all records without pagination for Excel
+            $bookings = $query->latest()->get();
+
+            // Create the callback for streaming CSV data
+            $callback = function () use ($bookings, $request) {
+                $file = fopen('php://output', 'w');
+
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+
+                // Add headers
+                fputcsv($file, [
+                    'Sl. No',
+                    'Customer Name',
+                    'Customer Phone',
+                    'Professional Name',
+                    'Professional Phone',
+                    'Service Required',
+                    'Paid Amount',
+                    'Number Of Session',
+                    'Number Of Session Taken',
+                    'Number Of Session Pending',
+                    'Validity Till',
+                    'Current Service Date',
+                    'Current Service Time',
+                    'Meeting Link',
+                    'Status',
+                    'Admin Remarks to Professional',
+                    'Telecaller Remarks'
+                ]);
+
+                // Add data rows
+                $totalAmount = 0;
+
+                foreach ($bookings as $key => $booking) {
+                    // Get earliest upcoming date
+                    $nextBooking = $booking->timedates
+                        ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->startOfDay()->gte(now()->startOfDay()))
+                        ->sortBy('date')
+                        ->first();
+
+                    $completedSessions = 0;
+                    $pendingSessions = 0;
+
+                    if ($booking->timedates && $booking->timedates->count() > 0) {
+                        foreach ($booking->timedates as $td) {
+                            $slots = explode(',', $td->time_slot);
+                            if ($td->status === 'completed') {
+                                $completedSessions += count($slots);
+                            } else {
+                                $pendingSessions += count($slots);
+                            }
+                        }
+                    }
+
+                    $totalAmount += $booking->amount;
+
+                    fputcsv($file, [
+                        $key + 1,
+                        $booking->customer_name ?? 'N/A',
+                        $booking->customer_phone ?? 'N/A',
+                        $booking->professional->name ?? 'N/A',
+                        $booking->professional->phone ?? 'N/A',
+                        $booking->service_name ?? 'N/A',
+                        $booking->payment_status === 'paid' ? number_format($booking->amount ?? 0, 2) : 'Not Paid',
+                        is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true) ?? []),
+                        $completedSessions,
+                        $pendingSessions,
+                        $booking->quarter ?? '3 months',
+                        $nextBooking ? \Carbon\Carbon::parse($nextBooking->date)->format('d M Y') : 'No upcoming sessions',
+                        $nextBooking ? str_replace(',', ' | ', $nextBooking->time_slot) : '-',
+                        $booking->latest_meeting_link ?? 'No link available',
+                        ucfirst($booking->status ?? 'Pending'),
+                        $booking->remarks_for_professional ?? '-',
+                        $booking->remarks ?? '-'
+                    ]);
+                }
+
+                // Add summary row
+                fputcsv($file, ['']);
+                fputcsv($file, ['Summary', '', '', '', '', '', number_format($totalAmount, 2), $bookings->count(), '', '', '', '', '', '', '', '']);
+
+                // Add filter information at the bottom
+                fputcsv($file, ['']);
+                fputcsv($file, ['Filter Information']);
+
+                if ($request->filled(['start_date', 'end_date'])) {
+                    fputcsv($file, [
+                        'Date Range',
+                        $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+                        'to',
+                        $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present'
+                    ]);
+                }
+
+                if ($request->filled('status')) {
+                    fputcsv($file, ['Status', ucfirst($request->status)]);
+                }
+
+                if ($request->filled('service')) {
+                    fputcsv($file, ['Service', $request->service]);
+                }
+
+                if ($request->filled('search')) {
+                    fputcsv($file, ['Search Query', $request->search]);
+                }
+
+                fputcsv($file, ['Generated At', now()->format('d M Y H:i:s')]);
+                fputcsv($file, ['Total Bookings', $bookings->count()]);
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+
+            // Return user-friendly error
+            return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
+        }
+    }
+
+    /**
+     * Export free hand booking data to Excel
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportFreehandToExcel(Request $request)
+    {
+        try {
+            // Create a unique filename
+            $filename = 'freehand_bookings_' . date('Y_m_d_His') . '.csv';
+
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+
+            // Build query with the same filters as the main view
+            $query = Booking::with(['professional', 'user', 'timedates'])
+                ->where('plan_type', 'free_hand')
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $query->where(function ($q) use ($request) {
+                        $q->where('customer_name', 'like', "%{$request->search}%")
+                            ->orWhere('customer_phone', 'like', "%{$request->search}%")
+                            ->orWhereHas('professional', function ($q) use ($request) {
+                                $q->where('name', 'like', "%{$request->search}%")
+                                    ->orWhere('phone', 'like', "%{$request->search}%");
+                            });
+                    });
+                })
+                ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
+                ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
+                ->when($request->filled(['start_date', 'end_date']), function ($query) use ($request) {
+                    $query->whereHas('timedates', function ($q) use ($request) {
+                        $q->whereBetween('date', [
+                            Carbon::parse($request->start_date)->startOfDay(),
+                            Carbon::parse($request->end_date)->endOfDay()
+                        ]);
+                    });
+                });
+
+            // Get all records without pagination for Excel
+            $bookings = $query->latest()->get();
+
+            // Create the callback for streaming CSV data
+            $callback = function () use ($bookings, $request) {
+                $file = fopen('php://output', 'w');
+
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+
+                // Add headers
+                fputcsv($file, [
+                    'Sl. No',
+                    'Customer Name',
+                    'Customer Phone',
+                    'Professional Name',
+                    'Professional Phone',
+                    'Service Required',
+                    'Paid Amount',
+                    'Number Of Service',
+                    'Number Of Service Taken',
+                    'Number Of Service Pending',
+                    'Validity Till',
+                    'Current Service Date',
+                    'Current Service Time',
+                    'Meeting Link',
+                    'Status',
+                    'Admin Remarks to Professional',
+                    'Telecaller Remarks'
+                ]);
+
+                // Add data rows
+                $totalAmount = 0;
+
+                foreach ($bookings as $key => $booking) {
+                    // Get earliest upcoming date
+                    $nextBooking = $booking->timedates
+                        ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->startOfDay()->gte(now()->startOfDay()))
+                        ->sortBy('date')
+                        ->first();
+
+                    $completedSessions = $booking->completed_sessions ?? 0;
+                    $pendingSessions = $booking->pending_sessions ?? 0;
+
+                    $totalAmount += $booking->amount;
+
+                    fputcsv($file, [
+                        $key + 1,
+                        $booking->customer_name ?? 'N/A',
+                        $booking->customer_phone ?? 'N/A',
+                        $booking->professional->name ?? 'N/A',
+                        $booking->professional->phone ?? 'N/A',
+                        $booking->service_name ?? 'N/A',
+                        $booking->payment_status === 'paid' ? number_format($booking->amount ?? 0, 2) : 'Not Paid',
+                        is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true) ?? []),
+                        $completedSessions,
+                        $pendingSessions,
+                        $booking->month ?? 'N/A',
+                        $nextBooking ? \Carbon\Carbon::parse($nextBooking->date)->format('d M Y') : 'No upcoming sessions',
+                        $nextBooking ? str_replace(',', ' | ', $nextBooking->time_slot) : '-',
+                        ($nextBooking && $nextBooking->meeting_link) ? $nextBooking->meeting_link : 'No link available',
+                        ucfirst($booking->status ?? 'Pending'),
+                        $booking->remarks_for_professional ?? '-',
+                        $booking->remarks ?? '-'
+                    ]);
+                }
+
+                // Add summary row
+                fputcsv($file, ['']);
+                fputcsv($file, ['Summary', '', '', '', '', '', number_format($totalAmount, 2), $bookings->count(), '', '', '', '', '', '', '', '']);
+
+                // Add filter information at the bottom
+                fputcsv($file, ['']);
+                fputcsv($file, ['Filter Information']);
+
+                if ($request->filled(['start_date', 'end_date'])) {
+                    fputcsv($file, [
+                        'Date Range',
+                        $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+                        'to',
+                        $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present'
+                    ]);
+                }
+
+                if ($request->filled('status')) {
+                    fputcsv($file, ['Status', ucfirst($request->status)]);
+                }
+
+                if ($request->filled('service')) {
+                    fputcsv($file, ['Service', $request->service]);
+                }
+
+                if ($request->filled('search')) {
+                    fputcsv($file, ['Search Query', $request->search]);
+                }
+
+                fputcsv($file, ['Generated At', now()->format('d M Y H:i:s')]);
+                fputcsv($file, ['Total Bookings', $bookings->count()]);
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            // Return user-friendly error
+            return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
+        }
+    }
+
+    /**
+     * Export one time booking data to Excel
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportOnetimeToExcel(Request $request)
+    {
+        try {
+            // Create a unique filename
+            $filename = 'onetime_bookings_' . date('Y_m_d_His') . '.csv';
+
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+
+            // Build query with the same filters as the main view
+            $query = Booking::with(['professional', 'user', 'timedates'])
+                ->where('plan_type', 'one_time')
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $query->where(function ($q) use ($request) {
+                        $q->where('customer_name', 'like', "%{$request->search}%")
+                            ->orWhere('customer_phone', 'like', "%{$request->search}%")
+                            ->orWhereHas('professional', function ($q) use ($request) {
+                                $q->where('name', 'like', "%{$request->search}%")
+                                    ->orWhere('phone', 'like', "%{$request->search}%");
+                            });
+                    });
+                })
+                ->when($request->filled('status'), fn($q) => $q->whereHas('timedates', function ($query) use ($request) {
+                    $query->where('status', $request->status);
+                }))
+                ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
+                ->when($request->filled(['start_date', 'end_date']), function ($query) use ($request) {
+                    $query->whereHas('timedates', function ($q) use ($request) {
+                        $q->whereBetween('date', [
+                            Carbon::parse($request->start_date)->startOfDay(),
+                            Carbon::parse($request->end_date)->endOfDay()
+                        ]);
+                    });
+                });
+
+            // Get all records without pagination for Excel
+            $bookings = $query->latest()->get();
+
+            // Create the callback for streaming CSV data
+            $callback = function () use ($bookings, $request) {
+                $file = fopen('php://output', 'w');
+
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+
+                // Add headers
+                fputcsv($file, [
+                    'Sl. No',
+                    'Customer Name',
+                    'Customer Phone',
+                    'Professional Name',
+                    'Professional Phone',
+                    'Service Required',
+                    'Status',
+                    'Service Date',
+                    'Service Time',
+                    'Meeting Link',
+                    'Paid Amount',
+                    'Professional Remarks to Customer',
+                    'Admin Remarks to Professional',
+                    'Telecaller Remarks'
+                ]);
+
+                // Add data rows
+                $totalAmount = 0;
+
+                foreach ($bookings as $key => $booking) {
+                    // Get earliest upcoming date
+                    $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0
+                        ? $booking->timedates
+                        ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->isFuture())
+                        ->sortBy('date')
+                        ->first()
+                        : null;
+
+                    $totalAmount += $booking->amount;
+
+                    fputcsv($file, [
+                        $key + 1,
+                        $booking->customer_name ?? 'N/A',
+                        $booking->customer_phone ?? 'N/A',
+                        $booking->professional->name ?? 'N/A',
+                        $booking->professional->phone ?? 'N/A',
+                        $booking->service_name ?? 'N/A',
+                        $booking->timedates->first()?->status ?? '-',
+                        $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-',
+                        $earliestTimedate ? str_replace(',', ' | ', $earliestTimedate->time_slot) : '-',
+                        $booking->timedates->first()?->meeting_link ?? 'No link available',
+                        $booking->payment_status === 'paid' ? number_format($booking->amount ?? 0, 2) : 'Not Paid',
+                        $booking->timedates->first()?->remarks ?? '-',
+                        $booking->remarks_for_professional ?? '-',
+                        $booking->remarks ?? '-'
+                    ]);
+                }
+
+                // Add summary row
+                fputcsv($file, ['']);
+                fputcsv($file, ['Summary', '', '', '', '', '', '', '', '', '', number_format($totalAmount, 2), '', '', '']);
+
+                // Add filter information at the bottom
+                fputcsv($file, ['']);
+                fputcsv($file, ['Filter Information']);
+
+                if ($request->filled(['start_date', 'end_date'])) {
+                    fputcsv($file, [
+                        'Date Range',
+                        $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+                        'to',
+                        $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present'
+                    ]);
+                }
+
+                if ($request->filled('status')) {
+                    fputcsv($file, ['Status', ucfirst($request->status)]);
+                }
+
+                if ($request->filled('service')) {
+                    fputcsv($file, ['Service', $request->service]);
+                }
+
+                if ($request->filled('search')) {
+                    fputcsv($file, ['Search Query', $request->search]);
+                }
+
+                fputcsv($file, ['Generated At', now()->format('d M Y H:i:s')]);
+                fputcsv($file, ['Total Bookings', $bookings->count()]);
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            // Return user-friendly error
+            return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
+        }
+    }
+    public function exportMonthlyToExcel(Request $request)
+    {
+        try {
+            // Create a unique filename
+            $filename = 'monthly_bookings_' . date('Y_m_d_His') . '.csv';
+
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+
+            // Build query with the same filters as the main view
+            $query = Booking::with(['professional', 'user', 'timedates'])
+                ->where('plan_type', 'monthly')
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $query->where(function ($q) use ($request) {
+                        $q->where('customer_name', 'like', "%{$request->search}%")
+                            ->orWhere('customer_phone', 'like', "%{$request->search}%")
+                            ->orWhereHas('professional', function ($q) use ($request) {
+                                $q->where('name', 'like', "%{$request->search}%")
+                                    ->orWhere('phone', 'like', "%{$request->search}%");
+                            });
+                    });
+                })
+                ->when($request->filled('status'), fn($q) => $q->whereHas('timedates', function ($query) use ($request) {
+                    $query->where('status', $request->status);
+                }))
+                ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
+                ->when($request->filled(['start_date', 'end_date']), function ($query) use ($request) {
+                    $query->whereHas('timedates', function ($q) use ($request) {
+                        $q->whereBetween('date', [
+                            Carbon::parse($request->start_date)->startOfDay(),
+                            Carbon::parse($request->end_date)->endOfDay()
+                        ]);
+                    });
+                });
+
+            // Get all records without pagination for Excel
+            $bookings = $query->latest()->get();
+
+            // Create the callback for streaming CSV data
+            $callback = function () use ($bookings, $request) {
+                $file = fopen('php://output', 'w');
+
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+
+                // Add headers
+                fputcsv($file, [
+                    'Sl. No',
+                    'Customer Name',
+                    'Customer Phone',
+                    'Professional Name',
+                    'Professional Phone',
+                    'Service Required',
+                    'Paid Amount',
+                    'Number Of Session',
+                    'Number Of Session Taken',
+                    'Number Of Session Pending',
+                    'Validity Till',
+                    'Current Service Date',
+                    'Current Service Time',
+                    'Meeting Link',
+                    'Status',
+                    'Admin Remarks to Professional',
+                    'Telecaller Remarks'
+                ]);
+
+                // Add data rows
+                $totalAmount = 0;
+                $today = now()->startOfDay();
+
+                foreach ($bookings as $key => $booking) {
+                    // Get earliest upcoming date
+                    $nextBooking = $booking->timedates
+                        ->filter(fn($td) => \Carbon\Carbon::parse($td->date)->startOfDay()->gte($today))
+                        ->sortBy('date')
+                        ->first();
+
+                    // Calculate completed and pending sessions
+                    $completedSessions = 0;
+                    $pendingSessions = 0;
+
+                    if ($booking->timedates && $booking->timedates->count() > 0) {
+                        foreach ($booking->timedates as $td) {
+                            $slots = explode(',', $td->time_slot);
+                            if ($td->status === 'completed') {
+                                $completedSessions += count($slots);
+                            } else {
+                                $pendingSessions += count($slots);
+                            }
+                        }
+                    }
+
+                    // Get the latest meeting link
+                    $latestTimedate = $booking->timedates()
+                        ->whereNotNull('meeting_link')
+                        ->orderBy('date', 'desc')
+                        ->first();
+
+                    $meetingLink = $latestTimedate ? $latestTimedate->meeting_link : 'No link available';
+
+                    if ($booking->payment_status === 'paid') {
+                        $totalAmount += $booking->amount;
+                    }
+
+                    fputcsv($file, [
+                        $key + 1,
+                        $booking->customer_name ?? 'N/A',
+                        $booking->customer_phone ?? 'N/A',
+                        $booking->professional->name ?? 'N/A',
+                        $booking->professional->phone ?? 'N/A',
+                        $booking->service_name ?? 'N/A',
+                        $booking->payment_status === 'paid' ? number_format($booking->amount ?? 0, 2) : 'Not Paid',
+                        is_array($booking->days) ? count($booking->days) : count(json_decode($booking->days, true) ?? []),
+                        $completedSessions,
+                        $pendingSessions,
+                        $booking->month ?? 'One Month',
+                        $nextBooking ? \Carbon\Carbon::parse($nextBooking->date)->format('d M Y') : 'No upcoming sessions',
+                        $nextBooking ? str_replace(',', ' | ', $nextBooking->time_slot) : '-',
+                        $meetingLink,
+                        'Pending', // Default status for monthly bookings
+                        $booking->remarks_for_professional ?? '-',
+                        $booking->remarks ?? '-'
+                    ]);
+                }
+
+                // Add summary row
+                fputcsv($file, ['']);
+                fputcsv($file, ['Summary', '', '', '', '', '', number_format($totalAmount, 2), '', '', '', '', '', '', '', '', '', '']);
+
+                // Add filter information at the bottom
+                fputcsv($file, ['']);
+                fputcsv($file, ['Filter Information']);
+
+                if ($request->filled(['start_date', 'end_date'])) {
+                    fputcsv($file, [
+                        'Date Range',
+                        $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
+                        'to',
+                        $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present'
+                    ]);
+                }
+
+                if ($request->filled('status')) {
+                    fputcsv($file, ['Status', ucfirst($request->status)]);
+                }
+
+                if ($request->filled('service')) {
+                    fputcsv($file, ['Service', $request->service]);
+                }
+
+                if ($request->filled('search')) {
+                    fputcsv($file, ['Search Query', $request->search]);
+                }
+
+                fputcsv($file, ['Generated At', now()->format('d M Y H:i:s')]);
+                fputcsv($file, ['Total Bookings', $bookings->count()]);
+                fputcsv($file, ['Total Paid Amount', number_format($totalAmount, 2)]);
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+
+            // Return user-friendly error
+            return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
+        }
     }
 }

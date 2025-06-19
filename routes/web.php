@@ -447,3 +447,11 @@ Route::post('/blog-post/{id}/comment', [App\Http\Controllers\CommentController::
 Route::get('/blog-comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('admin.comments.index');
 Route::post('/blog-comments/{id}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('admin.comments.approve');
 Route::delete('/blog-comments/{id}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('admin.comments.destroy');
+
+// Add this route for Excel export
+Route::get('admin/professional/billing/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])
+    ->name('admin.professional.billing.export-excel');
+
+// Add this route for Customer billing Excel export
+Route::get('admin/customer/billing/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportCustomerBillingToExcel'])
+    ->name('admin.customer.billing.export-excel');

@@ -410,9 +410,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Export functionality
 function exportData(type) {
-    // Set export type and submit form
+    // Create a new form
+    const form = document.getElementById('filter-form');
+    
+    // Set export type
     document.getElementById('export-type').value = type;
-    document.getElementById('filter-form').submit();
+    
+    // Submit the form
+    form.submit();
+    
+    // Reset the export type after submission
+    setTimeout(() => {
+        document.getElementById('export-type').value = '';
+    }, 100);
 }
 </script>
 <script>

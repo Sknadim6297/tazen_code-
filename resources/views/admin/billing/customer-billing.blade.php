@@ -16,11 +16,16 @@
                     </nav>
                 </div>
             </div>
-            <!-- Add Export Button -->
+            <!-- Export Button -->
             <div>
-                <a href="{{ route('admin.customer.billing.export', request()->all()) }}" class="btn btn-primary">
-                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
-                </a>
+                <div class="btn-group">
+                    <a href="{{ route('admin.customer.billing.export', request()->all()) }}" class="btn btn-primary">
+                        <i class="fas fa-file-pdf me-1"></i> Export PDF
+                    </a>
+                    <a href="{{ route('admin.customer.billing.export-excel', request()->all()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel me-1"></i> Export Excel
+                    </a>
+                </div>
             </div>
         </div>
         <!-- End Page Header -->
@@ -75,9 +80,6 @@
                         <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Search</button>
                             <a href="{{ route('admin.customer.billing') }}" class="btn btn-secondary">Reset</a>
-                            <button type="button" class="btn btn-success" id="exportFilteredBtn">
-                                <i class="fas fa-file-pdf me-1"></i> Export Filtered Data
-                            </button>
                         </div>
                     </div>
                 </form>
@@ -146,12 +148,21 @@
                 width: '100%'
             });
         }
-        
-        // Export filtered data button
-        $('#exportFilteredBtn').click(function() {
-            var formData = $('#searchForm').serialize();
-            window.location.href = "{{ route('admin.customer.billing.export') }}?" + formData;
-        });
     });
 </script>
 @endsection
+
+<style>
+/* Export buttons styling */
+.btn-group .btn {
+    border-radius: 0;
+}
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+</style>

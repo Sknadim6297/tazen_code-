@@ -18,9 +18,19 @@
             </div>
             <!-- Add Export Button -->
             <div>
-                <a href="{{ route('admin.reviews.export', request()->all()) }}" class="btn btn-primary">
-                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
-                </a>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-download-line me-1"></i> Export
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportData('excel')">
+                            <i class="ri-file-excel-2-line me-2 text-success"></i> Export to Excel
+                        </a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="exportData('pdf')">
+                            <i class="ri-file-pdf-line me-2 text-danger"></i> Export to PDF
+                        </a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         
@@ -55,9 +65,6 @@
                         <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Apply Filters</button>
                             <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary">Clear Filters</a>
-                            <button type="button" class="btn btn-success" id="exportFilteredBtn">
-                                <i class="fas fa-file-pdf me-1"></i> Export Filtered Data
-                            </button>
                         </div>
                     </div>
                 </form>
@@ -126,6 +133,15 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add this hidden form for export -->
+        <form id="export-form" method="GET" action="{{ route('admin.reviews.export') }}">
+            <input type="hidden" name="start_date" id="export-start-date">
+            <input type="hidden" name="end_date" id="export-end-date">
+            <input type="hidden" name="rating" id="export-rating">
+            <input type="hidden" name="professional" id="export-professional">
+            <input type="hidden" name="type" id="export-type">
+        </form>
     </div>
 </div>
 @endsection
@@ -133,11 +149,24 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Export filtered data button
-        $('#exportFilteredBtn').click(function() {
-            var formData = $('#filter-form').serialize();
-            window.location.href = "{{ route('admin.reviews.export') }}?" + formData;
-        });
+        // The Export Filtered Data button functionality has been replaced
     });
+    
+    // Export data function
+    function exportData(type) {
+        console.log('Export requested:', type);
+        
+        // Set the export type
+        document.getElementById('export-type').value = type;
+        
+        // Set the values of the hidden inputs to current filter values
+        document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]')?.value || '';
+        document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]')?.value || '';
+        document.getElementById('export-rating').value = document.querySelector('select[name="rating"]')?.value || '';
+        document.getElementById('export-professional').value = document.querySelector('input[name="professional"]')?.value || '';
+        
+        // Submit the form
+        document.getElementById('export-form').submit();
+    }
 </script>
 @endsection

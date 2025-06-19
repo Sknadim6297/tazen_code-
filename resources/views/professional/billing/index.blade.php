@@ -4,262 +4,206 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
     :root {
-        --primary: #4f46e5;
-        --primary-dark: #4338ca;
-        --primary-rgb: 79, 70, 229;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-400: #9ca3af;
-        --gray-500: #6b7280;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --gray-900: #111827;
+        --primary: #667eea;
+        --primary-dark: #5a67d8;
+        --primary-rgb: 102, 126, 234;
+        --secondary: #764ba2;
+        --success: #48bb78;
+        --warning: #ed8936;
+        --danger: #f56565;
+        --info: #4299e1;
+        --gray-100: #f7fafc;
+        --gray-200: #edf2f7;
+        --gray-300: #e2e8f0;
+        --gray-400: #cbd5e0;
+        --gray-500: #a0aec0;
+        --gray-600: #718096;
+        --gray-700: #4a5568;
+        --gray-800: #2d3748;
+        --gray-900: #1a202c;
     }
   
-    /* Date Picker and Filter Styling */
+    /* Modern Page Header */
+    .content-wrapper {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: calc(100vh - 60px);
+        padding: 2rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-title h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .breadcrumb li {
+        position: relative;
+    }
+
+    .breadcrumb li:not(:last-child)::after {
+        content: '>';
+        margin-left: 0.5rem;
+        opacity: 0.7;
+    }
+
+    .breadcrumb li.active {
+        font-weight: 600;
+    }
+
+    /* Filter Section Styling */
     .filter-section {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        padding: 20px;
-        margin-bottom: 30px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--gray-200);
     }
 
     .filter-group {
-        margin-bottom: 15px;
+        margin-bottom: 1.5rem;
     }
 
     .filter-label {
         display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: var(--gray-700);
-        margin-bottom: 6px;
+        margin-bottom: 0.5rem;
     }
 
     .filter-input {
         width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--gray-300);
-        border-radius: 6px;
-        font-size: 0.9375rem;
-        transition: all 0.2s;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--gray-300);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--gray-100);
     }
 
     .filter-input:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
         outline: none;
+        background: white;
     }
 
     .filter-btn {
-        background-color: var(--primary);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         color: white;
         border: none;
-        border-radius: 6px;
-        padding: 10px 18px;
-        font-size: 0.9375rem;
-        font-weight: 500;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .filter-btn:hover {
-        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        color: white;
     }
 
     .filter-btn.reset {
-        background-color: var(--gray-200);
+        background: var(--gray-200);
         color: var(--gray-700);
     }
 
     .filter-btn.reset:hover {
-        background-color: var(--gray-300);
-    }
-
-    /* Date picker customization */
-    .flatpickr-calendar {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-        border-radius: 10px !important;
-    }
-
-    .flatpickr-day.selected, 
-    .flatpickr-day.startRange, 
-    .flatpickr-day.endRange, 
-    .flatpickr-day.selected.inRange, 
-    .flatpickr-day.startRange.inRange, 
-    .flatpickr-day.endRange.inRange, 
-    .flatpickr-day.selected:focus, 
-    .flatpickr-day.startRange:focus, 
-    .flatpickr-day.endRange:focus, 
-    .flatpickr-day.selected:hover, 
-    .flatpickr-day.startRange:hover, 
-    .flatpickr-day.endRange:hover {
-        background: var(--primary) !important;
-        border-color: var(--primary) !important;
-    }
-
-    /* Transaction number styling */
-    .transaction-number {
-        font-family: monospace;
-        padding: 4px 8px;
-        background: #f7fafc;
-        border-radius: 4px;
-        border: 1px solid #e2e8f0;
-        font-size: 0.85rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 150px;
-        display: inline-block;
-        text-align: center;
-    }
-
-    /* Status badges */
-    .status-badge {
-        padding: 6px 12px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .status-paid {
-        background-color: rgba(72, 187, 120, 0.1);
-        color: #48bb78;
-    }
-
-    .status-unpaid {
-        background-color: rgba(237, 100, 88, 0.1);
-        color: #ed645c;
-    }
-
-    .content-wrapper {
-        background-color: #f8fafc;
-        min-height: calc(100vh - 60px);
-        padding: 30px;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .page-title h3 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--gray-800);
-        margin: 0;
-        position: relative;
-        padding-left: 15px;
-    }
-
-    .page-title h3::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 5px;
-        bottom: 5px;
-        width: 4px;
-        background: var(--primary);
-        border-radius: 4px;
-    }
-
-    .breadcrumb {
-        display: flex;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        align-items: center;
-        font-size: 0.875rem;
-    }
-
-    .breadcrumb li {
-        color: var(--gray-600);
-        display: flex;
-        align-items: center;
-    }
-
-    .breadcrumb li:not(:last-child)::after {
-        content: '/';
-        margin: 0 8px;
-        color: var(--gray-400);
-    }
-
-    .breadcrumb li.active {
-        color: var(--primary);
-        font-weight: 500;
-    }
-
-    .card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        border: none;
-        overflow: hidden;
-        margin-bottom: 30px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        background: var(--gray-300);
         transform: translateY(-2px);
     }
 
-    .card-header {
-        padding: 20px 25px;
+    /* Card Styling */
+    .card {
         background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: none;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
         border-bottom: 1px solid var(--gray-200);
+        padding: 1.5rem 2rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
     .card-header h4 {
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: var(--gray-800);
         margin: 0;
     }
 
     .card-body {
-        padding: 25px;
+        padding: 2rem;
     }
 
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Updated table styling for bordered design */
+    /* Table Styling */
     .data-table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        font-size: 0.9375rem;
         background: white;
-        border-radius: 8px;
+        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
     .data-table thead th {
-        background: #f8fafc;
-        color: #1a202c;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.8125rem;
+        font-size: 0.85rem;
         letter-spacing: 0.5px;
-        padding: 16px;
+        padding: 1.25rem 1rem;
         text-align: center;
-        border-bottom: 2px solid #e2e8f0;
+        border: none;
         position: relative;
     }
 
@@ -270,69 +214,26 @@
         top: 25%;
         height: 50%;
         width: 1px;
-        background-color: #e2e8f0;
+        background-color: rgba(255, 255, 255, 0.2);
     }
 
     .data-table tbody td {
-        padding: 16px;
+        padding: 1.25rem 1rem;
         text-align: center;
         vertical-align: middle;
-        border-bottom: 1px solid #e2e8f0;
-        color: #4a5568;
-        transition: background-color 0.2s;
+        border-bottom: 1px solid var(--gray-200);
+        color: var(--gray-700);
+        transition: all 0.3s ease;
     }
 
-    .data-table .label {
-        display: none;  /* Hide by default */
+    .data-table tbody tr {
+        transition: all 0.3s ease;
     }
 
-    .data-table .value {
-        display: inline-block;
-    }
-
-    /* Desktop specific styles */
-    @media (min-width: 769px) {
-        .data-table tbody td {
-            position: relative;
-        }
-        
-        .data-table .label {
-            display: block;
-            font-size: 0.75rem;
-            color: #718096;
-            margin-bottom: 4px;
-        }
-        
-        .data-table .value {
-            font-weight: 500;
-        }
-        
-        td[data-label="Amount"] .value {
-            color: #2d3748;
-            font-weight: 600;
-        }
-    }
-
-    /* Mobile specific styles */
-    @media (max-width: 768px) {
-        .data-table tbody td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            text-align: right;
-        }
-
-        .data-table tbody td::before {
-            content: attr(data-label);
-            font-weight: 600;
-            margin-right: 1rem;
-            text-align: left;
-        }
-    }
-
-    .data-table tbody tr:hover td {
-        background-color: #f7fafc;
+    .data-table tbody tr:hover {
+        background: var(--gray-100);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
     .data-table tbody tr:last-child td {
@@ -340,133 +241,159 @@
     }
 
     .data-table tbody tr.total-row {
-        background-color: #f8fafc;
-        font-weight: 600;
+        background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+        font-weight: 700;
     }
 
     .data-table tbody tr.total-row td {
-        border-top: 2px solid #e2e8f0;
-        color: #2d3748;
-        font-size: 1rem;
+        border-top: 2px solid var(--primary);
+        color: var(--gray-800);
+        font-size: 1.1rem;
     }
 
+    /* Badge Styling */
     .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 6px 12px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .badge-weekly {
-        background-color: rgba(56, 178, 172, 0.1);
-        color: #38b2ac;
     }
 
     .badge-monthly {
-        background-color: rgba(102, 126, 234, 0.1);
-        color: #667eea;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
     }
 
     .badge-quarterly {
-        background-color: rgba(237, 137, 54, 0.1);
-        color: #ed8936;
-    }
-
-    .badge-one-time {
-        background-color: rgba(66, 153, 225, 0.1);
-        color: #4299e1;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
     }
 
     .badge-yearly {
-        background-color: rgba(72, 187, 120, 0.1);
-        color: #48bb78;
-    }
-
-    /* Export button styling */
-    .btn-export {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background-color: var(--primary);
+        background: linear-gradient(135deg, var(--success) 0%, #38a169 100%);
         color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 8px 16px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
     }
 
-    .btn-export:hover {
-        background-color: var(--primary-dark);
-    }
-
-    .btn-sm {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.875rem;
-        border-radius: 0.375rem;
-    }
-
-    .btn-primary {
-        background-color: var(--primary);
+    .badge-one-time {
+        background: linear-gradient(135deg, var(--info) 0%, #3182ce 100%);
         color: white;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
     }
 
-    .btn-primary:hover {
-        background-color: var(--primary-dark);
+    /* Status Badge Styling */
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .btn-download {
-        background-color: #4299e1;
+    .status-paid {
+        background: linear-gradient(135deg, var(--success) 0%, #38a169 100%);
         color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
+    }
+
+    .status-unpaid {
+        background: linear-gradient(135deg, var(--danger) 0%, #e53e3e 100%);
+        color: white;
+    }
+
+    /* Transaction Number Styling */
+    .transaction-number {
+        font-family: 'Courier New', monospace;
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        border-radius: 8px;
+        border: 1px solid var(--gray-300);
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
         display: inline-block;
+        text-align: center;
+        color: var(--gray-700);
+    }
+
+    /* Button Styling */
+    .btn-download {
+        background: linear-gradient(135deg, var(--info) 0%, #3182ce 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .btn-download:hover {
-        background-color: #3182ce;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+        color: white;
     }
 
+    /* Margin Badge Styling */
+    .margin-badge {
+        background: linear-gradient(135deg, var(--warning) 0%, #dd6b20 100%);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Net Amount Styling */
+    .net-amount {
+        font-weight: 700;
+        color: var(--success);
+        font-size: 1.1rem;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
         .content-wrapper {
-            padding: 15px;
+            padding: 1rem;
         }
 
-        .card {
-            border-radius: 12px;
-            margin-bottom: 20px;
+        .page-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-title h3 {
+            font-size: 1.5rem;
+        }
+
+        .filter-section {
+            padding: 1.5rem;
         }
 
         .card-header {
-            padding: 15px;
+            padding: 1rem 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
         }
 
         .card-body {
-            padding: 0;
+            padding: 1rem;
         }
 
         .data-table {
-            border-radius: 0;
-            box-shadow: none;
-            background: transparent;
+            font-size: 0.85rem;
         }
 
         .data-table thead {
@@ -476,106 +403,134 @@
         .data-table tbody tr {
             display: block;
             background: white;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .data-table tbody td {
             display: flex;
-            padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
+            justify-content: space-between;
             align-items: center;
-            min-height: 50px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            text-align: left;
         }
 
         .data-table tbody td::before {
             content: attr(data-label);
             font-weight: 600;
-            width: 40%;
+            color: var(--gray-600);
             min-width: 120px;
-            color: #4a5568;
         }
 
         .data-table tbody td:last-child {
             border-bottom: none;
         }
 
-        .badge {
+        .badge, .status-badge {
             margin: 0 auto;
-            padding: 6px 12px;
         }
 
         .btn-download {
             margin: 0 auto;
-            padding: 8px 16px;
             width: auto;
             min-width: 140px;
-            text-align: center;
+            justify-content: center;
         }
 
         .total-row {
-            background: #f8fafc !important;
-            border: 2px solid #e2e8f0 !important;
-            margin-top: 20px !important;
+            background: var(--gray-100) !important;
+            border: 2px solid var(--primary) !important;
+            margin-top: 1rem !important;
         }
 
         .total-row td {
             justify-content: space-between !important;
-            font-weight: 600 !important;
-            color: #2d3748 !important;
+            font-weight: 700 !important;
+            color: var(--gray-800) !important;
         }
 
-        .total-row td[colspan="3"] {
+        .total-row td[colspan] {
             display: none !important;
         }
+    }
 
-        .total-row td:last-child {
-            border-top: none !important;
+    @media (max-width: 576px) {
+        .breadcrumb {
+            flex-wrap: wrap;
         }
 
-        /* Adjust the table cell content alignment */
         .data-table tbody td {
-            justify-content: space-between;
-            text-align: right;
-            gap: 10px;
+            font-size: 0.8rem;
         }
 
-        /* Make the amount more prominent */
-        td[data-label="Amount"] {
-            font-weight: 600;
-            color: #2d3748;
+        .badge, .status-badge {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
         }
 
-        /* Center the session type badge */
-        td[data-label="Session Type"] {
-            justify-content: space-between;
+        .transaction-number {
+            max-width: 120px;
+            font-size: 0.8rem;
         }
+    }
 
-        /* Improve spacing for the invoice button */
-        td[data-label="Invoice"] {
-            justify-content: center;
-            padding: 15px;
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
         }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-        .label {
-            display: none;
-        }
-        
-        .value {
-            flex: 1;
-        }
+    .card {
+        animation: fadeInUp 0.6s ease-out;
+    }
 
-        .total-label {
-            text-align: left !important;
-            padding-left: 15px !important;
-        }
+    .data-table tbody tr {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: both;
+    }
 
-        .total-amount {
-            text-align: right !important;
-            padding-right: 15px !important;
-        }
+    .data-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .data-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .data-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .data-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .data-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    /* Form Group Styling */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input[type="date"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--gray-300);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--gray-100);
+    }
+
+    .form-group input[type="date"]:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        outline: none;
+        background: white;
     }
 </style>
 @endsection
@@ -618,7 +573,7 @@
                 <div class="col-md-3 filter-group">
                     <label class="filter-label" for="payment_status">Payment Status</label>
                     <select class="filter-input" id="payment_status" name="payment_status">
-                        <option value="">All Statuses</option>
+                        <option value="">All Status</option>
                         <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
                         <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
                     </select>
@@ -727,6 +682,175 @@
         </div>
     </div>
 </div>
+<style>
+    /* Table horizontal scrolling for mobile */
+    .table-responsive-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+    
+    .table {
+        min-width: 600px; /* Minimum width to ensure all columns are visible when scrolling */
+        width: 100%;
+    }
+
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+         /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .table-responsive-container {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+        
+        /* Ensure the table takes full width of container */
+        .table {
+            width: 100%;
+            table-layout: auto;
+            white-space: nowrap;
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 20px 10px;
+        }
+        
+        /* Fix card width */
+        .card {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure the card body doesn't cause overflow */
+        .card-body {
+            padding: 10px 5px;
+        }
+        
+        /* Add scrollbar styling */
+        .table-responsive-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+            .user-profile-wrapper{
+                margin-top: -57px;
+            }
+    }
+    
+    @media screen and (max-width: 767px) {
+        /* Fix header to prevent horizontal scrolling */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make table container scrollable horizontally */
+        .table-responsive-container {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+        
+        /* Ensure the table takes full width of container */
+        .table {
+            width: 100%;
+            table-layout: auto;
+            white-space: nowrap;
+        }
+        
+        /* Fix the search container from overflowing */
+        .search-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure content wrapper doesn't cause horizontal scroll */
+        .content-wrapper {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding: 20px 10px;
+        }
+        
+        /* Fix card width */
+        .card {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure the card body doesn't cause overflow */
+        .card-body {
+            padding: 10px 5px;
+        }
+        
+        /* Add scrollbar styling */
+        .table-responsive-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .table-responsive-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    }
+</style>
 @endsection
 
 

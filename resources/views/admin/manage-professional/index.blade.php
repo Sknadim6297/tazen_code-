@@ -209,6 +209,44 @@
     .bg-primary {
         background-color: #4e73df !important;
     }
+
+    /* Export buttons styling */
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+        margin-left: 10px;
+    }
+
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .export-btn-excel {
+        background-color: #1f7244;
+        color: white;
+        border: none;
+    }
+
+    .export-btn-excel:hover {
+        background-color: #155a33;
+    }
+
+    .export-btn-pdf {
+        background-color: #c93a3a;
+        color: white;
+        border: none;
+    }
+
+    .export-btn-pdf:hover {
+        background-color: #a52929;
+    }
 </style>
 @endsection
 
@@ -231,43 +269,67 @@
         </div>
 
         <!-- Filter Section - Improved Design -->
-        <form action="{{ route('admin.manage-professional.index') }}" method="GET" class="d-flex align-items-center gap-2 mb-4">
-            <div class="col-xl-2">
-                <input type="search" name="search" class="form-control form-control-sm" id="autoComplete" placeholder="Search by name or email">
-            </div>
-            
-            <div class="col-xl-2">
-                <select id="serviceFilter" name="service_id" class="form-select form-select-sm">
-                    <option value="">All Services</option>
-                    @foreach($services as $service)
-                        <option value="{{ $service->id }}">{{ $service->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <!-- New Specialization filter -->
-            <div class="col-xl-2">
-                <select id="specializationFilter" name="specialization" class="form-select form-select-sm">
-                    <option value="">All Specializations</option>
-                    @foreach($specializations as $specialization)
-                        <option value="{{ $specialization }}">{{ $specialization }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="col-xl-4">
-                <div class="input-group input-group-sm">
-                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                    <input type="date" class="form-control form-control-sm" placeholder="Start Date" name="start_date" id="start_date">
-                    <span class="input-group-text">to</span>
-                    <input type="date" class="form-control form-control-sm" placeholder="End Date" name="end_date" id="end_date">
+        <form id="filter-form" action="{{ route('admin.manage-professional.index') }}" method="GET" class="mb-4">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="col-xl-2">
+                    <input type="search" name="search" class="form-control form-control-sm" id="autoComplete" placeholder="Search by name or email">
+                </div>
+                
+                <div class="col-xl-2">
+                    <select id="serviceFilter" name="service_id" class="form-select form-select-sm">
+                        <option value="">All Services</option>
+                        @foreach($services as $service)
+                            <option value="{{ $service->id }}">{{ $service->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="col-xl-2">
+                    <select id="specializationFilter" name="specialization" class="form-select form-select-sm">
+                        <option value="">All Specializations</option>
+                        @foreach($specializations as $specialization)
+                            <option value="{{ $specialization }}">{{ $specialization }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="col-xl-4">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                        <input type="date" class="form-control form-control-sm" placeholder="Start Date" name="start_date" id="start_date">
+                        <span class="input-group-text">to</span>
+                        <input type="date" class="form-control form-control-sm" placeholder="End Date" name="end_date" id="end_date">
+                    </div>
+                </div>
+                
+                <div class="col-xl-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                    <a href="{{ route('admin.manage-professional.index') }}" class="btn btn-secondary btn-sm">Reset</a>
                 </div>
             </div>
-            
-            <div class="col-xl-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">Search</button>
-                <a href="{{ route('admin.manage-professional.index') }}" class="btn btn-secondary btn-sm">Reset</a>
+        </form>
+
+        <!-- Add Export buttons outside the filter form -->
+        <div class="d-flex justify-content-end mb-3">
+            <div class="export-buttons">
+                <button type="button" class="export-btn export-btn-excel" onclick="exportData('excel')">
+                    <i class="ri-file-excel-line me-1"></i> Export Excel
+                </button>
+                <button type="button" class="export-btn export-btn-pdf" onclick="exportData('pdf')">
+                    <i class="ri-file-pdf-line me-1"></i> Export PDF
+                </button>
             </div>
+        </div>
+
+        <!-- Add this hidden form for export -->
+        <form id="export-form" method="GET" action="{{ route('admin.manage-professional.index') }}">
+            <!-- Hidden inputs to carry over current filters -->
+            <input type="hidden" name="search" id="export-search">
+            <input type="hidden" name="service_id" id="export-service">
+            <input type="hidden" name="specialization" id="export-specialization">
+            <input type="hidden" name="start_date" id="export-start-date">
+            <input type="hidden" name="end_date" id="export-end-date">
+            <input type="hidden" name="export" id="export-type">
         </form>
 
         <div class="row">
@@ -545,7 +607,6 @@
                                     </label>
                                 </form>
                             `;
-
                             // Build the row
                             professionalsHtml += `
                                 <tr class="professional-list">
@@ -774,6 +835,27 @@
             const date = new Date(dateString);
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
+        }
+
+        // Export data function
+        window.exportData = function(type) {
+            console.log('Export requested:', type); // Debug message
+            
+            // Set the export type
+            document.getElementById('export-type').value = type;
+            
+            // Set the values of the hidden inputs to current filter values
+            document.getElementById('export-search').value = document.getElementById('autoComplete').value;
+            document.getElementById('export-service').value = document.getElementById('serviceFilter').value;
+            document.getElementById('export-specialization').value = document.getElementById('specializationFilter').value;
+            document.getElementById('export-start-date').value = document.getElementById('start_date').value;
+            document.getElementById('export-end-date').value = document.getElementById('end_date').value;
+            
+            // Show a loading message (optional)
+            toastr.info('Preparing ' + type.toUpperCase() + ' export...');
+            
+            // Submit the form
+            document.getElementById('export-form').submit();
         }
     });
 </script>
