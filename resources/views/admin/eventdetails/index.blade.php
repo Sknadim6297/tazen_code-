@@ -48,7 +48,7 @@
                                                     {{-- Banner Image --}}
                                                     <div class="col-xl-12">
                                                         <label for="banner_image" class="form-label">Banner Image</label>
-                                                        <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*" required>
+                                                        <input type="file" class="form-control" name="banner_image[]" id="banner_image" accept="image/*" multiple required>
                                                     </div>
                                     
                                                     {{-- Event Name (Dropdown from All Events) --}}
@@ -162,7 +162,20 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                <img src="{{ asset('storage/' . $event->banner_image) }}" width="70" height="50" alt="Banner">
+                                                @php
+                                                    $banners = is_array($event->banner_image)
+                                                        ? $event->banner_image
+                                                        : (is_string($event->banner_image) && $event->banner_image
+                                                            ? json_decode($event->banner_image, true)
+                                                            : []);
+                                                @endphp
+                                                @if($banners && is_array($banners))
+                                                    @foreach($banners as $img)
+                                                        <img src="{{ asset('storage/' . $img) }}" width="40" height="40" class="rounded me-1 mb-1" alt="Banner">
+                                                    @endforeach
+                                                @elseif(is_string($event->banner_image) && $event->banner_image)
+                                                    <img src="{{ asset('storage/' . $event->banner_image) }}" width="70" height="50" alt="Banner">
+                                                @endif
                                             </td>
                                             <td>{{ $event->event->heading ?? 'N/A' }}</td>
                                             <td>{{ $event->event_type }}</td>

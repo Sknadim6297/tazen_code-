@@ -55,6 +55,8 @@
                                                     <div class="col-xl-12">
                                                         <label for="short_description" class="form-label">Short Description</label>
                                                         <textarea class="form-control" name="short_description" id="short_description" placeholder="Enter Short Description" required></textarea>
+                                                        <small id="short_description_count" class="text-muted">0/15 words</small>
+                                                        <div id="short_description_error" class="text-danger" style="display:none;">Maximum 15 words allowed.</div>
                                                     </div>
 
                                     
@@ -188,4 +190,27 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var textarea = document.getElementById('short_description');
+    var countDisplay = document.getElementById('short_description_count');
+    var errorDisplay = document.getElementById('short_description_error');
+    function updateWordCount() {
+        let words = textarea.value.match(/\S+/g) || [];
+        let wordCount = words.length;
+        countDisplay.textContent = wordCount + '/15 words';
+        if (wordCount > 15) {
+            errorDisplay.style.display = 'block';
+            textarea.value = words.slice(0, 15).join(' ');
+            countDisplay.textContent = '15/15 words';
+        } else {
+            errorDisplay.style.display = 'none';
+        }
+    }
+    textarea.addEventListener('input', updateWordCount);
+    // Initialize on page load
+    updateWordCount();
+});
+</script>
 @endsection

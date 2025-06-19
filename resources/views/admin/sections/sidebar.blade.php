@@ -190,7 +190,7 @@
                                         <a href="{{ route('admin.blogbanners.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.blogposts.index') }}" class="side-menu__item">Blog Post Section</a>
+                                        <a href="{{ route('admin.blogposts.index') }}" class="side-menu__item">Blog Details</a>
                                     </li>
                                 </ul>
                             </li>

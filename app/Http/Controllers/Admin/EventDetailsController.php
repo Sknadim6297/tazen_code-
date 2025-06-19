@@ -26,7 +26,7 @@ class EventDetailsController extends Controller
     {
         $request->validate([
             'event_id' => 'required|exists:all_events,id',
-            'banner_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'banner_image.*' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'event_type' => 'required|string|max:255',
             'event_details' => 'required|string',
             'starting_date' => 'required|date',
@@ -46,9 +46,13 @@ class EventDetailsController extends Controller
             'event_mode'
         ]);
 
-        // Handle banner image
+        // Handle multiple banner images
         if ($request->hasFile('banner_image')) {
-            $data['banner_image'] = $request->file('banner_image')->store('events/banners', 'public');
+            $bannerImages = [];
+            foreach ($request->file('banner_image') as $image) {
+                $bannerImages[] = $image->store('events/banners', 'public');
+            }
+            $data['banner_image'] = json_encode($bannerImages);
         }
 
         // Handle gallery images
@@ -80,7 +84,7 @@ class EventDetailsController extends Controller
     {
         $request->validate([
             'event_id' => 'required|exists:all_events,id',
-            'banner_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'banner_image.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'event_type' => 'required|string|max:255',
             'event_details' => 'required|string',
             'starting_date' => 'required|date',
@@ -100,12 +104,19 @@ class EventDetailsController extends Controller
             'event_mode'
         ]);
 
-        // Handle banner image
+        // Handle multiple banner images
         if ($request->hasFile('banner_image')) {
+            // Delete old banner images
             if ($eventdetail->banner_image) {
-                Storage::disk('public')->delete($eventdetail->banner_image);
+                foreach (json_decode($eventdetail->banner_image) as $oldImage) {
+                    Storage::disk('public')->delete($oldImage);
+                }
             }
-            $data['banner_image'] = $request->file('banner_image')->store('events/banners', 'public');
+            $bannerImages = [];
+            foreach ($request->file('banner_image') as $image) {
+                $bannerImages[] = $image->store('events/banners', 'public');
+            }
+            $data['banner_image'] = json_encode($bannerImages);
         }
 
         // Handle gallery images
@@ -116,7 +127,6 @@ class EventDetailsController extends Controller
                     Storage::disk('public')->delete($oldImage);
                 }
             }
-
             $galleryImages = [];
             foreach ($request->file('event_gallery') as $image) {
                 $galleryImages[] = $image->store('events/gallery', 'public');
