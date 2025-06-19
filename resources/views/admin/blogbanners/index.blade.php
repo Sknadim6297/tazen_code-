@@ -32,58 +32,58 @@
                             Total Tasks
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blog Banner</button>
-                            <!-- Start::add task modal -->
-                            <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <form action="{{ route('admin.blogbanners.store') }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h6 class="modal-title">Add Blog Banner</h6>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body px-4">
-                                                <div class="row gy-3">
-                                    
-                                                    {{-- Banner Heading --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="heading" class="form-label">Banner Heading</label>
-                                                        <input type="text" class="form-control" id="heading" name="heading" placeholder="Enter Banner Heading" required>
+                            @if(count($blogbanners) < 1)
+                                <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Blog Banner</button>
+                                <!-- Start::add task modal -->
+                                <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <form action="{{ route('admin.blogbanners.store') }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h6 class="modal-title">Add Blog Banner</h6>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body px-4">
+                                                    <div class="row gy-3">
+                                                        {{-- Banner Heading --}}
+                                                        <div class="col-xl-6">
+                                                            <label for="heading" class="form-label">Banner Heading</label>
+                                                            <input type="text" class="form-control" id="heading" name="heading" placeholder="Enter Banner Heading" required>
+                                                        </div>
+                                                        {{-- Banner Sub Heading --}}
+                                                        <div class="col-xl-6">
+                                                            <label for="sub_heading" class="form-label">Banner Sub Heading</label>
+                                                            <input type="text" class="form-control" id="sub_heading" name="subheading" placeholder="Enter Sub Heading">
+                                                        </div>
+                                                        {{-- Banner Image --}}
+                                                        <div class="col-xl-12">
+                                                            <label for="banner_image" class="form-label">Banner Image</label>
+                                                            <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*" required>
+                                                        </div>
+                                                        {{-- Status --}}
+                                                        <div class="col-xl-12">
+                                                            <label for="status" class="form-label">Status</label>
+                                                            <select class="form-control" name="status" id="status" required>
+                                                                <option value="active">Active</option>
+                                                                <option value="inactive">Inactive</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                    
-                                                    {{-- Banner Sub Heading --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="sub_heading" class="form-label">Banner Sub Heading</label>
-                                                        <input type="text" class="form-control" id="sub_heading" name="subheading" placeholder="Enter Sub Heading">
-                                                    </div>
-                                    
-                                                    {{-- Banner Image --}}
-                                                    <div class="col-xl-12">
-                                                        <label for="banner_image" class="form-label">Banner Image</label>
-                                                        <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*" required>
-                                                    </div>
-                                    
-                                                    {{-- Status --}}
-                                                    <div class="col-xl-12">
-                                                        <label for="status" class="form-label">Status</label>
-                                                        <select class="form-control" name="status" id="status" required>
-                                                            <option value="active">Active</option>
-                                                            <option value="inactive">Inactive</option>
-                                                        </select>
-                                                    </div>
-                                    
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">Add Blog Banner</button>
                                                 </div>
                                             </div>
-                                    
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">Add Blog Banner</button>
-                                            </div>
-                                        </div>
-                                    </form>                                                                                                         
+                                        </form>                                                                                                         
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="alert alert-info mb-0" style="height:38px;display:flex;align-items:center;">
+                                    Only one blog banner is allowed. Please edit or delete the existing banner to add a new one.
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body p-0">

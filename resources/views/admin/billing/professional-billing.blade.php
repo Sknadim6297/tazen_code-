@@ -18,9 +18,14 @@
             </div>
             <!-- Add Export Button -->
             <div>
-                <a href="{{ route('admin.professional.billing.export', request()->all()) }}" class="btn btn-primary">
-                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
-                </a>
+                <div class="btn-group">
+                    <a href="{{ route('admin.professional.billing.export', request()->all()) }}" class="btn btn-primary">
+                        <i class="fas fa-file-pdf me-1"></i> Export PDF
+                    </a>
+                    <a href="{{ route('admin.professional.billing.export-excel', request()->all()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel me-1"></i> Export Excel
+                    </a>
+                </div>
             </div>
         </div>
         <!-- End Page Header -->
@@ -75,9 +80,6 @@
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary">Search</button>
                             <a href="{{ route('admin.professional.billing') }}" class="btn btn-secondary">Reset</a>
-                            <button type="button" class="btn btn-success" id="exportFilteredBtn">
-                                <i class="fas fa-file-pdf me-1"></i> Export Filtered Data
-                            </button>
                         </div>
                     </div>
                 </form>

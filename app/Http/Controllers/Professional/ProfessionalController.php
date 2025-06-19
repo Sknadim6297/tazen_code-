@@ -42,6 +42,15 @@ class ProfessionalController extends Controller
             $professional = Auth::guard('professional')->user();
 
             $request->session()->regenerate();
+            
+            // Check if the account is active
+            if (!$professional->active) {
+                Auth::guard('professional')->logout();
+                return response()->json([
+                    'status'  => 'deactivated',
+                    'message' => 'Your account has been deactivated. Please contact support for assistance.',
+                ], 403);
+            }
 
             if ($professional->status === 'accepted') {
                 return response()->json([

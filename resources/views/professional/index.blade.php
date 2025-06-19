@@ -359,7 +359,6 @@
                 <div class="card-info">
                     <h4>Total Bookings</h4>
                     <h2 style="color: black">{{ $totalBookings }}</h2>
-                    <p class="positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
                 </div>
             </div>
         </a>
@@ -430,20 +429,75 @@
             <div class="card-info">
                 <h4>Active Clients</h4>
                 <h2>{{ $activeClients }}</h2>
-                <p class="negative"><i class="fas fa-arrow-down"></i> 2% from last month</p>
             </div>
         </div>
 
-        <div class="card card-danger">
-            <div class="card-icon">
-                <i class="fas fa-tasks"></i>
+        <!-- Upcoming Appointments Card - Dynamic Version -->
+        @php
+            $professionalId = Auth::guard('professional')->id();
+            
+            // Get the current date
+            $today = \Carbon\Carbon::today();
+            $threeDaysLater = \Carbon\Carbon::today()->addDays(3);
+            
+            // Get bookings with timedate entries in the next 3 days
+            $upcomingBookings = \App\Models\Booking::where('professional_id', $professionalId)
+                ->whereHas('timedates', function($query) use ($today, $threeDaysLater) {
+                    $query->whereIn('status', ['pending', 'confirmed'])
+                          ->where('date', '>=', $today->format('Y-m-d'))
+                          ->where('date', '<=', $threeDaysLater->format('Y-m-d'));
+                })
+                ->with(['timedates' => function($query) use ($today, $threeDaysLater) {
+                    $query->whereIn('status', ['pending', 'confirmed'])
+                          ->where('date', '>=', $today->format('Y-m-d'))
+                          ->where('date', '<=', $threeDaysLater->format('Y-m-d'))
+                          ->orderBy('date', 'asc');
+                }])
+                ->get();
+            
+            // Count total upcoming bookings
+            $upcomingCount = 0;
+            foreach($upcomingBookings as $booking) {
+                $upcomingCount += $booking->timedates->count();
+            }
+            
+            // Count today's bookings
+            $todayBookings = \App\Models\Booking::where('professional_id', $professionalId)
+                ->whereHas('timedates', function($query) use ($today) {
+                    $query->whereIn('status', ['pending', 'confirmed'])
+                          ->where('date', $today->format('Y-m-d'));
+                })
+                ->with(['timedates' => function($query) use ($today) {
+                    $query->whereIn('status', ['pending', 'confirmed'])
+                          ->where('date', $today->format('Y-m-d'));
+                }])
+                ->get();
+            
+            $todayCount = 0;
+            foreach($todayBookings as $booking) {
+                $todayCount += $booking->timedates->count();
+            }
+        @endphp
+
+        <a href="{{ route('professional.booking.index') }}" class="dashboard-card-link">
+            <div class="card card-danger">
+                <div class="card-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="card-info">
+                    <h4>Upcoming Appointments</h4>
+                    <h2>{{ $upcomingCount }}</h2>
+                    @if($todayCount > 0)
+                        <p class="positive">
+                            <i class="fas fa-arrow-up"></i> 
+                            {{ $todayCount }} new {{ $todayCount == 1 ? 'appointment' : 'appointments' }} today
+                        </p>
+                    @else
+                        <p>No appointments today</p>
+                    @endif
+                </div>
             </div>
-            <div class="card-info">
-                <h4>Pending Tasks</h4>
-                <h2>7</h2>
-                <p class="positive"><i class="fas fa-arrow-up"></i> 3 new today</p>
-            </div>
-        </div>
+        </a>
     </div>
 
     <!-- Recent Bookings -->

@@ -13,7 +13,7 @@ class Comment extends Model
         'blog_post_id',
         'name',
         'email',
-        'website',
+        'mobile',
         'comment',
         'is_approved'
     ];

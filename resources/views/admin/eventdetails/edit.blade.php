@@ -13,8 +13,25 @@
                 {{-- Banner Image --}}
                 <div class="col-xl-12">
                     <label for="banner_image" class="form-label">Banner Image</label>
-                    <input type="file" class="form-control" name="banner_image" id="banner_image" accept="image/*">
-                    @if($eventdetail->banner_image)
+                    <input type="file" class="form-control" name="banner_image[]" id="banner_image" accept="image/*" multiple>
+                    @php
+                        $banners = is_array($eventdetail->banner_image)
+                            ? $eventdetail->banner_image
+                            : (is_string($eventdetail->banner_image) && $eventdetail->banner_image
+                                ? json_decode($eventdetail->banner_image, true)
+                                : []);
+                    @endphp
+                    @if($banners && is_array($banners))
+                        <div class="mt-2">
+                            @foreach($banners as $img)
+                                @php
+                                    $img = trim($img, "\"'");
+                                    $img = str_replace(['\\/', '\\'], '/', $img);
+                                @endphp
+                                <img src="{{ asset('storage/' . $img) }}" width="100" class="me-2 mb-2">
+                            @endforeach
+                        </div>
+                    @elseif(is_string($eventdetail->banner_image) && $eventdetail->banner_image)
                         <img src="{{ asset('storage/' . $eventdetail->banner_image) }}" class="mt-2" width="200">
                     @endif
                 </div>

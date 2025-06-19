@@ -43,79 +43,50 @@
                                                 <h6 class="modal-title">Add Blog Post</h6>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <div class="modal-body px-4">
+                                            <div class="modal-body px-4 py-3">
                                                 <div class="row gy-3">
-                                                        
-                                                    <select name="blog_id">
-                                                        @foreach($blogTitles as $blog)
-                                                            <option value="{{ $blog->id }}">{{ $blog->title }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    
-                                        
-                                                    {{-- Blog Image --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="image" class="form-label">Blog Image</label>
-                                                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
-                                                    </div>
-                                        
-                                                    {{-- Category --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="category" class="form-label">Category</label>
-                                                        <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category" required>
-                                                    </div>
-                                        
-                                                    {{-- Published Date --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="published_at" class="form-label">Published Date</label>
-                                                        <input type="date" class="form-control" id="published_at" name="published_at" required>
-                                                    </div>
-                                        
-                                                    {{-- Blog Title (Dropdown) --}}
-                                                    {{-- <div class="col-xl-6">
-                                                        <label for="title" class="form-label">Title</label>
-                                                        <select class="form-control" id="title" name="title" required>
-                                                            <option value="">Select Blog Title</option>
+                                                    <div class="col-xl-12 mb-3">
+                                                        <label for="blog_id" class="form-label">Blog Title</label>
+                                                        <select name="blog_id" id="blog_id" class="form-select" required>
+                                                            <option value="">Select Blog</option>
                                                             @foreach($blogTitles as $blog)
                                                                 <option value="{{ $blog->id }}">{{ $blog->title }}</option>
                                                             @endforeach
                                                         </select>
-                                                    </div> --}}
-                                        
-                                                    {{-- Content --}}
-                                                    <div class="col-xl-12">
+                                                    </div>
+                                                    <div class="col-xl-6 mb-3">
+                                                        <label for="image" class="form-label">Blog Image</label>
+                                                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                                                    </div>
+                                                    <div class="col-xl-6 mb-3">
+                                                        <label for="category" class="form-label">Category</label>
+                                                        <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category" required>
+                                                    </div>
+                                                    <div class="col-xl-6 mb-3">
+                                                        <label for="published_at" class="form-label">Published Date</label>
+                                                        <input type="date" class="form-control" id="published_at" name="published_at" required>
+                                                    </div>
+                                                    <div class="col-xl-12 mb-3">
                                                         <label for="content" class="form-label">Content</label>
                                                         <textarea class="form-control" id="content" name="content" rows="5" placeholder="Enter Blog Content" required></textarea>
                                                     </div>
-                                        
-                                                    {{-- Author Name --}}
-                                                    <div class="col-xl-6">
+                                                    <div class="col-xl-6 mb-3">
                                                         <label for="author_name" class="form-label">Author Name</label>
                                                         <input type="text" class="form-control" id="author_name" name="author_name" placeholder="Enter Author Name" required>
                                                     </div>
-                                        
-                                                    {{-- Author Avatar --}}
-                                                    <div class="col-xl-6">
+                                                    <div class="col-xl-6 mb-3">
                                                         <label for="author_avatar" class="form-label">Author Avatar</label>
                                                         <input type="file" class="form-control" id="author_avatar" name="author_avatar" accept="image/*">
                                                     </div>
-                                        
-                                                    {{-- Comment Count --}}
-                                                    <div class="col-xl-6">
-                                                        <label for="comment_count" class="form-label">Comment Count</label>
-                                                        <input type="number" class="form-control" id="comment_count" name="comment_count" value="0" min="0">
-                                                    </div>
-                                        
                                                 </div>
                                             </div>
-                                        
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                                                 <button type="submit" class="btn btn-primary">Add Blog Post</button>
                                             </div>
                                         </div>
                                     </form>
-                                                                                                                                                                                                                                                  </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -131,7 +102,7 @@
                                         <th scope="col">Content</th>
                                         <th scope="col">Author Name</th>
                                         <th scope="col">Author Avatar</th>
-                                        <th scope="col">Comment Count</th>
+                                        {{-- <th scope="col">Comment Count</th> --}}
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
@@ -151,7 +122,7 @@
                                                     <img src="{{ asset('storage/' . $blogPost->author_avatar) }}" alt="Author Avatar" width="50" height="50">
                                                 @endif
                                             </td>
-                                            <td>{{ $blogPost->comment_count }}</td>
+                                            {{-- <td>{{ $blogPost->comment_count }}</td> --}}
                                             <td>
                                                 <!-- You can add action buttons like Edit or Delete here -->
                                                 <a href="{{ route('admin.blogposts.edit', $blogPost->id) }}" class="btn btn-warning btn-sm">Edit</a>

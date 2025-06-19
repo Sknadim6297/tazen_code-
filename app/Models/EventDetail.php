@@ -24,7 +24,8 @@ class EventDetail extends Model
     protected $casts = [
         'starting_date' => 'date',
         'starting_fees' => 'decimal:2',
-        'event_gallery' => 'array'
+        'event_gallery' => 'array',
+        'banner_image' => 'array',
     ];
 
     public function event()
