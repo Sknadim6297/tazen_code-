@@ -65,25 +65,43 @@ class UpcomingAppointmentController extends Controller
             
             Log::info('Found bookings', ['count' => $allBookings->count()]);
             
+            // Get current date and date 3 days from now
+            $today = Carbon::today();
+            $threeDaysLater = Carbon::today()->addDays(3);
+            
+            Log::info('Date range', [
+                'today' => $today->format('Y-m-d'),
+                'threeDaysLater' => $threeDaysLater->format('Y-m-d')
+            ]);
+            
             // Group bookings by booking_id to ensure we only show one timedate per booking
             $processedBookings = collect();
             
             foreach ($allBookings as $booking) {
                 try {
-                    // For each booking, get ALL timedates
-                    $allTimedates = BookingTimedate::where('booking_id', $booking->id)
+                    // For each booking, get only pending/confirmed timedates in the next 3 days
+                    $upcomingTimedates = BookingTimedate::where('booking_id', $booking->id)
+                        ->whereIn('status', ['pending', 'confirmed'])
+                        ->where('date', '>=', $today->format('Y-m-d'))
+                        ->where('date', '<=', $threeDaysLater->format('Y-m-d'))
                         ->orderBy('date', 'asc')
                         ->get();
                     
-                    // Find the next upcoming timedate (first future date)
-                    $nextTimedate = $allTimedates->first(function ($timedate) {
-                        return Carbon::parse($timedate->date)->startOfDay()->gte(Carbon::today());
-                    });
+                    Log::info('Upcoming timedates for booking', [
+                        'booking_id' => $booking->id,
+                        'count' => $upcomingTimedates->count()
+                    ]);
                     
-                    // Only add this booking if it has a future timedate
-                    if ($nextTimedate) {
+                    // Only add this booking if it has a future timedate within the next 3 days
+                    if ($upcomingTimedates->isNotEmpty()) {
+                        // Get the first upcoming timedate
+                        $nextTimedate = $upcomingTimedates->first();
+                        
                         // Replace the timedates collection with just this single upcoming timedate
                         $booking->setRelation('timedates', collect([$nextTimedate]));
+                        
+                        // Get all timedates to calculate sessions
+                        $allTimedates = BookingTimedate::where('booking_id', $booking->id)->get();
                         
                         // Add calculated session information
                         $booking->sessions_taken = $allTimedates->where('status', 'completed')->count();

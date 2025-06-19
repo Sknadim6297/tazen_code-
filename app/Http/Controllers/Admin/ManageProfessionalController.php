@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ProfessionalDeactivated;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf; // Change the import at the top
 
 class ManageProfessionalController extends Controller
 {
@@ -31,56 +32,138 @@ class ManageProfessionalController extends Controller
             ->get()
             ->pluck('specialization');
 
-        // If the request is AJAX
-        if ($request->ajax()) {
-            $searchTerm = $request->input('search');
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
-            $serviceId = $request->input('service_id');
-            $specializationFilter = $request->input('specialization');
+        // Build base query with filters
+        $query = Professional::with(['professionalServices.service', 'profile']);
+        
+        // Apply search filters
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
 
-            // Build the query based on filters
-            $professionals = Professional::with(['professionalServices.service', 'profile']);
+        // Apply date filter if both dates are provided
+        if ($request->has('start_date') && $request->has('end_date') && $request->start_date && $request->end_date) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
 
-            if ($searchTerm) {
-                $professionals = $professionals->where(function ($query) use ($searchTerm) {
-                    $query->where('name', 'like', '%' . $searchTerm . '%')
-                        ->orWhere('email', 'like', '%' . $searchTerm . '%');
-                });
-            }
+        // Filter by service if selected
+        if ($request->has('service_id') && $request->service_id) {
+            $query->whereHas('professionalServices', function ($q) use ($request) {
+                $q->where('service_id', $request->service_id);
+            });
+        }
+        
+        // Filter by specialization if selected
+        if ($request->has('specialization') && $request->specialization) {
+            $query->whereHas('profile', function($q) use ($request) {
+                $q->where('specialization', $request->specialization);
+            });
+        }
+        
+        // Get the professionals with filters
+        $professionals = $query->latest();
 
-            // Apply date filter if both dates are provided
-            if ($startDate && $endDate) {
-                // Ensure proper date format for database query
-                $professionals = $professionals->whereDate('created_at', '>=', date('Y-m-d', strtotime($startDate)))
-                    ->whereDate('created_at', '<=', date('Y-m-d', strtotime($endDate)));
-            }
-
-            // Filter by service if selected
-            if ($serviceId) {
-                $professionals = $professionals->whereHas('professionalServices', function ($query) use ($serviceId) {
-                    $query->where('service_id', $serviceId);
-                });
-            }
+        // Handle export requests
+        if ($request->has('export')) {
+            $exportProfessionals = $professionals->get(); // Get all results for export
             
-            // Filter by specialization if selected
-            if ($specializationFilter) {
-                $professionals = $professionals->whereHas('profile', function($query) use ($specializationFilter) {
-                    $query->where('specialization', $specializationFilter);
-                });
+            if ($request->export === 'excel') {
+                return $this->exportToExcel($exportProfessionals);
+            } elseif ($request->export === 'pdf') {
+                return $this->exportToPdf($exportProfessionals);
             }
+        }
 
-            // Fetch filtered professionals
-            $professionals = $professionals->latest()->paginate(10);
-
+        // If AJAX request, return JSON
+        if ($request->ajax()) {
             return response()->json([
-                'professionals' => $professionals->toArray(),
+                'professionals' => $professionals->paginate(10)->toArray(),
             ]);
         }
 
-        // Return the view for initial page load
-        $professionals = Professional::with(['professionalServices.service', 'profile'])->latest()->paginate(10);
-        return view('admin.manage-professional.index', compact('professionals', 'services', 'specializations'));
+        // Paginate for view rendering
+        $professionals = $professionals->paginate(10);
+        
+        // Return the view for initial page load with pagination
+        return view('admin.manage-professional.index', compact(
+            'professionals', 
+            'services', 
+            'specializations'
+        ));
+    }
+
+    /**
+     * Export data to Excel (CSV format)
+     */
+    private function exportToExcel($professionals)
+    {
+        try {
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="professionals_' . date('Y_m_d_His') . '.csv"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+            
+            $callback = function() use ($professionals) {
+                $file = fopen('php://output', 'w');
+                
+                // Add headers - adjusted for active professionals
+                fputcsv($file, [
+                    'ID', 'Name', 'Email', 'Phone', 'Specialization', 
+                    'Experience', 'Address', 'Starting Price', 'Margin',
+                    'Status', 'Active', 'Registration Date'
+                ]);
+                
+                // Add data rows
+                foreach ($professionals as $professional) {
+                    fputcsv($file, [
+                        $professional->id,
+                        $professional->name,
+                        $professional->email,
+                        $professional->phone,
+                        $professional->profile ? $professional->profile->specialization : 'Not specified',
+                        $professional->profile ? $professional->profile->experience : 'Not specified',
+                        $professional->profile ? $professional->profile->address : 'Not specified',
+                        $professional->profile ? $professional->profile->starting_price : 'Not specified',
+                        $professional->margin . '%',
+                        ucfirst($professional->status),
+                        $professional->active ? 'Yes' : 'No',
+                        $professional->created_at->format('d/m/Y')
+                    ]);
+                }
+                
+                fclose($file);
+            };
+            
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export data to PDF
+     */
+    private function exportToPdf($professionals)
+    {
+        try {
+            $data = [
+                'professionals' => $professionals,
+                'title' => 'Professionals Report',
+            ];
+            
+            $pdf = Pdf::loadView('admin.manage-professional.professionals', $data);
+            return $pdf->download('professionals_' . date('Y_m_d_His') . '.pdf');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export to PDF: ' . $e->getMessage());
+        }
     }
 
     /**

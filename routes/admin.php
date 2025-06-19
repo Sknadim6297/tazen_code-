@@ -55,10 +55,10 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('blogs', BlogController::class);
     Route::resource('allevents', AllEventController::class);
 
-    Route::get('/admin/banner', [BannerController::class, 'index'])->name('admin.banner.index');
+    Route::get('/admin/banner', [BannerController::class, 'index'])->name('banner.index');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('whychoose', [WhychooseController::class, 'index'])->name('admin.whychoose.index');
+    Route::prefix('admin')->name('')->group(function () {
+        Route::get('whychoose', [WhychooseController::class, 'index'])->name('whychoose.index');
         Route::post('whychoose', [WhychooseController::class, 'store'])->name('whychoose.store');
         Route::get('whychoose/{id}/edit', [WhychooseController::class, 'edit'])->name('whychoose.edit');
         Route::put('whychoose/{id}', [WhychooseController::class, 'update'])->name('whychoose.update');
@@ -67,7 +67,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('whychoose', WhychooseController::class);
 
     Route::resource('testimonials', TestimonialController::class);
-    Route::get('/admin/testimonials', [TestimonialController::class, 'index'])->name('admin.testimonials.index');
+    Route::get('/admin/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
     Route::resource('servicemcq', ServiceMCQController::class);
 
 
@@ -108,15 +108,41 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('/admin/professionals/toggle-status', [ManageProfessionalController::class, 'toggleStatus'])->name('professional.toggle-status');
     Route::get('professional/billing/export', [BillingController::class, 'exportBillingToPdf'])->name('professional.billing.export');
     Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
+    Route::get('billing/professional/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])
+    ->name('professional.billing.export.excel');
 
     Route::get('event/export', [EventController::class, 'exportEventBookingsToPdf'])->name('event.export');
     Route::get('reviews/export', [ReviewController::class, 'exportReviewsToPdf'])->name('reviews.export');
-    Route::get('booking/freehand/export', [BookingController::class, 'exportFreeHandBookingsToPdf'])->name('booking.freehand.export');
-    Route::get('booking/monthly/export', [BookingController::class, 'exportMonthlyBookingsToPdf'])->name('booking.monthly.export');
-    Route::get('booking/onetime/export', [BookingController::class, 'exportOneTimeBookingsToPdf'])->name('booking.onetime.export');
-    Route::get('booking/quarterly/export', [BookingController::class, 'exportQuarterlyBookingsToPdf'])->name('booking.quarterly.export');
-    Route::get('/events/export/excel', [EventController::class, 'exportEventBookingsToExcel'])
-        ->name('event.export.excel');
-});
 
-Route::resource('admin-users', AdminUserController::class)->middleware('super_admin');
+   
+    Route::get('event/export', [App\Http\Controllers\Admin\EventController::class, 'export'])
+        ->name('event.export');
+    Route::get('reviews/export', [App\Http\Controllers\Admin\ReviewController::class, 'export'])
+        ->name('reviews.export');
+
+    // Add these alias routes for backwards compatibility
+    Route::get('booking/monthly/export', [App\Http\Controllers\Admin\BookingController::class, 'exportMonthlyBookingsToPdf'])
+        ->name('booking.monthly.export');
+        
+    Route::get('booking/quarterly/export', [App\Http\Controllers\Admin\BookingController::class, 'exportQuarterlyBookingsToPdf'])
+        ->name('booking.quarterly.export');
+        
+    Route::get('booking/freehand/export', [App\Http\Controllers\Admin\BookingController::class, 'exportFreeHandBookingsToPdf'])
+        ->name('booking.freehand.export');
+        
+    Route::get('booking/onetime/export', [App\Http\Controllers\Admin\BookingController::class, 'exportOneTimeBookingsToPdf'])
+        ->name('booking.onetime.export');
+
+    // Also add these routes for Excel exports if needed with the  prefix
+    Route::get('booking/monthly/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportMonthlyToExcel'])
+        ->name('booking.monthly.export-excel');
+        
+    Route::get('booking/quarterly/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportQuarterlyToExcel'])
+        ->name('booking.quarterly.export-excel');
+        
+    Route::get('booking/freehand/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportFreeHandToExcel'])
+        ->name('booking.freehand.export-excel');
+        
+    Route::get('booking/onetime/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportOnetimeToExcel'])
+        ->name('booking.onetime.export-excel');
+});
