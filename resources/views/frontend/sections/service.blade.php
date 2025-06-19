@@ -86,172 +86,6 @@
         <div class="model-content mx-auto"> 
             <span class="close" id="closeModel">&times;</span>
             <div class="img"></div>
-
-            <div class="inside-question-model">
-                <div class="progress-container">
-                    <div class="progress-bars" id="progressBar"></div>
-                </div>
-                <h1 class="text-center" style="font-size: 30px;">what are you looking for ?</h1>
-
-                <form action="" id="progressForm">
-                    <div class="step step-3">
-                        <div class="question question-1">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option one</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-2">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option two</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-
-                        <div class="question question-3">
-                            <label>
-                                <input type="checkbox" name="option" value="option-1" required>
-                                <span class="text-span">option three</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="step step-4">
-                        <h2>step 4</h2>
-                        <label>
-                            <input type="radio" name="option" value="option-1" required>option 1
-                        </label><br>
-                        <label>
-                            <input type="radio" name="option" value="option-1" required>option 1
-                        </label><br>
-                        <label>
-                            <input type="radio" name="option" value="option-1" required>option 1
-                        </label><br>
-                    </div>
-                    
-                    <div class="button-area d-flex">
-                        <div class="col-lg-6 text-start one-btn">
-                            <button class="btn new-style-form-btn" id="back-control">Back</button>
-                        </div>
-                        <div class="col-lg-6 text-end two-btn">
-                            <button class="btn new-style-form-btn" id="progress-control">Continue</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
     <!-- /hero_single -->
@@ -352,41 +186,6 @@
     
     <!-- popular category section  -->
    <section style="background-color: #f8f9fa;">
-        <div class="container service-container py-5">
-            <div class="row heading">
-                <div class="col">
-                    <div class="main_title center">
-                        <span><em></em></span>
-                        <h2>Related Services</h2>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="owl-carousel services-carousal">
-                    @foreach($services as $relatedService)
-                        <div class="card">
-                            <div 
-                                class="card-body" 
-                                style="background-image: url('{{ asset($relatedService->image) }}'); background-size: cover; background-position: center; border-radius: .375rem;"
-                            ></div>
-                            
-                            <div class="info mt-3 p-2">
-                                <div class="content-discover p-3 d-flex justify-content-between align-items-center">
-                                    <div class="l">
-                                        <p class="text-dark mb-0">{{ $relatedService->name }}</p>
-                                    </div>
-                                    <div class="r">
-                                        <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
     </section>
     <!-- /bg_gray -->
 
@@ -492,9 +291,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="progress mb-3">
-                    <div class="progress-bar" role="progressbar" id="questionProgress" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                </div>
                 <form id="mcqForm">
                     @csrf
                     <input type="hidden" name="service_id" id="service_id" value="{{ $service->id }}">
@@ -550,19 +346,25 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     // Get modal elements
-    const mcqModal = document.getElementById('mcqModal');
-    const questionsContainer = document.getElementById('questionsContainer');
-    const nextBtn = document.getElementById('nextBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const progressBar = document.getElementById('questionProgress');
-    
+    const questionsContainer = document.getElementById("questionsContainer");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("mcqForm");
+    const serviceIdInput = document.getElementById("service_id");
+    const modalCloseBtn = document.querySelector("#mcqModal .btn-close");
+    const cancelBtn = document.querySelector("#mcqModal .btn-secondary");
+
+    let currentQuestion = 0;
     let questions = [];
-    let currentQuestionIndex = 0;
     
+    // Enhance modal design
+    styleModalForModernLook();
+
     // Handle all service-search-btn and Book Now buttons
     document.querySelectorAll('.service-search-btn, .btn-custom[data-bs-toggle="modal"]').forEach(button => {
         button.addEventListener('click', function(e) {
@@ -570,494 +372,525 @@ document.addEventListener("DOMContentLoaded", function() {
             const serviceId = this.getAttribute('data-service-id') || document.getElementById('service_id').value;
             document.getElementById('service_id').value = serviceId;
             
-            // Load questions for this service
-            loadQuestions(serviceId);
+            // Check if user is logged in
+            checkLoginStatus(serviceId);
         });
     });
     
-    // Function to load questions from server
+    // Check if user is logged in before showing modal
+    function checkLoginStatus(serviceId) {
+        fetch('/check-auth-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.authenticated) {
+                    // User is logged in, proceed with loading questions
+                    $('#mcqModal').modal('show');
+                    loadQuestions(serviceId);
+                } else {
+                    // User is not logged in, show message and redirect
+                    Swal.fire({
+                        title: 'Authentication Required',
+                        text: 'Please login to book this service',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Login Now',
+                        cancelButtonText: 'Cancel',
+                        customClass: {
+                            confirmButton: 'btn btn-primary',
+                            cancelButton: 'btn btn-secondary'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirect to login page with return URL to come back to this page
+                            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error checking authentication status:', error);
+                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+            });
+    }
+
+    // Handle confirmation when closing the modal
+    function handleModalClose(e) {
+        e.preventDefault();
+        
+        if (questions.length > 0) {
+            // Show confirmation dialog with standard confirm
+            if (confirm('Your progress will be lost if you cancel now. Are you sure?')) {
+                // Reset and close modal
+                resetModal();
+                $('#mcqModal').modal('hide');
+            }
+        } else {
+            // No questions loaded yet, just close
+            $('#mcqModal').modal('hide');
+        }
+    }
+    
+    // Reset modal state
+    function resetModal() {
+        questions = [];
+        currentQuestion = 0;
+        questionsContainer.innerHTML = '';
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+    }
+    
+    // Apply modern styling to modal
+    function styleModalForModernLook() {
+        const modal = document.getElementById('mcqModal');
+        if (!modal) return;
+        
+        const modalDialog = modal.querySelector('.modal-dialog');
+        const modalContent = modal.querySelector('.modal-content');
+        const modalHeader = modal.querySelector('.modal-header');
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalBody = modal.querySelector('.modal-body');
+        const modalFooter = modal.querySelector('.modal-footer');
+        
+        // Add modern styling classes
+        if (modalDialog) modalDialog.classList.add('modal-dialog-centered');
+        if (modalContent) {
+            modalContent.style.borderRadius = '12px';
+            modalContent.style.boxShadow = '0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07)';
+            modalContent.style.border = 'none';
+        }
+        
+        if (modalHeader) {
+            modalHeader.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+            modalHeader.style.background = 'linear-gradient(135deg, #f8f9fa, #ffffff)';
+            modalHeader.style.borderTopLeftRadius = '12px';
+            modalHeader.style.borderTopRightRadius = '12px';
+            modalHeader.style.padding = '20px 24px';
+        }
+        
+        if (modalTitle) {
+            modalTitle.style.fontSize = '1.25rem';
+            modalTitle.style.fontWeight = '600';
+        }
+        
+        if (modalBody) {
+            modalBody.style.padding = '24px';
+        }
+        
+        if (modalFooter) {
+            modalFooter.style.borderTop = '1px solid rgba(0,0,0,0.05)';
+            modalFooter.style.padding = '16px 24px';
+        }
+        
+        // Style the buttons
+        const buttons = modal.querySelectorAll('.modal-footer .btn');
+        buttons.forEach(button => {
+            button.style.borderRadius = '6px';
+            button.style.padding = '8px 16px';
+            button.style.fontWeight = '500';
+            button.style.transition = 'all 0.2s ease';
+        });
+        
+        // Style primary buttons
+        const primaryButtons = modal.querySelectorAll('.btn-primary');
+        primaryButtons.forEach(button => {
+            button.style.background = 'linear-gradient(135deg, #152a70, #c51010, #f39c12)';
+            button.style.borderColor = 'transparent';
+        });
+        
+        // Style success button
+        const successButton = modal.querySelector('.btn-success');
+        if (successButton) {
+            successButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            successButton.style.borderColor = 'transparent';
+        }
+    }
+
     function loadQuestions(serviceId) {
-        console.log("Loading questions for service ID:", serviceId);
+        // Show loading state
+        questionsContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Loading questions...</p></div>';
         
-        // Reset container to loading state
-        questionsContainer.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2">Loading questions...</p>
-            </div>
-        `;
+        fetch(`/service/${serviceId}/questions`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Questions data:", data);
+                if (data.status === 'success' && Array.isArray(data.questions) && data.questions.length > 0) {
+                    questions = data.questions;
+                    currentQuestion = 0;
+                    renderQuestions();
+                    showQuestion(0);
+                } else {
+                    questionsContainer.innerHTML = '<div class="alert alert-warning my-3"><i class="fas fa-exclamation-circle me-2"></i>No questions available for this service. Please try another service or contact support.</div>';
+                    console.error("No questions found in response:", data);
+                }
+            })
+            .catch(error => {
+                questionsContainer.innerHTML = '<div class="alert alert-danger my-3"><i class="fas fa-exclamation-circle me-2"></i>Failed to load questions. Please try again.</div>';
+                console.error('Error loading questions:', error);
+                alert('Failed to load questions. Please try again.');
+            });
+    }
+
+    function renderQuestions() {
+        questionsContainer.innerHTML = '';
         
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        questions.forEach((question, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.id = `question${index}`; // Changed from question.id to index
+            questionDiv.style.display = 'none';
+            
+            // Question number indicator
+            const questionProgress = document.createElement('div');
+            questionProgress.className = 'question-progress mb-3';
+            questionProgress.innerHTML = `<span class="badge bg-primary">Question ${index + 1} of ${questions.length}</span>`;
+            questionDiv.appendChild(questionProgress);
+            
+            // Question heading
+            const heading = document.createElement('h6');
+            heading.className = 'mb-3 fw-bold';
+            heading.textContent = question.question || 'Question not available';
+            questionDiv.appendChild(heading);
+            
+            // Create input based on question type
+            if (question.question_type === 'text') {
+                // Text input
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group mt-4';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control form-control-lg';
+                input.name = `q${index}`; // Changed from question.id to index
+                input.required = true;
+                input.placeholder = 'Type your answer here...';
+                input.style.borderRadius = '8px';
+                input.style.padding = '12px';
+                input.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                
+                formGroup.appendChild(input);
+                questionDiv.appendChild(formGroup);
+            } else {
+                // Radio options
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options-container mt-4';
+                
+                // Handle various option data structures
+                let options = [];
+                
+                // Check if options is an array directly
+                if (Array.isArray(question.options)) {
+                    options = question.options;
+                } 
+                // Check for legacy format with answer1, answer2, etc.
+                else {
+                    for (let i = 1; i <= 6; i++) {
+                        const answerKey = `answer${i}`;
+                        if (question[answerKey] && question[answerKey].trim() !== '') {
+                            options.push(question[answerKey]);
+                        }
+                    }
+                }
+                
+                // If no options were found, add a message
+                if (options.length === 0) {
+                    const noOptionsMsg = document.createElement('div');
+                    noOptionsMsg.className = 'alert alert-warning';
+                    noOptionsMsg.textContent = 'No options available for this question.';
+                    optionsContainer.appendChild(noOptionsMsg);
+                }
+                
+                // Create option elements
+                options.forEach((option, optIndex) => {
+                    if (!option) return; // Skip empty options
+                    
+                    const formCheck = document.createElement('div');
+                    formCheck.className = 'form-check mb-3';
+                    formCheck.style.backgroundColor = '#f8f9fa';
+                    formCheck.style.borderRadius = '8px';
+                    formCheck.style.padding = '10px 15px 10px 41px';
+                    formCheck.style.border = '1px solid #e9ecef';
+                    formCheck.style.transition = 'all 0.2s ease';
+                    formCheck.style.cursor = 'pointer';
+                    formCheck.style.position = 'relative';
+                    
+                    const radio = document.createElement('input');
+                    radio.className = 'form-check-input me-2';
+                    radio.type = 'radio';
+                    radio.name = `q${index}`; // Changed from question.id to index
+                    radio.id = `q${index}opt${optIndex}`;
+                    radio.value = option;
+                    radio.required = true;
+                    radio.style.position = 'absolute';
+                    radio.style.left = '15px';
+                    radio.style.top = '50%';
+                    radio.style.transform = 'translateY(-50%)';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label';
+                    label.htmlFor = `q${index}opt${optIndex}`;
+                    label.textContent = option;
+                    label.style.display = 'block';
+                    label.style.marginLeft = '10px';
+                    label.style.cursor = 'pointer';
+                    
+                    // Highlight selected option
+                    radio.addEventListener('change', function() {
+                        // Reset all options
+                        optionsContainer.querySelectorAll('.form-check').forEach(el => {
+                            el.style.backgroundColor = '#f8f9fa';
+                            el.style.borderColor = '#e9ecef';
+                        });
+                        
+                        // Highlight selected
+                        if (this.checked) {
+                            formCheck.style.backgroundColor = '#e8f4ff';
+                            formCheck.style.borderColor = '#2196f3';
+                        }
+                    });
+                    
+                    formCheck.appendChild(radio);
+                    formCheck.appendChild(label);
+                    
+                    // Add "Other" text field if this option is "Other"
+                    if (option === 'Other') {
+                        radio.addEventListener('change', function() {
+                            const otherInputContainer = document.getElementById(`otherContainer${index}`);
+                            if (this.checked && otherInputContainer) {
+                                otherInputContainer.style.display = 'block';
+                                otherInputContainer.querySelector('input').required = true;
+                                otherInputContainer.querySelector('input').focus();
+                            } else if (otherInputContainer) {
+                                otherInputContainer.style.display = 'none';
+                                otherInputContainer.querySelector('input').required = false;
+                            }
+                        });
+                        
+                        const otherContainer = document.createElement('div');
+                        otherContainer.id = `otherContainer${index}`;
+                        otherContainer.className = 'mt-2 ps-4';
+                        otherContainer.style.display = 'none';
+                        
+                        const otherInput = document.createElement('input');
+                        otherInput.type = 'text';
+                        otherInput.className = 'form-control';
+                        otherInput.name = `q${index}_other`;
+                        otherInput.placeholder = 'Please specify...';
+                        otherInput.style.borderRadius = '6px';
+                        
+                        otherContainer.appendChild(otherInput);
+                        formCheck.appendChild(otherContainer);
+                    }
+                    
+                    // Make entire option div clickable
+                    formCheck.addEventListener('click', function(e) {
+                        if (e.target !== radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change'));
+                        }
+                    });
+                    
+                    optionsContainer.appendChild(formCheck);
+                });
+                
+                questionDiv.appendChild(optionsContainer);
+            }
+            
+            questionDiv.appendChild(document.createElement('hr'));
+            
+            questionsContainer.appendChild(questionDiv);
+        });
         
-        // Make AJAX request
-        fetch(`/service/${serviceId}/questions`, {
-            method: 'GET',
+        // If no questions were rendered, show a message
+        if (questionsContainer.children.length === 0) {
+            questionsContainer.innerHTML = '<div class="alert alert-warning my-3">No questions found for this service.</div>';
+        }
+    }
+
+    function showQuestion(index) {
+        // Validate index
+        if (index < 0 || index >= questions.length || !questions[index]) {
+            console.error('Invalid question index:', index, 'Questions:', questions);
+            return;
+        }
+        
+        // Hide all questions
+        document.querySelectorAll('.question').forEach(question => {
+            question.style.display = 'none';
+        });
+        
+        // Show the current question
+        const currentQuestionElement = document.getElementById(`question${index}`);
+        if (currentQuestionElement) {
+            currentQuestionElement.style.display = 'block';
+        } else {
+            console.error(`Question element with id question${index} not found`);
+            return;
+        }
+        
+        // Update navigation buttons
+        prevBtn.style.display = index > 0 ? "inline-block" : "none";
+        nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
+        submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+    }
+
+    // Navigation buttons event listeners
+    nextBtn.addEventListener("click", function () {
+        // Validate current question
+        const currentQuestionElement = document.getElementById(`question${currentQuestion}`);
+        if (!currentQuestionElement) return;
+        
+        const inputs = currentQuestionElement.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
+                (input.type === 'text' && !input.value.trim())) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            alert('Please answer the question before proceeding.');
+            return;
+        }
+        
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    });
+
+    prevBtn.addEventListener("click", function () {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    });
+
+    // Submit button event listener
+    submitBtn.addEventListener("click", function() {
+        // Validate last question
+        const lastQuestionElement = document.getElementById(`question${currentQuestion}`);
+        if (!lastQuestionElement) return;
+        
+        const inputs = lastQuestionElement.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
+                (input.type === 'text' && !input.value.trim())) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please Answer',
+                text: 'Please answer the question before submitting.'
+            });
+            return;
+        }
+        
+        // Create FormData and collect answers
+        const formData = new FormData(form);
+        const answers = [];
+        
+        // Collect all answers
+        questions.forEach((question, index) => {
+            if (question.question_type === 'text') {
+                const textInput = document.querySelector(`input[name="q${index}"]`);
+                if (textInput && textInput.value.trim()) {
+                    answers.push({
+                        question_id: question.id,
+                        question: question.question,
+                        answer: textInput.value.trim()
+                    });
+                }
+            } else {
+                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selectedOption) {
+                    let answer = selectedOption.value;
+                    
+                    // If "Other" is selected, get the other input value
+                    if (answer === 'Other') {
+                        const otherInput = document.querySelector(`input[name="q${index}_other"]`);
+                        if (otherInput && otherInput.value.trim()) {
+                            answer = otherInput.value.trim();
+                        }
+                    }
+                    
+                    answers.push({
+                        question_id: question.id,
+                        question: question.question,
+                        answer: answer
+                    });
+                }
+            }
+        });
+        
+        // Add answers to FormData
+        formData.append('answers', JSON.stringify(answers));
+        
+        // Set the submit button to loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        
+        // Submit using fetch API
+        fetch('/submit-questionnaire', {
+            method: 'POST',
+            body: formData,
             headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrfToken
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
             }
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Network response error: ${response.status}`);
+                return response.json().then(data => Promise.reject(data));
             }
             return response.json();
         })
         .then(data => {
-            console.log("Questions data received:", data);
-            
-            if (data.questions && data.questions.length > 0) {
-                questions = data.questions;
-                currentQuestionIndex = 0;
-                renderQuestion(0);
-                updateProgressBar(0);
-            } else {
-                questionsContainer.innerHTML = `
-                    <div class="alert alert-warning">
-                        <h5>No Questions Available</h5>
-                        <p>There are currently no questions for this service.</p>
-                    </div>
-                `;
-                updateProgressBar(0);
-            }
-        })
-        .catch(error => {
-            console.error("Error loading questions:", error);
-            
-            questionsContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    <h5>Error Loading Questions</h5>
-                    <p>${error.message || 'Failed to load questions. Please try again later.'}</p>
-                </div>
-            `;
-            updateProgressBar(0);
-        });
-    }
-    
-    // Function to render a question
-    function renderQuestion(index) {
-        if (!questions || index < 0 || index >= questions.length) {
-            console.warn("Invalid question index:", index, "Total questions:", questions.length);
-            return;
-        }
-        
-        const question = questions[index];
-        currentQuestionIndex = index;
-        
-        console.log(`Rendering question ${index + 1}/${questions.length}:`, question);
-        
-        // Create the question container with modern styling
-        questionsContainer.innerHTML = `
-            <div class="question-item">
-                <div class="question-number badge bg-secondary mb-3">Question ${index + 1} of ${questions.length}</div>
-                <h4 class="mb-4 fw-bold">${question.question}</h4>
-                <div class="options">
-                    ${createOptionElements(question, index)}
-                </div>
-            </div>
-        `;
-        
-        // Add event listeners to the newly created options
-        document.querySelectorAll('.option-card').forEach(card => {
-            card.addEventListener('click', function() {
-                // Remove active class from all cards
-                document.querySelectorAll('.option-card').forEach(c => {
-                    c.classList.remove('active');
-                });
-                
-                // Add active class to the clicked card
-                this.classList.add('active');
-                
-                // Check the radio button
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio) {
-                    radio.checked = true;
-                }
-                
-                // Handle "Other" option display
-                const value = radio.value;
-                const questionId = radio.name.replace('q', '');
-                const otherContainer = document.getElementById(`otherContainer${questionId}`);
-                
-                if (otherContainer) {
-                    otherContainer.style.display = value === 'Other' ? 'block' : 'none';
-                    if (value === 'Other') {
-                        setTimeout(() => {
-                            otherContainer.querySelector('input').focus();
-                        }, 100);
-                    }
-                }
-                
-                // Store answer in session storage
-                sessionStorage.setItem(`q${question.id}_answer`, value);
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Thank You!',
+                text: 'Your questionnaire has been submitted successfully.',
+                confirmButtonText: 'Find Professionals'
+            }).then(() => {
+                // Redirect to professionals page with service ID
+                window.location.href = `/professionals?service_id=${serviceIdInput.value}`;
             });
-        });
-        
-        // Check if there's a previously selected option
-        const savedAnswer = sessionStorage.getItem(`q${question.id}_answer`);
-        if (savedAnswer) {
-            const radio = document.querySelector(`input[name="q${question.id}"][value="${savedAnswer}"]`);
-            if (radio) {
-                radio.checked = true;
-                const card = radio.closest('.option-card');
-                if (card) {
-                    card.classList.add('active');
-                }
-                
-                // Check if it's an "Other" option
-                if (savedAnswer === 'Other') {
-                    const otherContainer = document.getElementById(`otherContainer${question.id}`);
-                    if (otherContainer) {
-                        otherContainer.style.display = 'block';
-                        const otherValue = sessionStorage.getItem(`q${question.id}_other`);
-                        if (otherValue) {
-                            otherContainer.querySelector('input').value = otherValue;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Update button visibility
-        prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
-        nextBtn.style.display = index < questions.length - 1 ? 'inline-block' : 'none';
-        submitBtn.style.display = index === questions.length - 1 ? 'inline-block' : 'none';
-        
-        // Update progress bar
-        updateProgressBar(index);
-    }
-    
-    // Create HTML for question options
-    function createOptionElements(question, index) {
-        let options = '';
-        
-        // For answer1, answer2, etc. properties
-        for (let i = 1; i <= 4; i++) {
-            const answerKey = `answer${i}`;
-            if (question[answerKey] && question[answerKey].trim() !== '') {
-                options += `
-                    <div class="option-card mb-3">
-                        <div class="d-flex align-items-center">
-                            <input class="form-check-input me-3" type="radio" name="q${question.id}" id="q${question.id}_opt${i}" value="${question[answerKey]}">
-                            <label class="form-check-label w-100" for="q${question.id}_opt${i}" style="cursor: pointer;">${question[answerKey]}</label>
-                        </div>
-                        ${question[answerKey] === 'Other' ? createOtherOptionInput(question.id) : ''}
-                    </div>
-                `;
-            }
-        }
-        
-        return options;
-    }
-    
-    // Create HTML for "Other" option input
-    function createOtherOptionInput(questionId) {
-        return `
-            <div id="otherContainer${questionId}" class="mt-2 ps-4" style="display: none;">
-                <input type="text" class="form-control" name="q${questionId}_other" placeholder="Please specify..." style="border-radius: 6px;">
-            </div>
-        `;
-    }
-    
-    // Update the progress bar
-    function updateProgressBar(index) {
-        const progress = questions.length > 0 ? Math.round(((index + 1) / questions.length) * 100) : 0;
-        progressBar.style.width = `${progress}%`;
-        progressBar.setAttribute('aria-valuenow', progress);
-        progressBar.textContent = `${progress}%`;
-    }
-    
-    // Navigation: Next button click
-    nextBtn.addEventListener('click', function() {
-        // Validate current question
-        const currentQuestion = questions[currentQuestionIndex];
-        const selectedOption = document.querySelector(`input[name="q${currentQuestion.id}"]:checked`);
-        
-        if (!selectedOption) {
-            alert('Please select an answer to continue');
-            return;
-        }
-        
-        if (currentQuestionIndex < questions.length - 1) {
-            renderQuestion(currentQuestionIndex + 1);
-        }
-    });
-    
-    // Navigation: Previous button click
-    prevBtn.addEventListener('click', function() {
-        if (currentQuestionIndex > 0) {
-            renderQuestion(currentQuestionIndex - 1);
-        }
-    });
-    
-    // Submit answers
-    submitBtn.addEventListener('click', function() {
-        // Check if all questions are answered
-        const unansweredQuestions = [];
-        
-        questions.forEach((question, idx) => {
-            const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
-            if (!selectedOption) {
-                unansweredQuestions.push(idx + 1);
-            }
-        });
-        
-        if (unansweredQuestions.length > 0) {
-            alert(`Please answer all questions. Missing answer for question(s): ${unansweredQuestions.join(', ')}`);
-            return;
-        }
-        
-        // Collect answers
-        const answers = [];
-        questions.forEach(question => {
-            const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
-            if (selectedOption) {
-                let value = selectedOption.value;
-                
-                // Handle "Other" option
-                if (value === 'Other') {
-                    const otherInput = document.querySelector(`input[name="q${question.id}_other"]`);
-                    if (otherInput && otherInput.value.trim()) {
-                        value = otherInput.value.trim();
-                    }
-                }
-                
-                answers.push({
-                    question_id: question.id,
-                    answer: value
-                });
-            }
-        });
-        
-        // Disable submit button and show loading
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting...';
-        
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        
-        // Submit answers
-        fetch('/submit-questionnaire', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json', 
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                service_id: document.getElementById('service_id').value,
-                answers: answers
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Clear session storage for this questionnaire
-                questions.forEach(question => {
-                    sessionStorage.removeItem(`q${question.id}_answer`);
-                    sessionStorage.removeItem(`q${question.id}_other`);
-                });
-                
-                // Show success message
-                alert(data.message || 'Thank you! Your answers have been submitted successfully.');
-                
-                // Close modal
-                const modalInstance = bootstrap.Modal.getInstance(mcqModal);
-                modalInstance.hide();
-                
-                // Redirect if needed
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                }
-            } else {
-                alert(data.message || 'There was an error submitting your answers. Please try again.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit';
-            }
+            
+            // Reset modal
+            resetModal();
+            $('#mcqModal').modal('hide');
         })
         .catch(error => {
-            console.error('Error submitting answers:', error);
-            alert('There was a problem submitting your answers. Please try again.');
+            console.error('Submission error:', error);
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Submit';
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: error.message || 'Something went wrong. Please try again.'
+            });
         });
     });
     
-    // Store "Other" input values
-    document.addEventListener('input', function(e) {
-        if (e.target.name && e.target.name.includes('_other')) {
-            const questionId = e.target.name.replace('q', '').replace('_other', '');
-            sessionStorage.setItem(`q${questionId}_other`, e.target.value);
-        }
-    });
+    // Add event listeners to close buttons
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', handleModalClose);
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', handleModalClose);
+    }
 });
 </script>
-<script>
-    // Combined Live Search and Find Button functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('serviceSearch');
-    const searchResults = document.getElementById('searchResults');
-    const searchButton = document.getElementById('searchButton');
-    const searchForm = searchInput.closest('form');
-    let searchTimeout;
-    let currentResults = [];
 
-    // Prevent form submission
-    if (searchForm) {
-        searchForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleSearchButtonClick();
-        });
-    }
-
-    // Find button click event
-    searchButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        handleSearchButtonClick();
-    });
-
-    // Function to handle Find button click
-    function handleSearchButtonClick() {
-        const query = searchInput.value.trim();
-        
-        if (query.length < 2) {
-            toastr.warning('Please enter at least 2 characters to search');
-            return;
-        }
-        
-        // If we already have results from typing, use the first result
-        if (currentResults.length > 0) {
-            window.location.href = `/service/${currentResults[0].id}`;
-            return;
-        }
-        
-        // Otherwise, perform a search and navigate to first result
-        searchButton.disabled = true;
-        searchButton.value = 'Searching...';
-        
-        fetch(`/search-services?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                searchButton.disabled = false;
-                searchButton.value = 'Find';
-                
-                if (data.services && data.services.length > 0) {
-                    // If there's an exact match, go to that
-                    const exactMatch = data.services.find(service => 
-                        service.name.toLowerCase() === query.toLowerCase());
-                    
-                    if (exactMatch) {
-                        window.location.href = `/service/${exactMatch.id}`;
-                    } else {
-                        // Otherwise go to first result
-                        window.location.href = `/service/${data.services[0].id}`;
-                    }
-                } else {
-                    toastr.error('No matching services found. Please try a different search term.');
-                }
-            })
-            .catch(error => {
-                console.error('Error searching:', error);
-                searchButton.disabled = false;
-                searchButton.value = 'Find';
-                toastr.error('An error occurred while searching. Please try again.');
-            });
-    }
-
-    // Function to fetch search results for the dropdown
-    function fetchSearchResults(query) {
-        if (query.length < 2) {
-            searchResults.classList.add('d-none');
-            searchResults.innerHTML = '';
-            currentResults = [];
-            return;
-        }
-
-        fetch(`/search-services?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                // Store results for later use by the Find button
-                currentResults = data.services || [];
-                
-                if (currentResults.length > 0) {
-                    // Display search results
-                    searchResults.classList.remove('d-none');
-                    searchResults.innerHTML = `
-                        <div class="list-group shadow">
-                            ${currentResults.map(service => `
-                                <a href="/service/${service.id}" class="list-group-item list-group-item-action">
-                                    ${service.name}
-                                </a>
-                            `).join('')}
-                        </div>
-                    `;
-                } else {
-                    // No results found
-                    searchResults.classList.remove('d-none');
-                    searchResults.innerHTML = `
-                        <div class="list-group shadow">
-                            <div class="list-group-item text-muted">No result found</div>
-                        </div>
-                    `;
-                }
-                
-                // Ensure proper positioning
-                searchResults.style.left = '0';
-                searchResults.style.right = 'auto';
-            })
-            .catch(error => {
-                console.error('Error fetching search results:', error);
-                currentResults = [];
-                searchResults.classList.add('d-none');
-            });
-    }
-
-    // Search input event for live results
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        
-        // Clear previous timeout
-        clearTimeout(searchTimeout);
-
-        // Set new timeout for debounce
-        searchTimeout = setTimeout(() => {
-            fetchSearchResults(query);
-        }, 300);
-    });
-
-    // Handle keyboard navigation in search results
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !searchResults.classList.contains('d-none')) {
-            e.preventDefault();
-            
-            // Find the first result link and navigate to it
-            const firstResult = searchResults.querySelector('.list-group-item');
-            if (firstResult && firstResult.href) {
-                window.location.href = firstResult.href;
-            } else {
-                // If no results are visible, trigger the Find button
-                handleSearchButtonClick();
-            }
-        }
-    });
-
-    // Hide results when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
-            searchResults.classList.add('d-none');
-        }
-    });
-
-    // Show results when input is focused
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-            fetchSearchResults(this.value.trim());
-        }
-    });
-});
-</script>
+<!-- Add search scripts here if needed -->
 @endsection

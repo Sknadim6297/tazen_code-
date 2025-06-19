@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PDF;
@@ -34,7 +35,7 @@ class ProfessionalBillingController extends Controller
             'professional_share' => $booking->amount * 0.80, // 80% professional share
         ];
 
-        $pdf = PDF::loadView('professional.billing.invoice', $data);
+        $pdf = FacadePdf::loadView('professional.billing.invoice', $data);
         
         return $pdf->download('invoice-' . $booking->id . '.pdf');
     }

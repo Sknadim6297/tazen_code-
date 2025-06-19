@@ -59,9 +59,14 @@
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">Search</button>
                         <a href="{{ route('admin.onetime') }}" class="btn btn-secondary">Reset</a>
-                        <a href="{{ route('admin.booking.onetime.export', request()->all()) }}" class="btn btn-success">
-                            <i class="fas fa-file-pdf"></i> Export
-                        </a>
+                        <div class="btn-group">
+                            <a href="{{ route('admin.booking.onetime.export', request()->all()) }}" class="btn btn-success">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{{ route('admin.booking.onetime.export-excel', request()->all()) }}" class="btn btn-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -143,9 +148,31 @@
                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
                                         <td>
     @if($booking->timedates && $booking->timedates->count() > 0)
-        <!-- Button to open the modal -->
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#meetingLinkModal{{ $booking->id }}">
-            Manage Links <span class="badge bg-light text-dark">{{ $booking->timedates->count() }}</span>
+        @php
+            // Check if ANY meeting link exists for this booking
+            $hasAnyLink = false;
+            $allLinksAdded = true;
+            
+            foreach ($booking->timedates as $timedate) {
+                if (!empty($timedate->meeting_link)) {
+                    $hasAnyLink = true;
+                } else {
+                    $allLinksAdded = false;
+                }
+            }
+            
+            // Set button class based on link status
+            $btnClass = $allLinksAdded ? 'btn-success' : ($hasAnyLink ? 'btn-info' : 'btn-primary');
+            $btnIcon = $allLinksAdded ? 'bi bi-check-circle me-1' : ($hasAnyLink ? 'bi bi-exclamation-circle me-1' : '');
+        @endphp
+        
+        <!-- Button to open the modal with conditional styling -->
+        <button type="button" class="btn {{ $btnClass }} btn-sm" data-bs-toggle="modal" data-bs-target="#meetingLinkModal{{ $booking->id }}">
+            @if($btnIcon)
+                <i class="{{ $btnIcon }}"></i>
+            @endif
+            Manage Links 
+            <span class="badge bg-light text-dark">{{ $booking->timedates->count() }}</span>
         </button>
         
         <!-- Modal for meeting links -->
@@ -169,7 +196,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($booking->timedates as $timedate)
-                                    <tr>
+                                    <tr class="{{ !empty($timedate->meeting_link) ? 'table-success' : '' }}">
                                         <td>{{ \Carbon\Carbon::parse($timedate->date)->format('d M Y') }}</td>
                                         <td>{!! str_replace(',', '<br>', $timedate->time_slot) !!}</td>
                                         <td>
@@ -183,7 +210,7 @@
                                                 <input type="hidden" name="timedate_id" value="{{ $timedate->id }}">
                                                 <input type="url" name="meeting_link" class="form-control form-control-sm" 
                                                        value="{{ $timedate->meeting_link ?? '' }}" 
-                                                       placeholder="Add Link" required>
+                                                       placeholder="Add Link">
                                                 <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                                 
                                                 @if($timedate->meeting_link)

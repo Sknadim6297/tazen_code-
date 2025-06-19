@@ -57,9 +57,14 @@
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">Search</button>
                         <a href="{{ route('admin.quaterly') }}" class="btn btn-secondary">Reset</a>
-                        <a href="{{ route('admin.booking.quarterly.export', request()->all()) }}" class="btn btn-success">
-                            <i class="fas fa-file-pdf"></i> Export
-                        </a>
+                        <div class="btn-group">
+                            <a href="{{ route('admin.booking.quarterly.export', request()->all()) }}" class="btn btn-success">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{{ route('admin.booking.quarterly.export-excel', request()->all()) }}" class="btn btn-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
