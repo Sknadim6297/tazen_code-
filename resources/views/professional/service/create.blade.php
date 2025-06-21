@@ -87,23 +87,6 @@
                         </select>
                     </div>
                 </div>
-    
-                <div class="form-col">
-                    <div class="form-group">
-                        <label>Service Image</label>
-                        <div class="image-upload">
-                            <div class="image-preview" id="imagePreview">
-                                <i class="fas fa-camera" style="font-size: 24px; color: var(--text-gray);"></i>
-                            </div>
-                            <div class="upload-btn">
-                                <button type="button" class="btn btn-outline" onclick="document.getElementById('serviceImage').click();">
-                                    <i class="fas fa-upload"></i> Upload Image
-                                </button>
-                                <input type="file" name="serviceImage" id="serviceImage" accept="image/*" style="display: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
     
             <div class="form-group">

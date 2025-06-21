@@ -392,33 +392,55 @@
 
 @section('scripts')
 <script>
-    // Delete confirmation
+    // Delete confirmation with SweetAlert
     $(document).on('click', '.delete-item', function(e) {
         e.preventDefault();
         const url = $(this).data('url');
         
-        if (confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success(response.message || 'Service deleted successfully');
-                        setTimeout(function() {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        toastr.error(response.message || 'Failed to delete service');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire(
+                                'Deleted!',
+                                response.message || 'Service has been deleted.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                response.message || 'Failed to delete service.',
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire(
+                            'Error!',
+                            xhr.responseJSON?.message || 'An error occurred while deleting the service.',
+                            'error'
+                        );
                     }
-                },
-                error: function(xhr) {
-                    toastr.error(xhr.responseJSON?.message || 'An error occurred while deleting the service');
-                }
-            });
-        }
+                });
+            }
+        });
     });
 </script>
 @endsection
