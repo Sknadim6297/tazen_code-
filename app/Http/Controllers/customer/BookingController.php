@@ -14,12 +14,23 @@ class BookingController extends Controller
 
     public function checkLogin(Request $request)
     {
+        // First check if user is logged in
         if (!Auth::guard('user')->check()) {
             return response()->json([
+                'logged_in' => false,
                 'message' => 'Please login to continue.'
             ], 401);
         }
 
+        // If this is just a login check (no booking data), return success
+        if ($request->has('check') && $request->input('check') === true) {
+            return response()->json([
+                'logged_in' => true,
+                'message' => 'User is logged in.'
+            ]);
+        }
+
+        // If we have booking data, process it
         try {
             $eventId = $request->input('event_id');
             $eventName = $request->input('event_name', '');
@@ -63,7 +74,8 @@ class BookingController extends Controller
                     'price' => $request->input('amount'),
                     'total_price' => $request->input('total_price'),
                     'phone' => $request->input('phone'),
-                    'persons' => $request->input('persons')
+                    'persons' => $request->input('persons'),
+                    'additional_info' => $request->input('additional_info')
                 ]
             ]);
 
@@ -198,28 +210,65 @@ class BookingController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized or no booking data found'], 403);
         }
 
-        $booking = new EventBooking();
-        $booking->user_id = $user->id;
-        $booking->event_id = $bookingData['event_id'];
-        $booking->event_name = $bookingData['event_name'] ?? '';
-        $booking->event_date = $bookingData['event_date'];
-        $booking->location = $bookingData['location'] ?? null;
-        $booking->type = $bookingData['type'] ?? null;
-        $booking->persons = $bookingData['persons'] ?? null;
-        $booking->phone = $bookingData['phone'] ?? null;
-        $booking->price = $bookingData['price'] ?? null;
-        $booking->total_price = $bookingData['total_price'] ?? 0;
-        $booking->payment_status = 'failed';
+        try {
+            $booking = new EventBooking();
+            $booking->user_id = $user->id;
+            $booking->event_id = $bookingData['event_id'];
+            $booking->event_name = $bookingData['event_name'] ?? '';
+            $booking->event_date = $bookingData['event_date'];
+            $booking->location = $bookingData['location'] ?? null;
+            $booking->type = $bookingData['type'] ?? null;
+            $booking->persons = $bookingData['persons'] ?? null;
+            $booking->phone = $bookingData['phone'] ?? null;
+            $booking->price = $bookingData['price'] ?? null;
+            $booking->total_price = $bookingData['total_price'] ?? 0;
+            $booking->payment_status = 'failed';
 
-        $booking->order_id = $request->razorpay_order_id ?? null;
-        $booking->razorpay_payment_id = $request->razorpay_payment_id ?? null;
-        $booking->payment_failure_reason = $request->error_description ?? 'Unknown error';
+            $booking->order_id = $request->razorpay_order_id ?? null;
+            $booking->razorpay_payment_id = $request->razorpay_payment_id ?? null;
+            $booking->payment_failure_reason = $request->error_description ?? 'Unknown error';
 
-        $booking->save();
+            $booking->save();
 
-        session()->forget('event_booking_data');
+            // Store failed booking data for retry (don't clear session immediately)
+            session([
+                'failed_booking_data' => $bookingData,
+                'failed_booking_id' => $booking->id
+            ]);
 
-        return response()->json(['status' => 'failed']);
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Payment failed. You can retry your booking.',
+                'booking_id' => $booking->id,
+                'retry_url' => route('user.booking.retry', ['booking_id' => $booking->id])
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while processing failed payment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function retryBooking($bookingId)
+    {
+        $user = Auth::guard('user')->user();
+        $failedBookingData = session('failed_booking_data');
+        $failedBookingId = session('failed_booking_id');
+
+        if (!$user || !$failedBookingData || $failedBookingId != $bookingId) {
+            return redirect()->route('home')->with('error', 'No failed booking found to retry.');
+        }
+
+        // Restore the booking data to session for retry
+        session([
+            'event_booking_data' => $failedBookingData
+        ]);
+
+        // Clear failed booking data
+        session()->forget(['failed_booking_data', 'failed_booking_id']);
+
+        return redirect()->route('user.booking.summary')->with('success', 'Your booking has been restored. You can now retry your payment.');
     }
 
     public function successPage()

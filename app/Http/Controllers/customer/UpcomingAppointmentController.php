@@ -63,18 +63,9 @@ class UpcomingAppointmentController extends Controller
             // Get the bookings
             $allBookings = $query->get();
             
-            Log::info('Found bookings', ['count' => $allBookings->count()]);
-            
             // Get current date and date 3 days from now
             $today = Carbon::today();
-            $threeDaysLater = Carbon::today()->addDays(3);
-            
-            Log::info('Date range', [
-                'today' => $today->format('Y-m-d'),
-                'threeDaysLater' => $threeDaysLater->format('Y-m-d')
-            ]);
-            
-            // Group bookings by booking_id to ensure we only show one timedate per booking
+            $threeDaysLater = Carbon::today()->addDays(3);  
             $processedBookings = collect();
             
             foreach ($allBookings as $booking) {
@@ -86,12 +77,6 @@ class UpcomingAppointmentController extends Controller
                         ->where('date', '<=', $threeDaysLater->format('Y-m-d'))
                         ->orderBy('date', 'asc')
                         ->get();
-                    
-                    Log::info('Upcoming timedates for booking', [
-                        'booking_id' => $booking->id,
-                        'count' => $upcomingTimedates->count()
-                    ]);
-                    
                     // Only add this booking if it has a future timedate within the next 3 days
                     if ($upcomingTimedates->isNotEmpty()) {
                         // Get the first upcoming timedate
@@ -111,10 +96,6 @@ class UpcomingAppointmentController extends Controller
                         $processedBookings->push($booking);
                     }
                 } catch (\Exception $e) {
-                    Log::error('Error processing booking', [
-                        'booking_id' => $booking->id,
-                        'error' => $e->getMessage()
-                    ]);
                     // Continue with next booking even if this one fails
                     continue;
                 }
@@ -157,15 +138,8 @@ class UpcomingAppointmentController extends Controller
             // Pass to view
             $bookings = $sortedBookings;
             
-            Log::info('Processed bookings', ['count' => $bookings->count()]);
-            
             return view('customer.upcoming-appointment.index', compact('bookings', 'serviceOptions', 'planTypeOptions', 'formattedPlanTypes'));
         } catch (\Exception $e) {
-            Log::error('Error loading upcoming appointments', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
             // Provide a friendly error message to the user
             return redirect()->back()->with('error', 'An error occurred while loading your appointments. Please try again later.');
         }

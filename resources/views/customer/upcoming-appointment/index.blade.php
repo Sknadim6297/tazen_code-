@@ -732,7 +732,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle file input change
     fileInput.addEventListener('change', function() {
         if (this.files && this.files[0]) {
-            selectedFileName.textContent = this.files[0].name;
+            const file = this.files[0];
+            const allowedTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/png',
+                'image/jpg'
+            ];
+            if (!allowedTypes.includes(file.type)) {
+                toastr.error('Invalid file type. Allowed: PDF, DOC, DOCX, JPG, JPEG, PNG.');
+                this.value = '';
+                filePreview.style.display = 'none';
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                toastr.error('File size exceeds 2MB.');
+                this.value = '';
+                filePreview.style.display = 'none';
+                return;
+            }
+            selectedFileName.textContent = file.name;
             filePreview.style.display = 'block';
         } else {
             filePreview.style.display = 'none';
@@ -769,7 +790,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.reload();
                 }, 1500);
             } else {
-                toastr.error(data.message);
+                if (data.errors) {
+                    // Show all validation errors
+                    Object.values(data.errors).forEach(msgArr => {
+                        if (Array.isArray(msgArr)) {
+                            msgArr.forEach(msg => toastr.error(msg));
+                        } else {
+                            toastr.error(msgArr);
+                        }
+                    });
+                } else {
+                    toastr.error(data.message);
+                }
             }
         })
         .catch(error => {

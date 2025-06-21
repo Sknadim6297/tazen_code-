@@ -22,50 +22,6 @@
         <input type="hidden" name="serviceDuration" value="{{ old('serviceDuration', $service->duration ?? 60) }}">
         
         <div class="form-container">
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="serviceName">Service Name *</label>
-                        <input type="text" name="serviceName" id="serviceName" class="form-control" 
-                            value="{{ old('serviceName', $service->service_name ?? '') }}" 
-                            placeholder="Enter service name" required>
-                    </div>
-        
-                    <div class="form-group">
-                        <label for="serviceCategory">Service Category *</label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required>
-                            <option value="">Select Category</option>
-                            @foreach($services as $cat)
-                                <option value="{{ $cat->id }}" 
-                                    {{ (old('serviceId', $service->service_id ?? '') == $cat->id) ? 'selected' : '' }}>
-                                    {{ ucfirst($cat->name) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-        
-                <div class="form-col">
-                    <div class="form-group">
-                        <label>Service Image</label>
-                        <div class="image-upload">
-                            <div class="image-preview" id="imagePreview">
-                                @if(!empty($service->image_path))
-                                    <img src="{{ asset($service->image_path) }}" alt="Service Image" style="max-width: 150px; height: auto;">
-                                @else
-                                    <i class="fas fa-camera" style="font-size: 24px; color: var(--text-gray);"></i>
-                                @endif
-                            </div>
-                            <div class="upload-btn mt-2">
-                                <button type="button" class="btn btn-outline" onclick="document.getElementById('serviceImage').click();">
-                                    <i class="fas fa-upload"></i> Upload Image
-                                </button>
-                                <input type="file" name="serviceImage" id="serviceImage" accept="image/*" style="display: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         
             <div class="form-group">
                 <label for="serviceDescription">Description *</label>

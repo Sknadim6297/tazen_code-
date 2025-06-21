@@ -6,11 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-<<<<<<< Updated upstream
     'PHPExcel' => array($vendorDir . '/phpoffice/phpexcel/Classes'),
     'Maatwebsite\\Excel\\' => array($vendorDir . '/maatwebsite/excel/src'),
-=======
-    'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
->>>>>>> Stashed changes
     'Detection' => array($vendorDir . '/mobiledetect/mobiledetectlib/namespaced'),
 );
