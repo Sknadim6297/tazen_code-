@@ -33,6 +33,160 @@
         width: 20px;
         border-radius: 10px;
     }
+
+    /* Modern Modal Styles */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .modal-content {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .modal-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    .event-summary-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .event-summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .price-breakdown {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+    }
+
+    .form-control, .input-group-text {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .input-group .form-control {
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .input-group .input-group-text {
+        border-right: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        border-color: #6c757d;
+        transform: translateY(-1px);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    /* Animation for modal */
+    .modal.fade .modal-dialog {
+        transform: scale(0.8);
+        transition: transform 0.3s ease-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: scale(1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .modal-dialog {
+            margin: 1rem;
+        }
+        
+        .modal-header {
+            padding: 1rem;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem;
+        }
+    }
+
+    /* Custom scrollbar for textarea */
+    textarea::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    textarea::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
    </style>
 @endsection
 @section('content')
@@ -265,31 +419,129 @@
 
 <!-- Booking Modal -->
 <div class="modal fade" id="bookingModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
             <form id="bookingForm">
                 @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Booking Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-gradient-primary text-white border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title mb-0 fw-bold">Book Your Event</h5>
+                            <small class="opacity-75">Complete your booking details</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                
+                <div class="modal-body p-4">
                     <input type="hidden" id="event_id" name="event_id">
-                    <div class="mb-3">
-                        <label class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="phone" name="phone" maxlength="10" required>
+                    
+                    <!-- Event Summary Card -->
+                    <div class="event-summary-card mb-4 p-3 bg-light rounded-3 border">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            <h6 class="mb-0 fw-bold text-primary">Event Details</h6>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Event Name</small>
+                                <span class="fw-semibold" id="modalEventName">-</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Date</small>
+                                <span class="fw-semibold" id="modalEventDate">-</span>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Location</small>
+                                <span class="fw-semibold" id="modalEventLocation">-</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Price per Person</small>
+                                <span class="fw-semibold text-success" id="modalEventPrice">-</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Number of Persons</label>
-                        <input type="number" class="form-control" id="persons" name="persons" min="1" required>
+
+                    <!-- Contact Information -->
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-semibold text-dark">
+                            <i class="fas fa-phone text-primary me-2"></i>Phone Number
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-mobile-alt text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="phone" name="phone" 
+                                   maxlength="10" placeholder="Enter 10-digit mobile number" required>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle text-info me-1"></i>
+                            We'll send booking confirmation to this number
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Total Price</label>
-                        <p id="totalPrice" class="fw-bold">₹0</p>
+
+                    <!-- Number of Persons -->
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-semibold text-dark">
+                            <i class="fas fa-users text-primary me-2"></i>Number of Persons
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-user-friends text-muted"></i>
+                            </span>
+                            <input type="number" class="form-control border-start-0" id="persons" name="persons" 
+                                   min="1" placeholder="How many people?" required>
+                            <button type="button" class="btn btn-outline-secondary" id="decreasePersons">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="increasePersons">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="price-breakdown bg-light rounded-3 p-3 mb-4">
+                        <h6 class="fw-semibold text-dark mb-3">
+                            <i class="fas fa-receipt text-primary me-2"></i>Price Breakdown
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Price per person:</span>
+                            <span id="pricePerPerson">₹0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Number of persons:</span>
+                            <span id="personsCount">0</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">Total Amount:</span>
+                            <span class="fw-bold text-success fs-5" id="totalPrice">₹0</span>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-semibold text-dark">
+                            <i class="fas fa-comment text-primary me-2"></i>Additional Information (Optional)
+                        </label>
+                        <textarea class="form-control" id="additional_info" name="additional_info" 
+                                  rows="3" placeholder="Any special requirements or notes..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Continue</button>
+                
+                <div class="modal-footer bg-light border-0 p-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg px-4">
+                        <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                    </button>
                 </div>
             </form>
         </div>
@@ -300,6 +552,9 @@
 
 @endsection
 @section('script')
+<!-- Add SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize Owl Carousel for banner with autoplay
@@ -337,8 +592,73 @@ document.addEventListener('DOMContentLoaded', function () {
     const phoneInput = document.getElementById('phone');
     const totalPrice = document.getElementById('totalPrice');
     const bookingForm = document.getElementById('bookingForm');
+    
+    // New modal elements
+    const modalEventName = document.getElementById('modalEventName');
+    const modalEventDate = document.getElementById('modalEventDate');
+    const modalEventLocation = document.getElementById('modalEventLocation');
+    const modalEventPrice = document.getElementById('modalEventPrice');
+    const pricePerPerson = document.getElementById('pricePerPerson');
+    const personsCount = document.getElementById('personsCount');
+    const decreasePersons = document.getElementById('decreasePersons');
+    const increasePersons = document.getElementById('increasePersons');
 
     let eventDetails = {}; 
+
+    // Function to save form data to localStorage
+    function saveFormData(data) {
+        localStorage.setItem('bookingFormData', JSON.stringify(data));
+    }
+
+    // Function to load form data from localStorage
+    function loadFormData() {
+        const savedData = localStorage.getItem('bookingFormData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            
+            // Restore form fields
+            eventIdInput.value = data.event_id || '';
+            phoneInput.value = data.phone || '';
+            personsInput.value = data.persons || '';
+            
+            // Update eventDetails
+            eventDetails = {
+                event_id: data.event_id,
+                event_name: data.event_name,
+                location: data.location,
+                type: data.type,
+                event_date: data.event_date,
+                amount: parseFloat(data.amount) || 0
+            };
+            
+            // Populate modal details
+            populateModalDetails();
+            
+            // Update price breakdown
+            updatePriceBreakdown();
+            
+            return true;
+        }
+        return false;
+    }
+
+    // Function to clear form data from localStorage
+    function clearFormData() {
+        localStorage.removeItem('bookingFormData');
+    }
+
+    // Check for saved form data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if user just returned from login
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('redirect') && loadFormData()) {
+            // Show the modal with pre-filled data
+            setTimeout(() => {
+                bookingModal.show();
+            }, 500); // Small delay to ensure everything is loaded
+        }
+    });
+
     bookNowBtn.addEventListener('click', function () {
         eventDetails = {
             event_id: this.getAttribute('data-event-id'),
@@ -349,17 +669,107 @@ document.addEventListener('DOMContentLoaded', function () {
             amount: parseFloat(this.getAttribute('data-amount')) || 0
         };
 
-        bookingForm.reset();
-        eventIdInput.value = eventDetails.event_id;
-        totalPrice.textContent = '₹0';
-        bookingModal.show();
+        // First check if user is logged in
+        fetch("{{ route('user.check.login') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ check: true })
+        })
+        .then(res => {
+            if (res.status === 401) {
+                // User is not logged in, show SweetAlert
+                Swal.fire({
+                    title: 'Login Required',
+                    text: 'Please login to continue with your booking.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login Now',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const redirectUrl = encodeURIComponent(window.location.href);
+                        window.location.href = "{{ route('login') }}" + '?redirect=' + redirectUrl;
+                    } else {
+                        // Clear saved data if user cancels
+                        clearFormData();
+                    }
+                });
+                throw new Error('Unauthorized');
+            }
+            if (!res.ok) {
+                return res.json().then(errData => {
+                    throw new Error(errData.message || `HTTP error! status: ${res.status}`);
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.logged_in) {
+                // User is logged in, show the modal
+                bookingForm.reset();
+                eventIdInput.value = eventDetails.event_id;
+                
+                // Populate modal with event details
+                populateModalDetails();
+                
+                // Reset price breakdown
+                updatePriceBreakdown();
+                
+                bookingModal.show();
+            }
+        })
+        .catch(error => {
+            if (error.message !== 'Unauthorized') {
+                console.error('Fetch error:', error);
+                toastr.error(error.message || 'Request failed.');
+            }
+        });
     });
 
-    personsInput.addEventListener('input', function () {
-        const persons = parseInt(this.value) || 0;
+    // Function to update price breakdown
+    function updatePriceBreakdown() {
+        const persons = parseInt(personsInput.value) || 0;
         const amount = parseFloat(eventDetails.amount) || 0;
         const total = persons * amount;
+        
         totalPrice.textContent = `₹${total.toFixed(2)}`;
+        pricePerPerson.textContent = `₹${amount.toFixed(2)}`;
+        personsCount.textContent = persons;
+    }
+
+    // Function to populate modal with event details
+    function populateModalDetails() {
+        modalEventName.textContent = eventDetails.event_name || 'Event';
+        modalEventDate.textContent = eventDetails.event_date || 'TBD';
+        modalEventLocation.textContent = eventDetails.location || 'Location TBD';
+        modalEventPrice.textContent = `₹${(eventDetails.amount || 0).toFixed(2)}`;
+        pricePerPerson.textContent = `₹${(eventDetails.amount || 0).toFixed(2)}`;
+    }
+
+    // Plus/Minus button functionality
+    decreasePersons.addEventListener('click', function() {
+        const currentValue = parseInt(personsInput.value) || 1;
+        if (currentValue > 1) {
+            personsInput.value = currentValue - 1;
+            updatePriceBreakdown();
+        }
+    });
+
+    increasePersons.addEventListener('click', function() {
+        const currentValue = parseInt(personsInput.value) || 0;
+        personsInput.value = currentValue + 1;
+        updatePriceBreakdown();
+    });
+
+    // Update price when persons input changes
+    personsInput.addEventListener('input', function () {
+        updatePriceBreakdown();
     });
 
     bookingForm.addEventListener('submit', function (e) {
@@ -382,8 +792,12 @@ document.addEventListener('DOMContentLoaded', function () {
             ...eventDetails,
             phone: phone,
             persons: persons,
-            total_price: persons * eventDetails.amount
+            total_price: persons * eventDetails.amount,
+            additional_info: document.getElementById('additional_info').value.trim()
         };
+
+        // Save form data to localStorage before making the request
+        saveFormData(finalData);
 
         fetch("{{ route('user.check.login') }}", {
             method: 'POST',
@@ -396,9 +810,25 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(res => {
             if (res.status === 401) {
-                toastr.error('Please login to continue.');
-                const redirectUrl = encodeURIComponent(window.location.href);
-                window.location.href = "{{ route('login') }}" + '?redirect=' + redirectUrl;
+                // Show SweetAlert for login prompt
+                Swal.fire({
+                    title: 'Login Required',
+                    text: 'Please login to continue with your booking.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login Now',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const redirectUrl = encodeURIComponent(window.location.href);
+                        window.location.href = "{{ route('login') }}" + '?redirect=' + redirectUrl;
+                    } else {
+                        // Clear saved data if user cancels
+                        clearFormData();
+                    }
+                });
                 throw new Error('Unauthorized');
             }
             if (!res.ok) {
@@ -410,11 +840,44 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             if (data.status === 'success') {
+                // Clear saved form data on successful booking
+                clearFormData();
                 toastr.success(data.message || 'Booking saved successfully!');
                 bookingModal.hide();
                 setTimeout(() => {
                     window.location.href = "{{ route('user.booking.summary') }}";
                 }, 1500);
+            } else if (data.status === 'failed') {
+                // Handle payment failure with retry option
+                Swal.fire({
+                    title: 'Payment Failed',
+                    text: data.message || 'Your payment was not successful. Would you like to retry?',
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: 'Retry Payment',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect to retry booking
+                        if (data.retry_url) {
+                            window.location.href = data.retry_url;
+                        } else {
+                            // Fallback to booking summary page
+                            window.location.href = "{{ route('user.booking.summary') }}";
+                        }
+                    } else {
+                        // User cancelled, show option to go back to event
+                        Swal.fire({
+                            title: 'Booking Cancelled',
+                            text: 'You can try booking again anytime.',
+                            icon: 'info',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6c757d'
+                        });
+                    }
+                });
             } else {
                 toastr.error(data.message || 'Something went wrong.');
             }
