@@ -92,7 +92,9 @@ class ServiceController extends Controller
 
     public function edit(string $id)
     {
-        $service = ProfessionalService::findOrFail($id);
+        $service = ProfessionalService::where('id', $id)
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->firstOrFail();
         $services = Service::all();
         return view('professional.service.edit', compact('service', 'services'));
     }
@@ -101,27 +103,26 @@ class ServiceController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'serviceId' => 'required|integer|exists:services,id',
-            'serviceName' => 'required|string|max:255',
             'serviceDuration' => 'required|integer',
-            'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
             'serviceDescription' => 'required|string',
             'features' => 'nullable|array',
             'serviceTags' => 'nullable|string',
             'serviceRequirements' => 'nullable|string',
         ]);
-        $service = ProfessionalService::findOrFail($id);
-        $service->professional_id = Auth::guard('professional')->id();
-        $service->service_id = $request->serviceId;
-        $service->service_name = $request->serviceName;
+        
+        $service = ProfessionalService::where('id', $id)
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->firstOrFail();
+            
         $service->duration = $request->serviceDuration;
         $service->description = $request->serviceDescription;
         $service->features = $request->features ? json_encode($request->features) : null;
         $service->tags = $request->serviceTags;
         $service->requirements = $request->serviceRequirements;
+        
         if ($request->hasFile('serviceImage')) {
-            if ($service->image_path) {
-                unlink(public_path($service->image_path));
+            if ($service->image_path && file_exists(public_path($service->image_path))) {
+                @unlink(public_path($service->image_path));
             }
             try {
                 $service->image_path = $this->uploadImage($request, 'serviceImage', 'uploads/professional/photo');
@@ -138,7 +139,9 @@ class ServiceController extends Controller
                 ], 500);
             }
         }
+        
         $service->save();
+        
         return response()->json([
             'success' => true,
             'message' => 'Service has been updated successfully.'
@@ -152,14 +155,19 @@ class ServiceController extends Controller
      */
     public function destroy(string $id)
     {
-        $service = ProfessionalService::findOrFail($id);
-        if ($service->image_path) {
-            unlink(public_path($service->image_path));
+        $service = ProfessionalService::where('id', $id)
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->firstOrFail();
+            
+        // Delete the image file if it exists
+        if ($service->image_path && file_exists(public_path($service->image_path))) {
+            @unlink(public_path($service->image_path));
         }
 
         $service->delete();
+        
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'Service has been deleted successfully.'
         ]);
     }

@@ -9,6 +9,20 @@
     <div class="container margin_60_40">
         <div class="row justify-content-center">
             <div class="col-lg-5">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fa fa-check-circle"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa fa-exclamation-circle"></i> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                
                 <div class="box_booking_2">
                     @if(isset($bookingData))
                         @php
@@ -42,6 +56,17 @@
                             <hr>
                             <button class="btn_1 full-width mb_5" id="payNowBtn">Confirm Booking</button>
                             <a href="{{ route('event.list') }}" class="btn_1 full-width outline mb_25">Change Booking</a>
+                            
+                            @if(session('failed_booking_data'))
+                                <div class="alert alert-warning mt-3">
+                                    <h6>Previous Payment Failed</h6>
+                                    <p>Your previous payment attempt was unsuccessful. You can retry your booking below.</p>
+                                    <a href="{{ route('user.booking.retry', ['booking_id' => session('failed_booking_id')]) }}" 
+                                       class="btn btn-warning btn-sm">
+                                        <i class="fa fa-refresh"></i> Retry Booking
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     @else
                         <div class="main">
@@ -57,6 +82,8 @@
 
 @section('script')
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Add SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -141,7 +168,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'failed') {
-                        toastr.error('Payment failed: ' + response.error.description);
+                        // Show SweetAlert with retry option
+                        Swal.fire({
+                            title: 'Payment Failed',
+                            text: 'Your payment was not successful. Would you like to retry?',
+                            icon: 'error',
+                            showCancelButton: true,
+                            confirmButtonText: 'Retry Payment',
+                            cancelButtonText: 'Cancel',
+                            confirmButtonColor: '#dc3545',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Retry payment by clicking the pay button again
+                                payBtn.click();
+                            } else {
+                                // Show option to go back to events
+                                Swal.fire({
+                                    title: 'Booking Cancelled',
+                                    text: 'You can try booking again anytime.',
+                                    icon: 'info',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#6c757d'
+                                }).then(() => {
+                                    window.location.href = "{{ route('event.list') }}";
+                                });
+                            }
+                        });
                     } else {
                         toastr.error('Payment failure not logged properly.');
                     }

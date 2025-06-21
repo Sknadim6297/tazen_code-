@@ -13,7 +13,7 @@
             <!-- Start::header-element -->
             <div class="header-element">
                 <div class="horizontal-logo">
-                    <a href="index-2.html" class="header-logo">
+                    <a href="{{ route('admin.dashboard') }}" class="header-logo">
                         <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-logo">
                         <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="toggle-logo">
                         <img src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="logo" class="desktop-dark">
@@ -49,15 +49,6 @@
         <!-- Start::header-content-right -->
         <ul class="header-content-right">
 
-            <!-- Start::header-element -->
-            <li class="header-element d-md-none d-block">
-                <a href="javascript:void(0);" class="header-link" data-bs-toggle="modal" data-bs-target="#header-responsive-search">
-                    <!-- Start::header-link-icon -->
-                    <i class="bi bi-search header-link-icon"></i>
-                    <!-- End::header-link-icon -->
-                </a>  
-            </li>
-            <!-- End::header-element -->
 
 
             <!-- Start::header-element -->

@@ -1,15 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'laravel/laravel',
-<<<<<<< Updated upstream
-        'pretty_version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-        'version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-        'reference' => 'e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-=======
-        'pretty_version' => 'dev-tania',
-        'version' => 'dev-tania',
-        'reference' => 'd096e6145e4494d210a2b8ee975a9305f0423703',
->>>>>>> Stashed changes
+        'pretty_version' => 'dev-sk_nadim',
+        'version' => 'dev-sk_nadim',
+        'reference' => '2e52a6837607a9cb13dfb78dee44808a57adf172',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -17,9 +11,9 @@
     ),
     'versions' => array(
         'barryvdh/laravel-dompdf' => array(
-            'pretty_version' => 'v2.2.0',
-            'version' => '2.2.0.0',
-            'reference' => 'c96f90c97666cebec154ca1ffb67afed372114d8',
+            'pretty_version' => 'v3.1.1',
+            'version' => '3.1.1.0',
+            'reference' => '8e71b99fc53bb8eb77f316c3c452dd74ab7cb25d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../barryvdh/laravel-dompdf',
             'aliases' => array(),
@@ -92,11 +86,29 @@
             'dev_requirement' => false,
         ),
         'dompdf/dompdf' => array(
-            'pretty_version' => 'v2.0.8',
-            'version' => '2.0.8.0',
-            'reference' => 'c20247574601700e1f7c8dab39310fca1964dc52',
+            'pretty_version' => 'v3.1.0',
+            'version' => '3.1.0.0',
+            'reference' => 'a51bd7a063a65499446919286fb18b518177155a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../dompdf/dompdf',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'dompdf/php-font-lib' => array(
+            'pretty_version' => '1.0.1',
+            'version' => '1.0.1.0',
+            'reference' => '6137b7d4232b7f16c882c75e4ca3991dbcf6fe2d',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../dompdf/php-font-lib',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'dompdf/php-svg-lib' => array(
+            'pretty_version' => '1.0.0',
+            'version' => '1.0.0.0',
+            'reference' => 'eb045e518185298eb6ff8d80d0d0c6b17aecd9af',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../dompdf/php-svg-lib',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -115,15 +127,6 @@
             'reference' => 'd42c8731f0624ad6bdc8d3e5e9a4524f68801cfa',
             'type' => 'library',
             'install_path' => __DIR__ . '/../egulias/email-validator',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'ezyang/htmlpurifier' => array(
-            'pretty_version' => 'v4.18.0',
-            'version' => '4.18.0.0',
-            'reference' => 'cb56001e54359df7ae76dc522d08845dc741621b',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../ezyang/htmlpurifier',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -440,15 +443,9 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-<<<<<<< Updated upstream
-            'pretty_version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-            'version' => 'dev-e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-            'reference' => 'e17f35d8ec34fab1f050886a2645aa573d5d7ddf',
-=======
-            'pretty_version' => 'dev-tania',
-            'version' => 'dev-tania',
-            'reference' => 'd096e6145e4494d210a2b8ee975a9305f0423703',
->>>>>>> Stashed changes
+            'pretty_version' => 'dev-sk_nadim',
+            'version' => 'dev-sk_nadim',
+            'reference' => '2e52a6837607a9cb13dfb78dee44808a57adf172',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -563,9 +560,9 @@
             'dev_requirement' => false,
         ),
         'maennchen/zipstream-php' => array(
-            'pretty_version' => '3.1.1',
-            'version' => '3.1.1.0',
-            'reference' => '6187e9cc4493da94b9b63eb2315821552015fca9',
+            'pretty_version' => '3.1.2',
+            'version' => '3.1.2.0',
+            'reference' => 'aeadcf5c412332eb426c0f9b4485f6accba2a99f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../maennchen/zipstream-php',
             'aliases' => array(),
@@ -712,37 +709,19 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-<<<<<<< Updated upstream
         'phpoffice/phpexcel' => array(
             'pretty_version' => '1.8.1',
             'version' => '1.8.1.0',
             'reference' => '372c7cbb695a6f6f1e62649381aeaa37e7e70b32',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpexcel',
-=======
-        'phenx/php-font-lib' => array(
-            'pretty_version' => '0.5.6',
-            'version' => '0.5.6.0',
-            'reference' => 'a1681e9793040740a405ac5b189275059e2a9863',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../phenx/php-font-lib',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'phenx/php-svg-lib' => array(
-            'pretty_version' => '0.5.4',
-            'version' => '0.5.4.0',
-            'reference' => '46b25da81613a9cf43c83b2a8c2c1bdab27df691',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../phenx/php-svg-lib',
->>>>>>> Stashed changes
             'aliases' => array(),
             'dev_requirement' => false,
         ),
         'phpoffice/phpspreadsheet' => array(
-            'pretty_version' => '1.29.10',
-            'version' => '1.29.10.0',
-            'reference' => 'c80041b1628c4f18030407134fe88303661d4e4e',
+            'pretty_version' => '4.3.1',
+            'version' => '4.3.1.0',
+            'reference' => 'd0ac70d610fb62ccad38c2696569ae1ad42acc70',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),
@@ -913,8 +892,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0|3.0',
-                1 => '3.0.0',
+                0 => '3.0.0',
+                1 => '1.0|2.0|3.0',
             ),
         ),
         'psr/simple-cache' => array(
@@ -1200,9 +1179,9 @@
             'dev_requirement' => false,
         ),
         'symfony/css-selector' => array(
-            'pretty_version' => 'v6.4.13',
-            'version' => '6.4.13.0',
-            'reference' => 'cb23e97813c5837a041b73a6d63a9ddff0778f5e',
+            'pretty_version' => 'v7.3.0',
+            'version' => '7.3.0.0',
+            'reference' => '601a5ce9aaad7bf10797e3663faefce9e26c24e2',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/css-selector',
             'aliases' => array(),
@@ -1227,9 +1206,9 @@
             'dev_requirement' => false,
         ),
         'symfony/event-dispatcher' => array(
-            'pretty_version' => 'v6.4.13',
-            'version' => '6.4.13.0',
-            'reference' => '0ffc48080ab3e9132ea74ef4e09d8dcf26bf897e',
+            'pretty_version' => 'v7.3.0',
+            'version' => '7.3.0.0',
+            'reference' => '497f73ac996a598c92409b44ac43b6690c4f666d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/event-dispatcher',
             'aliases' => array(),
@@ -1395,9 +1374,9 @@
             'dev_requirement' => false,
         ),
         'symfony/string' => array(
-            'pretty_version' => 'v6.4.21',
-            'version' => '6.4.21.0',
-            'reference' => '73e2c6966a5aef1d4892873ed5322245295370c6',
+            'pretty_version' => 'v7.3.0',
+            'version' => '7.3.0.0',
+            'reference' => 'f3570b8c61ca887a9e2938e85cb6458515d2b125',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/string',
             'aliases' => array(),
