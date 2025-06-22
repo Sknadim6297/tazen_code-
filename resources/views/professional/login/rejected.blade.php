@@ -324,7 +324,7 @@
         </div>
         <div class="modal-icon">⚠</div>
         <h2>Profile Rejected</h2>
-        <p class="rejection-reason">{{ $RejectedUser->reason ?? 'No rejection reason provided.' }}</p>
+        <p class="rejection-reason">{{ $reason ?? 'No rejection reason provided.' }}</p>
         <p class="resubmit-hint">Please check and update your details before resubmitting.</p>
         <button class="resubmit-btn" onclick="resubmitDetails()">Proceed Again</button>
     </div>
