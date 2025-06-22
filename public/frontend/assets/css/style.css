@@ -10351,7 +10351,7 @@ header.header_in ul#top_menu:before {
 header a.open_close {
     position: absolute;
     left: 10px;
-    top: 5px;
+    top: 20px;
     z-index: 999;
     color: #fff;
     font-size: 2rem;
