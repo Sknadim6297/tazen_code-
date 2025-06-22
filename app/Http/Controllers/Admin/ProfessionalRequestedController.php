@@ -15,7 +15,6 @@ use App\Exports\ProfessionalsExport;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
-use Spatie\LaravelPdf\Facades\Pdf as FacadesPdf;
 
 class ProfessionalRequestedController extends Controller
 {
@@ -135,7 +134,7 @@ class ProfessionalRequestedController extends Controller
                 'title' => 'Requested Professionals Report',
             ];
             
-            $pdf = FacadesPdf::loadView('admin.Requested_professional.professionals', $data);
+            $pdf = FacadePdf::loadView('admin.Requested_professional.professionals', $data);
             return $pdf->download('professionals_requested_' . date('Y_m_d_His') . '.pdf');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to export data: ' . $e->getMessage());

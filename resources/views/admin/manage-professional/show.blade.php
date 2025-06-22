@@ -31,20 +31,6 @@
         box-sizing: border-box;
     }
 
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: var(--gray-50);
-        color: var(--gray-800);
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-    }
-
-    .dashboard-container {
-        display: flex;
-        min-height: 100vh;
-    }
-
     /* Sidebar */
     .sidebar {
         width: 280px;

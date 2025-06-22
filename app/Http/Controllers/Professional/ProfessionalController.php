@@ -149,10 +149,13 @@ class ProfessionalController extends Controller
 
     public function rejectedPage()
     {
-        $RejectedUser = ProfessionalRejection::with('professional', 'profile')->where('professional_id', Auth::guard('professional')->id())->first();
-        // dd($RejectedUser);
-        // dd($RejectedUser);
-        return view('professional.login.rejected', compact('RejectedUser'));
+        // Fetch the latest rejection record for the logged-in professional
+        $RejectedUser = ProfessionalRejection::with('professional', 'profile')
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->latest('created_at')
+            ->first();
+        $reason = $RejectedUser ? $RejectedUser->reason : null;
+        return view('professional.login.rejected', compact('RejectedUser', 'reason'));
     }
     public function pendingPage()
     {
