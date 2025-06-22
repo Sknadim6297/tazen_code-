@@ -104,10 +104,11 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('professional-billing', [App\Http\Controllers\Admin\BillingController::class, 'professionalBilling'])->name('professional.billing');
     Route::get('customer-billing', [App\Http\Controllers\Admin\CustomerBillingController::class, 'index'])->name('customer.billing');
+    Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
+    Route::get('customer/billing/export-excel', [BillingController::class, 'exportCustomerBillingToExcel'])->name('customer.billing.export.excel');
 
     Route::post('/admin/professionals/toggle-status', [ManageProfessionalController::class, 'toggleStatus'])->name('professional.toggle-status');
     Route::get('professional/billing/export', [BillingController::class, 'exportBillingToPdf'])->name('professional.billing.export');
-    Route::get('customer/billing/export', [BillingController::class, 'exportCustomerBillingToPdf'])->name('customer.billing.export');
     Route::get('billing/professional/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])
     ->name('professional.billing.export.excel');
 

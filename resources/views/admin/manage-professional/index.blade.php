@@ -247,6 +247,125 @@
     .export-btn-pdf:hover {
         background-color: #a52929;
     }
+
+    /* Filter Section Styling */
+    .filter-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .filter-card .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .filter-card .card-title {
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .filter-card .card-body {
+        padding: 1.5rem;
+        background: #fafbfc;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
+    }
+
+    .input-group:focus-within {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .input-group-text {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #6c757d;
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-card .card-body {
+            padding: 1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
 </style>
 @endsection
 
@@ -268,46 +387,99 @@
             </div>
         </div>
 
-        <!-- Filter Section - Improved Design -->
-        <form id="filter-form" action="{{ route('admin.manage-professional.index') }}" method="GET" class="mb-4">
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <div class="col-xl-2">
-                    <input type="search" name="search" class="form-control form-control-sm" id="autoComplete" placeholder="Search by name or email">
-                </div>
-                
-                <div class="col-xl-2">
-                    <select id="serviceFilter" name="service_id" class="form-select form-select-sm">
-                        <option value="">All Services</option>
-                        @foreach($services as $service)
-                            <option value="{{ $service->id }}">{{ $service->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div class="col-xl-2">
-                    <select id="specializationFilter" name="specialization" class="form-select form-select-sm">
-                        <option value="">All Specializations</option>
-                        @foreach($specializations as $specialization)
-                            <option value="{{ $specialization }}">{{ $specialization }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div class="col-xl-4">
-                    <div class="input-group input-group-sm">
-                        <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                        <input type="date" class="form-control form-control-sm" placeholder="Start Date" name="start_date" id="start_date">
-                        <span class="input-group-text">to</span>
-                        <input type="date" class="form-control form-control-sm" placeholder="End Date" name="end_date" id="end_date">
-                    </div>
-                </div>
-                
-                <div class="col-xl-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-sm">Search</button>
-                    <a href="{{ route('admin.manage-professional.index') }}" class="btn btn-secondary btn-sm">Reset</a>
-                </div>
+        <!-- Filter Section - Modern Design -->
+        <div class="card custom-card filter-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-filter-3-line me-2 text-primary"></i>
+                    Filter Professionals
+                </h5>
             </div>
-        </form>
+            <div class="card-body">
+                <form id="filter-form" action="{{ route('admin.manage-professional.index') }}" method="GET">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="autoComplete" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-search-line me-1"></i>Search
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-user-line text-muted"></i>
+                                </span>
+                                <input type="search" name="search" class="form-control border-start-0" 
+                                       id="autoComplete" placeholder="Name or email...">
+                            </div>
+                        </div>
+                        
+                        <!-- Service Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="serviceFilter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-briefcase-line me-1"></i>Service
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-settings-line text-muted"></i>
+                                </span>
+                                <select id="serviceFilter" name="service_id" class="form-select border-start-0">
+                                    <option value="">All Services</option>
+                                    @foreach($services as $service)
+                                        <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Specialization Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="specializationFilter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-star-line me-1"></i>Specialization
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-award-line text-muted"></i>
+                                </span>
+                                <select id="specializationFilter" name="specialization" class="form-select border-start-0">
+                                    <option value="">All Specializations</option>
+                                    @foreach($specializations as $specialization)
+                                        <option value="{{ $specialization }}">{{ $specialization }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Date Range -->
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-calendar-line me-1"></i>Date Range
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-calendar-event-line text-muted"></i>
+                                </span>
+                                <input type="date" class="form-control border-start-0 border-end-0" 
+                                       placeholder="Start Date" name="start_date" id="start_date">
+                                <span class="input-group-text bg-light border-start-0 border-end-0 text-muted">to</span>
+                                <input type="date" class="form-control border-start-0" 
+                                       placeholder="End Date" name="end_date" id="end_date">
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end pt-2">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="ri-search-line me-1"></i>Search
+                                </button>
+                                <a href="{{ route('admin.manage-professional.index') }}" class="btn btn-outline-secondary px-4">
+                                    <i class="ri-refresh-line me-1"></i>Reset
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Add Export buttons outside the filter form -->
         <div class="d-flex justify-content-end mb-3">
