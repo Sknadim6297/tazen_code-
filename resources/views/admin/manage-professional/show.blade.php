@@ -694,7 +694,7 @@
                     <div class="profile-header">
                         <div class="profile-main">
                             <div class="profile-avatar">
-                                <img src="{{ $profile->photo ? asset($profile->photo) : asset('default.jpg') }}" 
+                                <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" 
                                      class="profile-img" alt="Profile">
                                 <div class="profile-status"></div>
                             </div>
@@ -760,7 +760,7 @@
                                     <div class="document-name">Qualification Certificate</div>
                                     <div class="document-status">
                                         @if($profile->qualification_document)
-                                            <a href="{{ asset($profile->qualification_document) }}" target="_blank" class="document-action">
+                                            <a href="{{ asset('storage/'.$profile->qualification_document) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -777,7 +777,7 @@
                                     <div class="document-name">Aadhaar Card</div>
                                     <div class="document-status">
                                         @if($profile->aadhaar_card)
-                                            <a href="{{ asset($profile->aadhaar_card) }}" target="_blank" class="document-action">
+                                            <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -794,7 +794,7 @@
                                     <div class="document-name">PAN Card</div>
                                     <div class="document-status">
                                         @if($profile->pan_card)
-                                            <a href="{{ asset($profile->pan_card) }}" target="_blank" class="document-action">
+                                            <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -823,7 +823,7 @@
                                 <div class="gallery-grid">
                                     @foreach (array_slice($gallery, 0, 8) as $img)
                                         <div class="gallery-item">
-                                            <img src="{{ asset($img) }}" alt="Gallery Image" class="gallery-img">
+                                            <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image" class="gallery-img">
                                         </div>
                                     @endforeach
                                     @if(count($gallery) > 8)

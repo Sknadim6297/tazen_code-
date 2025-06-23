@@ -147,12 +147,23 @@
     
     /* Enhanced for mobile */
     @media (max-width: 768px) {
+        .content-wrapper {
+            padding:10px 0px;
+            padding-left:3px;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box;
+        }
         .card-grid {
             grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100vw;
+            max-width: 100vw;
+            margin-bottom: 12px;
         }
-        
         .card {
-            margin-bottom: 15px;
+            padding: 12px;
         }
     }
     

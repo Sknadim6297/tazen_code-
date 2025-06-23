@@ -22,7 +22,7 @@
                     <!-- Profile Photo Section -->
                     <div class="col-md-4 col-lg-3 mb-4 mb-md-0 text-center">
                         @if($customer_profile && $customer_profile->profile_image)
-                            <img src="{{ asset($customer_profile->profile_image) }}" alt="Profile Photo" class="rounded-circle shadow" width="150" height="150">
+                            <img src="{{ asset('storage/'.$customer_profile->profile_image) }}" alt="Profile Photo" class="rounded-circle shadow" width="150" height="150">
                         @else
                             <img src="{{ asset('default-avatar.png') }}" alt="Default Profile" class="rounded-circle shadow" width="150" height="150">
                         @endif

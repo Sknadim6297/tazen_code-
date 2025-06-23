@@ -288,10 +288,6 @@
 
     <!-- Appointments Summary -->
     <div class="content-section">
-        <div class="section-header mb-3">
-            <button class="btn btn-primary">Download Full Report</button>
-        </div>
-
             <table class="table table-bordered">
         <thead>
             <tr>
