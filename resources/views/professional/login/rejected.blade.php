@@ -213,28 +213,55 @@
                         <h4>Step 2 – Professional Info</h4>
                     </div>
 
+                    <!-- Specialization Dropdown -->
                     <div class="form-group">
-                        <input class="form-control" type="text" name="specialization" placeholder="Specialization"
-                            required value="{{ old('specialization', $RejectedUser->profile->specialization) }}">
+                        <select class="form-control" name="specialization" required>
+                            <option value="">Select Specialization</option>
+                            @php
+                                $specializations = [
+                                    'Job Counselor & Career Counsellor',
+                                    'Psychologists ',
+                                    'Dietician ',
+                                    'Fitness Trainer',
+                                    'Financial Experts',
+                                    'Life Coach',
+                                    'Style Consultant',
+                                    'Astrologer',
+                                ];
+                                $selectedSpecialization = old('specialization', $RejectedUser->profile->specialization ?? '');
+                            @endphp
+                            @foreach($specializations as $spec)
+                                <option value="{{ $spec }}" {{ $selectedSpecialization == $spec ? 'selected' : '' }}>{{ $spec }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
+                    <!-- Experience Dropdown -->
                     <div class="form-group">
-                        <input class="form-control" type="text" name="experience" placeholder="Experience" required
-                            value="{{ old('experience', $RejectedUser->profile->experience) }}">
+                        <select class="form-control" name="experience" required>
+                            <option value="" disabled>Select Experience</option>
+                            @php
+                                $experiences = ['0-2', '2-4', '4-6', '6-8', '8-10', '10+'];
+                                $selectedExperience = old('experience', $RejectedUser->profile->experience ?? '');
+                            @endphp
+                            @foreach($experiences as $exp)
+                                <option value="{{ $exp }}" {{ $selectedExperience == $exp ? 'selected' : '' }}>{{ $exp }} years</option>
+                            @endforeach
+                        </select>
                     </div>
 
+                    <!-- Starting Price Input -->
                     <div class="form-group">
-                        <input class="form-control" type="text" name="starting_price" placeholder="Starting Price"
-                            required value="{{ old('starting_price', $RejectedUser->profile->starting_price) }}">
+                        <input class="form-control" type="text" name="starting_price" placeholder="Price per session (Rs.)" required value="{{ old('starting_price', $RejectedUser->profile->starting_price ?? '') }}">
                     </div>
 
+                    <!-- Location Dropdown -->
                     <div class="form-group">
-                        <label for="address">Select Location</label>
-                        <select class="form-control" name="address" id="address" required>
+                        <select class="form-control" name="address" required>
                             <option value="">Select Location</option>
                             @php
-                                $selectedAddress = old('address', $RejectedUser->profile->address ?? '');
                                 $cities = ['Mumbai', 'Kolkata', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Ahmedabad', 'Surat', 'Jaipur'];
+                                $selectedAddress = old('address', $RejectedUser->profile->address ?? '');
                             @endphp
                             @foreach($cities as $city)
                                 <option value="{{ $city }}" {{ $selectedAddress == $city ? 'selected' : '' }}>{{ $city }}</option>
@@ -242,18 +269,19 @@
                         </select>
                     </div>
 
+                    <!-- Education 1 Input -->
                     <div class="form-group">
-                        <input class="form-control" type="text" name="education" placeholder="Education" required
-                            value="{{ old('education', $RejectedUser->profile->education) }}">
+                        <input class="form-control" type="text" name="education" placeholder="Education" required value="{{ old('education', $RejectedUser->profile->education ?? '') }}">
                     </div>
 
+                    <!-- Education 2 Input -->
                     <div class="form-group">
-                        <input class="form-control" type="text" name="education2" placeholder="Additional Education" required
-                            value="{{ old('education2', $RejectedUser->profile->education2) }}">
+                        <input class="form-control" type="text" name="education2" placeholder="Additional Education" required value="{{ old('education2', $RejectedUser->profile->education2 ?? '') }}">
                     </div>
 
+                    <!-- Bio Textarea -->
                     <div class="form-group">
-                        <textarea class="form-control" name="bio" placeholder="Short Bio" required>{{ old('bio', $RejectedUser->profile->bio) }}</textarea>
+                        <textarea class="form-control" name="bio" placeholder="Short Bio" required>{{ old('bio', $RejectedUser->profile->bio ?? '') }}</textarea>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
@@ -303,7 +331,7 @@
                         <label for="gallery">Upload Gallery Images</label><br>
                         @if($doc->gallery && is_array(json_decode($doc->gallery)))
                             @foreach(json_decode($doc->gallery) as $image)
-                                <img src="{{ asset($image) }}" alt="Gallery Image" width="80" style="margin: 5px;">
+                                <img src="{{ asset('storage/' . $image) }}" alt="Gallery Image" width="80" style="margin: 5px;">
                             @endforeach
                         @endif
                         <input class="form-control mt-2" type="file" name="gallery[]" multiple>
