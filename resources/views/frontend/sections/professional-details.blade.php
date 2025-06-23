@@ -606,7 +606,7 @@
                 <div class="col-xl-8 col-lg-7">
                     <div class="box_general">
                         <div class="profile-header-flex">
-                            <img src="{{ asset($profile->photo) }}" alt="" class="profile-main-image">
+                            <img src="{{ $profile->photo ? asset('storage/' . $profile->photo) : asset('img/lazy-placeholder.png') }}" alt="" class="profile-main-image">
                             <div class="profile-header-details">
                                 <h3 id="professional_name">{{ $profile->name }}</h3>
                                 <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get directions</a></p>
@@ -920,8 +920,8 @@
                                                 <div class="row">
                                                     @foreach($galleryImages as $image)
                                                         <div class="col-md-4 col-sm-6 mb-4">
-                                                            <a href="{{ asset($image) }}" class="gallery-item" data-fancybox="gallery">
-                                                                <img src="{{ asset($image) }}" class="img-fluid rounded" alt="Clinic Photo">
+                                                            <a href="{{ Str::startsWith($image, 'storage/') ? asset($image) : asset('storage/' . $image) }}" class="gallery-item" data-fancybox="gallery">
+                                                                <img src="{{ Str::startsWith($image, 'storage/') ? asset($image) : asset('storage/' . $image) }}" class="img-fluid rounded" alt="Clinic Photo">
                                                             </a>
                                                         </div>
                                                     @endforeach

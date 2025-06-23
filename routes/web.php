@@ -43,7 +43,7 @@ use App\Models\AboutFAQ;
 use App\Models\Event;
 use App\Models\EventDetail;
 use App\Models\EventFAQ;
-use App\Models\ContactBanner;
+use App\Models\Contactbanner;
 use App\Models\ContactDetail;
 use App\Models\BlogBanner;
 use App\Models\BlogPost;
@@ -309,6 +309,10 @@ Route::middleware(['auth:user'])->group(function () {
     // Customer Billing routes
     Route::get('/customer/billing', [CustomerBookingController::class, 'billing'])->name('user.billing.index');
     Route::get('/customer/billing/download/{id}', [CustomerBookingController::class, 'downloadInvoice'])->name('user.billing.download');
+
+    // New routes for paymentFailed and retryBooking
+    Route::post('customer/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.customer.booking.payment.failed');
+    Route::get('customer/booking/retry/{booking_id}', [CustomerBookingController::class, 'retryBooking'])->name('user.customer.booking.retry');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
