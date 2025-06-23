@@ -18,6 +18,7 @@
    <!-- YOUR CUSTOM CSS -->
    <link href="{{ asset('frontend/assets/css/custom.css') }}" rel="stylesheet">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
 		@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
@@ -107,13 +108,46 @@ background-repeat: no-repeat;
         from { background-position: 1rem 0 }
         to { background-position: 0 0 }
     }
+    .form-group {
+        position: relative;
+    }
+    .form-group input.form-control, .form-group select.form-control, .form-group textarea.form-control {
+        padding-left: 40px;
+    }
+    .form-group textarea.form-control {
+        min-height: 80px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    .form-group i.input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+        font-size: 18px;
+        z-index: 2;
+        pointer-events: none;
+    }
+    .form-group textarea + i.input-icon {
+        top: 22px; /* Adjust for textarea vertical alignment if needed */
+    }
+    .form-group .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .form-group input.is-invalid, .form-group select.is-invalid, .form-group textarea.is-invalid {
+        border-color: #dc3545;
+    }
 </style>
 </head>
 
 <body>
 	<nav id="menu" class="fake_menu"></nav>
-	
-	<div id="login"><figure>
+	<div id="register">
+        <figure>
 				<a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
 			</figure>
 		<div>
@@ -127,22 +161,34 @@ background-repeat: no-repeat;
   <h4 class="step-title">Basic Information</h4>
 </div>
 					<div class="form-group">
+						<i class="fa fa-user input-icon"></i>
 						<input class="form-control" type="text" name="first_name" placeholder="First Name" required>
+						<div class="invalid-feedback">First name is required.</div>
 					</div>
 					<div class="form-group">
+						<i class="fa fa-user input-icon"></i>
 						<input class="form-control" type="text" name="last_name" placeholder="Last Name" required>
+						<div class="invalid-feedback">Last name is required.</div>
 					</div>
 					<div class="form-group">
+						<i class="fa fa-envelope input-icon"></i>
 						<input class="form-control" type="email" name="email" placeholder="Email" required>
+						<div class="invalid-feedback">Valid email is required.</div>
 					</div>
 					<div class="form-group">
+						<i class="fa fa-phone input-icon"></i>
 						<input class="form-control" type="text" name="phone" placeholder="Phone Number" required>
+						<div class="invalid-feedback">Phone number is required.</div>
 					</div>
 					<div class="form-group">
-						<input class="form-control" type="password" name="password" placeholder="Password" required>
+						<i class="fa fa-lock input-icon"></i>
+						<input class="form-control" type="password" name="password" id="password" placeholder="Password" required>
+						<div class="invalid-feedback" id="password-error">Password is required.</div>
 					</div>
 					<div class="form-group">
-						<input class="form-control" type="password" name="password_confirmation" placeholder="Confirm Password" required>
+						<i class="fa fa-lock input-icon"></i>
+						<input class="form-control" type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required>
+						<div class="invalid-feedback" id="confirm-password-error">Passwords do not match.</div>
 					</div>
 					<button type="button" class="btn_1 full-width next-btn">Next Step</button>
 				</div>
@@ -156,7 +202,8 @@ background-repeat: no-repeat;
 
 					<!-- Specialization Input -->
 				<div class="form-group">
-						<select class="form-control" style="padding-left: 39px;" name="specialization" required >
+						<i class="fa fa-briefcase input-icon"></i>
+						<select class="form-control" name="specialization" required >
 							<option value="">Select Specialization</option>
 							<option value="Job Counselor & Career Counsellor">Job Counselor & Career Counsellor</option>
 							<option value="Psychologists ">Psychologists </option>
@@ -167,28 +214,34 @@ background-repeat: no-repeat;
 							<option value="Style Consultant">Style Consultant</option>
 							<option value="Astrologer">Astrologer</option>
 						</select>
+						<div class="invalid-feedback">Specialization is required.</div>
 					</div>
 				
 				<!-- Experience Input -->
 <div class="form-group">
-    <select class="form-control" style="padding-left: 39px;" name="experience" required>
-        <option value="" disabled selected>Select Experience</option>
-        <option value="0-2">0-2 years</option>
-        <option value="2-4">2-4 years</option>
-        <option value="4-6">4-6 years</option>
-        <option value="6-8">6-8 years</option>
-        <option value="8-10">8-10 years</option>
-        <option value="10+">10+ years</option>
-    </select>
-</div>
+					<i class="fa fa-briefcase input-icon"></i>
+					<select class="form-control" name="experience" required>
+						<option value="" disabled selected>Select Experience</option>
+						<option value="0-2">0-2 years</option>
+						<option value="2-4">2-4 years</option>
+						<option value="4-6">4-6 years</option>
+						<option value="6-8">6-8 years</option>
+						<option value="8-10">8-10 years</option>
+						<option value="10+">10+ years</option>
+					</select>
+					<div class="invalid-feedback">Experience is required.</div>
+				</div>
 
 	<!-- Starting Price Input -->
 					<div class="form-group">
+						<i class="fa fa-rupee-sign input-icon"></i>
 						<input class="form-control" type="text" name="starting_price" placeholder="Price per session (Rs.)" required>
+						<div class="invalid-feedback">Starting price is required.</div>
 					</div>
 					<!-- Location Dropdown -->
 					<div class="form-group">
-						<select class="form-control" style="padding-left: 39px;" name="address" required >
+						<i class="fa fa-map-marker-alt input-icon"></i>
+						<select class="form-control" name="address" required >
 							<option value="">Select Location</option>
 							<option value="Mumbai">Mumbai</option>
 							<option value="Kolkata">Kolkata</option>
@@ -201,21 +254,28 @@ background-repeat: no-repeat;
 							<option value="Surat">Surat</option>
 							<option value="Jaipur">Jaipur</option>
 						</select>
+						<div class="invalid-feedback">Location is required.</div>
 					</div>
 				
 					<!-- Education 1 Input -->
 					<div class="form-group">
+						<i class="fa fa-graduation-cap input-icon"></i>
 						<input class="form-control" type="text" name="education" placeholder="Education" required>
+						<div class="invalid-feedback">Education is required.</div>
 					</div>
 				
 					<!-- Education 2 Input -->
 					<div class="form-group">
+						<i class="fa fa-graduation-cap input-icon"></i>
 						<input class="form-control" type="text" name="education2" placeholder="Additional Education" required>
+						<div class="invalid-feedback">Additional education is required.</div>
 					</div>
 				
 					<!-- Bio Textarea -->
 					<div class="form-group">
-						<textarea class="form-control" name="bio" style="padding-left: 39px;" placeholder="Short Bio" required></textarea>
+						<i class="fa fa-info-circle input-icon"></i>
+						<textarea class="form-control" name="bio" placeholder="Short Bio" required></textarea>
+						<div class="invalid-feedback">Bio is required.</div>
 					</div>
 				
 					<!-- Navigation Buttons -->
@@ -359,6 +419,49 @@ toastr.options = {
         let currentStep = 1;
 
         $('.next-btn').click(function () {
+            if (currentStep === 1) {
+                // Password match validation
+                var password = $('#password').val();
+                var confirmPassword = $('#password_confirmation').val();
+                var valid = true;
+                if (!password) {
+                    $('#password').addClass('is-invalid');
+                    $('#password-error').show();
+                    valid = false;
+                } else {
+                    $('#password').removeClass('is-invalid');
+                    $('#password-error').hide();
+                }
+                if (!confirmPassword || password !== confirmPassword) {
+                    $('#password_confirmation').addClass('is-invalid');
+                    $('#confirm-password-error').show();
+                    valid = false;
+                } else {
+                    $('#password_confirmation').removeClass('is-invalid');
+                    $('#confirm-password-error').hide();
+                }
+                if (!valid) {
+                    toastr.error('Please fix the errors before proceeding.');
+                    return;
+                }
+            }
+            // Validate all required fields in the current step
+            var $step = $('.form-step.step-' + currentStep);
+            var stepValid = true;
+            $step.find('input, select, textarea').each(function() {
+                if ($(this).prop('required') && !$(this).val()) {
+                    $(this).addClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').show();
+                    stepValid = false;
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').hide();
+                }
+            });
+            if (!stepValid) {
+                toastr.error('Please fill all required fields.');
+                return;
+            }
             if (currentStep < 3) {
                 $('.form-step').removeClass('active');
                 currentStep++;
@@ -371,6 +474,14 @@ toastr.options = {
                 $('.form-step').removeClass('active');
                 currentStep--;
                 $('.step-' + currentStep).addClass('active');
+            }
+        });
+
+        // Remove error on input
+        $('input, select, textarea').on('input change', function() {
+            if ($(this).val()) {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').hide();
             }
         });
     });

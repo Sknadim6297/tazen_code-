@@ -283,7 +283,7 @@
     @endif
 
     {{-- Professional Image --}}
-    <img src="{{ asset($professional->profile->photo ?? 'img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" style="z-index: 1;">
+    <img src="{{ $professional->profile && $professional->profile->photo ? asset('storage/' . $professional->profile->photo) : asset('img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" style="z-index: 1;">
 
     {{-- Professional Details Link --}}
     <a href="{{ route('professionals.details', ['id' => $professional->id]) }}" class="strip_info">
