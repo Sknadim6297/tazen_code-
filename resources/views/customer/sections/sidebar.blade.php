@@ -14,7 +14,7 @@
                 <span>Dashboard</span>
             </a>
             
-             <a href="{{ route('home') }}" class="menu-item {{ Route::is('user.dashboard') ? 'active' : '' }}">
+             <a href="{{ route('home') }}" class="menu-item">
                 <i class="fas fa-home"></i>
                 <span>Back to Home</span>
             </a>

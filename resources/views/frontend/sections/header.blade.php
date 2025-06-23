@@ -37,16 +37,22 @@
                 <li class="dropdown profile-dropdown">
                     <a href="#" class="dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="profile-photo">
-                            <img src="{{ asset($profilePhoto) }}" alt="{{ $userName }}" 
-                                 onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                            @if($user)
+                                <img src="{{ $customerProfile && $customerProfile->profile_image ? asset($customerProfile->profile_image) : asset('frontend/assets/img/avatar.jpg') }}" alt="{{ $userName }}" onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                            @elseif($professional)
+                                <img src="{{ $professionalProfile && $professionalProfile->photo ? asset('storage/'.$professionalProfile->photo) : asset('frontend/assets/img/avatar.jpg') }}" alt="{{ $userName }}" onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                            @endif
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li class="dropdown-item user-info">
                             <div class="d-flex align-items-center">
                                 <div class="profile-photo-sm">
-                                    <img src="{{ asset($profilePhoto) }}" alt="{{ $userName }}" 
-                                         onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                                    @if($user)
+                                        <img src="{{ $customerProfile && $customerProfile->profile_image ? asset($customerProfile->profile_image) : asset('frontend/assets/img/avatar.jpg') }}" alt="{{ $userName }}" onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                                    @elseif($professional)
+                                        <img src="{{ $professionalProfile && $professionalProfile->photo ? asset('storage/'.$professionalProfile->photo) : asset('frontend/assets/img/avatar.jpg') }}" alt="{{ $userName }}" onerror="this.onerror=null; this.src='{{ asset('frontend/assets/img/avatar.jpg') }}'">
+                                    @endif
                                 </div>
                                 <div class="ms-2">
                                     <span class="d-block fw-bold">{{ $userName }}</span>

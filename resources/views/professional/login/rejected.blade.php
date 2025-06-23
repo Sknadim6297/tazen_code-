@@ -283,7 +283,7 @@
                         <div class="form-group">
                             <label>{{ $label }}</label><br>
                             @if($doc->$field)
-                                <button class="btn"><a href="{{ asset($doc->$field) }}" target="_blank">View {{ $label }}</a></button>
+                                <button class="btn"><a href="{{ asset('storage/'.$doc->$field) }}" target="_blank">View {{ $label }}</a></button>
                             @endif
                             <input class="form-control mt-2" type="file" name="{{ $field }}">
                         </div>
@@ -293,7 +293,7 @@
                     <div class="form-group">
                         <label>Profile Photo</label><br>
                         @if($doc->photo)
-                            <img src="{{ asset($doc->photo) }}" alt="Profile Photo" width="100">
+                            <img src="{{ asset('storage/'.$doc->photo) }}" alt="Profile Photo" width="100">
                         @endif
                         <input class="form-control mt-2" type="file" name="profile_photo">
                     </div>
