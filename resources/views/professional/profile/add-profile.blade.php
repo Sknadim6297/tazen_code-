@@ -530,7 +530,11 @@
                     <div class="file-input-wrapper">
                         @if($profile->photo)
                             <div class="image-preview">
-                                <img src="{{ asset($profile->photo) }}" alt="Current Photo" width="100">
+                                <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Current Photo" width="100">
+                            </div>
+                        @else
+                            <div class="image-preview">
+                                <img src="{{ asset('default.jpg') }}" alt="Default Photo" width="100">
                             </div>
                         @endif
                     </div>
@@ -549,7 +553,7 @@
                                         <button type="button" class="delete-image-btn" data-path="{{ $img }}">
                                             <i class="fas fa-times"></i>
                                         </button>
-                                        <img src="{{ asset($img) }}" alt="Gallery Image" width="80">
+                                        <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image" width="80">
                                     </div>
                                 @endforeach
                             </div>
@@ -611,7 +615,7 @@
                     <input type="file" id="qualificationDocument" name="qualificationDocument" accept=".pdf,.doc,.docx,image/*">
                     <div class="file-input-wrapper">
                         @if($profile->qualification_document)
-                            <a href="{{ asset($profile->qualification_document) }}" target="_blank">View Document</a>
+                            <a href="{{ asset('storage/'.$profile->qualification_document) }}" target="_blank">View Document</a>
                         @endif
                     </div>
                 </div>
@@ -621,7 +625,7 @@
                         <input type="file" id="aadhaarCard" name="aadhaarCard" accept=".pdf,.jpg,.jpeg,.png">
                         <div class="file-input-wrapper">
                             @if($profile->aadhaar_card)
-                                <a href="{{ asset($profile->aadhaar_card) }}" target="_blank">View Aadhaar</a>
+                                <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank">View Aadhaar</a>
                             @endif
                         </div>
                     </div>
@@ -630,7 +634,7 @@
                         <input type="file" id="panCard" name="panCard" accept=".pdf,.jpg,.jpeg,.png">
                         <div class="file-input-wrapper">
                             @if($profile->pan_card)
-                                <a href="{{ asset($profile->pan_card) }}" target="_blank">View PAN</a>
+                                <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank">View PAN</a>
                             @endif
                         </div>
                     </div>

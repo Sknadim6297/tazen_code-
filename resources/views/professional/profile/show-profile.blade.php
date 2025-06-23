@@ -23,7 +23,7 @@
             {{-- Left Photo --}}
             <div class="profile-photo-container">
                 <div class="profile-photo">
-                    <img src="{{ $profile->photo ? asset($profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
+                    <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
                     <div class="photo-overlay">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 16 16">
                             <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
@@ -118,7 +118,7 @@
                                 <div class="document-info">
                                     <span class="document-name">Qualification Document</span>
                                     @if($profile->qualification_document)
-                                        <a href="{{ asset($profile->qualification_document) }}" target="_blank" class="document-link">View Document</a>
+                                        <a href="{{ asset('storage/'.$profile->qualification_document) }}" target="_blank" class="document-link">View Document</a>
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
@@ -135,7 +135,7 @@
                                 <div class="document-info">
                                     <span class="document-name">Aadhaar Card</span>
                                     @if($profile->aadhaar_card)
-                                        <a href="{{ asset($profile->aadhaar_card) }}" target="_blank" class="document-link">View Document</a>
+                                        <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank" class="document-link">View Document</a>
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
@@ -152,7 +152,7 @@
                                 <div class="document-info">
                                     <span class="document-name">PAN Card</span>
                                     @if($profile->pan_card)
-                                        <a href="{{ asset($profile->pan_card) }}" target="_blank" class="document-link">View Document</a>
+                                        <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank" class="document-link">View Document</a>
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
@@ -182,7 +182,7 @@
                 @if ($gallery && is_array($gallery))
                     @foreach ($gallery as $img)
                         <div class="gallery-item">
-                            <img src="{{ asset($img) }}" alt="Gallery Image">
+                            <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image">
                             <div class="gallery-overlay">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 16 16">
                             <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
