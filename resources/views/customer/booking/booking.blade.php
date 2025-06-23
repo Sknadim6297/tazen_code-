@@ -49,7 +49,7 @@
                             <hr>
                             <h6>Enter contact number for the booking</h6>
                             <div class="form-group add_bottom_15">
-                                <input type="tel" class="form-control" id="phone" placeholder="Phone" maxlength="10" pattern="\d{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone" maxlength="10" pattern="\d{10}" autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 <i class="icon_phone"></i>
                             </div>
 
