@@ -133,7 +133,7 @@
                 <label for="photo">Profile Photo</label>
                 <input type="file" id="profile_image" name="profile_image" accept="image/*">
              @if($profile->customerProfile && $profile->customerProfile->profile_image)
-    <img src="{{ asset($profile->customerProfile->profile_image) }}" alt="Current Photo" width="100">
+    <img src="{{ asset('storage/'.$profile->customerProfile->profile_image) }}" alt="Current Photo" width="100">
 @endif
 
             </div>

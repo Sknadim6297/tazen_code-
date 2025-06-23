@@ -26,7 +26,7 @@
 
             <div class="user-profile-wrapper">
                 <div class="user-profile">
-                    <img src="{{ $profile->photo ? asset($profile->photo) : asset('default-avatar.png') }}" alt="User">
+                    <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
                 </div>
                 
                 <div class="user-info">
