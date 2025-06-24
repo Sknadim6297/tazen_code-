@@ -1,18 +1,15 @@
 <?php
 
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOtpVerificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('otp_verifications', function (Blueprint $table) {
             $table->id();
@@ -21,7 +18,8 @@ class CreateOtpVerificationsTable extends Migration
             $table->timestamp('expires_at');
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
-
+            
+            // Add indexes for faster lookups
             $table->index('email');
             $table->index(['email', 'otp']);
         });
@@ -29,11 +27,9 @@ class CreateOtpVerificationsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('otp_verifications');
     }
-}
+};
