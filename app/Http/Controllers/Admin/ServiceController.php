@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
@@ -44,7 +45,9 @@ class ServiceController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $data['image'] = $this->uploadImage($request, 'image', 'uploads/services');
+            // Store image in public directory for direct access
+            $imagePath = $request->file('image')->store('uploads/services', 'public');
+            $data['image'] = $imagePath;
         }
 
         Service::create($data);
@@ -89,10 +92,13 @@ class ServiceController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($service->image && \Storage::disk('public')->exists($service->image)) {
-                \Storage::disk('public')->delete($service->image);
+            if ($service->image && Storage::disk('public')->exists($service->image)) {
+                Storage::disk('public')->delete($service->image);
             }
-            $data['image'] = $this->uploadImage($request, 'image', 'uploads/services');
+            
+            // Store the new image
+            $imagePath = $request->file('image')->store('uploads/services', 'public');
+            $data['image'] = $imagePath;
         }
 
         $service->update($data);
@@ -105,8 +111,8 @@ class ServiceController extends Controller
     public function destroy($id)
     {
         $service = Service::findOrFail($id);
-        if ($service->image && \Storage::disk('public')->exists($service->image)) {
-            \Storage::disk('public')->delete($service->image);
+        if ($service->image && Storage::disk('public')->exists($service->image)) {
+            Storage::disk('public')->delete($service->image);
         }
         $service->delete();
         return back()->with('success', 'Service deleted successfully.');

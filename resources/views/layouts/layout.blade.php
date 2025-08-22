@@ -4,10 +4,31 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
-	<meta name="author" content="Ansonika">
+	<meta name="description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta name="keywords" content="career counselling, health experts, finance professionals, business consultants, verified experts, professional consultation, appointment booking, Tazen">
+	<meta name="author" content="Tazen">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
-	<title>Tazen</title>
+	
+	<!-- SEO Meta Tags -->
+	<meta name="robots" content="index, follow">
+	<meta name="googlebot" content="index, follow">
+	<link rel="canonical" href="{{ url()->current() }}">
+	
+	<!-- Open Graph Meta Tags for Social Media -->
+	<meta property="og:title" content="Tazen.in | Find Verified Experts for Career, Health & Finance">
+	<meta property="og:description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="{{ url()->current() }}">
+	<meta property="og:site_name" content="Tazen.in">
+	<meta property="og:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
+	
+	<!-- Twitter Card Meta Tags -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Tazen.in | Find Verified Experts for Career, Health & Finance">
+	<meta name="twitter:description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta name="twitter:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
+	
+	<title>Tazen.in | Find Verified Experts for Career, Health & Finance</title>
 
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css">
@@ -137,6 +158,115 @@
 			align-items: center;
 		}
 	</style>
+
+	<!-- WhatsApp Floating Button Styles -->
+	<style>
+		.whatsapp-float {
+			position: fixed;
+			width: 60px;
+			height: 60px;
+			bottom: 25px;
+			right: 25px;
+			background-color: #25d366;
+			color: #FFF;
+			border-radius: 50px;
+			text-align: center;
+			font-size: 28px;
+			box-shadow: 2px 2px 3px #999;
+			z-index: 1000;
+			transition: all 0.3s ease;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-decoration: none;
+		}
+
+		.whatsapp-float:hover {
+			background-color: #20ba5a;
+			transform: scale(1.1);
+			color: #FFF;
+			text-decoration: none;
+			box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+		}
+
+		.whatsapp-float i {
+			margin-top: 0;
+		}
+
+		/* Pulse animation */
+		.whatsapp-float::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			border-radius: 50%;
+			border: 2px solid #25d366;
+			animation: pulse 2s infinite;
+			opacity: 0.7;
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(1);
+				opacity: 0.7;
+			}
+			50% {
+				transform: scale(1.1);
+				opacity: 0.4;
+			}
+			100% {
+				transform: scale(1.2);
+				opacity: 0;
+			}
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			.whatsapp-float {
+				width: 50px;
+				height: 50px;
+				bottom: 80px; /* Adjusted for mobile */
+				right: 20px;
+				font-size: 24px;
+			}
+		}
+
+		/* Tooltip */
+		.whatsapp-float .tooltip-text {
+			visibility: hidden;
+			width: 140px;
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			border-radius: 6px;
+			padding: 8px;
+			position: absolute;
+			z-index: 1;
+			bottom: 70px;
+			right: 0;
+			font-size: 12px;
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.whatsapp-float .tooltip-text::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			right: 20px;
+			margin-left: -5px;
+			border-width: 5px;
+			border-style: solid;
+			border-color: #333 transparent transparent transparent;
+		}
+
+		.whatsapp-float:hover .tooltip-text {
+			visibility: visible;
+			opacity: 1;
+		}
+	</style>
 </head>
 
 <body>
@@ -148,6 +278,12 @@
 	@if (!isset($showFooter) || $showFooter)
 	@include('frontend.sections.footer')
 	@endif
+
+	<!-- WhatsApp Floating Button -->
+	<a href="https://wa.me/+919147421560?text=Hello%20Tazen!%20I%20need%20assistance%20with%20your%20services." target="_blank" class="whatsapp-float">
+		<i class="fab fa-whatsapp"></i>
+		<span class="tooltip-text">Chat with us on WhatsApp</span>
+	</a>
 
 	@yield('script')
 

@@ -583,30 +583,26 @@
             max-width: 100vw;
             overflow-x: hidden;
         }
-        
-        /* Make table container scrollable horizontally */
+
         .content-section {
             overflow-x: auto;
             max-width: 100%;
-            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+            -webkit-overflow-scrolling: touch; 
             padding: 10px;
         }
-        
-        /* Ensure the table takes full width of container */
         .table {
             width: 100%;
-            min-width: 900px; /* Increased minimum width to accommodate new column */
+            min-width: 900px;
         }
         
-        /* Fix the search container from overflowing */
+
         .search-container {
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
             padding: 15px;
         }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
+
         .content-wrapper {
             overflow-x: hidden;
             width: 100%;

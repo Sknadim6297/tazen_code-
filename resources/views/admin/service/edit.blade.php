@@ -21,7 +21,7 @@
                     @if($service->image)
                         <div class="mb-3">
                             <label class="form-label">Current Image</label><br>
-                            <img src="{{ asset('storage/'.$service->image) }}" width="100">
+                            <img src="{{ asset('storage/' . $service->image) }}" width="100">
                         </div>
                     @endif
     

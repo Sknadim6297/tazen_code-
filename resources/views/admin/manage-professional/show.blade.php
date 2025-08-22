@@ -710,7 +710,13 @@
                                 <div class="stat-label">Years Exp.</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">₹{{ number_format($profile->starting_price) }}</div>
+                                <div class="stat-value">
+                                    @if($profile->starting_price)
+                                        ₹{{ $profile->starting_price }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </div>
                                 <div class="stat-label">Starting Price</div>
                             </div>
                             <div class="stat-item">
@@ -740,6 +746,28 @@
                                     <div class="detail-label">Phone Number</div>
                                     <div class="detail-value">{{ $profile->phone }}</div>
                                 </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Address</div>
+                                    <div class="detail-value">{{ $profile->address ?: 'Not provided' }}</div>
+                                </div>
+                                @if($profile->gst_number)
+                                <div class="detail-item">
+                                    <div class="detail-label">GST Number</div>
+                                    <div class="detail-value">{{ $profile->gst_number }}</div>
+                                </div>
+                                @endif
+                                @if($profile->state_code)
+                                <div class="detail-item">
+                                    <div class="detail-label">State Code</div>
+                                    <div class="detail-value">{{ $profile->state_code }} - {{ $profile->state_name ?? 'N/A' }}</div>
+                                </div>
+                                @endif
+                                @if($profile->gst_address)
+                                <div class="detail-item">
+                                    <div class="detail-label">GST Address</div>
+                                    <div class="detail-value">{{ $profile->gst_address }}</div>
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -770,14 +798,14 @@
                                     </div>
                                 </div>
                                 
-                                <div class="document-card {{ $profile->aadhaar_card ? 'has-file' : '' }}">
+                                <div class="document-card {{ $profile->id_proof_document ? 'has-file' : '' }}">
                                     <div class="document-icon">
                                         <i class="fas fa-id-card"></i>
                                     </div>
-                                    <div class="document-name">Aadhaar Card</div>
+                                    <div class="document-name">ID Proof Document (Aadhaar / PAN Card)</div>
                                     <div class="document-status">
-                                        @if($profile->aadhaar_card)
-                                            <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank" class="document-action">
+                                        @if($profile->id_proof_document)
+                                            <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -786,15 +814,16 @@
                                         @endif
                                     </div>
                                 </div>
-                                
-                                <div class="document-card {{ $profile->pan_card ? 'has-file' : '' }}">
+                            
+                                @if($profile->gst_number)
+                                <div class="document-card {{ $profile->gst_certificate ? 'has-file' : '' }}">
                                     <div class="document-icon">
-                                        <i class="fas fa-credit-card"></i>
+                                        <i class="fas fa-file-invoice-dollar"></i>
                                     </div>
-                                    <div class="document-name">PAN Card</div>
+                                    <div class="document-name">GST Certificate</div>
                                     <div class="document-status">
-                                        @if($profile->pan_card)
-                                            <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank" class="document-action">
+                                        @if($profile->gst_certificate)
+                                            <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -803,6 +832,7 @@
                                         @endif
                                     </div>
                                 </div>
+                                @endif
                             </div>
                         </div>
 

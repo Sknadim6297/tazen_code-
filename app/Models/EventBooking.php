@@ -15,6 +15,18 @@ class EventBooking extends Model
         'order_id', 'razorpay_payment_id', 'razorpay_signature'
     ];
     
+    // Cast dates to proper format
+    protected $dates = [
+        'event_date'
+    ];
+    
+    protected $casts = [
+        'event_date' => 'date',
+        'price' => 'decimal:2',
+        'total_price' => 'decimal:2',
+        'persons' => 'integer'
+    ];
+    
     // Allow event_id to be null
     protected $attributes = [
         'event_id' => null

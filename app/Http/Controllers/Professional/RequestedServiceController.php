@@ -18,7 +18,7 @@ class RequestedServiceController extends Controller
     {
         $requestedServices = ProfessionalOtherInformation::where('professional_id', Auth::guard('professional')->id())->get();
         // dd($requestedServices);
-        $serviceCount = ProfessionalOtherInformation::where('professional_id', auth()->id())->count();
+        $serviceCount = ProfessionalOtherInformation::where('professional_id', Auth::guard('professional')->id())->count();
         return view('professional.requested_services.index', compact('requestedServices', 'serviceCount'));
     }
 
@@ -40,8 +40,6 @@ class RequestedServiceController extends Controller
             'sub_heading' => 'required|string',
             'requested_service' => 'required|array',
             'price' => 'required|array',
-            'statement' => 'nullable|string',
-            'specializations' => 'nullable|array',
             'education_statement' => 'nullable|string',
             'college_name' => 'nullable|array',
             'degree' => 'nullable|array',
@@ -53,8 +51,6 @@ class RequestedServiceController extends Controller
         $professionalOtherInfo->sub_heading = $validated['sub_heading'];
         $professionalOtherInfo->requested_service = json_encode($validated['requested_service']);
         $professionalOtherInfo->price = json_encode($validated['price']);
-        $professionalOtherInfo->statement = $validated['statement'];
-        $professionalOtherInfo->specializations = json_encode($validated['specializations']);
         $professionalOtherInfo->education_statement = $validated['education_statement'];
         $professionalOtherInfo->education = json_encode([
             'college_name' => $validated['college_name'],
@@ -85,8 +81,6 @@ class RequestedServiceController extends Controller
             'sub_heading' => 'required|string',
             'requested_service' => 'required|array',
             'price' => 'required|array',
-            'statement' => 'nullable|string',
-            'specializations' => 'nullable|array',
             'education_statement' => 'nullable|string',
             'college_name' => 'nullable|array',
             'degree' => 'nullable|array',
@@ -96,8 +90,6 @@ class RequestedServiceController extends Controller
         $info->sub_heading = $validated['sub_heading'];
         $info->requested_service = json_encode($validated['requested_service']);
         $info->price = json_encode($validated['price']);
-        $info->statement = $validated['statement'];
-        $info->specializations = json_encode($validated['specializations']);
         $info->education_statement = $validated['education_statement'];
         $info->education = json_encode([
             'college_name' => $validated['college_name'],

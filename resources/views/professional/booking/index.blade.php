@@ -497,8 +497,6 @@
                                     <th>Customer Name</th>
                                     <th>Plan Type</th>
                                     <th>Service Name</th>
-                                    <th>Month</th>
-                                    <th>Days</th>
                                     <th>Time Slot</th>
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
@@ -506,7 +504,7 @@
                                     <th>Status</th>
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
-                                    <th>Customer Document</th> <!-- Add this line -->
+                                    <th>Customer Document</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -534,9 +532,6 @@
                                 </td>
                                 <td>{{ $booking->plan_type }}</td>
                                 <td>{{ $booking->service_name }}</td>
-                                <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('F') : '-' }}</td>
-
-                                <td>{{ $earliestTimedate ? \Carbon\Carbon::parse($earliestTimedate->date)->format('d M Y') : '-' }}</td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
                           <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
 

@@ -163,6 +163,37 @@
             margin-bottom: 0.5rem;
         }
     }
+
+    /* Custom Pagination Styling (copied from event/index.blade.php) */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endsection
 
@@ -317,7 +348,7 @@
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
                         <div class="card-title">
-                            Total One Time Bookings: {{ $bookings->count() }}
+                            Total One Time Bookings: {{ $bookings->total() }}
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -345,7 +376,6 @@
                                 <tbody>
                                     @foreach ($bookings as $key => $booking)
                                       @php  
-                                    //   print_r($booking->timedates);
                 // Get earliest upcoming date
                 $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
                     ? $booking->timedates
@@ -369,7 +399,7 @@
                 }
             @endphp
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $bookings->firstItem() + $key }}</td>
                                             <td>{{ $booking->customer_name}}
                     <br>
                     ({{ $booking->customer_phone }})
@@ -544,22 +574,8 @@
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0 float-end">
-                                <li class="page-item disabled">
-                                    <a class="page-link">Previous</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
-                                <li class="page-item active" aria-current="page">
-                                    <a class="page-link" href="javascript:void(0);">2</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="javascript:void(0);">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $bookings->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>

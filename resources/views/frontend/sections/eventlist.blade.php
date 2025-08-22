@@ -67,7 +67,7 @@
         <div class="page_header">
             <div class="row">
                 <div class="col-lg-3">
-                    <h1>Events</h1><span>: 814 found</span>
+                    <h1>Events</h1><span>: {{ $events->total() }} found</span>
                 </div>
                 <div class="col-lg-9">
                     <h1><span>Event in Kolkata</span></h1>
@@ -141,39 +141,15 @@
                         </div>
                     </div>
                     <!-- /filter_type -->
-                    <div class="filter_type">
+                  <div class="filter_type">
                         <h4><a href="#filter_5" data-bs-toggle="collapse" class="closed">Price</a></h4>
                         <div class="collapse" id="filter_5">
                             <ul>
                                 <li>
-                                    <label class="container_check">₹100 — ₹200
-                                        <input type="checkbox" name="price_range" value="100-200"
-                                            {{ $price_range == '100-200' ? 'checked' : '' }}
-                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '100-200']) }}'">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">₹200 — ₹300
-                                        <input type="checkbox" name="price_range" value="200-300"
-                                            {{ $price_range == '200-300' ? 'checked' : '' }}
-                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '200-300']) }}'">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">₹300 — ₹400
-                                        <input type="checkbox" name="price_range" value="300-400"
-                                            {{ $price_range == '300-400' ? 'checked' : '' }}
-                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '300-400']) }}'">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </li>
-                                <li>
-                                    <label class="container_check">₹400 — ₹500
-                                        <input type="checkbox" name="price_range" value="400-500"
-                                            {{ $price_range == '400-500' ? 'checked' : '' }}
-                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '400-500']) }}'">
+                                    <label class="container_check">₹0 — ₹500
+                                        <input type="checkbox" name="price_range" value="0-500"
+                                            {{ $price_range == '0-500' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '0-500']) }}'">
                                         <span class="checkmark"></span>
                                     </label>
                                 </li>
@@ -182,6 +158,22 @@
                                         <input type="checkbox" name="price_range" value="500-1000"
                                             {{ $price_range == '500-1000' ? 'checked' : '' }}
                                             onchange="window.location.href='{{ route('event.list', ['price_range' => '500-1000']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹1000 — ₹2500
+                                        <input type="checkbox" name="price_range" value="1000-2500"
+                                            {{ $price_range == '1000-2500' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '1000-2500']) }}'">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container_check">₹2500+
+                                        <input type="checkbox" name="price_range" value="2500-plus"
+                                            {{ $price_range == '2500-plus' ? 'checked' : '' }}
+                                            onchange="window.location.href='{{ route('event.list', ['price_range' => '2500-plus']) }}'">
                                         <span class="checkmark"></span>
                                     </label>
                                 </li>
@@ -200,6 +192,7 @@
                     <li><a href="{{ route('event.list', ['filter' => 'today']) }}">Today</a></li>
                     <li><a href="{{ route('event.list', ['filter' => 'tomorrow']) }}">Tomorrow</a></li>
                     <li><a href="{{ route('event.list', ['filter' => 'weekend']) }}">This weekend</a></li>
+                     <li><a href="{{ route('event.list', ['filter' => 'month']) }}">This month</a></li>
                 </ul>                
                 <div class="row grid_sidebar">
                     <!-- Display Total Event Count -->
@@ -241,15 +234,32 @@
                     @endif
                 </div>
                 <!-- /row -->
+                 @if($events->hasPages())
                 <div class="pagination_fg">
-                  <a href="#">&laquo;</a>
-                  <a href="#" class="active">1</a>
-                  <a href="#">2</a>
-                  <a href="#">3</a>
-                  <a href="#">4</a>
-                  <a href="#">5</a>
-                  <a href="#">&raquo;</a>
+                    {{-- Previous Page Link --}}
+                    @if ($events->onFirstPage())
+                        <span class="disabled">&laquo;</span>
+                    @else
+                        <a href="{{ $events->appends(request()->query())->previousPageUrl() }}">&laquo;</a>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @foreach ($events->appends(request()->query())->getUrlRange(1, $events->lastPage()) as $page => $url)
+                        @if ($page == $events->currentPage())
+                            <a href="#" class="active">{{ $page }}</a>
+                        @else
+                            <a href="{{ $url }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    {{-- Next Page Link --}}
+                    @if ($events->hasMorePages())
+                        <a href="{{ $events->appends(request()->query())->nextPageUrl() }}">&raquo;</a>
+                    @else
+                        <span class="disabled">&raquo;</span>
+                    @endif
                 </div>
+                @endif
             </div>
             <!-- /col -->
         </div>		

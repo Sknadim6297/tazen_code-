@@ -115,10 +115,61 @@
 #searchResults .list-group-item:hover {
     background-color: #f8f9fa;
 }
+.login-popup-title {
+        font-size: 1.5rem !important;
+        color: white !important;
+    }
+
+    .login-popup-title .wave-icon {
+        font-size: 1.8rem !important;
+    }
+
+    .login-popup-custom {
+        background: linear-gradient(135deg, #152a70, #c51010, #f39c12) !important;
+        color: white !important;
+        border-radius: 15px !important;
+        padding: 25px 20px !important;
+    }
+
+    .login-popup-btn {
+        background-color: #1e0d60 !important;
+        color: white !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        padding: 12px 30px !important;
+        border-radius: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    }
+
+    .login-popup-btn:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+    }
+    
+    .login-popup-close {
+        color: white !important;
+        opacity: 0.8 !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .login-popup-close:hover {
+        opacity: 1 !important;
+    }
 </style>
 @endsection
 @section('content')
 	<main>
+		<!-- Notification Section -->
+		@if(session('warning'))
+			<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin: 0; border-radius: 0;">
+				<div class="container">
+					<strong>Notice:</strong> {{ session('warning') }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			</div>
+		@endif
+		
 		<div class="header-video">
 			<div id="hero_video">
 				<div class="opacity-mask d-flex align-items-center" data-opacity-mask="rgba(0, 0, 0, 0.2)">
@@ -180,7 +231,7 @@
 						<div class="main_title center ">
 							<span><em></em></span>
 							<h2>Our Services</h2>
-							<p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+							<p>Explore a Wide Range of Expert Services Tailored to Your Personal and Professional Needs</p>
 						</div>
 					</div>
 				</div>
@@ -193,7 +244,7 @@
 								<div class="card">
 									<div 
 										class="card-body" 
-										style="background-image: url('{{ asset($service->image) }}'); background-size: cover; background-position: center; border-radius: .375rem;"
+							        style="background-image: url('{{ Storage::url($service->image) }}'); background-size: cover; background-position: center; border-radius: .375rem;"
 									></div>
 									
 									<div class="info mt-3 p-2">
@@ -202,7 +253,7 @@
 												<p class="text-dark mb-0">{{ $service->name }}</p>
 											</div>
 											<div class="r">
-														<button class="btn btn-custom book-now" data-service-id="{{ $service->id }}" data-bs-toggle="modal" data-bs-target="#mcqModal">Book Now</button>
+														<button class="btn btn-custom book-now" data-service-id="{{ $service->id }}" onclick="selectServiceAndRedirect({{ $service->id }}, '{{ $service->name }}')">Book Now</button>
 											
 											</div>
 										</div>
@@ -213,33 +264,6 @@
 					</div>
 				</div>
 			
-				<div id="mcqModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-dialog-centered" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title">Service Questionnaire</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-				
-							<div class="modal-body">
-								<form id="mcqForm" method="POST" action="{{ route('submitQuestionnaire') }}">
-									@csrf
-									<input type="hidden" name="service_id" id="service_id">
-									<div id="questionsContainer">
-										<!-- Questions will be loaded here dynamically -->
-									</div>
-								</form>
-							</div>
-				
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-								<button type="button" class="btn btn-primary" id="prevBtn" style="display: none;">Previous</button>
-								<button type="button" class="btn btn-primary" id="nextBtn">Next</button>
-								<button type="button" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
-							</div>
-						</div>
-					</div>
-				</div>
 				
 
 
@@ -275,8 +299,8 @@
 
 								</div>
 								<div class="button-div">
-									<button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
-">Get Started</button>
+									<a href="{{ url('/login') }}"><button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+">Get Started</button></a>
 									<a href="{{ url('/about') }}"><button class="btn new-custom-btn">Discover
 											More</button></a>
 								</div>
@@ -433,7 +457,7 @@
 				<div class="main_title center">
 					<span><em></em></span>
 					<h2>Events</h2>
-					<p>Cum doctus civibus efficiantur in imperdiet deterruisset.</p>
+					<p>Stay Updated with the Latest Workshops, Webinars, and Expert-Led Sessions</p>
 				</div>
 				<div class="row add_bottom_15">
 					@foreach($eventDetails as $eventDetail)
@@ -588,11 +612,11 @@
                                             <p class="text">{{ $t->description }}</p>
                                         </div>
                                         <div class="testimonial-img bg-blue">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
                                         </div>
                                     @else
                                         <div class="testimonial-img bg-pink mb-15">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
                                         </div>
                                         <div class="testimonial-content bg-green">
                                             <p class="text">{{ $t->description }}</p>
@@ -605,11 +629,11 @@
                                             This is a sample testimonial. Excellent service and support!
                                         </div>
                                         <div class="testimonial-img bg-blue">
-                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: 100%; height: auto;">
                                         </div>
                                     @else
                                         <div class="testimonial-img bg-pink mb-15">
-                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: 100%; height: auto;">
                                         </div>
                                         <div class="testimonial-content bg-green">
                                             <p class="text">This is a sample testimonial. Highly recommended!</p>
@@ -670,14 +694,14 @@
 					@foreach ($blogPosts as $blogPost)
 						<div class="col-sm-12">
 							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
-								<a href="{{ route('blog.show', $blogPost->id) }}">
+								<a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">
 									<div class="post-image position-relative overlay-secondary" style="height: 200px; overflow: hidden;">
 										<img src="{{ asset('storage/' . $blogPost->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
 									</div>
 								</a>
 								<div class="post-content p-35">
 									<h5 class="d-block font-400 mb-3">
-										<a href="{{ route('blog.show', $blogPost->id) }}" class="transation text-dark hover-text-primary">
+										<a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}" class="transation text-dark hover-text-primary">
 											{{ $blogPost->blog->title }}
 										</a>
 									</h5>
@@ -738,510 +762,38 @@ $(document).ready(function(){
 });
 </script>
 	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-    const questionsContainer = document.getElementById("questionsContainer");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const submitBtn = document.getElementById("submitBtn");
-    const form = document.getElementById("mcqForm");
-    const serviceIdInput = document.getElementById("service_id");
-    const modalCloseBtn = document.querySelector("#mcqModal .btn-close");
-    const cancelBtn = document.querySelector("#mcqModal .btn-secondary");
-
-    let currentQuestion = 0;
-    let questions = [];
-    
-    // Enhance modal design
-    styleModalForModernLook();
-
-    // Handle Book Now button clicks
-    document.querySelectorAll('.book-now').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const serviceId = this.dataset.serviceId;
-            serviceIdInput.value = serviceId;
-            
-            // Check if user is logged in
-            checkLoginStatus(serviceId);
-        });
-    });
-    
-    // Check if user is logged in before showing modal
-    function checkLoginStatus(serviceId) {
-        fetch('/check-auth-status')
-            .then(response => response.json())
-            .then(data => {
-                if (data.authenticated) {
-                    // User is logged in, proceed with loading questions
-                    $('#mcqModal').modal('show');
-                    loadQuestions(serviceId);
-                } else {
-                    // User is not logged in, show message and redirect
-                    Swal.fire({
-                        title: 'Authentication Required',
-                        text: 'Please login to book this service',
-                        icon: 'info',
-                        showCancelButton: true,
-                        confirmButtonText: 'Login Now',
-                        cancelButtonText: 'Cancel',
-                        customClass: {
-                            confirmButton: 'btn btn-primary',
-                            cancelButton: 'btn btn-secondary'
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Redirect to login page with return URL to come back to this page
-                            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error checking authentication status:', error);
-                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
-            });
-    }
-
-    // Handle confirmation when closing the modal
-    function handleModalClose(e) {
-        e.preventDefault();
-        
-        if (questions.length > 0) {
-            // Show confirmation dialog with standard confirm
-            if (confirm('Your progress will be lost if you cancel now. Are you sure?')) {
-                // Reset and close modal
-                resetModal();
-                $('#mcqModal').modal('hide');
-            }
+// Simple service selection function for index page
+function selectServiceAndRedirect(serviceId, serviceName) {
+    // Save service ID and name in session for later use
+    fetch('/set-service-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            service_id: serviceId,
+            service_name: serviceName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Redirect to professionals listing page
+            window.location.href = '/professionals';
         } else {
-            // No questions loaded yet, just close
-            $('#mcqModal').modal('hide');
+            console.error('Failed to save service session');
+            // Even if session save fails, still redirect
+            window.location.href = '/professionals';
         }
-    }
-    
-    // Reset modal state
-    function resetModal() {
-        questions = [];
-        currentQuestion = 0;
-        questionsContainer.innerHTML = '';
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        submitBtn.style.display = 'none';
-    }
-    
-    // Apply modern styling to modal
-    function styleModalForModernLook() {
-        const modal = document.getElementById('mcqModal');
-        if (!modal) return;
-        
-        const modalDialog = modal.querySelector('.modal-dialog');
-        const modalContent = modal.querySelector('.modal-content');
-        const modalHeader = modal.querySelector('.modal-header');
-        const modalTitle = modal.querySelector('.modal-title');
-        const modalBody = modal.querySelector('.modal-body');
-        const modalFooter = modal.querySelector('.modal-footer');
-        
-        // Add modern styling classes
-        if (modalDialog) modalDialog.classList.add('modal-dialog-centered');
-        if (modalContent) {
-            modalContent.style.borderRadius = '12px';
-            modalContent.style.boxShadow = '0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07)';
-            modalContent.style.border = 'none';
-        }
-        
-        if (modalHeader) {
-            modalHeader.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
-            modalHeader.style.background = 'linear-gradient(135deg, #f8f9fa, #ffffff)';
-            modalHeader.style.borderTopLeftRadius = '12px';
-            modalHeader.style.borderTopRightRadius = '12px';
-            modalHeader.style.padding = '20px 24px';
-        }
-        
-        if (modalTitle) {
-            modalTitle.style.fontSize = '1.25rem';
-            modalTitle.style.fontWeight = '600';
-        }
-        
-        if (modalBody) {
-            modalBody.style.padding = '24px';
-        }
-        
-        if (modalFooter) {
-            modalFooter.style.borderTop = '1px solid rgba(0,0,0,0.05)';
-            modalFooter.style.padding = '16px 24px';
-        }
-        
-        // Style the buttons
-        const buttons = modal.querySelectorAll('.modal-footer .btn');
-        buttons.forEach(button => {
-            button.style.borderRadius = '6px';
-            button.style.padding = '8px 16px';
-            button.style.fontWeight = '500';
-            button.style.transition = 'all 0.2s ease';
-        });
-        
-        // Style primary buttons
-        const primaryButtons = modal.querySelectorAll('.btn-primary');
-        primaryButtons.forEach(button => {
-            button.style.background = 'linear-gradient(135deg, #152a70, #c51010, #f39c12)';
-            button.style.borderColor = 'transparent';
-        });
-        
-        // Style success button
-        const successButton = modal.querySelector('.btn-success');
-        if (successButton) {
-            successButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-            successButton.style.borderColor = 'transparent';
-        }
-    }
-
-    function loadQuestions(serviceId) {
-        // Show loading state
-        questionsContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Loading questions...</p></div>';
-        
-        fetch(`/service/${serviceId}/questions`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success' && Array.isArray(data.questions) && data.questions.length > 0) {
-                    questions = data.questions;
-                    currentQuestion = 0;
-                    renderQuestions();
-                    showQuestion(0);
-                } else {
-                    questionsContainer.innerHTML = '<div class="alert alert-warning my-3"><i class="fas fa-exclamation-circle me-2"></i>No questions available for this service. Please try another service or contact support.</div>';
-                    console.error("No questions found in response:", data);
-                }
-            })
-            .catch(error => {
-                questionsContainer.innerHTML = '<div class="alert alert-danger my-3"><i class="fas fa-exclamation-circle me-2"></i>Failed to load questions. Please try again.</div>';
-                console.error('Error loading questions:', error);
-                alert('Failed to load questions. Please try again.');
-            });
-    }
-
-    function renderQuestions() {
-        questionsContainer.innerHTML = '';
-        
-        questions.forEach((question, index) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.id = `question${index}`; // Changed from question.id to index
-            questionDiv.style.display = 'none';
-            
-            // Question number indicator
-            const questionProgress = document.createElement('div');
-            questionProgress.className = 'question-progress mb-3';
-            questionProgress.innerHTML = `<span class="badge bg-primary">Question ${index + 1} of ${questions.length}</span>`;
-            questionDiv.appendChild(questionProgress);
-            
-            // Question heading
-            const heading = document.createElement('h6');
-            heading.className = 'mb-3 fw-bold';
-            heading.textContent = question.question || 'Question not available';
-            questionDiv.appendChild(heading);
-            
-            // Create input based on question type
-            if (question.question_type === 'text') {
-                // Text input
-                const formGroup = document.createElement('div');
-                formGroup.className = 'form-group mt-4';
-                
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control form-control-lg';
-                input.name = `q${index}`; // Changed from question.id to index
-                input.required = true;
-                input.placeholder = 'Type your answer here...';
-                input.style.borderRadius = '8px';
-                input.style.padding = '12px';
-                input.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-                
-                formGroup.appendChild(input);
-                questionDiv.appendChild(formGroup);
-            } else if (Array.isArray(question.options)) {
-                // Radio options
-                const optionsContainer = document.createElement('div');
-                optionsContainer.className = 'options-container mt-4';
-                
-                question.options.forEach((option, optIndex) => {
-                    if (!option) return; // Skip empty options
-                    
-                    const formCheck = document.createElement('div');
-                    formCheck.className = 'form-check mb-3';
-                    formCheck.style.backgroundColor = '#f8f9fa';
-                    formCheck.style.borderRadius = '8px';
-                    formCheck.style.padding = '10px 41px';
-                    formCheck.style.border = '1px solid #e9ecef';
-                    formCheck.style.transition = 'all 0.2s ease';
-                    formCheck.style.cursor = 'pointer';
-                    
-                    const radio = document.createElement('input');
-                    radio.className = 'form-check-input me-2';
-                    radio.type = 'radio';
-                    radio.name = `q${index}`; // Changed from question.id to index
-                    radio.id = `q${index}opt${optIndex}`;
-                    radio.value = option;
-                    radio.required = true;
-                    
-                    const label = document.createElement('label');
-                    label.className = 'form-check-label';
-                    label.htmlFor = `q${index}opt${optIndex}`;
-                    label.textContent = option;
-                    
-                    // Highlight selected option
-                    radio.addEventListener('change', function() {
-                        // Reset all options
-                        optionsContainer.querySelectorAll('.form-check').forEach(el => {
-                            el.style.backgroundColor = '#f8f9fa';
-                            el.style.borderColor = '#e9ecef';
-                        });
-                        
-                        // Highlight selected
-                        if (this.checked) {
-                            formCheck.style.backgroundColor = '#e8f4ff';
-                            formCheck.style.borderColor = '#2196f3';
-                        }
-                    });
-                    
-                    formCheck.appendChild(radio);
-                    formCheck.appendChild(label);
-                    
-                    // Add "Other" text field if this option is "Other"
-                    if (option === 'Other') {
-                        radio.addEventListener('change', function() {
-                            const otherInputContainer = document.getElementById(`otherContainer${index}`);
-                            if (this.checked && otherInputContainer) {
-                                otherInputContainer.style.display = 'block';
-                                otherInputContainer.querySelector('input').required = true;
-                                otherInputContainer.querySelector('input').focus();
-                            } else if (otherInputContainer) {
-                                otherInputContainer.style.display = 'none';
-                                otherInputContainer.querySelector('input').required = false;
-                            }
-                        });
-                        
-                        const otherContainer = document.createElement('div');
-                        otherContainer.id = `otherContainer${index}`;
-                        otherContainer.className = 'mt-2 ps-4';
-                        otherContainer.style.display = 'none';
-                        
-                        const otherInput = document.createElement('input');
-                        otherInput.type = 'text';
-                        otherInput.className = 'form-control';
-                        otherInput.name = `q${index}_other`;
-                        otherInput.placeholder = 'Please specify...';
-                        otherInput.style.borderRadius = '6px';
-                        
-                        otherContainer.appendChild(otherInput);
-                        formCheck.appendChild(otherContainer);
-                    }
-                    
-                    // Make entire option div clickable
-                    formCheck.addEventListener('click', function(e) {
-                        if (e.target !== radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change'));
-                        }
-                    });
-                    
-                    optionsContainer.appendChild(formCheck);
-                });
-                
-                questionDiv.appendChild(optionsContainer);
-            } else {
-                // Fallback for missing options
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-warning';
-                alert.textContent = 'No options available for this question.';
-                questionDiv.appendChild(alert);
-            }
-            
-            questionDiv.appendChild(document.createElement('hr'));
-            
-            questionsContainer.appendChild(questionDiv);
-        });
-        
-        // If no questions were rendered, show a message
-        if (questionsContainer.children.length === 0) {
-            questionsContainer.innerHTML = '<div class="alert alert-warning my-3">No questions found for this service.</div>';
-        }
-    }
-
-    function showQuestion(index) {
-        // Validate index
-        if (index < 0 || index >= questions.length || !questions[index]) {
-            console.error('Invalid question index:', index, 'Questions:', questions);
-            return;
-        }
-        
-        // Hide all questions
-        document.querySelectorAll('.question').forEach(question => {
-            question.style.display = 'none';
-        });
-        
-        // Show the current question
-        const currentQuestionElement = document.getElementById(`question${index}`);
-        if (currentQuestionElement) {
-            currentQuestionElement.style.display = 'block';
-        } else {
-            console.error(`Question element with id question${index} not found`);
-            return;
-        }
-        
-        // Update navigation buttons
-        prevBtn.style.display = index > 0 ? "inline-block" : "none";
-        nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
-        submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
-    }
-
-    // Navigation buttons event listeners
-    nextBtn.addEventListener("click", function () {
-        // Validate current question
-        const currentQuestionElement = document.getElementById(`question${currentQuestion}`);
-        if (!currentQuestionElement) return;
-        
-        const inputs = currentQuestionElement.querySelectorAll('input[required]');
-        let isValid = true;
-        
-        inputs.forEach(input => {
-            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
-                (input.type === 'text' && !input.value.trim())) {
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            alert('Please answer the question before proceeding.');
-            return;
-        }
-        
-        if (currentQuestion < questions.length - 1) {
-            currentQuestion++;
-            showQuestion(currentQuestion);
-        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Even if session save fails, still redirect
+        window.location.href = '/professionals';
     });
-
-    prevBtn.addEventListener("click", function () {
-        if (currentQuestion > 0) {
-            currentQuestion--;
-            showQuestion(currentQuestion);
-        }
-    });
-
-    // Submit button event listener
-    submitBtn.addEventListener("click", function() {
-        // Validate last question
-        const lastQuestionElement = document.getElementById(`question${currentQuestion}`);
-        if (!lastQuestionElement) return;
-        
-        const inputs = lastQuestionElement.querySelectorAll('input[required]');
-        let isValid = true;
-        
-        inputs.forEach(input => {
-            if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
-                (input.type === 'text' && !input.value.trim())) {
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Please Answer',
-                text: 'Please answer the question before submitting.'
-            });
-            return;
-        }
-        
-        // Create FormData and collect answers
-        const formData = new FormData(form);
-        const answers = [];
-        
-        // Collect all answers
-        questions.forEach((question, index) => {
-            if (question.question_type === 'text') {
-                const textInput = document.querySelector(`input[name="q${index}"]`);
-                if (textInput && textInput.value.trim()) {
-                    answers.push({
-                        question_id: question.id,
-                        question: question.question,
-                        answer: textInput.value.trim()
-                    });
-                }
-            } else {
-                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
-                if (selectedOption) {
-                    let answer = selectedOption.value;
-                    
-                    // If "Other" is selected, get the other input value
-                    if (answer === 'Other') {
-                        const otherInput = document.querySelector(`input[name="q${index}_other"]`);
-                        if (otherInput && otherInput.value.trim()) {
-                            answer = otherInput.value.trim();
-                        }
-                    }
-                    
-                    answers.push({
-                        question_id: question.id,
-                        question: question.question,
-                        answer: answer
-                    });
-                }
-            }
-        });
-        
-        // Add answers to FormData
-        formData.append('answers', JSON.stringify(answers));
-        
-        // Set the submit button to loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-        
-        // Submit using fetch API
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => Promise.reject(data));
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Show success message
-            Swal.fire({
-                icon: 'success',
-                title: 'Thank You!',
-                text: 'Your questionnaire has been submitted successfully.',
-                confirmButtonText: 'Find Professionals'
-            }).then(() => {
-                // Explicitly redirect to professionals page
-                window.location.href = "/professionals";
-            });
-            
-            // Reset modal
-            resetModal();
-            $('#mcqModal').modal('hide');
-        })
-        .catch(error => {
-            console.error('Submission error:', error);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Submit';
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Submission Failed',
-                text: error.message || 'Something went wrong. Please try again.'
-            });
-        });
-    });
-});
-	</script>
+}
+</script>
 		
 	<script>
 		// Combined Live Search and Find Button functionality

@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Tazen - Professional Login</title>
 
     <!-- Fonts -->
@@ -38,6 +39,15 @@
             font-size: 14px;
             margin-top: 5px;
         }
+        
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
     </style>
 </head>
 
@@ -54,11 +64,13 @@
                 <div class="form-group">
                     <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
                     <i class="icon_mail_alt"></i>
+                    <div class="invalid-feedback" id="email-error"></div>
                 </div>
 
                 <div class="form-group">
                     <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
                     <i class="icon_lock_alt"></i>
+                    <div class="invalid-feedback" id="password-error"></div>
                 </div>
 
                 <div class="clearfix add_bottom_30">
@@ -127,6 +139,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+        // CSRF Token Management
+        function refreshCSRFToken() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '/csrf-token',
+                    type: 'GET',
+                    timeout: 5000,
+                    success: function(data) {
+                        if (data && data.csrf_token) {
+                            $('meta[name="csrf-token"]').attr('content', data.csrf_token);
+                            $('input[name="_token"]').val(data.csrf_token);
+                            resolve(data.csrf_token);
+                        } else {
+                            reject('Invalid CSRF token response');
+                        }
+                    },
+                    error: function() {
+                        reject('Failed to refresh CSRF token');
+                    }
+                });
+            });
+        }
+
+        // Global AJAX setup for CSRF
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!settings.crossDomain && settings.type !== 'GET') {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                }
+            }
+        });
+
         $('#loginForm').submit(function (e) {
             e.preventDefault();
 
@@ -139,15 +183,12 @@
 
             const $form = $(this);
             const $submitBtn = $form.find('button[type="submit"]');
-            $submitBtn.prop('disabled', true);
+            $submitBtn.prop('disabled', true).text('Logging in...');
 
             $.ajax({
                 url: "{{ route('professional.store') }}",
                 method: "POST",
                 data: $form.serialize(),
-                headers: {
-                    "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
-                },
                 success: function (response) {
                     if (response.status === 'rejected') {
                         toastr.warning(response.message || "Your account has been rejected.");
@@ -160,17 +201,49 @@
                     }
                 },
                 error: function (xhr) {
-                    if (xhr.status === 403 && xhr.responseJSON.status === 'deactivated') {
+                    if (xhr.status === 419) {
+                        // CSRF token mismatch - refresh token and retry
+                        refreshCSRFToken().then(function() {
+                            toastr.info('Session refreshed. Please try logging in again.');
+                        }).catch(function() {
+                            toastr.error('Session expired. Please refresh the page and try again.');
+                        });
+                    } else if (xhr.status === 403 && xhr.responseJSON.status === 'deactivated') {
                         // Show deactivated account modal
                         $('#deactivatedModal').modal('show');
                     } else if (xhr.status === 422) {
-                        $.each(xhr.responseJSON.errors, (key, value) => toastr.error(value[0]));
+                        // Validation errors - show inline
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            // Clear previous errors
+                            $('.form-control').removeClass('is-invalid');
+                            $('.invalid-feedback').hide();
+                            
+                            // Show specific field errors
+                            $.each(xhr.responseJSON.errors, (key, value) => {
+                                const $field = $(`#${key}`);
+                                const $error = $(`#${key}-error`);
+                                
+                                if ($field.length && $error.length) {
+                                    $field.addClass('is-invalid');
+                                    $error.text(value[0]).show();
+                                } else {
+                                    toastr.error(value[0]);
+                                }
+                            });
+                        } else {
+                            toastr.error('Validation failed. Please check your input.');
+                        }
                     } else {
-                        toastr.error(xhr.responseJSON.message || "An error occurred. Please try again.");
+                        // Other errors
+                        var errorMessage = 'An error occurred. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMessage);
                     }
                 },
                 complete: function () {
-                    $submitBtn.prop('disabled', false);
+                    $submitBtn.prop('disabled', false).text('Login to Tazen');
                 }
             });
         });
@@ -183,8 +256,14 @@
                 }
             });
             
-            // Initially hide the error message
-            $('#terms-error').hide();
+            // Clear field errors when user starts typing
+            $('#email, #password').on('input', function() {
+                $(this).removeClass('is-invalid');
+                $(`#${this.id}-error`).hide();
+            });
+            
+            // Initially hide all error messages
+            $('.invalid-feedback').hide();
         });
     </script>
     <script>

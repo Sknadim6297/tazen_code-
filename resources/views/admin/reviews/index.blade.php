@@ -158,6 +158,37 @@
             margin-bottom: 0.5rem;
         }
     }
+
+    /* Custom Pagination Styling (copied from Requested_professional) */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endsection
 
@@ -335,7 +366,9 @@
                     </table>
                 </div>
                 <div class="mt-4">
-                    {{ $reviews->withQueryString()->links() }}
+                    <div class="d-flex justify-content-center">
+                        {{ $reviews->withQueryString()->links('pagination::bootstrap-4') }}
+                    </div>
                 </div>
             </div>
         </div>

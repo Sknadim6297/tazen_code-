@@ -46,8 +46,11 @@ class ProfessionalRequestedController extends Controller
             });
         }
 
-        // Fetch filtered professionals with their profiles
-        $requestedProfessionals = $query->with(['profile', 'professionalRejection'])->latest()->get();
+        // Save the query for export functionality
+        $exportQuery = clone $query;
+        
+        // Fetch filtered professionals with their profiles with pagination
+        $requestedProfessionals = $query->with(['profile', 'professionalRejection'])->latest()->paginate(10);
         
         // Get all unique specializations from profiles table for the dropdown
         $specializations = DB::table('profiles')
@@ -60,10 +63,13 @@ class ProfessionalRequestedController extends Controller
 
         // Handle export requests
         if ($request->has('export')) {
+            // Get all data for export without pagination
+            $exportData = $exportQuery->with(['profile', 'professionalRejection'])->latest()->get();
+            
             if ($request->export === 'excel') {
-                return $this->exportToExcel($requestedProfessionals);
+                return $this->exportToExcel($exportData);
             } elseif ($request->export === 'pdf') {
-                return $this->exportToPdf($requestedProfessionals);
+                return $this->exportToPdf($exportData);
             }
         }
 

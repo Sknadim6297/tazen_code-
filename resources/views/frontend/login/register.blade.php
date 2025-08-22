@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
-    <meta name="author" content="Ansonika">
+    <meta name="description" content="Register with Tazen.in - Join thousands who trust our verified professionals for career counselling, health, finance, and more.">
+    <meta name="author" content="Tazen">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Find a Professional and Book a Consultation by Appointment, Chat or Video call</title>
+    <title>Register - Tazen.in | Find Verified Experts for Career, Health & Finance</title>
 
     <!-- Favicons-->
     <link rel="shortcut icon" href="img/favicon.jpg" type="image/x-icon">

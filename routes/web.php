@@ -52,6 +52,7 @@ use App\Models\Service;
 use App\Models\AllEvent;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ContactFormController;
+use App\Http\Controllers\Customer\BookingController;
 
 
 /*
@@ -64,14 +65,24 @@ use App\Http\Controllers\ContactFormController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
+// Route to check login status (no authentication required)
+Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
+
+Route::get('/run-migrations', function() {
+        Artisan::call('migrate', ['--force' => true]);
+        return "Migrations ran successfully!";
+});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('gridlisting', function () {
-    return view('frontend.sections.gridlisting');
-});
-Route::get('professionaldetails', function () {
-    return view('frontend.sections.professional-details')->name('professionals.details');
-});
+Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
+
+// Professional details page - public viewing but requires auth for booking
+Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
     $whychooses = Whychoose::latest()->get();
@@ -139,7 +150,7 @@ Route::get('/eventlist', function (Request $request) {
         $events = $events->where('event_mode', $event_mode);
     }
 
-    $events = $events->latest()->get(); // Order by latest
+    $events = $events->latest()->paginate(12); // Change from get() to paginate() with 12 items per page
     $services = Service::latest()->get();
 
     // Get unique categories for the filter
@@ -186,11 +197,11 @@ Route::get('blog', function (Request $request) {
 
     $blogPosts = BlogPost::with('blog')
         ->when($search, function ($query, $search) {
-            return $query->where(function($q) use ($search) {
+            return $query->where(function ($q) use ($search) {
                 $q->whereHas('blog', function ($q) use ($search) {
                     $q->where('title', 'like', '%' . $search . '%');
                 })
-                ->orWhere('category', 'like', '%' . $search . '%');
+                    ->orWhere('category', 'like', '%' . $search . '%');
             });
         })
         ->when($category, function ($query, $category) {
@@ -201,24 +212,51 @@ Route::get('blog', function (Request $request) {
 
     return view('frontend.sections.blog', compact('blogbanners', 'blogPosts', 'services', 'latestBlogs', 'categoryCounts', 'search', 'category'));
 })->name('blog.index');
-Route::get('/blog-post/{id}', function ($id) {
-    // Fetch the blog by ID
-    $blogPost = DB::table('blog_posts')->where('id', $id)->first();
+Route::get('/blog-post/{identifier}', function ($identifier) {
+    // identifier can be numeric ID or slugified title
+    if (is_numeric($identifier)) {
+        // Handle numeric ID
+        $blogPost = DB::table('blog_posts')->where('id', $identifier)->first();
+    } else {
+        // Handle slug - find by matching slugified title
+        $allBlogPosts = BlogPost::with('blog')->get();
+        $blogPost = null;
+        foreach ($allBlogPosts as $bp) {
+            if (\Illuminate\Support\Str::slug($bp->blog->title) === $identifier) {
+                $blogPost = $bp;
+                break;
+            }
+        }
+        // Convert to compatible format if found via Eloquent
+        if ($blogPost) {
+            $blogPost = (object) [
+                'id' => $blogPost->id,
+                'title' => $blogPost->blog->title,
+                'image' => $blogPost->image,
+                'content' => $blogPost->content,
+                'category' => $blogPost->category,
+                'published_at' => $blogPost->published_at,
+                'author_name' => $blogPost->author_name,
+                'blog_id' => $blogPost->blog_id,
+            ];
+        }
+    }
+
+    // Handle case where blog doesn't exist
+    if (!$blogPost) {
+        abort(404, 'Blog not found');
+    }
+
     $relatedBlog = DB::table('blogs')->where('id', $blogPost->blog_id)->first();
     $latestBlogs = BlogPost::latest()->take(3)->get();
     $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
         ->groupBy('category')
         ->get();
-    $comments = \App\Models\Comment::where('blog_post_id', $id)
+    $comments = \App\Models\Comment::where('blog_post_id', $blogPost->id)
         ->where('is_approved', true)
         ->latest()
         ->take(4)
         ->get();
-
-    // Optional: Handle case where blog doesn't exist
-    if (!$blogPost) {
-        abort(404, 'Blog not found');
-    }
 
     // Fetch latest services
     $services = Service::latest()->get();
@@ -290,11 +328,14 @@ Route::get('admin/logout', [AdminLoginController::class, 'logout'])->name('admin
 // });
 
 Route::post('/submit-questionnaire', [HomeController::class, 'submitQuestionnaire'])->name('submitQuestionnaire');
-Route::middleware(['auth:user'])->group(function () {
-    // Professional routes
-    Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
-    Route::get("professionals/details/{id}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
 
+// Service session save route (no authentication required for sharing)
+Route::post('/set-service-session', [HomeController::class, 'setServiceSession'])->name('set.service.session');
+
+// Professionals listing page (no authentication required for viewing)
+Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
+
+Route::middleware(['auth:user'])->group(function () {
     // Upcoming appointments routes
     Route::get('/upcoming-appointments', [UpcomingAppointmentController::class, 'index'])->name('user.upcoming-appointment.index');
     Route::post('/customer/upload-document', [UpcomingAppointmentController::class, 'uploadDocument'])->name('user.upload-document');
@@ -325,6 +366,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('about-banner', AboutBannerController::class);
     Route::get('/mcq-answers', [App\Http\Controllers\Admin\McqAnswerController::class, 'index'])->name('mcq-answers.index');
     Route::get('/contact-forms', [App\Http\Controllers\Admin\ContactFormController::class, 'index'])->name('contact-forms.index');
+    Route::get('/contact-forms/export', [App\Http\Controllers\Admin\ContactFormController::class, 'export'])->name('contact-forms.export');
     Route::delete('/contact-forms/{contactForm}', [App\Http\Controllers\Admin\ContactFormController::class, 'destroy'])->name('contact-forms.destroy');
 });
 
@@ -337,6 +379,8 @@ Route::post('professional/store', [ProfessionalController::class, 'store'])->nam
 Route::get('professional/logout', [ProfessionalController::class, 'logout'])->name('professional.logout');
 Route::get('professional/register', [ProfessionalController::class, 'registerForm'])->name('professional.register');
 Route::post('professional/register', [ProfessionalController::class, 'register'])->name('professional.register.submit');
+Route::post('professional/send-otp', [ProfessionalController::class, 'sendOTP'])->name('professional.send.otp');
+Route::post('professional/verify-otp', [ProfessionalController::class, 'verifyOTP'])->name('professional.verify.otp');
 
 
 // Route::get('/get-mcqs/{service_id}', [ServiceController::class, 'getMcqs']);
@@ -451,6 +495,7 @@ Route::post('/blog-post/{id}/comment', [App\Http\Controllers\CommentController::
 Route::get('/blog-comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('admin.comments.index');
 Route::post('/blog-comments/{id}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('admin.comments.approve');
 Route::delete('/blog-comments/{id}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('admin.comments.destroy');
+Route::get('/blog-comments/export', [App\Http\Controllers\Admin\CommentController::class, 'export'])->name('admin.comments.export');
 
 // Add this route for Excel export
 Route::get('admin/professional/billing/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])
@@ -462,3 +507,6 @@ Route::get('admin/customer/billing/export-excel', [App\Http\Controllers\Admin\Bi
 Route::get('/privacy', function () {
     return view('frontend.sections.privacy');
 })->name('privacy');
+
+// Add this in the professional group routes section
+Route::get('/professional/rate/session-types', [App\Http\Controllers\Professional\RateController::class, 'getSessionTypes'])->name('professional.rate.get-session-types')->middleware('auth:professional');

@@ -267,7 +267,8 @@
 
                          </div>
                          <div class="button-div">
-                             <button  class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Get Started</button>
+                             <a href="{{ url('/login') }}"><button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+">Get Started</button></a>
                          <a href="about-us.html"><button  class="btn new-custom-btn">Discover More</button></a>	
                          </div>
                      </div>
@@ -311,7 +312,8 @@
                     <div class="counter-hero-info">
                         <h1>{{ $exp->content_heading }}</h1>
                         <p>{{ $exp->content_subheading }}</p>
-                        <button  class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Get Started</button>
+                        <a href="{{ url('/login') }}"><button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+">Get Started</button></a>
 
                         
                     </div>
@@ -377,7 +379,7 @@
                     <div class="counter-hero-info">
                         <h1 class="text-white">{{ $how->content_heading }}</h1>
                         <p class="text-white">{{ $how->content_sub_heading }}</p>
-                        <p class="add_top_30"><a href="#0" class="btn_1" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Join Team</a></p>
+                        <!--<p class="add_top_30"><a href="#0" class="btn_1" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Join Team</a></p>-->
 
                         
                     </div>
@@ -467,14 +469,14 @@
                         $totalSlides = 6; // Total slides to display
                         $testimonialCount = count($testimonials);
                     @endphp
-        
+    
                     @for($i = 0; $i < $totalSlides; $i++)
                         <div class="item">
                             <div class="testimonial-box">
                                 @php
                                     $isEven = $i % 2 === 0;
                                 @endphp
-        
+    
                                 @if($i < $testimonialCount)
                                     {{-- Real testimonial --}}
                                     @php $t = $testimonials[$i]; @endphp
@@ -483,11 +485,11 @@
                                             <p class="text">{{ $t->description }}</p>
                                         </div>
                                         <div class="testimonial-img bg-blue">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
                                         </div>
                                     @else
                                         <div class="testimonial-img bg-pink mb-15">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
                                         </div>
                                         <div class="testimonial-content bg-green">
                                             <p class="text">{{ $t->description }}</p>
@@ -500,11 +502,11 @@
                                             This is a sample testimonial. Excellent service and support!
                                         </div>
                                         <div class="testimonial-img bg-blue">
-                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: 100%; height: auto;">
                                         </div>
                                     @else
                                         <div class="testimonial-img bg-pink mb-15">
-                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: auto; height: 250px;">
+                                            <img src="{{ asset('images/dummy'.($i+1).'.jpg') }}" alt="Dummy Image" style="width: 100%; height: auto;">
                                         </div>
                                         <div class="testimonial-content bg-green">
                                             <p class="text">This is a sample testimonial. Highly recommended!</p>

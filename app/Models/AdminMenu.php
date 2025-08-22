@@ -1,7 +1,4 @@
 <?php
-
-// filepath: c:\xampp\htdocs\tazen_marge_code\Tazen_multi\app\Models\AdminMenu.php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -22,8 +22,7 @@ class ManageProfessionalController extends Controller
      */
     public function index(Request $request)
     {
-        // Get services for filtering dropdown
-        $services = Service::orderBy('name')->get();
+        // Get specializations for filtering dropdown
         $specializations = DB::table('profiles')
             ->select('specialization')
             ->whereNotNull('specialization')
@@ -50,13 +49,6 @@ class ManageProfessionalController extends Controller
             $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-
-        // Filter by service if selected
-        if ($request->has('service_id') && $request->service_id) {
-            $query->whereHas('professionalServices', function ($q) use ($request) {
-                $q->where('service_id', $request->service_id);
-            });
-        }
         
         // Filter by specialization if selected
         if ($request->has('specialization') && $request->specialization) {
@@ -81,8 +73,10 @@ class ManageProfessionalController extends Controller
 
         // If AJAX request, return JSON
         if ($request->ajax()) {
+            $paginated = $professionals->paginate(10);
             return response()->json([
-                'professionals' => $professionals->paginate(10)->toArray(),
+                'professionals' => $paginated->toArray(),
+                'pagination' => $paginated->links()->render(),
             ]);
         }
 
@@ -92,7 +86,6 @@ class ManageProfessionalController extends Controller
         // Return the view for initial page load with pagination
         return view('admin.manage-professional.index', compact(
             'professionals', 
-            'services', 
             'specializations'
         ));
     }

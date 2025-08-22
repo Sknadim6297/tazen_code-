@@ -44,20 +44,20 @@
 									@case('Payment')
 										<i class="icon_wallet"></i>
 										@break
-									@case('Registration')
-										<i class="icon_cloud-upload_alt"></i>
+									@case('Booking')
+										<i class="icon_calendar"></i>
+										@break
+									@case('Events')
+										<i class="icon_globe-2"></i>
+										@break
+									@case('Blogs and Reviews')
+										<i class="icon_star"></i>
+										@break
+									@case('Contacts')
+										<i class="icon_phone"></i>
 										@break
 									@case('General')
 										<i class="icon_lifesaver"></i>
-										@break
-									@case('Event')
-										<i class="icon_globe-2"></i>
-										@break
-									@case('Cancellation')
-										<i class="icon_close_alt2"></i>
-										@break
-									@case('Reviews')
-										<i class="icon_star"></i>
 										@break
 									@default
 										<i class="icon_documents_alt"></i>
@@ -157,5 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
 
 @endsection

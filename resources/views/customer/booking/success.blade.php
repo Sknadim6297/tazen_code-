@@ -61,6 +61,38 @@
 @endsection
 
 @section('content')
+@php
+    // Get service name with multiple fallbacks
+    $serviceName = 'N/A';
+    
+    // First try from session
+    if (session('booking_success.service_name')) {
+        $serviceName = session('booking_success.service_name');
+    }
+    // Then try to get from professional ID if available
+    elseif (session('booking_success.professional_id')) {
+        $professionalId = session('booking_success.professional_id');
+        $professionalService = \App\Models\ProfessionalService::with('service')
+            ->where('professional_id', $professionalId)
+            ->first();
+        
+        if ($professionalService) {
+            // First try to get from the related Service model
+            if ($professionalService->service && $professionalService->service->name) {
+                $serviceName = $professionalService->service->name;
+            }
+            // Fallback to professional service's own service_name
+            elseif ($professionalService->service_name) {
+                $serviceName = $professionalService->service_name;
+            }
+        }
+    }
+    // Final fallback to session
+    elseif (session('selected_service_name')) {
+        $serviceName = session('selected_service_name');
+    }
+@endphp
+
 <main class="bg_gray pattern">
     <div class="container margin_60_40">
         <div class="row justify-content-center">
@@ -85,7 +117,7 @@
                             </li>
                             <li>
                                 <strong>Service:</strong>
-                                <span>{{ session('booking_success.service_name') }}</span>
+                                <span>{{ $serviceName }}</span>
                             </li>
                         </ul>
 
@@ -95,8 +127,26 @@
                                 <strong>Plan Type:</strong>
                                 <span>{{ ucwords(str_replace('_', ' ', session('booking_success.plan_type'))) }}</span>
                             </li>
+                            @if(session('booking_success.base_amount') && session('booking_success.cgst'))
                             <li>
-                                <strong>Amount Paid:</strong>
+                                <strong>Base Amount:</strong>
+                                <span>₹{{ number_format(session('booking_success.base_amount'), 2) }}</span>
+                            </li>
+                            <li>
+                                <strong>CGST (9%):</strong>
+                                <span>₹{{ number_format(session('booking_success.cgst'), 2) }}</span>
+                            </li>
+                            <li>
+                                <strong>SGST (9%):</strong>
+                                <span>₹{{ number_format(session('booking_success.sgst'), 2) }}</span>
+                            </li>
+                            <li>
+                                <strong>IGST (0%):</strong>
+                                <span>₹{{ number_format(session('booking_success.igst'), 2) }}</span>
+                            </li>
+                            @endif
+                            <li>
+                                <strong>Total Amount Paid (including GST):</strong>
                                 <span>₹{{ number_format(session('booking_success.amount'), 2) }}</span>
                             </li>
                             <li>

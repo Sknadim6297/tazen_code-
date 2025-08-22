@@ -47,6 +47,47 @@
 }
 
    </style>
+
+<style>
+.sub-service-container {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    min-height: 60px;
+}
+
+.sub-service-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.sub-service-item:last-child {
+    margin-bottom: 0;
+}
+
+.sub-service-item input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.sub-service-item label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.sub-service-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+</style>
 @endsection
 
 @section('content')
@@ -73,25 +114,37 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceName">Service Name *</label>
-                        <input type="text" name="serviceName" id="serviceName" class="form-control" placeholder="Enter service name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="serviceCategory">Service Category *</label>
+                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary" style="font-size: 11px; padding: 3px 6px;">Selectable</span></label>
                         <select name="serviceId" id="serviceCategory" class="form-control" required>
                             <option value="">Select Category</option>
                             @foreach($services as $service)
-                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                <option value="{{ $service->id }}" {{ 
+                                    (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' 
+                                }}>{{ $service->name }}</option>
                             @endforeach
                         </select>
+                        <!-- Keep the hidden input as backup -->
+                        <input type="hidden" name="serviceIdBackup" value="{{ $matchingServiceId ?? '' }}">
+                        <small class="text-muted">
+                            <strong>Note:</strong> Select the service category you want to offer.
+                            <br>You can change this when editing the service later.
+                        </small>
+                    </div>
                     </div>
                 </div>
             </div>
-    
-            <div class="form-group">
-                <label for="serviceDescription">Description *</label>
-                <textarea name="serviceDescription" id="serviceDescription" class="form-control" placeholder="Describe your service in detail" rows="5" required></textarea>
+            
+            <!-- Sub-Service Selection -->
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="subServices">Sub-Services (Optional)</label>
+                        <div id="subServiceContainer" class="sub-service-container">
+                            <p class="text-muted">Please select a service category first to see available sub-services.</p>
+                        </div>
+                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
+                    </div>
+                </div>
             </div>
     
             <div class="form-row">
@@ -100,7 +153,7 @@
                         <label>Service Features</label>
                         <div class="checkbox-group">
                             <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="online"> Online Sessions
+                                <input type="checkbox" name="features[]" value="online" checked> Online Sessions
                             </label>
                         </div>
                         
@@ -132,6 +185,75 @@
 @endsection
 @section('scripts')
 <script>
+$(document).ready(function() {
+    // Load sub-services when service category changes
+    $('#serviceCategory').change(function() {
+        loadSubServices($(this).val());
+    });
+    
+    // Load sub-services on page load if a service is pre-selected
+    var serviceId = $('#serviceCategory').val();
+    console.log('Initial service ID:', serviceId);
+    if (serviceId) {
+        loadSubServices(serviceId);
+    }
+});
+
+function loadSubServices(serviceId) {
+    const container = $('#subServiceContainer');
+    
+    console.log('loadSubServices called with serviceId:', serviceId);
+    
+    if (!serviceId) {
+        container.html('<p class="text-muted">Please select a service category first to see available sub-services.</p>');
+        return;
+    }
+    
+    container.html('<div class="sub-service-loading">Loading sub-services...</div>');
+    
+    $.ajax({
+        url: "{{ route('professional.service.getSubServices') }}",
+        type: "GET",
+        data: { service_id: serviceId },
+        success: function(response) {
+            console.log('AJAX response:', response);
+            if (response.success && response.subServices.length > 0) {
+                let html = '';
+                response.subServices.forEach(function(subService) {
+                    html += `
+                        <div class="sub-service-item">
+                            <input type="checkbox" name="subServices[]" value="${subService.id}" id="subService${subService.id}">
+                            <label for="subService${subService.id}">${subService.name}</label>
+                        </div>
+                    `;
+                });
+                container.html(html);
+                // Attach limit handler after rendering
+                enforceSubServiceLimit(container);
+            } else {
+                container.html('<p class="text-muted">No sub-services available for this category.</p>');
+            }
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr);
+            container.html('<p class="text-danger">Error loading sub-services. Please try again.</p>');
+        }
+    });
+}
+
+// Limit selection to maximum of 2 checkboxes
+function enforceSubServiceLimit(container) {
+    container.find('input[type="checkbox"]').off('change').on('change', function() {
+        const checked = container.find('input[type="checkbox"]:checked');
+        if (checked.length >= 2) {
+            // disable all unchecked checkboxes
+            container.find('input[type="checkbox"]:not(:checked)').attr('disabled', true).closest('.sub-service-item').addClass('disabled');
+        } else {
+            container.find('input[type="checkbox"]').attr('disabled', false).closest('.sub-service-item').removeClass('disabled');
+        }
+    });
+}
+
 $('#serviceForm').submit(function(e) {
     e.preventDefault();
     let form = this;

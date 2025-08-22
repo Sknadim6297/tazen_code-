@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Professional;
 use App\Http\Controllers\Controller;
 use App\Models\ProfessionalService;
 use App\Models\Service;
+use App\Models\SubService;
 use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = ProfessionalService::with('service')
+        $services = ProfessionalService::with(['service', 'subServices'])
             ->where('professional_id', Auth::guard('professional')->id())
             ->get();
 
@@ -32,8 +33,68 @@ class ServiceController extends Controller
     public function create()
     {
         $services = Service::all();
-        // dd($services);
-        return view('professional.service.create', compact('services'));
+        
+        // Get professional's profile and specialization
+        $professional = Auth::guard('professional')->user();
+        $profile = $professional->profile;
+        $specialization = $profile ? $profile->specialization : null;
+        
+        // Find the matching service ID for this specialization
+        $matchingServiceId = null;
+        if ($specialization) {
+            // Try to find an exact match first
+            $matchingService = $services->first(function($service) use ($specialization) {
+                return strtolower($service->name) === strtolower($specialization);
+            });
+            
+            // If no exact match, try to find partial match
+            if (!$matchingService) {
+                $matchingService = $services->first(function($service) use ($specialization) {
+                    return stripos($service->name, $specialization) !== false || 
+                           stripos($specialization, $service->name) !== false;
+                });
+            }
+            
+            if ($matchingService) {
+                $matchingServiceId = $matchingService->id;
+            }
+        }
+        
+        // Log information for debugging
+        \Illuminate\Support\Facades\Log::info('Service creation - Specialization debug', [
+            'professional_id' => $professional->id,
+            'has_profile' => !is_null($profile),
+            'specialization' => $specialization,
+            'service_names' => $services->pluck('name')->toArray(),
+            'matching_service_id' => $matchingServiceId
+        ]);
+        
+        return view('professional.service.create', compact('services', 'specialization', 'matchingServiceId'));
+    }
+
+    /**
+     * Get sub-services for a given service category
+     */
+    public function getSubServices(Request $request)
+    {
+        $serviceId = $request->get('service_id');
+        
+        if (!$serviceId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service ID is required'
+            ], 400);
+        }
+        
+        $subServices = SubService::where('service_id', $serviceId)
+            ->where('status', 'active')
+            ->select('id', 'name', 'description')
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'subServices' => $subServices
+        ]);
     }
 
     /**
@@ -43,21 +104,46 @@ class ServiceController extends Controller
     {
         $request->validate([
             'serviceId' => 'required|integer|exists:services,id',
-            'serviceName' => 'required|string|max:255',
             'serviceDuration' => 'required|integer',
-            'serviceImage' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
             'features' => 'nullable|array',
             'serviceTags' => 'nullable|string',
             'serviceRequirements' => 'nullable|string',
+            'subServices' => 'nullable|array|max:2',
+            'subServices.*' => 'exists:sub_services,id',
         ]);
+        
+        // If no serviceId is provided, get the professional's specialization 
+        // and find matching service
+        if (empty($request->serviceId)) {
+            $professional = Auth::guard('professional')->user();
+            $profile = $professional->profile;
+            
+            if ($profile && $profile->specialization) {
+                $specialization = $profile->specialization;
+                $service = Service::where('name', 'LIKE', "%$specialization%")->first();
+                
+                if (!$service) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No matching service found for your specialization. Please contact support.'
+                    ], 422);
+                }
+                
+                $request->merge(['serviceId' => $service->id]);
+            }
+        }
 
         $service = new ProfessionalService();
         $service->professional_id = Auth::guard('professional')->id();
         $service->service_id = $request->serviceId;
-        $service->service_name = $request->serviceName;
+        
+        // Get the service category name to use as service_name
+        $serviceCategory = Service::find($request->serviceId);
+        $service->service_name = $serviceCategory ? $serviceCategory->name : 'Online Service';
+        
         $service->duration = $request->serviceDuration;
-        $service->description = $request->serviceDescription;
-        $service->features = $request->features ? json_encode($request->features) : null;
+        $service->description = 'Online session service'; // Add default description
+        $service->features = $request->features ? json_encode($request->features) : json_encode(['online']);
         $service->tags = $request->serviceTags;
         $service->requirements = $request->serviceRequirements;
 
@@ -79,6 +165,22 @@ class ServiceController extends Controller
         }
 
         $service->save();
+        
+        // Attach selected sub-services if any (ensure they belong to the selected service and limit to 2)
+        if ($request->has('subServices') && is_array($request->subServices)) {
+            // Validate that all sub-services belong to the selected service
+            $validSubServices = SubService::where('service_id', $request->serviceId)
+                ->whereIn('id', $request->subServices)
+                ->pluck('id')
+                ->toArray();
+
+            // Enforce maximum 2 selections server-side as well
+            $validSubServices = array_slice($validSubServices, 0, 2);
+
+            if (!empty($validSubServices)) {
+                $service->subServices()->attach($validSubServices);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -92,34 +194,72 @@ class ServiceController extends Controller
 
     public function edit(string $id)
     {
-        $service = ProfessionalService::where('id', $id)
+        $service = ProfessionalService::with('subServices')->where('id', $id)
             ->where('professional_id', Auth::guard('professional')->id())
             ->firstOrFail();
         $services = Service::all();
-        return view('professional.service.edit', compact('service', 'services'));
+        
+        // Get professional's profile and specialization
+        $professional = Auth::guard('professional')->user();
+        $profile = $professional->profile;
+        $specialization = $profile ? $profile->specialization : null;
+        
+        // Find the matching service ID for this specialization
+        $matchingServiceId = null;
+        if ($specialization && !$service->service_id) {
+            // Try to find an exact match first
+            $matchingService = $services->first(function($s) use ($specialization) {
+                return strtolower($s->name) === strtolower($specialization);
+            });
+            
+            // If no exact match, try to find partial match
+            if (!$matchingService) {
+                $matchingService = $services->first(function($s) use ($specialization) {
+                    return stripos($s->name, $specialization) !== false || 
+                           stripos($specialization, $s->name) !== false;
+                });
+            }
+            
+            if ($matchingService) {
+                $matchingServiceId = $matchingService->id;
+            }
+        }
+        
+        return view('professional.service.edit', compact('service', 'services', 'specialization', 'matchingServiceId'));
     }
 
 
     public function update(Request $request, string $id)
     {
         $request->validate([
+            'serviceId' => 'required|integer|exists:services,id',
             'serviceDuration' => 'required|integer',
-            'serviceDescription' => 'required|string',
             'features' => 'nullable|array',
             'serviceTags' => 'nullable|string',
             'serviceRequirements' => 'nullable|string',
+            'subServices' => 'nullable|array',
+            'subServices.*' => 'exists:sub_services,id',
         ]);
-        
+
         $service = ProfessionalService::where('id', $id)
             ->where('professional_id', Auth::guard('professional')->id())
             ->firstOrFail();
+
+        // Update service_id and service_name if changed
+        if ($request->serviceId != $service->service_id) {
+            $service->service_id = $request->serviceId;
             
+            // Get the service category name to use as service_name
+            $serviceCategory = Service::find($request->serviceId);
+            $service->service_name = $serviceCategory ? $serviceCategory->name : 'Online Service';
+        }
+
         $service->duration = $request->serviceDuration;
-        $service->description = $request->serviceDescription;
-        $service->features = $request->features ? json_encode($request->features) : null;
+        $service->description = 'Online session service'; // Add default description
+        $service->features = $request->features ? json_encode($request->features) : json_encode(['online']);
         $service->tags = $request->serviceTags;
         $service->requirements = $request->serviceRequirements;
-        
+
         if ($request->hasFile('serviceImage')) {
             if ($service->image_path && file_exists(public_path($service->image_path))) {
                 @unlink(public_path($service->image_path));
@@ -139,9 +279,24 @@ class ServiceController extends Controller
                 ], 500);
             }
         }
-        
+
         $service->save();
         
+        // Update sub-services
+        if ($request->has('subServices') && is_array($request->subServices)) {
+            // Validate that all sub-services belong to the selected service
+            $validSubServices = SubService::where('service_id', $request->serviceId)
+                ->whereIn('id', $request->subServices)
+                ->pluck('id')
+                ->toArray();
+            
+            // Sync sub-services (this will replace existing ones)
+            $service->subServices()->sync($validSubServices);
+        } else {
+            // If no sub-services are selected, remove all existing ones
+            $service->subServices()->detach();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Service has been updated successfully.'
@@ -158,14 +313,14 @@ class ServiceController extends Controller
         $service = ProfessionalService::where('id', $id)
             ->where('professional_id', Auth::guard('professional')->id())
             ->firstOrFail();
-            
+
         // Delete the image file if it exists
         if ($service->image_path && file_exists(public_path($service->image_path))) {
             @unlink(public_path($service->image_path));
         }
 
         $service->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Service has been deleted successfully.'

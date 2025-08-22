@@ -3,22 +3,53 @@
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
    <style>
-    /* Banner Slider Styles */
+    /* Improved Banner Slider Styles */
     .hero_single.event-slide {
         position: relative;
+        width: 100%;
+        height: 70vh; /* Default height for desktop */
         overflow: hidden;
     }
+    
+    /* Mobile height */
+    @media (max-width: 768px) {
+        .hero_single.event-slide {
+            height: 50vh; /* Adjust height for mobile */
+        }
+    }
+    
+    /* Tablet height */
+    @media (min-width: 769px) and (max-width: 992px) {
+        .hero_single.event-slide {
+            height: 60vh;
+        }
+    }
+    
+    .hero_single .owl-carousel, 
+    .hero_single .owl-stage-outer, 
+    .hero_single .owl-stage, 
+    .hero_single .owl-item {
+        height: 100%;
+    }
+    
+    .hero_single .owl-carousel .item {
+        height: 100%;
+    }
+    
     .hero_single .owl-carousel .item img {
         width: 100%;
-        height: auto;
+        height: 100%;
         object-fit: cover;
+        object-position: center;
     }
+    
     .hero_single .owl-dots {
         position: absolute;
         bottom: 20px;
         width: 100%;
         text-align: center;
     }
+    
     .hero_single .owl-dot span {
         width: 12px;
         height: 12px;
@@ -28,6 +59,7 @@
         border-radius: 50%;
         transition: all 0.3s ease;
     }
+    
     .hero_single .owl-dot.active span {
         background: #fff;
         width: 20px;
@@ -187,11 +219,54 @@
     textarea::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
     }
+        /* Login Popup Custom Styling */
+    .login-popup-title {
+        font-size: 1.5rem !important;
+        color: white !important;
+    }
+
+    .login-popup-title .wave-icon {
+        font-size: 1.8rem !important;
+    }
+
+    .login-popup-custom {
+        background: linear-gradient(135deg, #152a70, #c51010, #f39c12) !important;
+        color: white !important;
+        border-radius: 15px !important;
+        padding: 25px 20px !important;
+    }
+
+    .login-popup-btn {
+        background-color: #1e0d60 !important;
+        color: white !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        padding: 12px 30px !important;
+        border-radius: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    }
+
+    .login-popup-btn:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+    }
+    
+    .login-popup-close {
+        color: white !important;
+        opacity: 0.8 !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .login-popup-close:hover {
+        opacity: 1 !important;
+    }
    </style>
 @endsection
 @section('content')
 
 <main>
+  <!-- Improved Banner Section -->
   <div class="hero_single event-slide">
     <div class="owl-carousel owl-theme">
         @php
@@ -235,7 +310,7 @@
                     data-event-name="{{ $event->eventDetails->heading ?? $event->name ?? 'Event' }}"
                     data-location="{{ $event->city ?? 'Kolkata' }}"
                     data-type="{{ $event->event_mode ?? 'offline' }}"
-                    data-event-date="{{ $event->starting_date }}"
+                    data-event-date="{{ \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }}"
                     data-amount="{{ $event->starting_fees }}">
                     Book Now
                 </button>
@@ -246,7 +321,7 @@
 <hr>
 <div class="col-lg-12">
     <div class="event-date" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 30px;">
-        <p>{{ $event->starting_date }} onwards</p>
+        <p>{{ \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }} onwards</p>
         <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->event_mode }}</p>
         <p><span>Rs.{{ $event->starting_fees }}</span> onwards</p>
     </div>
@@ -670,7 +745,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // First check if user is logged in
-        fetch("{{ route('user.check.login') }}", {
+        fetch("{{ route('check.login') }}", {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -683,14 +758,17 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res.status === 401) {
                 // User is not logged in, show SweetAlert
                 Swal.fire({
-                    title: 'Login Required',
-                    text: 'Please login to continue with your booking.',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Login Now',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d'
+                    title: '<span class="login-popup-title"><span class="wave-icon">👋</span> Hey! You forgot to login</span>',
+                    text: '',
+                    showCloseButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Login',
+                    customClass: {
+                        popup: 'login-popup-custom',
+                        confirmButton: 'login-popup-btn',
+                        closeButton: 'login-popup-close'
+                    },
+                    confirmButtonColor: '#1e0d60'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const redirectUrl = encodeURIComponent(window.location.href);
@@ -799,7 +877,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Save form data to localStorage before making the request
         saveFormData(finalData);
 
-        fetch("{{ route('user.check.login') }}", {
+        fetch("{{ route('check.login') }}", {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -812,14 +890,17 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res.status === 401) {
                 // Show SweetAlert for login prompt
                 Swal.fire({
-                    title: 'Login Required',
-                    text: 'Please login to continue with your booking.',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Login Now',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d'
+                    title: '<span class="login-popup-title"><span class="wave-icon">👋</span> Hey! You forgot to login</span>',
+                    text: '',
+                    showCloseButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Login',
+                    customClass: {
+                        popup: 'login-popup-custom',
+                        confirmButton: 'login-popup-btn',
+                        closeButton: 'login-popup-close'
+                    },
+                    confirmButtonColor: '#1e0d60'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const redirectUrl = encodeURIComponent(window.location.href);

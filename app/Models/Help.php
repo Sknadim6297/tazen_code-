@@ -18,10 +18,10 @@ class Help extends Model
 
     const CATEGORIES = [
         'General',
-        'Event',
-        'Registration',
+        'Booking',
+        'Events',
         'Payment',
-        'Cancellation',
-        'Reviews'
+        'Blogs and Reviews',
+        'Contacts'
     ];
 }

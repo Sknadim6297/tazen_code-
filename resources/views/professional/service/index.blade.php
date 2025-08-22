@@ -171,10 +171,9 @@
                 <table class="table table-bordered data-table">
                     <thead>
                         <tr>
-                            <th>Service Name</th>
                             <th>Service Category</th>
-                            <th>Image</th>
-                            <th>Description</th>
+                            <th>Sub-Services</th>
+                            <th>Session Type</th>
                             <th>Tags</th>
                             <th>Client Requirements</th>
                             <th>Actions</th>
@@ -183,16 +182,23 @@
                     <tbody>
                         @foreach($services as $service)
                             <tr>
-                                <td>{{ $service->service_name }}</td>
                                 <td>{{ $service->service->name }}</td> 
                                 <td>
-                                    @if($service->image_path)
-                                        <img src="{{ asset('upload/services/' . $service->image_path) }}" alt="Image" width="60">
+                                    @if($service->subServices->count() > 0)
+                                        @foreach($service->subServices as $subService)
+                                            <span class="badge badge-info" style="background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; margin: 2px;">
+                                                {{ $subService->name }}
+                                            </span>
+                                        @endforeach
                                     @else
-                                        <span class="text-muted">No Image</span>
+                                        <span class="text-muted" style="font-style: italic;">No specific sub-services</span>
                                     @endif
                                 </td>
-                                <td>{{ Str::limit($service->description, 50) }}</td>
+                                <td>
+                                    <span class="badge" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
+                                        Online Session
+                                    </span>
+                                </td>
                                 <td>{{ $service->tags }}</td>
                                 <td>{{ $service->requirements }}</td>
                                 <td>

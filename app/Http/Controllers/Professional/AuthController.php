@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Show the forgot password form
-     */
+
     public function showForgotForm()
     {
         return view('professional.login.forgot-password');
@@ -31,8 +29,8 @@ class AuthController extends Controller
         );
 
         return $status === Password::RESET_LINK_SENT
-                    ? back()->with(['status' => __($status)])
-                    : back()->withErrors(['email' => __($status)]);
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
     }
 
     /**
@@ -56,7 +54,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
-        
+
         $status = Password::broker('professionals')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($professional, $password) {
@@ -64,13 +62,13 @@ class AuthController extends Controller
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
                 ])->save();
-                
+
                 event(new PasswordReset($professional));
             }
         );
-        
+
         return $status === Password::PASSWORD_RESET
-                    ? redirect()->route('professional.login')->with('status', __($status))
-                    : back()->withErrors(['email' => [__($status)]]);
+            ? redirect()->route('professional.login')->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]]);
     }
 }

@@ -2,7 +2,684 @@
     @section('styles')
         <link rel="stylesheet" href="{{ asset('frontend/assets/css/detail-page.css') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+         <style>
+            /* Global Styles */
+            body {
+                background: linear-gradient(135deg, #1741cabc, #d379038c, #ece00586);
+                background-size: 400% 400%;
+                animation: gradientBG 18s ease infinite;
+                min-height: 100vh;
+                
+                line-height: 1.6;
+                color: #333;
+            }
+    
+            @keyframes gradientBG {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+    
+            .container.margin_detail {
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+    
+            .box_general,
+            .main_info_wrapper,
+            .tabs_detail,
+            .box_booking,
+            .appointment_types {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+                margin-bottom: 32px !important;
+                margin-top: 20px;
+    
+                padding: 0;
+                
+            }
+    
+    
+            .dropdown a {
+                padding: 0;
+                line-height: 1;
+                color: #444;
+                font-weight: 500;
+                display: block;
+                position: relative;
+            }
+            /* Header Section */
+            .profile-header-flex {
+                display: flex;
+                align-items: flex-start;
+                gap: 36px;
+                margin-bottom: 32px;
+                padding: 32px;
+                background: #fff;
+                border-radius: 18px;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+                flex-wrap: wrap;
+            }
+    
+            .profile-main-image {
+                width: 320px;
+                height: 320px;
+                border-radius: 14px;
+                object-fit: cover;
+                object-position: center;
+                box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+                background: #f8f8f8;
+                border: 4px solid #f0f0f0;
+                flex-shrink: 0;
+            }
+    
+            .profile-header-details {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                min-width: 300px;
+            }
+    
+            .profile-header-details h3 {
+                margin-bottom: 8px;
+                font-size: 2rem;
+                font-weight: 700;
+                color: #2a2a2a;
+            }
+    
+            .profile-header-details p {
+                margin-bottom: 8px;
+                color: #666;
+                font-size: 1.1rem;
+            }
+    
+            .tags.no_margin {
+                margin-left: -40px;
+            }
+    
+            .tag-btn {
+                display: inline-block;
+                background: #f0f4ff;
+                color: #2563eb;
+                border-radius: 16px;
+                padding: 5px 14px;
+                font-size: 0.98rem;
+                font-weight: 600;
+                margin-right: 8px;
+                margin-bottom: 8px;
+                border: none;
+                cursor: default;
+                transition: background 0.2s;
+            }
+    
+            .score_in {
+                margin-top: 15px;
+            }
+    
+            /* About Section */
+            .main_info_wrapper {
+                margin-bottom: 30px;
+            }
+    
+            .user_desc h4 {
+                font-size: 1.5rem;
+                color: #2a2a2a;
+                margin-bottom: 15px;
+            }
+    
+            .user_desc p {
+                color: #555;
+                margin-bottom: 15px;
+            }
+    
+            .show_hide {
+                color: #00a6eb;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-block;
+                margin-top: 10px;
+            }
+    
+            /* Tabs Section */
+            .tabs_detail {
+                margin-bottom: 30px;
+            }
+    
+            .nav-tabs {
+                border-bottom: 2px solid #f0f0f0;
+            }
+    
+            .nav-tabs .nav-link {
+                color: #6c757d;
+                font-weight: 600;
+                padding: 12px 20px;
+                border: none;
+            }
+    
+            .nav-tabs .nav-link.active {
+                color: #00a6eb;
+                background: transparent;
+                border-bottom: 2px solid #00a6eb;
+            }
+    
+            .tab-content {
+                padding: 20px 0;
+            }
+    
+            /* Appointment Types */
+            .appointment_types {
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+                margin-bottom: 25px;
+            }
+    
+            .appointment_types .nav-tabs {
+                padding: 0 15px;
+            }
+    
+            .appointment-details {
+                text-align: center;
+                padding: 15px;
+            }
+    
+            .appointment-details h4 {
+                color: #2a2a2a;
+                font-weight: 700;
+                margin-bottom: 15px;
+                font-size: 1.25rem;
+            }
+    
+            .appointment-details p {
+                color: #6c757d;
+                margin-bottom: 20px;
+            }
+    
+            .appointment-features {
+                text-align: left;
+                margin: 0 auto 20px;
+                padding: 0;
+                max-width: 280px;
+            }
+    
+            .appointment-features li {
+                list-style: none;
+                padding: 8px 0;
+                color: #555;
+                font-size: 14px;
+                position: relative;
+                padding-left: 25px;
+            }
+    
+            .appointment-features i {
+                color: #00a6eb;
+                position: absolute;
+                left: 0;
+                top: 10px;
+            }
+    
+            .price {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 20px 0;
+            }
+    
+            .price strong {
+                color: #00a6eb;
+                font-size: 22px;
+                font-weight: 700;
+                display: block;
+            }
+    
+            .price small {
+                color: #6c757d;
+                font-size: 13px;
+            }
+    
+            /* Booking Section */
+            .box_booking {
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+    
+            .box_booking .head {
+                margin-bottom: 20px;
+            }
+    
+            .box_booking .head h3 {
+                font-size: 1.5rem;
+                color: #2a2a2a;
+            }
+    
+            #selected-plan-display {
+                display: none;
+                margin-bottom: 20px;
+                padding: 15px;
+                background: #f0f9ff;
+                border-left: 4px solid #00a6eb;
+                border-radius: 5px;
+                animation: fadeIn 0.5s ease;
+            }
+    
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+    
+            /* Buttons */
+            .select-plan, .btn_1 {
+                background: #00a6eb;
+                color: white;
+                border: none;
+                transition: all 0.3s ease;
+                padding: 12px 15px;
+                font-weight: 600;
+                border-radius: 5px;
+                width: 100%;
+                text-align: center;
+                display: block;
+                margin-top: 10px;
+            }
+    
+            .select-plan:hover, .btn_1:hover {
+                background: #0088c6;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 166, 235, 0.3);
+                color: white;
+                text-decoration: none;
+            }
+    
+            .booking {
+                margin-top: 20px;
+            }
+    
+            /* Calendar */
+            #calendarDiv {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+    
+            .flatpickr-day.selected {
+                border: 2px solid black !important;
+                box-sizing: border-box;
+            }
+    
+            .flatpickr-day:hover {
+                border: 2px solid #000;
+            }
+    
+            .flatpickr-day.today {
+                border: 1px solid #ccc;
+            }
+    
+            /* Time Slots */
+            .dropdown.time {
+                width: 100%;
+            }
+    
+            .dropdown-menu-content {
+                padding: 15px;
+            }
+    
+            .radio_select.time {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+    
+            .slot-box {
+                flex: 0 0 calc(50% - 5px);
+                display: none;
+            }
+    
+            .slot-box label {
+                display: block;
+                padding: 8px 12px;
+                background: #f8f9fa;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-align: center;
+            }
+    
+            .slot-box input[type="radio"]:checked + label {
+                background: #00a6eb;
+                color: white;
+            }
+    
+            /* Reviews */
+            .review_card {
+                background: #fff;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+    
+            .rating i {
+                color: #ffb700;
+            }
+    
+            /* Gallery */
+            .gallery-container {
+                margin-top: 20px;
+            }
+    
+            .gallery-item img {
+                transition: transform 0.3s;
+                cursor: pointer;
+            }
+    
+            .gallery-item img:hover {
+                transform: scale(1.02);
+            }
+    
+    
+            /* Responsive Adjustments */
+            @media (max-width: 1200px) {
+                .profile-main-image {
+                    width: 280px;
+                    height: 280px;
+                }
+            }
+    
+            @media (max-width: 992px) {
+                .profile-header-flex {
+                    gap: 24px;
+                    padding: 24px;
+                }
+                
+                .profile-main-image {
+                    width: 220px;
+                    height: 220px;
+                }
+                
+                .profile-header-details h3 {
+                    font-size: 1.5rem;
+                }
+    
+                .container.margin_detail {
+                    margin-top: 80px;
+                }
+            }
+    
+            @media (max-width: 768px) {
+                .container.margin_detail {
+                    padding: 8px;
+                }
+                .row {
+                    flex-direction: column;
+                }
+                .col-xl-8.col-lg-7, .col-xl-4.col-lg-5 {
+                    max-width: 100%;
+                    flex: 0 0 100%;
+                    width: 100%;
+                }
+                .profile-header-flex {
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    gap: 18px;
+                    padding: 14px;
+                }
+                .profile-main-image {
+                    width: 160px;
+                    height: 160px;
+                    margin: 0 auto 12px auto;
+                }
+                .profile-header-details {
+                    text-align: center;
+                    align-items: center;
+                    min-width: unset;
+                }
+                .profile-header-details h3 {
+                    font-size: 1.2rem;
+                }
+                .tags.no_margin {
+                    margin-left: 0 !important;
+                    justify-content: center;
+                }
+                .profile-badges.mb-2 {
+                    flex-direction: column;
+                    gap: 8px;
+                    width: 100%;
+                }
+                .badge-square {
+                    width: 100% !important;
+                    min-width: 0;
+                    height: 48px !important;
+                    font-size: 0.85rem !important;
+                }
+                .main_info_wrapper {
+                    padding: 16px 8px 12px 8px !important;
+                }
+                .tabs_detail .nav-tabs {
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                    -webkit-overflow-scrolling: touch;
+                    padding-bottom: 5px;
+                }
+                .tabs_detail .nav-item {
+                    display: inline-block;
+                    float: none;
+                }
+                .tab-pane-container .card-body {
+                    padding: 10px 4px;
+                }
+                .appointment_types .nav-tabs {
+                    flex-direction: row;
+                    overflow-x: auto;
+                    gap: 2px;
+                }
+                .appointment_types .nav-link {
+                    padding: 8px 6px;
+                    font-size: 12px;
+                }
+                .appointment-details {
+                    padding: 8px;
+                }
+                .appointment-details h4 {
+                    font-size: 1rem;
+                }
+                .price strong {
+                    font-size: 1.1rem;
+                }
+                .box_booking {
+                    margin-top: 16px;
+                    padding: 10px;
+                }
+                .gallery-container .row {
+                    flex-direction: column;
+                }
+                .gallery-item img {
+                    width: 100%;
+                    height: auto;
+                }
+                .share-buttons {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    align-items: stretch;
+                    margin-top: 16px;
+                }
+                .share-buttons li {
+                    width: 100%;
+                }
+                .share-buttons a {
+                    width: 100%;
+                    text-align: center;
+                    padding: 10px 0;
+                    font-size: 1rem;
+                }
+            }
+    
+            @media (max-width: 576px) {
+                .profile-main-image {
+                    width: 120px;
+                    height: 120px;
+                }
+                .profile-header-details h3 {
+                    font-size: 1rem;
+                }
+                .profile-header-details p {
+                    font-size: 0.95rem;
+                }
+                .tag-btn {
+                    font-size: 0.85rem;
+                    padding: 3px 8px;
+                    margin-right: 4px;
+                    margin-bottom: 4px;
+                }
+                .appointment_types .nav-link {
+                    padding: 6px 3px;
+                    font-size: 11px;
+                }
+                .appointment-features {
+                    max-width: 100%;
+                }
+                .select-plan, .btn_1 {
+                    padding: 8px 6px;
+                    font-size: 13px;
+                }
+                .slot-box {
+                    flex: 0 0 100%;
+                }
+                .container.margin_detail {
+                    margin-top: 50px;
+                    padding: 4px;
+                }
+                .box_booking {
+                    padding: 6px;
+                }
+                .modal-dialog {
+                    max-width: 98vw;
+                    margin: 0 auto;
+                }
+                .modal-content {
+                    border-radius: 10px;
+                    padding: 6px;
+                }
+            }
+    
+            @media (max-width: 400px) {
+                .profile-main-image {
+                    width: 90px;
+                    height: 90px;
+                }
+                .profile-header-details h3 {
+                    font-size: 0.9rem;
+                }
+                .appointment_types .nav-link {
+                    padding: 4px 2px;
+                    font-size: 10px;
+                }
+                .container.margin_detail {
+                    margin-top: 30px;
+                    padding: 2px;
+                }
+            }
+    
+            @media (max-width: 600px) {
+                .appointment-tabs {
+                    flex-direction: column !important;
+                    gap: 0 !important;
+                }
+                .appointment-tabs .nav-link {
+                    border-radius: 8px 8px 0 0 !important;
+                    margin-bottom: 6px !important;
+                    padding: 3px 9px !important;
+                    font-size: 1rem !important;
+                }
+                .appointment-tab-content {
+                    padding: 18px 8px 14px 8px !important;
+                }
+                .appointment-details h4 {
+                    font-size: 1.1rem !important;
+                }
+                .appointment-details .price strong {
+                    font-size: 1.3rem !important;
+                }
+            }
+    
+            .tab-pane-container {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+                margin-top: 0;
+                margin-bottom: 24px;
+                padding: 0;
+                border: none;
+            }
+            .tab-pane-container .card-body {
+                padding: 28px 24px;
+            }
+            @media (max-width: 768px) {
+                .tab-pane-container .card-body {
+                    padding: 16px 8px;
+                }
+            }
+    
+            .session-type-tabs .nav-link.active {
+                background: #2563eb !important;
+                color: #fff !important;
+                border: 1px solid #2563eb !important;
+                box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+                z-index: 2;
+            }
+            .session-type-tabs .nav-link {
+                background: #f4f7fa;
+                color: #2563eb;
+                border: 1px solid #e0e7ef;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: background 0.2s, color 0.2s;
+            }
+            .session-type-tabs .nav-link:not(.active):hover {
+                background: #e0e7ef;
+                color: #1741a6;
+            }
+            @media (max-width: 600px) {
+                .session-type-tabs {
+                    flex-direction: column !important;
+                    gap: 6px !important;
+                }
+                .session-type-tabs .nav-link {
+                    padding: 10px 0 !important;
+                    font-size: 1rem !important;
+                }
+            }
+            .margin_detail {
+                padding-top: 122px;
+                padding-bottom: 15px;
+            }
+        </style>
         <style>
+            /* Client Requirements Styles */
+            .client_requirements {
+                margin-bottom: 20px;
+                line-height: 1.7;
+                color: #444;
+            }
+            
+            .client_requirements p {
+                margin-bottom: 15px;
+            }
+            
             /* Global Styles */
             body {
                 background-color: #f8f9fa;
@@ -597,6 +1274,118 @@
             .remove-booking-item:hover {
                 color: #b02a37;
             }
+
+            /* Login Popup Styles */
+            .login-popup-title .wave-icon {
+                font-size: 1.8rem !important;
+            }
+
+            .login-popup-custom {
+                background: linear-gradient(135deg, #152a70, #c51010, #f39c12) !important;
+                color: white !important;
+                border-radius: 15px !important;
+                padding: 25px 20px !important;
+            }
+
+            .login-popup-btn {
+                background-color: #1e0d60 !important;
+                color: white !important;
+                font-size: 1.2rem !important;
+                font-weight: 600 !important;
+                padding: 12px 30px !important;
+                border-radius: 50px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            }
+
+            .login-popup-btn:hover {
+                transform: translateY(-3px) !important;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+            }
+            
+            .login-popup-close {
+                color: white !important;
+                opacity: 0.8 !important;
+                font-size: 1.5rem !important;
+            }
+            
+            .login-popup-close:hover {
+                opacity: 1 !important;
+            }
+
+            /* Social Share Section Styles */
+            .social-share-section {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 10px;
+                border: 1px solid #e9ecef;
+            }
+
+            .social-share-section h6 {
+                color: #495057 !important;
+                margin-bottom: 15px !important;
+            }
+
+            .social-share-section .share-buttons {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+
+            .social-share-section .share-buttons li {
+                display: inline-block;
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+
+            .social-share-section .share-buttons a {
+                display: inline-block;
+                padding: 8px 16px;
+                border-radius: 25px;
+                font-size: 13px;
+                font-weight: 500;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border: 1px solid #dee2e6;
+                background: white;
+                color: #495057;
+            }
+
+            .social-share-section .share-buttons a:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                text-decoration: none;
+            }
+
+            .social-share-section .share-buttons .fb-share:hover {
+                background-color: #1877f2;
+                border-color: #1877f2;
+                color: white;
+            }
+
+            .social-share-section .share-buttons .twitter-share:hover {
+                background-color: #000000;
+                border-color: #000000;
+                color: white;
+            }
+
+            .social-share-section .share-buttons .whatsapp-share:hover {
+                background-color: #25d366;
+                border-color: #25d366;
+                color: white;
+            }
+
+            .social-share-section .share-buttons .instagram-share:hover {
+                background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+                border-color: #bc1888;
+                color: white;
+            }
+
+            .social-share-section .share-buttons .copy-link:hover {
+                background-color: #6c757d;
+                border-color: #6c757d;
+                color: white;
+            }
         </style>
     @endsection
 
@@ -604,12 +1393,57 @@
         <div class="container margin_detail">
             <div class="row">
                 <div class="col-xl-8 col-lg-7">
-                    <div class="box_general">
+                   <div class="box_general">
                         <div class="profile-header-flex">
-                            <img src="{{ $profile->photo ? asset('storage/' . $profile->photo) : asset('img/lazy-placeholder.png') }}" alt="" class="profile-main-image">
+                            <img src="{{ $profile && $profile->photo ? asset('storage/' . $profile->photo) : asset('img/lazy-placeholder.png') }}" alt="" class="profile-main-image">
                             <div class="profile-header-details">
                                 <h3 id="professional_name">{{ $profile->name }}</h3>
-                                <p id="professional_address">{{ $profile->address }} - <a href="https://www.google.com/maps/dir//Assistance+–+Hôpitaux+De+Paris,+3+Avenue+Victoria,+75004+Paris,+Francia/@48.8606548,2.3348734,14z/data=!4m15!1m6!3m5!1s0x47e66e1de36f4147:0xb6615b4092e0351f!2sAssistance+Publique+-+Hôpitaux+de+Paris+(AP-HP)+-+Siège!8m2!3d48.8568376!4d2.3504305!4m7!1m0!1m5!1m1!1s0x47e67031f8c20147:0xa6a9af76b1e2d899!2m2!1d2.3504327!2d48.8568361" target="blank">Get directions</a></p>
+                                <div id="professional_address" style="color:#666; font-size:1rem; margin-bottom:8px;">
+                                    <i class="icon_pin_alt me-1"></i>
+                                    {{ $profile->full_address ?? $profile->address ?? 'Address not available' }}
+                                </div>
+                                @if(!empty($profile->specialization))
+                                    @php
+                                        $specializations = is_array($profile->specialization) ? $profile->specialization : explode(',', $profile->specialization);
+                                    @endphp
+                                    <div style="color:#2563eb; font-weight:500; font-size:1.05rem; margin-bottom:4px;">
+                                        <i class="icon_document_alt me-1"></i>
+                                        Specializations: {{ !empty($specializations) ? implode(', ', array_map('trim', $specializations)) : 'Not specified' }}
+                                    </div>
+                                @else
+                                    <div style="color:#888; font-size:1.05rem; margin-bottom:4px;">
+                                        <i class="icon_document_alt me-1"></i>
+                                        Specializations: Not specified
+                                    </div>
+                                @endif
+                                @if(!empty($profile->education))
+                                    @php
+                                        $educationList = is_array($profile->education) ? $profile->education : explode(',', $profile->education);
+                                    @endphp
+                                    <div style="color:#2563eb; font-size:1.05rem; margin-bottom:8px;">
+                                        <i class="icon_graduation me-1"></i>
+                                        Education: {{ !empty($educationList) ? implode(', ', array_map('trim', $educationList)) : 'Not specified' }}
+                                    </div>
+                                @else
+                                    <div style="color:#888; font-size:1.05rem; margin-bottom:8px;">
+                                        <i class="icon_graduation me-1"></i>
+                                        Education: Not specified
+                                    </div>
+                                @endif
+                                <div class="profile-badges mb-2" style="display:flex; gap:12px; margin-bottom:16px;">
+                                    <span class="badge-square" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:139px; height:60px; background:#e0f7fa; color:#00796b; border-radius:12px; font-weight:600; font-size:0.75rem;">
+                                        <i class="fas fa-thumbs-up mb-1" style="font-size:1.3rem;"></i>
+                                        Most Helpful
+                                    </span>
+                                    <span class="badge-square" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:139px; height:60px; background:#fff3e0; color:#ef6c00; border-radius:12px; font-weight:600; font-size:0.75rem;">
+                                        <i class="fas fa-bolt mb-1" style="font-size:1.3rem;"></i>
+                                        Very Responsive
+                                    </span>
+                                    <span class="badge-square" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:139px; height:60px; background:#e8eaf6; color:#3949ab; border-radius:12px; font-weight:600; font-size:0.75rem;">
+                                        <i class="fas fa-user-tie mb-1" style="font-size:1.3rem;"></i>
+                                        Top Professional
+                                    </span>
+                                </div>
                                 <ul class="tags no_margin" style="margin-bottom: 8px;">
                                     @if($services && $services->tags)
                                         @foreach(explode(',', $services->tags) as $tag)
@@ -621,6 +1455,7 @@
                                         <li><span class="tag-btn" style="background:#eee; color:#888;">No tags available</span></li>
                                     @endif
                                 </ul>
+                                
                                 @if(!empty($profile->experience))
                                     <div class="profile-experience" style="margin-bottom: 10px; color: #444; font-weight: 500; font-size: 1.08rem;">
                                         <i class="icon_briefcase" style="margin-right: 6px;"></i>{{ $profile->experience }} experience
@@ -632,7 +1467,7 @@
                                 @endif
                                 @if(!empty($profile->starting_price))
                                     <div class="profile-price" style="margin-bottom: 10px; color: #1a8917; font-weight: 600; font-size: 1.08rem;">
-                                        <i class="fas fa-wallet" style="margin-right: 6px;"></i>From ₹{{ number_format($profile->starting_price, 2) }}
+                                        <i class="fas fa-wallet" style="margin-right: 6px;"></i>From ₹{{ $profile->starting_price }}
                                     </div>
                                 @else
                                     <div class="profile-price" style="margin-bottom: 10px; color: #888; font-size: 1.08rem;">
@@ -647,29 +1482,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="main_info_wrapper">
+                        <div class="main_info_wrapper" style="padding: 32px 28px 24px 28px; margin-bottom: 28px; margin-top: 8px; border-radius: 12px;">
                             <div class="main_info clearfix">
                                 <div class="user_desc">
-                                    <h4>About me</h4>
-
+                                    <h4 style="margin-bottom: 18px; font-size: 1.35rem; font-weight: 700; color: #222;">About me</h4>
                                     @php
                                         $bioText = strip_tags($profile->bio); 
                                         $limit = 250;
                                     @endphp
-                                    
                                     @if(strlen($bioText) > $limit)
-                                        <p id="bio-short">{{ Str::limit($bioText, $limit, '...') }}</p>
-                                        <div id="bio-full" style="display: none;">
+                                        <p id="bio-short" style="margin-bottom: 10px; color: #555;">{{ Str::limit($bioText, $limit, '...') }}</p>
+                                        <div id="bio-full" style="display: none; margin-bottom: 10px; color: #555;">
                                             {!! $profile->bio !!}
                                         </div>
-                                        <a href="javascript:void(0)" class="show_hide" id="toggle-bio">Read More</a>
+                                        <a href="javascript:void(0)" class="show_hide" id="toggle-bio" style="margin-top: 8px; display: inline-block;">Read More</a>
                                     @else
-                                        <p>{!! $profile->bio !!}</p>
+                                        <p style="color: #555;">{!! $profile->bio !!}</p>
                                     @endif
-                                    
                                 </div>
                             </div>
-                            <hr>
+                            <hr style="margin-top: 24px; margin-bottom: 0;">
                         </div>
                     </div>
                     <div class="tabs_detail">
@@ -694,7 +1526,7 @@
                                     </h5>
                                 </div>
                                 @php
-                                $services = $requestedService && $requestedService->requested_service
+                                $requestedServices = $requestedService && $requestedService->requested_service
                                             ? json_decode($requestedService->requested_service, true)
                                             : [];
                             
@@ -702,13 +1534,12 @@
                                             ? json_decode($requestedService->price, true)
                                             : [];
                             
-                                $specializations = $requestedService && $requestedService->specializations
-                                            ? json_decode($requestedService->specializations, true)
-                                            : [];
-                            
                                 $education = $requestedService && $requestedService->education
                                             ? json_decode($requestedService->education, true)
                                             : ['college_name' => [], 'degree' => []];
+                                            
+                                // Store the original ProfessionalService model in a different variable for access later
+                                $professionalService = $services;
                             @endphp
                             
                             <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
@@ -719,13 +1550,13 @@
                                         <h3>Services</h3>
                                     </div>
                                     <div class="wrapper_indent">
-                                        @if(!empty($services))
+                                        @if(!empty($requestedServices))
                                             <p>{{ $requestedService->sub_heading ?? '' }}</p>
                             
                                             <h6>Most Requested Services</h6>
                                             <div class="services_list clearfix">
                                                 <ul>
-                                                    @foreach($services as $index => $service)
+                                                    @foreach($requestedServices as $index => $service)
                                                         <li>
                                                             {{ $service }}
                                                             @if(isset($prices[$index]))
@@ -740,40 +1571,36 @@
                                         @endif
                                     </div>
                                     <hr>
-                            
-                                    {{-- Specializations --}}
+                              @php
+                                        $requirements = '';
+                                        
+                                        if ($professionalService && $professionalService->requirements) {
+                                            // Handle different formats of requirements
+                                            if (is_array($professionalService->requirements)) {
+                                                $requirements = implode("\n\n", $professionalService->requirements);
+                                            } elseif (is_string($professionalService->requirements)) {
+                                                // Try to parse as JSON in case it's a JSON string
+                                                $decoded = json_decode($professionalService->requirements, true);
+                                                if (is_array($decoded) && json_last_error() === JSON_ERROR_NONE) {
+                                                    $requirements = implode("\n\n", $decoded);
+                                                } else {
+                                                    $requirements = $professionalService->requirements;
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    
+                                    @if(!empty(trim($requirements)))
+                                    {{-- Client Requirements --}}
                                     <div class="indent_title_in">
                                         <i class="icon_document_alt"></i>
-                                        <h3>Professional statement</h3>
-                                        <p>{{ $requestedService->statement ?? 'No statement provided.' }}</p>
+                                        <h3>Client Requirements</h3>
+                                        <p>Note for clients if any</p>
                                     </div>
-                                    <div class="wrapper_indent">
-                                        <h6>Specializations</h6>
-                                        <div class="row">
-                                            @php
-                                                $chunks = [];
-                                                if (!empty($specializations) && count($specializations) > 0) {
-                                                    $chunks = array_chunk($specializations, ceil(count($specializations) / 2));
-                                                }
-                                            @endphp
-
-                                            @if(!empty($chunks))
-                                                @foreach($chunks as $chunk)
-                                                    <div class="col-lg-6">
-                                                        <ul class="bullets">
-                                                            @foreach($chunk as $item)
-                                                                <li>{{ $item }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                @endforeach
-                                            @else
-                                                <div class="col-12">
-                                                    <p>No specializations available at the moment.</p>
-                                                </div>
-                                            @endif
-                                        </div>
+                                    <div class="wrapper_indent add_bottom_25">
+                                        {!! nl2br(e($requirements)) !!}
                                     </div>
+                                    @endif
                                     <hr>
                             
                                     {{-- Education --}}
@@ -791,6 +1618,7 @@
                                             @endforeach
                                         </ul>
                                     </div>
+                                    <hr>
                                 </div>
                             </div>
                             </div>
@@ -807,7 +1635,7 @@
                                     <div class="card-body reviews">
                                         <div class="row add_bottom_45 d-flex align-items-center">
                                             @php
-                                                $reviews = $profile->professional->reviews ?? collect([]);
+                                                $reviews = ($profile && $profile->professional) ? $profile->professional->reviews : collect([]);
                                                 $reviewCount = $reviews->count();
                                                 $avgRating = $reviewCount > 0 ? number_format($reviews->avg('rating'), 1) : 0;
                                                 
@@ -911,9 +1739,10 @@
                                     </h5>
                                 </div>
                                 @php
-                                $galleryImages = json_decode($profile->gallery, true);
+                                // Use the safe gallery accessor method from the Profile model
+                                $galleryImages = $profile ? $profile->gallery_array : [];
                                 @endphp
-                                @if(!empty($galleryImages))
+                                @if(!empty($galleryImages) && is_array($galleryImages))
                                     <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
                                         <div class="card-body">
                                             <div class="gallery-container">
@@ -1077,16 +1906,29 @@
                                 <!-- Selected dates and times will be appended here -->
                             </ul>
                             
-                            <a href="javascript:void(0);" class="btn_1 full-width booking">Book Now</a>
+                            <a href="javascript:void(0);" class="btn_1 full-width booking" id="bookNowBtn">Book Now</a>
                         </div>
                     </div>
                     
                     <!-- Social Share Buttons -->
-                    <ul class="share-buttons">
-                        <li><a class="fb-share" href="#0"><i class="social_facebook"></i> Share</a></li>
-                        <li><a class="twitter-share" href="#0"><i class="social_twitter"></i> Share</a></li>
-                        <li><a class="gplus-share" href="#0"><i class="social_googleplus"></i> Share</a></li>
-                    </ul>
+                    <div class="social-share-section mt-3">
+                        <h6 class="text-dark mb-3" style="font-weight: 600;">
+                            <i class="fas fa-share-alt me-2"></i>Share this professional:
+                        </h6>
+                        @php
+                            // Create SEO-friendly URL with professional name
+                            $professionalName = $profile->name ?? 'Professional';
+                            $seoFriendlyName = Str::slug($professionalName);
+                            $shareUrl = route('professionals.details', ['id' => $profile->professional_id, 'professional_name' => $seoFriendlyName]);
+                        @endphp
+                        <ul class="share-buttons">
+                            <li><a class="fb-share" href="#0" onclick="shareOnFacebookProfessional('{{ $professionalName }}', '{{ $shareUrl }}')"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                            <li><a class="twitter-share" href="#0" onclick="shareOnXProfessional('{{ $professionalName }}', '{{ $shareUrl }}')"><i class="fab fa-x-twitter"></i> Twitter</a></li>
+                            <li><a class="whatsapp-share" href="#0" onclick="shareOnWhatsAppProfessional('{{ $professionalName }}', '{{ $shareUrl }}')"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+                            <li><a class="instagram-share" href="#0" onclick="shareOnInstagram('{{ $professionalName }}', '{{ $shareUrl }}')"><i class="fab fa-instagram"></i> Instagram</a></li>
+                            <li><a class="copy-link" href="#0" onclick="copyLinkProfessional('{{ $shareUrl }}')"><i class="fas fa-copy"></i> Copy Link</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1105,7 +1947,7 @@
                         @if(Auth::guard('user')->check())
                             <form id="reviewForm">
                                 @csrf
-                                <input type="hidden" name="professional_id" value="{{ $profile->professional->id ?? '' }}">
+                                <input type="hidden" name="professional_id" value="{{ ($profile && $profile->professional && $profile->professional->id) ? $profile->professional->id : $id ?? '' }}">>
                                 
                                 <!-- Rating Stars -->
                                 <div class="rating-container text-center mb-4">
@@ -1168,11 +2010,13 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 let enabledDates = @json($enabledDates);
-                console.log(enabledDates);
                 
                 // Get existing bookings for this professional
                 const existingBookings = @json($existingBookings ?? []);
-                console.log("Existing bookings:", existingBookings);
+                
+                // Debug: Log the existing bookings data
+                console.log('Existing bookings data:', existingBookings);
+                console.log('Enabled dates:', enabledDates);
                 
                 let selectedBookings = {};
 
@@ -1241,15 +2085,26 @@
                                 // Check if the slot is already booked
                                 const timeInput = box.querySelector('.time-slot');
                                 const timeValue = timeInput.value;
+                                const label = timeInput.nextElementSibling;
                                 
-                                // Disable slots that are already booked
+                                // Reset any previous styling
+                                timeInput.disabled = false;
+                                timeInput.checked = false;
+                                box.classList.remove('slot-booked');
+                                label.style.opacity = '';
+                                label.style.textDecoration = '';
+                                // Remove previous BOOKED text
+                                if (label.innerHTML.includes('(BOOKED)')) {
+                                    label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
+                                }
+                                
+                                // Check if this slot is booked for the selected date
                                 if (isTimeSlotBooked(dateString, timeValue)) {
                                     timeInput.disabled = true;
-                                    timeInput.checked = false;
                                     box.classList.add('slot-booked');
-                                } else {
-                                    timeInput.disabled = false;
-                                    box.classList.remove('slot-booked');
+                                    label.style.opacity = '0.5';
+                                    label.style.textDecoration = 'line-through';
+                                    label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px; font-weight: bold;">(BOOKED)</span>';
                                 }
                             });
                         }
@@ -1260,17 +2115,77 @@
 
                 // Function to check if a time slot is already booked
                 function isTimeSlotBooked(date, timeSlot) {
+                    console.log('Checking if booked - Date:', date, 'TimeSlot:', timeSlot);
+                    console.log('Available bookings for date:', existingBookings[date]);
+                    
                     if (!existingBookings[date]) return false;
                     
-                    // Format timeSlot for comparison (both might have different formats)
-                    const slotStartTime = timeSlot.split(' to ')[0].trim();
+                    // Normalize both time slot formats for comparison
+                    const normalizeTimeSlot = (slot) => {
+                        return slot.replace(' to ', ' - ').trim();
+                    };
                     
-                    return existingBookings[date].some(bookedTime => {
-                        // Format bookedTime for comparison
-                        const bookedStartTime = bookedTime.split(' to ')[0].trim();
+                    const normalizedTimeSlot = normalizeTimeSlot(timeSlot);
+                    console.log('Normalized time slot:', normalizedTimeSlot);
+                    
+                    const isBooked = existingBookings[date].some(bookedTime => {
+                        const normalizedBookedTime = normalizeTimeSlot(bookedTime);
+                        console.log('Comparing with booked time:', normalizedBookedTime);
+                        return normalizedTimeSlot === normalizedBookedTime;
+                    });
+                    
+                    console.log('Is booked result:', isBooked);
+                    return isBooked;
+                }
+
+                // Function to mark booked time slots visually
+                function markBookedSlots() {
+                    document.querySelectorAll('.time-slot').forEach(slot => {
+                        const timeValue = slot.value;
+                        const slotBox = slot.closest('.slot-box');
+                        const label = slot.nextElementSibling;
                         
-                        // Compare times (ignoring AM/PM for now - would need more robust comparison in production)
-                        return bookedStartTime === slotStartTime;
+                        // Get the current selected date from calendar or use a default
+                        const selectedDates = document.querySelectorAll('.flatpickr-day.selected');
+                        
+                        if (selectedDates.length > 0) {
+                            const selectedDate = selectedDates[0].getAttribute('aria-label');
+                            const dateString = formatLocalDate(new Date(selectedDate));
+                            
+                            if (isTimeSlotBooked(dateString, timeValue)) {
+                                slot.disabled = true;
+                                slotBox.classList.add('slot-booked');
+                                label.style.opacity = '0.5';
+                                label.style.textDecoration = 'line-through';
+                                label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px;">(BOOKED)</span>';
+                            }
+                        }
+                    });
+                }
+
+                // Function to update booked slots when date changes
+                function updateBookedSlotsForDate(dateString) {
+                    document.querySelectorAll('.time-slot').forEach(slot => {
+                        const timeValue = slot.value;
+                        const slotBox = slot.closest('.slot-box');
+                        const label = slot.nextElementSibling;
+                        
+                        // Reset previous booked styling
+                        slot.disabled = false;
+                        slotBox.classList.remove('slot-booked');
+                        label.style.opacity = '';
+                        label.style.textDecoration = '';
+                        // Remove previous BOOKED text
+                        label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
+                        
+                        // Check if this slot is booked for the selected date
+                        if (isTimeSlotBooked(dateString, timeValue)) {
+                            slot.disabled = true;
+                            slotBox.classList.add('slot-booked');
+                            label.style.opacity = '0.5';
+                            label.style.textDecoration = 'line-through';
+                            label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px;">(BOOKED)</span>';
+                        }
                     });
                 }
 
@@ -1400,52 +2315,188 @@
 
                 planButtons.forEach(button => {
                     button.addEventListener('click', function () {
-                        const plan = this.getAttribute('data-plan');
-                        sessionCount = parseInt(this.getAttribute('data-sessions')); 
-                        selectedRate = parseFloat(this.getAttribute('data-rate'));
-                        selectedPlanInput.value = plan;
-                        
-                        // Format the plan name for display
-                        const displayPlan = plan.split('_')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' ');
-                            
-                        selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
-                        selectedPlanDisplay.style.display = 'block';
-                        selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                        // First check if user is logged in before allowing plan selection
+                        checkAuthenticationBeforePlanSelection(this);
                     });
                 });
 
-                // Handle booking submission
-                document.querySelector('.booking').addEventListener('click', function (e) {
-                    e.preventDefault();
+                // Function to check authentication before plan selection
+                function checkAuthenticationBeforePlanSelection(planButton) {
+                    console.log('Checking authentication for plan selection...');
+                    
+                    fetch('/check-login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            check: true
+                        })
+                    })
+                    .then(response => {
+                        console.log('Authentication response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Authentication response data:', data);
+                        if (data.logged_in) {
+                            // User is logged in, proceed with plan selection
+                            console.log('User is authenticated, selecting plan...');
+                            selectPlan(planButton);
+                        } else {
+                            // User is not logged in, show login popup
+                            console.log('User is not authenticated, showing login popup...');
+                            console.log('Swal object available:', typeof Swal);
+                            showLoginPopupForPlanSelection(planButton);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking login status:', error);
+                        // On error, show login popup (safer fallback)
+                        console.log('Error occurred, showing login popup as fallback...');
+                        showLoginPopupForPlanSelection(planButton);
+                    });
+                }
 
+                // Function to show login popup for plan selection
+                function showLoginPopupForPlanSelection(planButton) {
+                    console.log('showLoginPopupForPlanSelection called');
+                    console.log('Swal available:', typeof Swal !== 'undefined');
+                    
+                    const plan = planButton.getAttribute('data-plan');
+                    const planDisplayName = plan.split('_')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+
+                    console.log('Plan:', plan, 'Display name:', planDisplayName);
+
+                    // Check if Swal is available
+                    if (typeof Swal === 'undefined') {
+                        console.error('SweetAlert2 not loaded!');
+                        alert('Please login to select a consultation plan and proceed with booking.');
+                        window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
+                        return;
+                    }
+
+                    console.log('Showing SweetAlert popup...');
+
+                    // Show the login popup with custom styling
+                    Swal.fire({
+                        title: '<span class="login-popup-title"><span class="wave-icon">👋</span> Hey! You forgot to login</span>',
+                        html: '<p style="color: white; margin: 15px 0;">Please login to select a consultation plan and proceed with booking.</p>',
+                        showCloseButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: 'Login',
+                        customClass: {
+                            popup: 'login-popup-custom',
+                            confirmButton: 'login-popup-btn',
+                            closeButton: 'login-popup-close'
+                        },
+                        confirmButtonColor: '#1e0d60',
+                        background: 'linear-gradient(135deg, #152a70, #c51010, #f39c12)',
+                        backdrop: 'rgba(0,0,0,0.8)'
+                    }).then((result) => {
+                        console.log('SweetAlert result:', result);
+                        if (result.isConfirmed) {
+                            // Redirect to login with current professional page as intended destination
+                            window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
+                        }
+                        // If cancelled, do nothing - user stays on current page
+                    });
+                }
+
+                // Function to actually select the plan (for authenticated users)
+                function selectPlan(planButton) {
+                    const plan = planButton.getAttribute('data-plan');
+                    sessionCount = parseInt(planButton.getAttribute('data-sessions')); 
+                    selectedRate = parseFloat(planButton.getAttribute('data-rate'));
+                    selectedPlanInput.value = plan;
+                    
+                    // Format the plan name for display
+                    const displayPlan = plan.split('_')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                        
+                    selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
+                    selectedPlanDisplay.style.display = 'block';
+                    selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Handle booking submission
+                const bookingButton = document.querySelector('.booking') || document.getElementById('bookNowBtn');
+                if (bookingButton) {
+                    bookingButton.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        
+                        // Proceed directly with booking since auth check happened at plan selection
+                        proceedWithBooking();
+                    });
+                } else {
+                    console.error('Booking button not found!');
+                }
+
+                // Function to proceed with booking (for authenticated users)
+                function proceedWithBooking() {
                     const planType = selectedPlanInput.value;
                     const bookingData = selectedBookings;
 
                     // Get the number of dates selected by the user
                     const selectedDatesCount = Object.keys(bookingData).length;
+    
 
                     if (!planType) {
-                        toastr.error('Please select a consultation plan.');
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Please select a consultation plan.');
+                        } else {
+                            alert('Please select a consultation plan.');
+                        }
                         return;
                     }
 
                     if (selectedDatesCount !== sessionCount) {
-                        toastr.error(`You need to select ${sessionCount} dates for this booking.`);
+                        const message = `You need to select ${sessionCount} dates for this booking.`;
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(message);
+                        } else {
+                            alert(message);
+                        }
                         return;
                     }
 
-                    const professionalName = document.getElementById('professional_name').textContent.trim();
-                    const professionalAddress = document.getElementById('professional_address').textContent.trim();
-                    const professionalId = {{ json_encode($profile->professional->id ?? null) }};
+                    const professionalNameEl = document.getElementById('professional_name');
+                    const professionalAddressEl = document.getElementById('professional_address');
+                    
+                    if (!professionalNameEl) {
+                        console.error('Professional name element not found');
+                        const message = 'Professional information missing. Please refresh the page.';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(message);
+                        } else {
+                            alert(message);
+                        }
+                        return;
+                    }
+                    
+                    if (!professionalAddressEl) {
+                        console.error('Professional address element not found');
+                        const message = 'Professional address information missing. Please refresh the page.';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(message);
+                        } else {
+                            alert(message);
+                        }
+                        return;
+                    }
 
+                    const professionalName = professionalNameEl.textContent.trim();
+                    const professionalAddress = professionalAddressEl.textContent.trim();
+                    const professionalId = {{ json_encode(($profile && $profile->professional && $profile->professional->id) ? $profile->professional->id : $id ?? null) }};
                     // Format the bookings data into the expected structure
                     const formattedBookings = {};
                     Object.keys(bookingData).forEach(date => {
                         formattedBookings[date] = bookingData[date];
                     });
-
                     // Send the booking data to the server
                     fetch("{{ route('user.booking.session.store') }}", {
                         method: 'POST',
@@ -1463,28 +2514,71 @@
                         })
                     })
                     .then(res => {
+                        // Check if response is redirected to login page
+                        if (res.redirected && res.url.includes('/login')) {
+                            throw new Error('Authentication required');
+                        }
                         if (!res.ok) {
                             throw new Error('Network response was not ok');
                         }
-                        return res.json();
+                        return res.text(); // Get as text first to check if it's JSON
                     })
-                    .then(data => {
-                        console.log('Response Data:', data);
+                    .then(responseText => {
+                        let data;
+                        try {
+                            data = JSON.parse(responseText);
+                        } catch (parseError) {
+                            // If JSON parsing fails, it might be an HTML login page
+                            if (responseText.includes('<html') || responseText.includes('login')) {
+                                throw new Error('Authentication required');
+                            }
+                            throw new Error('Invalid response format');
+                        }
                         
                         if (data.status === 'success') {
-                            toastr.success(data.message);
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(data.message);
+                            } else {
+                                alert(data.message || 'Booking successful!');
+                            }
                             setTimeout(() => {
                                 window.location.href = "{{ route('user.booking') }}";
                             }, 1000);
                         } else {
-                            toastr.error(data.message || 'Something went wrong.');
+                            const message = data.message || 'Something went wrong.';
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error(message);
+                            } else {
+                                alert(message);
+                            }
                         }
                     })
                     .catch(err => {
-                        console.error(err);
-                        toastr.error('Server error. Please try again later.');
+                        console.error('Booking error:', err);
+                        let message = 'Server error. Please try again later.';
+                        
+                        if (err.message === 'Authentication required') {
+                            message = 'Please login to complete your booking.';
+                            // Show login modal or redirect to login
+                            if (typeof toastr !== 'undefined') {
+                                toastr.info(message);
+                            } else {
+                                alert(message);
+                            }
+                            // Redirect to login with current page as the redirect
+                            setTimeout(() => {
+                                window.location.href = "{{ route('login') }}?redirect=" + encodeURIComponent(window.location.href);
+                            }, 1500);
+                            return;
+                        }
+                        
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(message);
+                        } else {
+                            alert(message);
+                        }
                     });
-                });
+                }
 
                 // Toggle Bio functionality
                 const bioShort = document.getElementById("bio-short");
@@ -1591,5 +2685,71 @@
                     });
                 }
             });
+
+            // Social sharing functions for professional profiles
+            window.shareOnFacebookProfessional = function(professionalName, url) {
+                const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(`Check out this professional: ${professionalName}`)}`;
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            };
+
+            window.shareOnTwitterProfessional = function(professionalName, url) {
+                const text = `Check out this professional: ${professionalName}`;
+                const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            };
+
+            window.shareOnXProfessional = function(professionalName, url) {
+                const text = `Check out this professional: ${professionalName}`;
+                const shareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            };
+
+            window.shareOnWhatsAppProfessional = function(professionalName, url) {
+                const text = `Check out this professional: ${professionalName} ${url}`;
+                const shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                window.open(shareUrl, '_blank');
+            };
+
+            window.shareOnInstagram = function(professionalName, url) {
+                // Instagram doesn't have a direct sharing URL, so we copy the link and show instructions
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Link copied! Open Instagram and paste it in your story or post.');
+                    } else {
+                        alert('Link copied to clipboard! Open Instagram and paste it in your story or post.');
+                    }
+                }).catch(function() {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.info('Please copy this link and share it on Instagram: ' + url);
+                    } else {
+                        alert('Please copy this link and share it on Instagram: ' + url);
+                    }
+                });
+            };
+
+            window.copyLinkProfessional = function(url) {
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Professional profile link copied to clipboard!');
+                    } else {
+                        alert('Professional profile link copied to clipboard!');
+                    }
+                }).catch(function() {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Professional profile link copied to clipboard!');
+                    } else {
+                        alert('Professional profile link copied to clipboard!');
+                    }
+                });
+            };
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @endsection

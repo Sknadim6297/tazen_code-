@@ -1,14 +1,80 @@
 @extends('layouts.layout')
 @section('styles')
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
-   <style>
+      <style>
+    /* Page Background Animation */
+    body {
+        background: linear-gradient(135deg, #1741cabc, #d379038c, #ece00586);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Content Container Adjustments */
+    .container.margin_30_40 {
+        background: rgba(255, 255, 255, 0.952);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        margin-top: 150px !important;
+        margin-bottom: 50px;
+    }
+
+    /* Page Header Adjustments */
+    .page_header {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .page_header h1 {
+        color: #152a70;
+        margin-bottom: 10px;
+    }
+
+    .breadcrumbs ul li a {
+        color: #c51010;
+        font-weight: 500;
+    }
+
+    .breadcrumbs ul li:after {
+        color: #f39c12;
+    }
+
     /* Filter Container */
     .filter-container {
-        background-color: #f8f9fa;
+        background-color: rgba(248, 249, 250, 0.95);
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 25px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Strip Card Adjustments */
+    .strip {
+        background: rgba(255, 255, 255, 0.95);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .strip:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
     }
     
     /* Filter Row */
@@ -33,6 +99,7 @@
         margin-bottom: 8px;
         font-weight: 600;
         color: #333;
+        font-size: 1.5em;
     }
     
     /* Select Wrapper */
@@ -72,6 +139,7 @@
         display: flex;
         gap: 10px;
         margin-left: auto;
+        margin-bottom: 11px;
     }
     
     /* Button Styling */
@@ -286,11 +354,15 @@
     <img src="{{ $professional->profile && $professional->profile->photo ? asset('storage/' . $professional->profile->photo) : asset('img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" style="z-index: 1;">
 
     {{-- Professional Details Link --}}
-    <a href="{{ route('professionals.details', ['id' => $professional->id]) }}" class="strip_info">
+    @php
+        $professionalName = $professional->name ?? 'Professional';
+        $seoFriendlyName = Str::slug($professionalName);
+    @endphp
+    <a href="{{ route('professionals.details', ['id' => $professional->id, 'professional_name' => $seoFriendlyName]) }}" class="strip_info">
         <div class="item_title">
             <h3>{{ $professional->name }}</h3>
             <p class="about">{{ $professional->bio }}</p>
-            <small>From ₹{{ number_format($professional->profile->starting_price ?? 0, 2) }}</small>
+            <small>From ₹{{ $professional->profile->starting_price ?? 'Contact for pricing' }}</small>
             <br>
          <small>
     {{ $professional->professionalServices->pluck('tags')->filter()->implode(', ') ?: 'No tags available' }}

@@ -13,9 +13,32 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bookings = EventBooking::with('event')->where('user_id', auth()->guard('user')->id())->get();
+        $query = EventBooking::with('event')->where('user_id', auth()->guard('user')->id());
+        
+        // Search by event name
+        if ($request->filled('search_name')) {
+            $query->whereHas('event', function ($q) use ($request) {
+                $q->where('heading', 'like', '%' . $request->search_name . '%');
+            });
+        }
+        
+        // Filter by event type (online/offline)
+        if ($request->filled('search_type')) {
+            $query->where('type', $request->search_type);
+        }
+        
+        // Filter by date range
+        if ($request->filled('search_date_from')) {
+            $query->whereDate('event_date', '>=', $request->search_date_from);
+        }
+        
+        if ($request->filled('search_date_to')) {
+            $query->whereDate('event_date', '<=', $request->search_date_to);
+        }
+        
+        $bookings = $query->latest()->get();
          
         return view('customer.event.index', compact('bookings'));
     }

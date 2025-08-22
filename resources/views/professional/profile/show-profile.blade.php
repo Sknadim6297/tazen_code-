@@ -81,7 +81,17 @@
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Starting Price</span>
-                                <span class="detail-value">₹{{ $profile->starting_price ?? 'N/A' }}</span>
+                                <span class="detail-value">
+                                    @if($profile->starting_price)
+                                        @if(str_contains($profile->starting_price, '-'))
+                                            ₹{{ $profile->starting_price }} per session
+                                        @else
+                                            ₹{{ $profile->starting_price }} per session
+                                        @endif
+                                    @else
+                                        N/A
+                                    @endif
+                                </span>
                                 @if(!$profile->starting_price) <span class="warning-badge">Required</span> @endif
                             </div>
                             <div class="detail-item">
@@ -93,6 +103,25 @@
                                 <span class="detail-label">Margin (%)</span>
                                 <span class="detail-value">{{ $profile->professional->margin ?? 'N/A' }}</span>
                                 @if(!$profile->professional->margin) <span class="warning-badge">Required</span> @endif
+                            </div>
+                            @if($profile->gst_number)
+                            <div class="detail-item">
+                                <span class="detail-label">GST Number</span>
+                                <span class="detail-value">{{ $profile->gst_number }}</span>
+                            </div>
+                            @endif
+                            @if($profile->state_code)
+                            <div class="detail-item">
+                                <span class="detail-label">State Code</span>
+                                <span class="detail-value">{{ $profile->state_code }} - {{ $profile->state_name ?? 'N/A' }}</span>
+                            </div>
+                            @endif
+                            @if($profile->gst_address)
+                            <div class="detail-item">
+                                <span class="detail-label">GST Address</span>
+                                <span class="detail-value">{{ $profile->gst_address }}</span>
+                            </div>
+                            @endif
                             </div>
                         </div>
                     </div>
@@ -133,15 +162,16 @@
                                     </svg>
                                 </div>
                                 <div class="document-info">
-                                    <span class="document-name">Aadhaar Card</span>
-                                    @if($profile->aadhaar_card)
-                                        <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank" class="document-link">View Document</a>
+                                    <span class="document-name">ID Proof Document (Aadhaar / PAN Card)</span>
+                                    @if($profile->id_proof_document)
+                                        <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank" class="document-link">View Document</a>
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
                                 </div>
                             </div>
 
+                            @if($profile->gst_number)
                             <div class="document-item">
                                 <div class="document-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
@@ -150,14 +180,15 @@
                                     </svg>
                                 </div>
                                 <div class="document-info">
-                                    <span class="document-name">PAN Card</span>
-                                    @if($profile->pan_card)
-                                        <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank" class="document-link">View Document</a>
+                                    <span class="document-name">GST Certificate</span>
+                                    @if($profile->gst_certificate)
+                                        <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank" class="document-link">View Document</a>
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>

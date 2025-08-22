@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\frontend;
+namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Availability;
@@ -28,6 +28,7 @@ use App\Models\RequestedService;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use App\Models\BlogPost;
 use App\Models\EventDetail;
@@ -143,6 +144,18 @@ class HomeController extends Controller
         // Get selected service ID either from request or session
         $selectedServiceId = $request->input('service_id', Session::get('selected_service_id'));
 
+        // If service_id is provided in request, store it in session
+        if ($request->has('service_id') && $request->service_id) {
+            $service = Service::find($request->service_id);
+            if ($service) {
+                session([
+                    'selected_service_id' => $request->service_id,
+                    'selected_service_name' => $service->name,
+                ]);
+                $selectedServiceId = $request->service_id;
+            }
+        }
+
         $professionalsQuery = Professional::with('profile', 'professionalServices')
             ->where('status', 'accepted')
             ->where('active', true);
@@ -203,7 +216,7 @@ class HomeController extends Controller
 
 
 
-    public function professionalsDetails($id)
+    public function professionalsDetails($id, $professional_name = null)
     {
         $requestedService = ProfessionalOtherInformation::where('professional_id', $id)->first();
         $profile = Profile::with(['professional.reviews' => function ($query) {
@@ -214,6 +227,23 @@ class HomeController extends Controller
 
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
         $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
+        
+        // Process requirements to ensure they are properly formatted
+        if ($services && $services->requirements) {
+            // Check if requirements is a JSON string with escaped quotes
+            if (is_string($services->requirements) && strpos($services->requirements, '\"') !== false) {
+                $services->requirements = json_decode(str_replace('\"', '"', $services->requirements));
+            } 
+            // Check if requirements is a normal JSON string
+            elseif (is_string($services->requirements) && (strpos($services->requirements, '[') === 0 || strpos($services->requirements, '{') === 0)) {
+                $services->requirements = json_decode($services->requirements);
+            } 
+            // If it's a simple string, convert to array
+            elseif (!is_array($services->requirements)) {
+                $services->requirements = [$services->requirements];
+            }
+        }
+        
         $rates = Rate::where('professional_id', $id)->with('professional')->get();
 
         $enabledDates = [];
@@ -253,23 +283,8 @@ class HomeController extends Controller
             }
         }
 
-        // Fetch all existing bookings for this professional
-        $existingBookings = [];
-
-        // Get booking time dates from database
-        $bookedTimeSlots = BookingTimedate::whereHas('booking', function ($query) use ($id) {
-            $query->where('professional_id', $id)
-                ->where('status', '!=', 'cancelled');
-        })->get();
-
-        // Format the booked time slots into a structured array
-        foreach ($bookedTimeSlots as $slot) {
-            $date = $slot->date;
-            if (!isset($existingBookings[$date])) {
-                $existingBookings[$date] = [];
-            }
-            $existingBookings[$date][] = $slot->time_slot;
-        }
+        // Fetch all existing bookings for this professional using the new method
+        $existingBookings = BookingTimedate::getBookedSlots($id);
 
         return view('frontend.sections.professional-details', compact(
             'profile',
@@ -317,14 +332,31 @@ class HomeController extends Controller
             ]);
 
             $bookingData = [];
+            $professionalId = $request->professional_id;
+            $conflictingSlots = [];
 
             foreach ($request->bookings as $date => $slots) {
                 if (!empty($slots)) {
-                    $bookingData[] = [
-                        'date' => $date,
-                        'time_slot' => $slots[0], // Take the first slot for each date
-                    ];
+                    $timeSlot = BookingTimedate::normalizeTimeSlot($slots[0]); // Take the first slot for each date and normalize
+                    
+                    // Check for existing bookings for this professional at this date/time
+                    if (BookingTimedate::isSlotBooked($professionalId, $date, $timeSlot)) {
+                        $conflictingSlots[] = $date . ' at ' . $timeSlot;
+                    } else {
+                        $bookingData[] = [
+                            'date' => $date,
+                            'time_slot' => $timeSlot,
+                        ];
+                    }
                 }
+            }
+
+            // If there are conflicts, return error
+            if (!empty($conflictingSlots)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The following time slots are already booked: ' . implode(', ', $conflictingSlots) . '. Please refresh the page and select different time slots.'
+                ], 422);
             }
 
             if (empty($bookingData)) {
@@ -339,6 +371,10 @@ class HomeController extends Controller
                 'plan_type' => $request->plan_type,
                 'bookings' => $bookingData,
                 'total_amount' => $request->total_amount,
+                'service_id' => session('selected_service_id'),
+                'service_name' => session('selected_service_name'),
+                'professional_name' => $request->professional_name ?? null,
+                'professional_address' => $request->professional_address ?? null,
             ]]);
 
             return response()->json([
@@ -372,13 +408,57 @@ class HomeController extends Controller
                 ], 400);
             }
 
+            // Check for existing bookings conflicts before creating new booking
+            $professionalId = $bookingData['professional_id'];
+            $conflictingSlots = [];
+            
+            foreach ($bookingData['bookings'] as $entry) {
+                $date = Carbon::parse($entry['date'])->format('Y-m-d');
+                $timeSlot = $entry['time_slot'];
+                
+                // Check if this time slot is already booked for this professional
+                if (BookingTimedate::isSlotBooked($professionalId, $date, $timeSlot)) {
+                    $conflictingSlots[] = $date . ' at ' . $timeSlot;
+                }
+            }
+            
+            // If there are conflicts, return error
+            if (!empty($conflictingSlots)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The following time slots are already booked: ' . implode(', ', $conflictingSlots) . '. Please select different time slots.'
+                ], 422);
+            }
+
+            // Start database transaction to ensure atomicity
+            DB::beginTransaction();
+
+            // Get professional and service name with fallbacks
+            $professional = Professional::find($bookingData['professional_id']);
+            $serviceName = session('selected_service_name');
+            if (!$serviceName || $serviceName === 'N/A') {
+                if ($professional) {
+                    $professionalService = ProfessionalService::with('service')
+                        ->where('professional_id', $professional->id)
+                        ->first();
+                    
+                    if ($professionalService) {
+                        if ($professionalService->service && $professionalService->service->name) {
+                            $serviceName = $professionalService->service->name;
+                        } elseif ($professionalService->service_name) {
+                            $serviceName = $professionalService->service_name;
+                        }
+                    }
+                }
+            }
+
             // Create a new booking record
             $booking = new Booking();
             $booking->user_id = Auth::guard('user')->user()->id;
             $booking->professional_id = $bookingData['professional_id'];
             $booking->plan_type = $bookingData['plan_type'];
             $booking->customer_phone = $request->phone;
-            $booking->service_name = session('selected_service_name');
+            $booking->service_name = $serviceName ?? 'N/A';
             $booking->session_type = 'online';
             $booking->customer_name = Auth::guard('user')->user()->name;
             $booking->customer_email = Auth::guard('user')->user()->email;
@@ -390,15 +470,30 @@ class HomeController extends Controller
             $booking->time_slot = json_encode(array_column($bookingData['bookings'], 'time_slot'));
             $booking->save();
 
-            // Insert into booking_timedates table
+            // Insert into booking_timedates table with double-check
             foreach ($bookingData['bookings'] as $entry) {
+                $date = Carbon::parse($entry['date'])->format('Y-m-d');
+                $timeSlot = BookingTimedate::normalizeTimeSlot($entry['time_slot']);
+                
+                // Final check before inserting (in case of race conditions)
+                if (BookingTimedate::isSlotBooked($professionalId, $date, $timeSlot)) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Time slot conflict detected. The slot ' . $date . ' at ' . $timeSlot . ' has been booked by another user. Please refresh and select different time slots.'
+                    ], 422);
+                }
+                
                 BookingTimedate::create([
                     'booking_id' => $booking->id,
-                    'date' => Carbon::parse($entry['date'])->format('Y-m-d'),
-                    'time_slot' => $entry['time_slot'],
+                    'date' => $date,
+                    'time_slot' => $timeSlot,
                     'status' => 'pending',
                 ]);
             }
+
+            // Commit the transaction
+            DB::commit();
 
             // Associate any pending MCQ answers with this booking
             $serviceId = session('selected_service_id');
@@ -430,6 +525,14 @@ class HomeController extends Controller
         return view('customer.booking.success', ['showFooter' => false]);
     }
 
+    public function booking()
+    {
+        $services = Service::latest()->get();
+        
+        // Always show the booking page - let the view handle missing data gracefully
+        return view('customer.booking.booking', compact('services'));
+    }
+
     public function getServiceQuestions($id)
     {
         $questions = ServiceMCQ::where('service_id', $id)->get();
@@ -442,12 +545,16 @@ class HomeController extends Controller
     public function setServiceSession(Request $request)
     {
         $request->validate([
-            'service_id' => 'required|integer'
+            'service_id' => 'required|integer',
+            'service_name' => 'required|string'
         ]);
 
-        session(['selected_service_id' => $request->service_id]);
+        session([
+            'selected_service_id' => $request->service_id,
+            'selected_service_name' => $request->service_name
+        ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Service ID saved in session']);
+        return response()->json(['status' => 'success', 'message' => 'Service saved in session']);
     }
     public function searchservice() {}
 

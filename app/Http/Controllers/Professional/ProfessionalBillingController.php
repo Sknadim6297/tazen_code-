@@ -23,16 +23,27 @@ class ProfessionalBillingController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $professional = Auth::guard('professional')->user();
+        $marginPercentage = $professional->margin ?? 20; // Default to 20% if not set
+        $platformFee = ($booking->amount * $marginPercentage) / 100;
+        $professionalShare = $booking->amount - $platformFee;
+
         $data = [
             'booking' => $booking,
             'invoice_no' => 'INV-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
-            'date' => $booking->created_at->format('d M, Y'),
-            'professional_name' => Auth::guard('professional')->user()->name,
+            'invoice_date' => $booking->created_at->format('d M Y'),
+            'professional' => $professional,
+            'professional_name' => $professional->name,
             'customer_name' => $booking->customer_name,
             'plan_type' => ucwords(str_replace('_', ' ', $booking->plan_type)),
             'amount' => $booking->amount,
-            'platform_fee' => $booking->amount * 0.20, // 20% platform fee
-            'professional_share' => $booking->amount * 0.80, // 80% professional share
+            'marginPercentage' => $marginPercentage,
+            'platformFee' => $platformFee,
+            'professionalShare' => $professionalShare,
+            // Keep old variable names for backward compatibility
+            'date' => $booking->created_at->format('d M Y'),
+            'platform_fee' => $platformFee,
+            'professional_share' => $professionalShare,
         ];
 
         $pdf = FacadePdf::loadView('professional.billing.invoice', $data);

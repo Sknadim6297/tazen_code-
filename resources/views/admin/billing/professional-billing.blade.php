@@ -143,6 +143,31 @@
         box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
     }
 
+    /* Custom Pagination Styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .filter-card .card-body {
@@ -157,6 +182,77 @@
             width: 100%;
             margin-bottom: 0.5rem;
         }
+        
+        .export-buttons {
+            margin-left: 0;
+            margin-top: 10px;
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+        
+        .export-buttons .export-btn {
+            flex: 1;
+        }
+        
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Invoice Button Styles */
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: white;
+    }
+
+    .btn-info:hover {
+        background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-primary.btn-sm {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .btn-primary.btn-sm:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46a3 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        color: white;
+        text-decoration: none;
     }
 </style>
 @endsection
@@ -336,6 +432,7 @@
                                 <th>Amount Earned</th>
                                 <th>Month</th>
                                 <th>Action</th>
+                                <th>Professional Invoice</th>
                                 <th>Details</th> 
                             </tr>
                         </thead>
@@ -347,7 +444,7 @@
                               $amountEarned = $billing->amount * ($commissionRate / 100);
                             @endphp
                             <tr>
-                                <td>{{ $key + 1 }}</td>
+                                <td>{{ ($billings->currentPage() - 1) * $billings->perPage() + $key + 1 }}</td>
                                 <td>{{ $billing->created_at->format('d M Y') }}</td>
                                 <td>{{ $billing->customer_name }}</td>
                                 <td>
@@ -381,6 +478,22 @@
                                         <label class="form-check-label" for="payment-toggle-{{ $billing->id }}">
                                             Mark as paid
                                         </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('admin.professional.invoice.view', ['id' => $billing->id]) }}" 
+                                           class="btn btn-sm btn-info" target="_blank" title="View Professional Invoice">
+                                            <i class="ri-eye-line"></i> View
+                                        </a>
+                                        <a href="{{ route('admin.professional.invoice.download', ['id' => $billing->id]) }}" 
+                                           class="btn btn-sm btn-primary" title="Download Professional Invoice PDF">
+                                            <i class="ri-download-line"></i> PDF
+                                        </a>
+                                        <a href="{{ route('admin.professional.invoice.excel', ['id' => $billing->id]) }}" 
+                                           class="btn btn-sm btn-success" title="Download Professional Invoice Excel">
+                                            <i class="ri-file-excel-line"></i> Excel
+                                        </a>
                                     </div>
                                 </td>
                                 <td>
@@ -456,7 +569,10 @@
                     </table>
                 </div>
                 <div class="mt-4">
-                    {{ $billings->links() }}
+                    <!-- Pagination with filter parameters preserved -->
+                    <div class="d-flex justify-content-center">
+                        {{ $billings->appends(request()->query())->links('pagination::bootstrap-4') }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -647,5 +763,16 @@
         // Submit the form
         form.submit();
     }
+    
+    // Add a loading state when clicking pagination links
+    $(document).ready(function() {
+        $('.pagination .page-link').on('click', function() {
+            // Show loading overlay
+            $('<div class="position-fixed w-100 h-100 d-flex align-items-center justify-content-center" style="top:0;left:0;background:rgba(255,255,255,0.7);z-index:9999;">' +
+              '<div class="spinner-border text-primary" role="status">' +
+              '<span class="visually-hidden">Loading...</span>' +
+              '</div></div>').appendTo('body');
+        });
+    });
 </script>
 @endsection

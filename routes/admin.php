@@ -25,16 +25,42 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ManageCustomerController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\ServiceMCQController;
-
-
+use App\Http\Controllers\Admin\McqAnswerController;
 use App\Http\Controllers\Admin\ProfessionalRequestedController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\ManageAdminController;
+use App\Http\Controllers\Admin\AdminMenuController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\frontend\HomeController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-Route::middleware(['auth:admin'])->group(function () {
+
+Route::get('/run-migrate-seed', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    Artisan::call('db:seed', ['--force' => true]);
+    return '✅ Migration and Seeder executed successfully!';
+});
+
+Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::get('/dashboard', function () {
-        return view('admin.index');
+        $admin = Auth::guard('admin')->user();
+        
+        // Clean up notifications older than 30 days
+        $thirtyDaysAgo = \Carbon\Carbon::now()->subDays(30);
+        DB::table('notifications')
+            ->where('notifiable_type', 'App\Models\Admin')
+            ->where('notifiable_id', $admin->id)
+            ->where('created_at', '<', $thirtyDaysAgo)
+            ->delete();
+        
+        // Get unread notifications (after cleanup)
+        $notifications = $admin->unreadNotifications;
+        $rescheduleNotifications = $notifications->where('type', 'App\Notifications\AppointmentRescheduled');
+        
+        return view('admin.index', compact('rescheduleNotifications'));
     })->name('dashboard');
 
 
@@ -51,6 +77,15 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('service-details', ServiceDetailsController::class);
     Route::resource('eventfaq', EventFAQController::class);
     Route::resource('logo', LogoController::class);
+    Route::resource('manage_admins', ManageAdminController::class);
+    Route::resource('admin_menus', AdminMenuController::class);
+
+    // Admin permissions routes
+    Route::get('manage_admins/{admin}/permissions', [ManageAdminController::class, 'showPermissions'])->name('manage_admins.permissions');
+    Route::post('manage_admins/{admin}/permissions', [ManageAdminController::class, 'updatePermissions'])->name('manage_admins.update_permissions');
+
+    // Menu sync route
+    Route::post('admin_menus/sync', [AdminMenuController::class, 'syncFromSidebar'])->name('admin_menus.sync');
 
     Route::resource('blogs', BlogController::class);
     Route::resource('allevents', AllEventController::class);
@@ -74,9 +109,15 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::resource('banner', BannerController::class);
     Route::resource('service', ServiceController::class);
+    Route::resource('sub-service', \App\Http\Controllers\Admin\SubServiceController::class);
     Route::resource('manage-professional', ManageProfessionalController::class);
 
     Route::resource('mcq', MCQController::class);
+    
+    // MCQ Answers routes
+    Route::get('/mcq-answers', [McqAnswerController::class, 'index'])->name('mcq-answers.index');
+    Route::get('/mcq-answers/export', [McqAnswerController::class, 'export'])->name('mcq-answers.export');
+    
     Route::get('/professional-requests', [ProfessionalRequestedController::class, 'index'])->name('professional.requests');
     Route::post('/professional-requests/{id}/approve', [ProfessionalRequestedController::class, 'approve'])->name('professional.requests.approve');
     Route::get('/professional-requests/{id}/reject', [ProfessionalRequestedController::class, 'reject'])->name('professional.requests.reject');
@@ -112,8 +153,14 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('billing/professional/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])
     ->name('professional.billing.export.excel');
 
-    Route::get('event/export', [EventController::class, 'exportEventBookingsToPdf'])->name('event.export');
-    Route::get('reviews/export', [ReviewController::class, 'exportReviewsToPdf'])->name('reviews.export');
+    // Admin invoice routes
+    Route::get('customer/invoice/{id}', [BillingController::class, 'viewCustomerInvoice'])->name('customer.invoice.view');
+    Route::get('customer/invoice/{id}/download', [BillingController::class, 'downloadCustomerInvoice'])->name('customer.invoice.download');
+    Route::get('professional/invoice/{id}', [BillingController::class, 'viewProfessionalInvoice'])->name('professional.invoice.view');
+    Route::get('professional/invoice/{id}/excel', [BillingController::class, 'downloadProfessionalInvoiceExcel'])->name('professional.invoice.excel');
+    Route::get('customer/invoice/{id}/excel', [BillingController::class, 'downloadCustomerInvoiceExcel'])->name('customer.invoice.excel');
+    Route::get('professional/invoice/{id}/download', [BillingController::class, 'downloadProfessionalInvoice'])->name('professional.invoice.download');
+;
 
    
     Route::get('event/export', [App\Http\Controllers\Admin\EventController::class, 'export'])
@@ -146,4 +193,48 @@ Route::middleware(['auth:admin'])->group(function () {
         
     Route::get('booking/onetime/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportOnetimeToExcel'])
         ->name('booking.onetime.export-excel');
+        
+    // Report routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('booking-summary', [ReportController::class, 'bookingSummaryReport'])
+            ->name('booking-summary');
+        Route::get('booking-summary/excel', [ReportController::class, 'exportBookingSummaryExcel'])
+            ->name('booking-summary.excel');
+        Route::get('booking-summary/pdf', [ReportController::class, 'exportBookingSummaryPdf'])
+            ->name('booking-summary.pdf');
+        Route::get('professionals', [ReportController::class, 'getProfessionals'])
+            ->name('professionals');
+    });
+    
+    // Notification routes
+    Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
+        $admin = Auth::guard('admin')->user();
+        
+        // Use DB query to find and update notification
+        $updated = DB::table('notifications')
+            ->where('id', $notificationId)
+            ->where('notifiable_type', 'App\Models\Admin')
+            ->where('notifiable_id', $admin->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+        
+        if ($updated) {
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false], 404);
+    })->name('notifications.mark-as-read');
+
+    Route::post('/notifications/mark-all-as-read', function () {
+        $admin = Auth::guard('admin')->user();
+        
+        // Mark all unread notifications as read
+        $updated = DB::table('notifications')
+            ->where('notifiable_type', 'App\Models\Admin')
+            ->where('notifiable_id', $admin->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+        
+        return response()->json(['success' => true, 'updated' => $updated]);
+    })->name('notifications.mark-all-as-read');
 });

@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Prozim - Find a Professional and Book a Consultation by Appointment, Chat or Video call">
-    <meta name="author" content="Ansonika">
-    <title>Tazen-Login</title>
+    <meta name="description" content="Login to Tazen.in - Find verified professionals for career counselling, health, finance, and more. Book consultations easily.">
+    <meta name="author" content="Tazen">
+    <title>Login - Tazen.in | Find Verified Experts</title>
 
     <!-- Favicons-->
 	<link rel="shortcut icon" href="img/favicon.jpg" type="image/x-icon">

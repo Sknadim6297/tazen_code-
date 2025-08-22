@@ -45,13 +45,13 @@
                         @foreach($latestBlogs as $latestBlog)
                         <li>
                             <div class="alignleft">
-                                <a href="{{ route('blog.show', $latestBlog->id) }}">
+                                <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}">
                                     <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
                                 </a>
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
                             <p><b>{{ $latestBlog->blog->title }}</b></p>
-                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
+                            <h3><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}" title="{{ $latestBlog->blog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->blog->title, 50) }}</a></h3>
                         </li>
                         @endforeach
                     </ul>
@@ -89,7 +89,7 @@
 
             <div class="col-lg-9">
                 <div class="singlepost">
-                    <figure><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></figure>
+                    <figure><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}"><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></a></figure>
                     <h1>{{ $relatedBlog->title }}</h1>
                     <div class="postmeta">
                         <ul>

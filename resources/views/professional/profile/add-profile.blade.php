@@ -547,15 +547,19 @@
                             <div class="image-preview">
                                 @php
                                     $gallery = is_array($profile->gallery) ? $profile->gallery : json_decode($profile->gallery, true);
+                                    // Ensure $gallery is an array, fallback to empty array if null or invalid
+                                    $gallery = is_array($gallery) ? $gallery : [];
                                 @endphp
-                                @foreach($gallery as $index => $img)
-                                    <div class="gallery-image-container" id="gallery-image-{{ $index }}">
-                                        <button type="button" class="delete-image-btn" data-path="{{ $img }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image" width="80">
-                                    </div>
-                                @endforeach
+                                @if(!empty($gallery))
+                                    @foreach($gallery as $index => $img)
+                                        <div class="gallery-image-container" id="gallery-image-{{ $index }}">
+                                            <button type="button" class="delete-image-btn" data-path="{{ $img }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image" width="80">
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
                         @endif
                     </div>
@@ -594,8 +598,8 @@
                         <input type="text" id="experience" name="experience" value="{{ old('experience', $profile->experience) }}">
                     </div>
                     <div>
-                        <label for="startingPrice">Starting From Price</label>
-                        <input type="number" id="startingPrice" name="startingPrice" value="{{ old('startingPrice', $profile->starting_price) }}" min="0">
+                        <label for="startingPrice">Starting Price (e.g., 5000 or 5000-8000)</label>
+                        <input type="text" id="startingPrice" name="startingPrice" value="{{ old('startingPrice', $profile->starting_price) }}" placeholder="Price per session (e.g., 1000, 1000-2000, 1500)">
                     </div>
                 </div>
                 <div class="form-group col-full">
@@ -605,6 +609,86 @@
                 <div class="form-group col-full">
                     <label for="education">Education Details</label>
                     <textarea id="education" name="education" rows="3">{{ old('education', $profile->education) }}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="form-section-title">GST Information (Optional)</h4>
+                <div class="form-group col-2">
+                    <div>
+                        <label for="gst_number">GST Number</label>
+                        <input type="text" id="gst_number" name="gst_number" value="{{ old('gst_number', $profile->gst_number) }}">
+                        <small class="text-muted">Optional: Enter your GST number if applicable</small>
+                    </div>
+                    <div class="gst-certificate-group" style="{{ $profile->gst_number ? 'display: block;' : 'display: none;' }}">
+                        <label for="gst_certificate">GST Certificate</label>
+                        <input type="file" id="gst_certificate" name="gst_certificate" accept=".pdf,.jpg,.jpeg,.png">
+                        <div class="file-input-wrapper">
+                            @if($profile->gst_certificate)
+                                <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank">View GST Certificate</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-full">
+                    <label for="gst_address">GST Address</label>
+                    <textarea id="gst_address" name="gst_address" rows="3" placeholder="GST Address (Optional)">{{ old('gst_address', $profile->gst_address) }}</textarea>
+                    <small class="text-muted">Optional: Enter your GST registered address</small>
+                </div>
+                <div class="form-group col-2">
+                    <div>
+                        <label for="state_code">State Code</label>
+                        <select id="state_code" name="state_code">
+                            <option value="">Select State (Optional)</option>
+                            @php
+                                $selectedStateCode = old('state_code', $profile->state_code ?? '');
+                            @endphp
+                            <option value="01" data-state="Jammu and Kashmir" {{ $selectedStateCode == '01' ? 'selected' : '' }}>01 - Jammu and Kashmir</option>
+                            <option value="02" data-state="Himachal Pradesh" {{ $selectedStateCode == '02' ? 'selected' : '' }}>02 - Himachal Pradesh</option>
+                            <option value="03" data-state="Punjab" {{ $selectedStateCode == '03' ? 'selected' : '' }}>03 - Punjab</option>
+                            <option value="04" data-state="Chandigarh" {{ $selectedStateCode == '04' ? 'selected' : '' }}>04 - Chandigarh</option>
+                            <option value="05" data-state="Uttarakhand" {{ $selectedStateCode == '05' ? 'selected' : '' }}>05 - Uttarakhand</option>
+                            <option value="06" data-state="Haryana" {{ $selectedStateCode == '06' ? 'selected' : '' }}>06 - Haryana</option>
+                            <option value="07" data-state="Delhi" {{ $selectedStateCode == '07' ? 'selected' : '' }}>07 - Delhi</option>
+                            <option value="08" data-state="Rajasthan" {{ $selectedStateCode == '08' ? 'selected' : '' }}>08 - Rajasthan</option>
+                            <option value="09" data-state="Uttar Pradesh" {{ $selectedStateCode == '09' ? 'selected' : '' }}>09 - Uttar Pradesh</option>
+                            <option value="10" data-state="Bihar" {{ $selectedStateCode == '10' ? 'selected' : '' }}>10 - Bihar</option>
+                            <option value="11" data-state="Sikkim" {{ $selectedStateCode == '11' ? 'selected' : '' }}>11 - Sikkim</option>
+                            <option value="12" data-state="Arunachal Pradesh" {{ $selectedStateCode == '12' ? 'selected' : '' }}>12 - Arunachal Pradesh</option>
+                            <option value="13" data-state="Nagaland" {{ $selectedStateCode == '13' ? 'selected' : '' }}>13 - Nagaland</option>
+                            <option value="14" data-state="Manipur" {{ $selectedStateCode == '14' ? 'selected' : '' }}>14 - Manipur</option>
+                            <option value="15" data-state="Mizoram" {{ $selectedStateCode == '15' ? 'selected' : '' }}>15 - Mizoram</option>
+                            <option value="16" data-state="Tripura" {{ $selectedStateCode == '16' ? 'selected' : '' }}>16 - Tripura</option>
+                            <option value="17" data-state="Meghalaya" {{ $selectedStateCode == '17' ? 'selected' : '' }}>17 - Meghalaya</option>
+                            <option value="18" data-state="Assam" {{ $selectedStateCode == '18' ? 'selected' : '' }}>18 - Assam</option>
+                            <option value="19" data-state="West Bengal" {{ $selectedStateCode == '19' ? 'selected' : '' }}>19 - West Bengal</option>
+                            <option value="20" data-state="Jharkhand" {{ $selectedStateCode == '20' ? 'selected' : '' }}>20 - Jharkhand</option>
+                            <option value="21" data-state="Odisha" {{ $selectedStateCode == '21' ? 'selected' : '' }}>21 - Odisha</option>
+                            <option value="22" data-state="Chhattisgarh" {{ $selectedStateCode == '22' ? 'selected' : '' }}>22 - Chhattisgarh</option>
+                            <option value="23" data-state="Madhya Pradesh" {{ $selectedStateCode == '23' ? 'selected' : '' }}>23 - Madhya Pradesh</option>
+                            <option value="24" data-state="Gujarat" {{ $selectedStateCode == '24' ? 'selected' : '' }}>24 - Gujarat</option>
+                            <option value="25" data-state="Daman and Diu" {{ $selectedStateCode == '25' ? 'selected' : '' }}>25 - Daman and Diu</option>
+                            <option value="26" data-state="Dadra and Nagar Haveli" {{ $selectedStateCode == '26' ? 'selected' : '' }}>26 - Dadra and Nagar Haveli</option>
+                            <option value="27" data-state="Maharashtra" {{ $selectedStateCode == '27' ? 'selected' : '' }}>27 - Maharashtra</option>
+                            <option value="28" data-state="Andhra Pradesh" {{ $selectedStateCode == '28' ? 'selected' : '' }}>28 - Andhra Pradesh</option>
+                            <option value="29" data-state="Karnataka" {{ $selectedStateCode == '29' ? 'selected' : '' }}>29 - Karnataka</option>
+                            <option value="30" data-state="Goa" {{ $selectedStateCode == '30' ? 'selected' : '' }}>30 - Goa</option>
+                            <option value="31" data-state="Lakshadweep" {{ $selectedStateCode == '31' ? 'selected' : '' }}>31 - Lakshadweep</option>
+                            <option value="32" data-state="Kerala" {{ $selectedStateCode == '32' ? 'selected' : '' }}>32 - Kerala</option>
+                            <option value="33" data-state="Tamil Nadu" {{ $selectedStateCode == '33' ? 'selected' : '' }}>33 - Tamil Nadu</option>
+                            <option value="34" data-state="Puducherry" {{ $selectedStateCode == '34' ? 'selected' : '' }}>34 - Puducherry</option>
+                            <option value="35" data-state="Andaman and Nicobar Islands" {{ $selectedStateCode == '35' ? 'selected' : '' }}>35 - Andaman and Nicobar Islands</option>
+                            <option value="36" data-state="Telangana" {{ $selectedStateCode == '36' ? 'selected' : '' }}>36 - Telangana</option>
+                            <option value="37" data-state="Andhra Pradesh (New)" {{ $selectedStateCode == '37' ? 'selected' : '' }}>37 - Andhra Pradesh (New)</option>
+                            <option value="38" data-state="Ladakh" {{ $selectedStateCode == '38' ? 'selected' : '' }}>38 - Ladakh</option>
+                        </select>
+                        <small class="text-muted">Select your state for GST registration (if applicable)</small>
+                    </div>
+                    <div>
+                        <label for="state_name">State Name</label>
+                        <input type="text" id="state_name" name="state_name" value="{{ old('state_name', $profile->state_name) }}" readonly placeholder="Auto-filled based on state code">
+                        <small class="text-muted">This field is auto-filled when you select a state code</small>
+                    </div>
                 </div>
             </div>
             
@@ -621,20 +705,11 @@
                 </div>
                 <div class="form-group col-2">
                     <div>
-                        <label for="aadhaarCard">Aadhaar Card</label>
-                        <input type="file" id="aadhaarCard" name="aadhaarCard" accept=".pdf,.jpg,.jpeg,.png">
+                        <label for="idProofDocument">ID Proof Document (Aadhaar / PAN Card)</label>
+                        <input type="file" id="idProofDocument" name="idProofDocument" accept=".pdf,.jpg,.jpeg,.png">
                         <div class="file-input-wrapper">
-                            @if($profile->aadhaar_card)
-                                <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank">View Aadhaar</a>
-                            @endif
-                        </div>
-                    </div>
-                    <div>
-                        <label for="panCard">PAN Card</label>
-                        <input type="file" id="panCard" name="panCard" accept=".pdf,.jpg,.jpeg,.png">
-                        <div class="file-input-wrapper">
-                            @if($profile->pan_card)
-                                <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank">View PAN</a>
+                            @if($profile->id_proof_document)
+                                <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank">View ID Proof</a>
                             @endif
                         </div>
                     </div>
@@ -821,6 +896,18 @@ $('input, textarea').blur(function() {
     } else {
         input.removeClass('is-invalid');
         
+        // Special validation for starting price
+        if (input.attr('name') === 'startingPrice' && input.val().trim()) {
+            const startingPrice = input.val().trim();
+            const pricePattern = /^(\d+(\.\d{1,2})?(-\d+(\.\d{1,2})?)?)$/;
+            
+            if (!pricePattern.test(startingPrice)) {
+                input.addClass('is-invalid');
+                input.next('.form-control-feedback').text('Please enter a valid price (e.g., 1000 or 1000-2000)');
+                return;
+            }
+        }
+        
         if (input.val().trim()) {
             input.addClass('is-valid');
         } else {
@@ -841,6 +928,18 @@ $(document).ready(function() {
             'animation-delay': (index * 0.1) + 's',
             'animation': 'fadeIn 0.5s ease forwards'
         });
+    });
+    
+    // GST Number and Certificate Handler
+    $('#gst_number').on('input', function() {
+        var gstNumber = $(this).val().trim();
+        if (gstNumber) {
+            $('.gst-certificate-group').slideDown();
+            $('#gst_certificate').attr('required', false); // Optional unless GST number is provided
+        } else {
+            $('.gst-certificate-group').slideUp();
+            $('#gst_certificate').attr('required', false);
+        }
     });
 });
 </script>

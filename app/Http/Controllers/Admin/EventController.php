@@ -44,7 +44,7 @@ class EventController extends Controller
             $query->whereBetween('event_date', [$request->start_date, $request->end_date]);
         }
 
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10)->appends($request->all());
 
         return view('admin.event.index', compact('bookings', 'statusList', 'eventModes'));
     }
@@ -248,7 +248,7 @@ class EventController extends Controller
                         $index + 1,
                         $booking->user->name ?? 'N/A',
                         $booking->event->heading ?? 'N/A',
-                        $booking->event_date,
+                        \Carbon\Carbon::parse($booking->event_date)->format('d-m-Y'),
                         $booking->location ?? 'N/A',
                         ucfirst($booking->type ?? 'N/A'),
                         $booking->persons ?? 'N/A',
@@ -258,7 +258,7 @@ class EventController extends Controller
                         $booking->gmeet_link ?? 'N/A',
                         $booking->payment_status,
                         $booking->order_id ?? 'N/A',
-                        $booking->created_at->format('Y-m-d H:i')
+                        $booking->created_at->format('d-m-Y H:i')
                     ]);
                 }
 

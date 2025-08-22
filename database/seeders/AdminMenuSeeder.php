@@ -14,6 +14,9 @@ class AdminMenuSeeder extends Seeder
      */
     public function run(): void
     {
+        // First, clear existing menus to prevent duplicates
+        // AdminMenu::truncate(); // Uncomment if you want to completely reset the menu structure
+        
         // Define menus with their hierarchy
         $menus = [
             [
@@ -51,17 +54,17 @@ class AdminMenuSeeder extends Seeder
                     ]
                 ]
             ],
-            // Customer section
+            // Customers section
             [
                 'name' => 'customers',
-                'display_name' => 'Customers',
+                'display_name' => 'Customer',
                 'route_name' => null,
-                'icon' => 'ri-team-line',
+                'icon' => 'ri-user-line',
                 'order' => 3,
                 'children' => [
                     [
                         'name' => 'customer.all',
-                        'display_name' => 'All Customers',
+                        'display_name' => 'Manage Customer',
                         'route_name' => 'admin.manage-customer.index',
                         'order' => 1
                     ],
@@ -75,8 +78,8 @@ class AdminMenuSeeder extends Seeder
             ],
             // Booking section
             [
-                'name' => 'bookings',
-                'display_name' => 'Bookings',
+                'name' => 'booking',
+                'display_name' => 'Booking',
                 'route_name' => null,
                 'icon' => 'ri-calendar-line',
                 'order' => 4,
@@ -107,24 +110,24 @@ class AdminMenuSeeder extends Seeder
                     ]
                 ]
             ],
-            // Website content
+            // Website Content section
             [
-                'name' => 'website_content',
-                'display_name' => 'Website Content',
+                'name' => 'manage_website',
+                'display_name' => 'Manage Website',
                 'route_name' => null,
-                'icon' => 'ri-pages-line',
+                'icon' => 'ri-layout-line',
                 'order' => 5,
                 'children' => [
+                    [
+                        'name' => 'content.logo',
+                        'display_name' => 'Logo',
+                        'route_name' => 'admin.logo.index',
+                        'order' => 1
+                    ],
                     [
                         'name' => 'content.banners',
                         'display_name' => 'Banners',
                         'route_name' => 'admin.banners.index',
-                        'order' => 1
-                    ],
-                    [
-                        'name' => 'content.services',
-                        'display_name' => 'Services',
-                        'route_name' => 'admin.service.index',
                         'order' => 2
                     ],
                     [
@@ -132,28 +135,90 @@ class AdminMenuSeeder extends Seeder
                         'display_name' => 'Testimonials',
                         'route_name' => 'admin.testimonials.index',
                         'order' => 3
-                    ],
+                    ]
                 ]
             ],
-            // Admin Users (super_admin only)
+            // Events section
             [
-                'name' => 'admin_management',
-                'display_name' => 'Admin Management',
+                'name' => 'events',
+                'display_name' => 'Events',
+                'route_name' => 'admin.eventpage.index',
+                'icon' => 'ri-calendar-event-line',
+                'order' => 6
+            ],
+            // MCQ section
+            [
+                'name' => 'mcq',
+                'display_name' => 'MCQ',
                 'route_name' => null,
-                'icon' => 'ri-shield-user-line',
-                'order' => 6,
+                'icon' => 'ri-questionnaire-line',
+                'order' => 7,
+                'children' => [
+                    [
+                        'name' => 'mcq.answers',
+                        'display_name' => 'View Answers',
+                        'route_name' => 'admin.mcq-answers.index',
+                        'order' => 1
+                    ]
+                ]
+            ],
+            // Contacts section
+            [
+                'name' => 'contacts',
+                'display_name' => 'Contacts',
+                'route_name' => 'admin.contact-forms.index',
+                'icon' => 'ri-contacts-book-line',
+                'order' => 8
+            ],
+            // Blog Comments section
+            [
+                'name' => 'blog_comments',
+                'display_name' => 'Blog Comments',
+                'route_name' => 'admin.comments.index',
+                'icon' => 'ri-chat-3-line',
+                'order' => 9
+            ],
+            // Reviews section
+            [
+                'name' => 'reviews',
+                'display_name' => 'Reviews',
+                'route_name' => null,
+                'icon' => 'ri-star-line',
+                'order' => 10,
+                'children' => [
+                    [
+                        'name' => 'reviews.manage',
+                        'display_name' => 'Manage Reviews',
+                        'route_name' => 'admin.reviews.index',
+                        'order' => 1
+                    ]
+                ]
+            ],
+            // Manage Control section - only for super_admin
+            [
+                'name' => 'manage_control',
+                'display_name' => 'Manage Control',
+                'route_name' => null,
+                'icon' => 'ri-settings-line',
+                'order' => 11,
                 'children' => [
                     [
                         'name' => 'admin.users',
-                        'display_name' => 'Admin Users',
-                        'route_name' => 'admin.admin-users.index',
+                        'display_name' => 'Manage Admins',
+                        'route_name' => 'admin.manage_admins.index',
                         'order' => 1
+                    ],
+                    [
+                        'name' => 'admin.menu_permissions',
+                        'display_name' => 'Menu Permissions',
+                        'route_name' => 'admin.admin_menus.index',
+                        'order' => 2
                     ]
                 ]
             ],
         ];
 
-        // Create main menus
+        // Create main menus first
         foreach ($menus as $menuData) {
             $children = $menuData['children'] ?? [];
             unset($menuData['children']);

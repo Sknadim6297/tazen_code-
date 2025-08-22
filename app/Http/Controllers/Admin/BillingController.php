@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
-use Barryvdh\DomPDF\PDF as DomPDFPDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use PDF; // Add this for PDF generation
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class BillingController extends Controller
@@ -112,7 +110,7 @@ class BillingController extends Controller
         ];
 
         // Generate PDF
-        $pdf = FacadePdf::loadView('admin.billing.professional-billing-pdf', compact(
+        $pdf = Pdf::loadView('admin.billing.professional-billing-pdf', compact(
             'billings',
             'totalAmount',
             'totalCommission',
@@ -252,7 +250,7 @@ class BillingController extends Controller
         ];
 
         // Generate PDF
-        $pdf = FacadePdf::loadView('admin.billing.customer-billing-pdf', compact(
+        $pdf = Pdf::loadView('admin.billing.customer-billing-pdf', compact(
             'billings', 
             'filterInfo', 
             'totalAmount', 
@@ -702,5 +700,459 @@ class BillingController extends Controller
         // Otherwise return user-friendly error
         return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
     }
+    }
+    
+    /**
+     * View customer invoice for admin
+     */
+    public function viewCustomerInvoice($id)
+    {
+        $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
+            ->findOrFail($id);
+        
+        // Generate invoice number based on booking ID and date
+        $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        return view('customer.billing.invoice', compact(
+            'booking',
+            'invoice_no', 
+            'invoice_date'
+        ));
+    }
+    
+    /**
+     * Download customer invoice for admin
+     */
+    public function downloadCustomerInvoice($id)
+    {
+        $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
+            ->findOrFail($id);
+        
+        // Generate invoice number based on booking ID and date
+        $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        $pdf = Pdf::loadView('customer.billing.invoice', compact(
+            'booking',
+            'invoice_no', 
+            'invoice_date'
+        ));
+        
+        // Generate filename with date
+        $filename = 'customer_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.pdf';
+        
+        return $pdf->download($filename);
+    }
+    
+    /**
+     * View professional invoice for admin
+     */
+    public function viewProfessionalInvoice($id)
+    {
+        $booking = Booking::with(['customer', 'timedates', 'professional.profile'])
+            ->findOrFail($id);
+            
+        $professional = $booking->professional;
+        $marginPercentage = $professional->margin ?? 10; // Default to 10% if no margin set
+        
+        // Calculate proper GST breakdown and platform fee
+        $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
+        $customerGST = $booking->amount - $baseAmount;
+        
+        // Platform fee calculation on base amount only
+        $platformFee = ($baseAmount * $marginPercentage) / 100;
+        $platformFeeCGST = $platformFee * 0.09;
+        $platformFeeSGST = $platformFee * 0.09;
+        $totalPlatformCut = $platformFee + $platformFeeCGST + $platformFeeSGST;
+        $professionalEarning = $booking->amount - $totalPlatformCut;
+        
+        // Generate invoice number based on booking ID and date
+        $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        return view('professional.billing.invoice', [
+            'booking' => $booking,
+            'professional' => $professional,
+            'invoice_no' => $invoice_no,
+            'invoice_date' => $invoice_date,
+            'marginPercentage' => $marginPercentage,
+            'baseAmount' => $baseAmount,
+            'customerAmount' => $booking->amount,
+            'customerGST' => $customerGST,
+            'platformFee' => $platformFee,
+            'platformFeeCGST' => $platformFeeCGST,
+            'platformFeeSGST' => $platformFeeSGST,
+            'totalPlatformCut' => $totalPlatformCut,
+            'professionalEarning' => $professionalEarning
+        ]);
+    }
+    
+    /**
+     * Download professional invoice for admin
+     */
+    public function downloadProfessionalInvoice($id)
+    {
+        $booking = Booking::with(['customer', 'timedates', 'professional.profile'])
+            ->findOrFail($id);
+            
+        $professional = $booking->professional;
+        $marginPercentage = $professional->margin ?? 10; // Default to 10% if no margin set
+        
+        // Calculate proper GST breakdown and platform fee
+        $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
+        $customerGST = $booking->amount - $baseAmount;
+        
+        // Platform fee calculation on base amount only
+        $platformFee = ($baseAmount * $marginPercentage) / 100;
+        $platformFeeCGST = $platformFee * 0.09;
+        $platformFeeSGST = $platformFee * 0.09;
+        $totalPlatformCut = $platformFee + $platformFeeCGST + $platformFeeSGST;
+        $professionalEarning = $booking->amount - $totalPlatformCut;
+        
+        // Generate invoice number based on booking ID and date
+        $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        $pdf = Pdf::loadView('professional.billing.invoice', [
+            'booking' => $booking,
+            'professional' => $professional,
+            'invoice_no' => $invoice_no,
+            'invoice_date' => $invoice_date,
+            'marginPercentage' => $marginPercentage,
+            'baseAmount' => $baseAmount,
+            'customerAmount' => $booking->amount,
+            'customerGST' => $customerGST,
+            'platformFee' => $platformFee,
+            'platformFeeCGST' => $platformFeeCGST,
+            'platformFeeSGST' => $platformFeeSGST,
+            'totalPlatformCut' => $totalPlatformCut,
+            'professionalEarning' => $professionalEarning
+        ]);
+        
+        // Generate filename with date
+        $filename = 'professional_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.pdf';
+        
+        return $pdf->download($filename);
+    }
+    
+    /**
+     * Download individual customer invoice as Excel
+     */
+    public function downloadCustomerInvoiceExcel($id)
+    {
+        $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
+            ->findOrFail($id);
+        
+        // Generate invoice data
+        $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        // Calculate amounts
+        $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
+        $cgstAmount = $booking->cgst_amount ?? ($baseAmount * 0.09);
+        $sgstAmount = $booking->sgst_amount ?? ($baseAmount * 0.09);
+        $igstAmount = $booking->igst_amount ?? 0;
+        $totalTax = $cgstAmount + $sgstAmount + $igstAmount;
+        
+        try {
+            // Create filename
+            $filename = 'customer_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.csv';
+            
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+            
+            // Create the callback for streaming CSV data
+            $callback = function() use ($booking, $invoice_no, $invoice_date, $baseAmount, $cgstAmount, $sgstAmount, $totalTax) {
+                $file = fopen('php://output', 'w');
+                
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+                
+                // Invoice Header
+                fputcsv($file, ['TAZEN TECHNOLOGIES PRIVATE LIMITED']);
+                fputcsv($file, ['TAX INVOICE']);
+                fputcsv($file, ['']);
+                
+                // Invoice Details
+                fputcsv($file, ['Invoice Number', $invoice_no]);
+                fputcsv($file, ['Invoice Date', $invoice_date]);
+                fputcsv($file, ['Order Number', 'TZ-' . str_pad($booking->id, 8, '0', STR_PAD_LEFT)]);
+                fputcsv($file, ['Order Date', $booking->created_at->format('d.m.Y')]);
+                fputcsv($file, ['Service Date', \Carbon\Carbon::parse($booking->service_datetime)->format('d/m/Y H:i')]);
+                fputcsv($file, ['']);
+                
+                // Customer Details
+                fputcsv($file, ['BILLING ADDRESS']);
+                fputcsv($file, ['Customer Name', $booking->customer_name]);
+                fputcsv($file, ['Email', $booking->customer_email]);
+                fputcsv($file, ['Phone', $booking->customer_phone]);
+                
+                if ($booking->customer && $booking->customer->customerProfile) {
+                    $customerProfile = $booking->customer->customerProfile;
+                    if ($customerProfile->address) {
+                        fputcsv($file, ['Address', $customerProfile->address]);
+                    }
+                    if ($customerProfile->city) {
+                        $cityState = $customerProfile->city;
+                        if ($customerProfile->state) $cityState .= ', ' . $customerProfile->state;
+                        if ($customerProfile->zip_code) $cityState .= ' - ' . $customerProfile->zip_code;
+                        fputcsv($file, ['City/State/PIN', $cityState]);
+                    }
+                }
+                fputcsv($file, ['Country', 'INDIA']);
+                fputcsv($file, ['']);
+                
+                // Professional Details (Sold By)
+                fputcsv($file, ['SOLD BY']);
+                fputcsv($file, ['Professional Name', $booking->professional->name ?? 'Professional Name']);
+                if ($booking->professional && $booking->professional->profile) {
+                    $profile = $booking->professional->profile;
+                    if ($profile->gst_address) {
+                        fputcsv($file, ['Address', $profile->gst_address]);
+                    } elseif ($profile->address) {
+                        fputcsv($file, ['Address', $profile->address]);
+                    } elseif ($profile->full_address) {
+                        fputcsv($file, ['Address', $profile->full_address]);
+                    }
+                    if ($profile->state_name) {
+                        fputcsv($file, ['State', strtoupper($profile->state_name) . ', INDIA']);
+                    }
+                    if ($profile->gst_number) {
+                        fputcsv($file, ['GST Registration No', strtoupper($profile->gst_number)]);
+                    }
+                    if ($profile->state_code) {
+                        fputcsv($file, ['State/UT Code', $profile->state_code]);
+                    }
+                }
+                fputcsv($file, ['']);
+                
+                // Service Details Header
+                fputcsv($file, ['SERVICE DETAILS']);
+                fputcsv($file, [
+                    'Sl. No',
+                    'Description',
+                    'Unit Price (₹)',
+                    'Qty',
+                    'Net Amount (₹)',
+                    'Tax Rate',
+                    'Tax Type',
+                    'Total Amount (₹)'
+                ]);
+                
+                // Service Row
+                fputcsv($file, [
+                    '1',
+                    $booking->service_name ?? 'Professional Service',
+                    number_format($baseAmount, 2),
+                    '1',
+                    number_format($baseAmount, 2),
+                    '18%',
+                    'GST',
+                    number_format($booking->amount, 2)
+                ]);
+                
+                fputcsv($file, ['']);
+                
+                // Tax Breakdown
+                fputcsv($file, ['TAX BREAKDOWN']);
+                fputcsv($file, ['Base Amount', '₹' . number_format($baseAmount, 2)]);
+                fputcsv($file, ['CGST (9%)', '₹' . number_format($cgstAmount, 2)]);
+                fputcsv($file, ['SGST (9%)', '₹' . number_format($sgstAmount, 2)]);
+                fputcsv($file, ['Total Tax', '₹' . number_format($totalTax, 2)]);
+                fputcsv($file, ['TOTAL AMOUNT', '₹' . number_format($booking->amount, 2)]);
+                fputcsv($file, ['']);
+                
+                // Payment Information
+                fputcsv($file, ['PAYMENT INFORMATION']);
+                fputcsv($file, ['Transaction ID', $booking->payment_id ?? 'CASH_PAYMENT_' . $booking->id]);
+                fputcsv($file, ['Payment Method', $booking->payment_method ?? 'Online Payment']);
+                fputcsv($file, ['Payment Date', $booking->created_at->format('d/m/Y, H:i:s')]);
+                fputcsv($file, ['Invoice Value', '₹' . number_format($booking->amount, 2)]);
+                fputcsv($file, ['']);
+                
+                // Footer
+                fputcsv($file, ['Amount in Words', ucwords(\App\Helpers\NumberToWords::convert($booking->amount)) . ' Only']);
+                fputcsv($file, ['']);
+                fputcsv($file, ['Whether tax is payable under reverse charge: NO']);
+                fputcsv($file, ['']);
+                fputcsv($file, ['This is a computer generated invoice and does not require physical signature.']);
+                fputcsv($file, ['For any queries regarding this invoice, please contact us at support@tazen.com']);
+                fputcsv($file, ['Thank you for choosing our services!']);
+                
+                fclose($file);
+            };
+            
+            return response()->stream($callback, 200, $headers);
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate Excel invoice: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Download individual professional invoice as Excel
+     */
+    public function downloadProfessionalInvoiceExcel($id)
+    {
+        $booking = Booking::with(['customer', 'timedates', 'professional.profile'])
+            ->findOrFail($id);
+            
+        $professional = $booking->professional;
+        
+        // Calculate professional's share after platform margin
+        $marginPercentage = $professional->margin ?? 10;
+        $platformFee = $booking->amount * ($marginPercentage / 100);
+        $professionalShare = $booking->amount - $platformFee;
+        
+        // Generate invoice data
+        $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
+        $invoice_date = $booking->created_at->format('d M Y');
+        
+        // Calculate commission amounts
+        $baseCommission = $platformFee / 1.18;
+        $cgstAmount = $baseCommission * 0.09;
+        $sgstAmount = $baseCommission * 0.09;
+        
+        try {
+            // Create filename
+            $filename = 'professional_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.csv';
+            
+            // Set headers for CSV download
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+            
+            // Create the callback for streaming CSV data
+            $callback = function() use ($booking, $professional, $invoice_no, $invoice_date, $platformFee, $marginPercentage, $baseCommission, $cgstAmount, $sgstAmount) {
+                $file = fopen('php://output', 'w');
+                
+                // Add UTF-8 BOM to fix Excel encoding issues
+                fputs($file, "\xEF\xBB\xBF");
+                
+                // Invoice Header
+                fputcsv($file, ['TAZEN TECHNOLOGIES PRIVATE LIMITED']);
+                fputcsv($file, ['TAX INVOICE - PLATFORM COMMISSION']);
+                fputcsv($file, ['']);
+                
+                // Invoice Details
+                fputcsv($file, ['Invoice Number', $invoice_no]);
+                fputcsv($file, ['Invoice Date', $invoice_date]);
+                fputcsv($file, ['Order Number', 'TZ-' . str_pad($booking->id, 8, '0', STR_PAD_LEFT)]);
+                fputcsv($file, ['Order Date', $booking->created_at->format('d.m.Y')]);
+                fputcsv($file, ['Service Date', \Carbon\Carbon::parse($booking->service_datetime)->format('d/m/Y H:i')]);
+                fputcsv($file, ['']);
+                
+                // Company Details (Sold By)
+                fputcsv($file, ['SOLD BY']);
+                fputcsv($file, ['Company', 'TAZEN TECHNOLOGIES PRIVATE LIMITED']);
+                fputcsv($file, ['Address', '110, Acharya Sisir Kumar Ghosh Street']);
+                fputcsv($file, ['City', 'Entally, Kolkata - 700014']);
+                fputcsv($file, ['State', 'WEST BENGAL, INDIA']);
+                fputcsv($file, ['PAN No', 'AAFCT8462R']);
+                fputcsv($file, ['GST Registration No', '19AAFCT8462R1Z5']);
+                fputcsv($file, ['State/UT Code', '19']);
+                fputcsv($file, ['']);
+                
+                // Professional Details (Billing Address)
+                fputcsv($file, ['BILLING ADDRESS']);
+                fputcsv($file, ['Professional Name', strtoupper($professional->name)]);
+                
+                if ($professional->profile) {
+                    $profile = $professional->profile;
+                    if ($profile->gst_address) {
+                        fputcsv($file, ['Address', $profile->gst_address]);
+                    } elseif ($profile->address) {
+                        fputcsv($file, ['Address', $profile->address]);
+                    } elseif ($profile->full_address) {
+                        fputcsv($file, ['Address', $profile->full_address]);
+                    } else {
+                        fputcsv($file, ['Email', $professional->email]);
+                    }
+                    if ($profile->state_name) {
+                        fputcsv($file, ['State', strtoupper($profile->state_name) . ', INDIA']);
+                    } else {
+                        fputcsv($file, ['State', 'INDIA']);
+                    }
+                    if ($profile->state_code) {
+                        fputcsv($file, ['State/UT Code', $profile->state_code]);
+                    }
+                } else {
+                    fputcsv($file, ['Email', $professional->email]);
+                    fputcsv($file, ['State', 'INDIA']);
+                }
+                fputcsv($file, ['']);
+                
+                // Service Details Header
+                fputcsv($file, ['SERVICE DETAILS']);
+                fputcsv($file, [
+                    'Sl. No',
+                    'Description',
+                    'Unit Price (₹)',
+                    'Qty',
+                    'Net Amount (₹)',
+                    'Tax Rate',
+                    'Tax Type',
+                    'Total Amount (₹)'
+                ]);
+                
+                // Service Row
+                fputcsv($file, [
+                    '1',
+                    'Platform Commission - Service Facilitation Fee (' . $marginPercentage . '%)',
+                    number_format($baseCommission, 2),
+                    '1',
+                    number_format($baseCommission, 2),
+                    '18%',
+                    'GST',
+                    number_format($platformFee, 2)
+                ]);
+                
+                fputcsv($file, ['']);
+                
+                // Tax Breakdown
+                fputcsv($file, ['TAX BREAKDOWN']);
+                fputcsv($file, ['Base Commission', '₹' . number_format($baseCommission, 2)]);
+                fputcsv($file, ['CGST (9%)', '₹' . number_format($cgstAmount, 2)]);
+                fputcsv($file, ['SGST (9%)', '₹' . number_format($sgstAmount, 2)]);
+                fputcsv($file, ['Total Tax', '₹' . number_format($cgstAmount + $sgstAmount, 2)]);
+                fputcsv($file, ['TOTAL COMMISSION', '₹' . number_format($platformFee, 2)]);
+                fputcsv($file, ['']);
+                
+                // Payment Information
+                fputcsv($file, ['PAYMENT INFORMATION']);
+                fputcsv($file, ['Transaction ID', $booking->payment_id ?? 'CASH_PAYMENT_' . $booking->id]);
+                fputcsv($file, ['Payment Method', $booking->payment_method ?? 'Online Payment']);
+                fputcsv($file, ['Payment Date', $booking->created_at->format('d/m/Y, H:i:s')]);
+                fputcsv($file, ['Commission Value', '₹' . number_format($platformFee, 2)]);
+                fputcsv($file, ['']);
+                
+                // Footer
+                fputcsv($file, ['Amount in Words', ucwords(\App\Helpers\NumberToWords::convert($platformFee)) . ' Only']);
+                fputcsv($file, ['']);
+                fputcsv($file, ['Whether tax is payable under reverse charge: NO']);
+                fputcsv($file, ['']);
+                fputcsv($file, ['This is a computer generated invoice and does not require physical signature.']);
+                fputcsv($file, ['For any queries regarding this invoice, please contact us at support@tazen.com']);
+                fputcsv($file, ['Thank you for choosing our services!']);
+                
+                fclose($file);
+            };
+            
+            return response()->stream($callback, 200, $headers);
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate Excel invoice: ' . $e->getMessage());
+        }
     }
 }

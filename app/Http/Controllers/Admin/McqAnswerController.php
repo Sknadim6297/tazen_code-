@@ -7,13 +7,13 @@ use App\Models\McqAnswer;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class McqAnswerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = McqAnswer::with(['user', 'service', 'question']);
+        $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
 
         // Apply username filter - works independently
         if ($request->has('username') && !empty(trim($request->username))) {
@@ -31,26 +31,171 @@ class McqAnswerController extends Controller
 
         // Apply start date filter - works independently
         if ($request->has('start_date') && !empty($request->start_date)) {
-            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $startDate = date('Y-m-d 00:00:00', strtotime($request->start_date));
             $query->where('created_at', '>=', $startDate);
         }
 
         // Apply end date filter - works independently
         if ($request->has('end_date') && !empty($request->end_date)) {
-            $endDate = Carbon::parse($request->end_date)->endOfDay();
+            $endDate = date('Y-m-d 23:59:59', strtotime($request->end_date));
             $query->where('created_at', '<=', $endDate);
         }
 
-        // Get filtered results
-        $mcqAnswers = $query->latest()->get();
+        // Get filtered results and group by user and service
+        $mcqAnswers = $query->orderBy('user_id')
+                           ->orderBy('service_id')
+                           ->orderBy('created_at')
+                           ->paginate(20)->appends($request->all());
+        
+        // Group the results by user and service for better display
+        $groupedAnswers = [];
+        foreach ($mcqAnswers as $answer) {
+            $key = $answer->user_id . '_' . $answer->service_id;
+            if (!isset($groupedAnswers[$key])) {
+                $groupedAnswers[$key] = [
+                    'user' => $answer->user,
+                    'service' => $answer->service,
+                    'professional' => $answer->booking ? $answer->booking->professional : null,
+                    'answers' => [],
+                    'created_at' => $answer->created_at
+                ];
+            }
+            $groupedAnswers[$key]['answers'][] = $answer;
+        }
         
         // Get all services for dropdown
         $services = Service::orderBy('name')->get();
 
         // Get filter counts for display
         $totalRecords = McqAnswer::count();
-        $filteredRecords = $mcqAnswers->count();
+        $filteredRecords = $mcqAnswers->total();
 
-        return view('admin.mcq.index', compact('mcqAnswers', 'services', 'totalRecords', 'filteredRecords'));
+        return view('admin.mcq.index', compact('mcqAnswers', 'groupedAnswers', 'services', 'totalRecords', 'filteredRecords'));
+    }
+
+    public function export(Request $request)
+    {
+        $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
+
+        // Apply the same filters as index method
+        if ($request->has('username') && !empty(trim($request->username))) {
+            $username = trim($request->username);
+            $query->whereHas('user', function ($q) use ($username) {
+                $q->where('name', 'like', '%' . $username . '%')
+                  ->orWhere('email', 'like', '%' . $username . '%');
+            });
+        }
+
+        if ($request->has('service') && $request->service != '') {
+            $query->where('service_id', $request->service);
+        }
+
+        if ($request->has('start_date') && !empty($request->start_date)) {
+            $startDate = date('Y-m-d 00:00:00', strtotime($request->start_date));
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        if ($request->has('end_date') && !empty($request->end_date)) {
+            $endDate = date('Y-m-d 23:59:59', strtotime($request->end_date));
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        $mcqAnswers = $query->orderBy('user_id')
+                           ->orderBy('service_id')
+                           ->orderBy('created_at')
+                           ->get();
+
+        if ($request->type === 'excel') {
+            return $this->exportMcqAnswersToExcel($mcqAnswers);
+        }
+
+        if ($request->type === 'pdf') {
+            return $this->exportMcqAnswersToPdf($mcqAnswers);
+        }
+
+        return redirect()->back()->with('error', 'Invalid export type.');
+    }
+
+    /**
+     * Export MCQ answers data to Excel (CSV format).
+     */
+    public function exportMcqAnswersToExcel($mcqAnswers)
+    {
+        // Generate filename with date
+        $filename = 'mcq_answers_report_' . date('Y_m_d_His') . '.csv';
+
+        // CSV headers
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        // Create a callback for CSV streaming
+        $callback = function() use ($mcqAnswers) {
+            $file = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM to fix Excel encoding issues
+            fputs($file, "\xEF\xBB\xBF");
+            
+            // Add headers
+            fputcsv($file, [
+                'ID',
+                'User Name',
+                'User Email',
+                'Service Name',
+                'Professional Name',
+                'Professional Specialization',
+                'Question',
+                'Answer',
+                'Date'
+            ]);
+            
+            // Add rows
+            foreach ($mcqAnswers as $answer) {
+                fputcsv($file, [
+                    $answer->id,
+                    $answer->user->name ?? 'N/A',
+                    $answer->user->email ?? 'N/A',
+                    $answer->service->name ?? 'N/A',
+                    $answer->booking && $answer->booking->professional ? $answer->booking->professional->name : 'Not Assigned',
+                    $answer->booking && $answer->booking->professional && $answer->booking->professional->profile ? $answer->booking->professional->profile->specialization : 'N/A',
+                    $answer->question->question ?? 'Question not found',
+                    $answer->answer,
+                    $answer->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export MCQ answers data to PDF.
+     */
+    public function exportMcqAnswersToPdf($mcqAnswers)
+    {
+        // Group the results by user and service for PDF
+        $groupedAnswers = [];
+        foreach ($mcqAnswers as $answer) {
+            $key = $answer->user_id . '_' . $answer->service_id;
+            if (!isset($groupedAnswers[$key])) {
+                $groupedAnswers[$key] = [
+                    'user' => $answer->user,
+                    'service' => $answer->service,
+                    'professional' => $answer->booking ? $answer->booking->professional : null,
+                    'answers' => [],
+                    'created_at' => $answer->created_at
+                ];
+            }
+            $groupedAnswers[$key]['answers'][] = $answer;
+        }
+
+        $pdf = Pdf::loadView('admin.mcq.mcq-answers-pdf', compact('groupedAnswers'));
+        return $pdf->download('mcq-answers-' . date('Y-m-d') . '.pdf');
     }
 } 

@@ -102,7 +102,7 @@
                                             </td>
                                             <td>
                                                 @if($service->image)
-                                                    <img src="{{ asset($service->image) }}" width="50" height="50" alt="Service Image">
+                                                    <img src="{{ asset('storage/' . $service->image) }}" width="50" height="50" alt="Service Image">
                                                 @else
                                                     N/A
                                                 @endif
