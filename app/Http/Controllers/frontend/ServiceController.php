@@ -11,9 +11,11 @@ use App\Models\ServiceDetails;
 
 class ServiceController extends Controller
 {
-    public function show($id)
+    public function show(Service $service)
     {
-        $service = Service::with('detail')->findOrFail($id);
+        // Load service with details
+        $service->load('detail');
+        
         $testimonials = Testimonial::latest()->get();
         $services = Service::latest()->get();
         
@@ -21,6 +23,10 @@ class ServiceController extends Controller
             abort(404, 'Service not found.');
         }
 
-        return view('frontend.sections.service', compact('service', 'testimonials', 'services'));
+        // Set dynamic meta tags
+        $metaTitle = $service->meta_title ?: $service->name . ' - Professional Services';
+        $metaDescription = $service->meta_description ?: 'Find professional ' . strtolower($service->name) . ' services. Connect with verified experts and book appointments easily.';
+
+        return view('frontend.sections.service', compact('service', 'testimonials', 'services', 'metaTitle', 'metaDescription'));
     }
 }

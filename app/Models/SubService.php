@@ -12,9 +12,9 @@ class SubService extends Model
     protected $fillable = [
         'service_id',
         'name',
-    'description',
-    'image',
-    'status'
+        'description',
+        'image',
+        'status'
     ];
 
     public function service()

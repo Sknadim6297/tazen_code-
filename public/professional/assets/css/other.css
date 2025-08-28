@@ -35,11 +35,7 @@
         outline: none;
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
-    .btn {
-        border-radius: 6px;
-        padding: 10px 20px;
-        font-weight: 600;
-    }
+    
     
     .btn-secondary:hover {
         background-color: #e5e7eb;

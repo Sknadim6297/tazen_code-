@@ -60,6 +60,15 @@ class SubServiceController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
+        // Prevent adding duplicate sub-service names for the same service (case-insensitive)
+        $duplicate = SubService::where('service_id', $request->service_id)
+            ->whereRaw('LOWER(name) = ?', [strtolower($request->name)])
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()->back()->withInput()->with('error', 'You have already added this sub-service for the selected service.');
+        }
+
         $data = $request->only(['service_id', 'name', 'description', 'status']);
 
         if ($request->hasFile('image')) {
@@ -103,6 +112,16 @@ class SubServiceController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status' => 'required|in:active,inactive',
         ]);
+
+        // Prevent updating to a name that would duplicate another sub-service under the same service
+        $duplicate = SubService::where('service_id', $request->service_id)
+            ->whereRaw('LOWER(name) = ?', [strtolower($request->name)])
+            ->where('id', '!=', $subService->id)
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()->back()->withInput()->with('error', 'Another sub-service with this name already exists for the selected service.');
+        }
 
         $data = $request->only(['service_id', 'name', 'description', 'status']);
 

@@ -20,6 +20,34 @@
         <form id="rateForm" method="POST" action="{{ route('professional.rate.update', $rates->id) }}">
             @csrf
             @method('PUT')
+            
+            <!-- Service and Sub-Service side-by-side -->
+            <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                <div style="flex:1; min-width:220px;">
+                    <label>Service <span class="text-danger">*</span></label>
+                    <select id="professional_service_id" class="form-control" name="professional_service_id" required>
+                        <option value="">Choose a service</option>
+                        @foreach($professionalServices as $service)
+                            <option value="{{ $service->id }}" {{ $rates->professional_service_id == $service->id ? 'selected' : '' }}>
+                                {{ $service->service_name }}
+                                @if($service->service_type)
+                                    ({{ $service->service_type }})
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Each service can have its own rate structure</small>
+                </div>
+
+                <div id="subServiceGroup" style="flex:1; min-width:220px; display:none;">
+                    <label>Sub-Service (optional)</label>
+                    <select id="subServiceSelect" name="sub_service_id" class="form-control">
+                        <option value="">All / None</option>
+                    </select>
+                    <small class="text-muted">Selecting a sub-service limits this rate to that sub-service.</small>
+                </div>
+            </div>
+            
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -153,6 +181,33 @@
 
 <script>
     $(document).ready(function () {
+        const professionalServices = @json($professionalServices);
+        const currentServiceId = '{{ $rates->professional_service_id }}';
+        const currentSubServiceId = '{{ $rates->sub_service_id ?? '' }}';
+
+        function populateSubServices(serviceId) {
+            const svc = professionalServices.find(s => s.id == serviceId);
+            const subGroup = $('#subServiceGroup');
+            const select = $('#subServiceSelect');
+            select.html('<option value="">All / None</option>');
+            if (svc && svc.sub_services && svc.sub_services.length) {
+                svc.sub_services.forEach(ss => {
+                    const selected = (ss.id == currentSubServiceId) ? 'selected' : '';
+                    select.append(`<option value="${ss.id}" ${selected}>${ss.name}</option>`);
+                });
+                subGroup.show();
+            } else {
+                subGroup.hide();
+            }
+        }
+
+        // Initial populate
+        populateSubServices(currentServiceId);
+
+        $('#professional_service_id').change(function() {
+            populateSubServices(this.value);
+        });
+
         $('#rateForm').submit(function (e) {
             e.preventDefault();
 

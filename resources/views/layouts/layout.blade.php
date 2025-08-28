@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta name="description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
 	<meta name="keywords" content="career counselling, health experts, finance professionals, business consultants, verified experts, professional consultation, appointment booking, Tazen">
 	<meta name="author" content="Tazen">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
@@ -15,8 +15,8 @@
 	<link rel="canonical" href="{{ url()->current() }}">
 	
 	<!-- Open Graph Meta Tags for Social Media -->
-	<meta property="og:title" content="Tazen.in | Find Verified Experts for Career, Health & Finance">
-	<meta property="og:description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta property="og:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
+	<meta property="og:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="{{ url()->current() }}">
 	<meta property="og:site_name" content="Tazen.in">
@@ -24,11 +24,11 @@
 	
 	<!-- Twitter Card Meta Tags -->
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Tazen.in | Find Verified Experts for Career, Health & Finance">
-	<meta name="twitter:description" content="Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.">
+	<meta name="twitter:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
+	<meta name="twitter:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
 	<meta name="twitter:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
 	
-	<title>Tazen.in | Find Verified Experts for Career, Health & Finance</title>
+	<title>{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}</title>
 
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css">
@@ -267,6 +267,9 @@
 			opacity: 1;
 		}
 	</style>
+	
+	<!-- Schema Markup -->
+	@yield('schema')
 </head>
 
 <body>
@@ -285,7 +288,7 @@
 		<span class="tooltip-text">Chat with us on WhatsApp</span>
 	</a>
 
-	@yield('script')
+	<!-- view-specific scripts will be injected later (after libraries) -->
 
 	<!-- External JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -296,6 +299,8 @@
 
 	<!-- Project JS -->
 	<script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/video_header.min.js') }}"></script>
+	<script src="{{ asset('frontend/assets/js/isotope.pkgd.min.js') }}"></script>
 	<script src="{{ asset('frontend/assets/js/common_func.js') }}"></script>
 	<script src="{{ asset('frontend/assets/validate.js') }}"></script>
 	<script src="{{ asset('frontend/assets/js/sticky_sidebar.min.js') }}"></script>
@@ -305,16 +310,22 @@
 	<script src="{{ asset('frontend/assets/js/jquery.cookiebar.js') }}"></script>
 	<script>
 		$(document).ready(function () {
-			$('.slick_slider').slick();
+			if (typeof $.fn.slick === 'function') {
+				$('.slick_slider').slick();
+			}
 		});
 
 		$(window).on("load",function(){
 		  var $container = $('.isotope-wrapper');
-		  $container.isotope({ itemSelector: '.isotope-item', layoutMode: 'masonry' });
+		  if ($container.length && typeof $.fn.isotope === 'function') {
+			$container.isotope({ itemSelector: '.isotope-item', layoutMode: 'masonry' });
+		  }
 		});
 		$('.switch-field').on( 'click', 'input', 'change', function(){
 		  var selector = $(this).attr('data-filter');
-		  $('.isotope-wrapper').isotope({ filter: selector });
+		  if (typeof $.fn.isotope === 'function') {
+			$('.isotope-wrapper').isotope({ filter: selector });
+		  }
 		});
 	</script>
 
@@ -352,13 +363,19 @@
 
 
 	<script>
-		// Video Header
-		HeaderVideo.init({
-			container: $('.header-video'),
-			header: $('.header-video--media'),
-			videoTrigger: $("#video-trigger"),
-			autoPlayVideo: true,
-		});
+		// Video Header - only init if script and elements exist
+		if (typeof HeaderVideo !== 'undefined' && $('.header-video--media').length) {
+			try {
+				HeaderVideo.init({
+					container: $('.header-video'),
+					header: $('.header-video--media'),
+					videoTrigger: $("#video-trigger"),
+					autoPlayVideo: true,
+				});
+			} catch (e) {
+				console.warn('HeaderVideo init failed:', e);
+			}
+		}
 	</script>
 	<script type="text/javascript">
 		function openmodal(val) {
@@ -573,23 +590,31 @@ $(document).ready(function () {
 
 
 <script>
-	document.getElementById("read-more").addEventListener("click", function() {
-var fullText = document.getElementById("full-text");
-var shortText = document.getElementById("short-text");
+	const readMoreButton = document.getElementById("read-more");
+	if (readMoreButton) {
+		readMoreButton.addEventListener("click", function() {
+			const fullText = document.getElementById("full-text");
+			const shortText = document.getElementById("short-text");
 
-if (fullText.style.display === "none") {
-	fullText.style.display = "inline";
-	shortText.style.display = "none";
-	this.textContent = "Read Less"; // Change link text to "Read Less"
-} else {
-	fullText.style.display = "none";
-	shortText.style.display = "inline";
-	this.textContent = "Read More"; // Change link text back to "Read More"
-}
-});
+			if (fullText && shortText) {
+				if (fullText.style.display === "none") {
+					fullText.style.display = "inline";
+					shortText.style.display = "none";
+					this.textContent = "Read Less";
+				} else {
+					fullText.style.display = "none";
+					shortText.style.display = "inline";
+					this.textContent = "Read More";
+				}
+			}
+		});
+	}
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+	<!-- yield view scripts after libraries -->
+	@yield('script')
 <script>
 	let currentQuestion = 1;
 	const totalQuestions = 5;
@@ -661,11 +686,13 @@ if (fullText.style.display === "none") {
 			showQuestion(currentQuestion);
 		}
 	});
-	$.get('/get-mcq-questions/' + serviceId, function(data) {
-    // fill the modal content with MCQ questions
-    $('#mcqModal .modal-body').html(data);
-    $('#mcqModal').modal('show');
-});
+	if (typeof serviceId !== 'undefined' && serviceId) {
+		$.get('/get-mcq-questions/' + serviceId, function(data) {
+		    // fill the modal content with MCQ questions
+		    $('#mcqModal .modal-body').html(data);
+		    $('#mcqModal').modal('show');
+		});
+	}
 	</script>
 	
 	

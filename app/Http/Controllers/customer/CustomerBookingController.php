@@ -192,6 +192,15 @@ class CustomerBookingController extends Controller
             $booking->plan_type = $bookingData['plan_type'];
             $booking->customer_phone = $phone;
             $booking->service_name = $serviceName ?? 'N/A';
+            
+            // Add sub-service data if available in request
+            if ($request->has('sub_service_id') && $request->sub_service_id) {
+                $booking->sub_service_id = $request->sub_service_id;
+            }
+            if ($request->has('sub_service_name') && $request->sub_service_name) {
+                $booking->sub_service_name = $request->sub_service_name;
+            }
+            
             $booking->session_type = 'online';
             $booking->customer_name = Auth::guard('user')->user()->name;
             $booking->customer_email = Auth::guard('user')->user()->email;

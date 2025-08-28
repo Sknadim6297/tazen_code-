@@ -1313,6 +1313,248 @@
                 opacity: 1 !important;
             }
 
+            /* Enhanced Login Modal Styles */
+            .login-modal {
+                display: none;
+                position: fixed;
+                z-index: 10000;
+                left: 0;
+                top: 95px;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.7);
+                animation: fadeIn 0.3s ease-in-out;
+            }
+
+            .login-modal-content {
+                background: linear-gradient(135deg, #1741cabc, #d379038c, #ece00586);
+                /* keep some top margin so it doesn't touch header on mobile */
+                margin: 6vh auto;
+                padding: 0;
+                border: none;
+                width: 90%;
+                max-width: 450px;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease-out;
+                overflow: hidden;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes slideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+
+            .login-modal-header {
+                /* Requested theme gradient */
+                background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+                padding: 18px 20px;
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                justify-content: center;
+            }
+
+            .login-modal-logo {
+                width: 56px;
+                height: 56px;
+                object-fit: contain;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.06);
+                padding: 6px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+                position: absolute;
+                left: 18px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .login-modal-header h2 {
+                margin: 0;
+                color: #fff;
+                font-size: 1.6rem;
+                font-weight: 800;
+                text-align: center;
+                line-height: 1;
+            }
+
+            .login-modal-header .wave-icon {
+                color: rgba(255,255,255,0.9);
+                margin-right: 8px;
+                font-size: 1.4rem;
+            }
+
+            .login-modal-close {
+                position: absolute;
+                right: 14px;
+                top: 12px;
+                color: rgba(255,255,255,0.95);
+                font-size: 26px;
+                font-weight: 700;
+                cursor: pointer;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.25s ease;
+                background: transparent;
+            }
+
+            .login-modal-close:hover {
+                background: rgba(255,255,255,0.12);
+                color: #fff;
+                transform: rotate(90deg);
+            }
+
+            .login-modal-body {
+                background: rgba(255,255,255,0.95);
+                padding: 30px;
+            }
+
+            .login-form-group {
+                margin-bottom: 20px;
+            }
+
+            .login-form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: #333;
+                font-weight: 600;
+                font-size: 0.95rem;
+            }
+
+            .login-form-group input {
+                width: 100%;
+                padding: 12px 15px;
+                border: 2px solid #e1e5e9;
+                border-radius: 10px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                background: #fff;
+                color: #333;
+            }
+
+            .login-form-group input:focus {
+                outline: none;
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                transform: translateY(-1px);
+            }
+
+            .login-form-group input::placeholder {
+                color: #999;
+            }
+
+            .login-btn {
+                width: 100%;
+                background: linear-gradient(135deg, #2563eb, #1741ca);
+                color: white;
+                border: none;
+                padding: 14px 20px;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .login-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            }
+
+            .login-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .login-divider {
+                text-align: center;
+                margin: 25px 0;
+                position: relative;
+                color: #666;
+            }
+
+            .login-divider::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: #ddd;
+            }
+
+            .login-divider span {
+                background: rgba(255,255,255,0.95);
+                padding: 0 15px;
+                position: relative;
+            }
+
+            .login-footer {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .login-footer a {
+                color: #2563eb;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .login-footer a:hover {
+                text-decoration: underline;
+            }
+
+            .login-loading {
+                display: none;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .login-spinner {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #2563eb;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 10px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            /* Responsive Design */
+            @media (max-width: 480px) {
+                .login-modal-content {
+                    width: 95%;
+                    margin: 25% auto;
+                }
+                
+                .login-modal-header {
+                    padding: 20px;
+                }
+                
+                .login-modal-body {
+                    padding: 20px;
+                }
+            }
+
             /* Social Share Section Styles */
             .social-share-section {
                 background: #f8f9fa;
@@ -1768,6 +2010,30 @@
                 </div>
                 
                 <div class="col-xl-4 col-lg-5">
+                    <!-- Service Context Indicator -->
+                    @if($requestedSubServiceId && $services && $services->subServices)
+                        @php $currentSubService = $services->subServices->where('id', $requestedSubServiceId)->first(); @endphp
+                        @if($currentSubService)
+                            <div class="box_booking mb-3">
+                                <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px;">
+                                    <small style="color: #1976d2; font-weight: 600;">
+                                        <i class="fas fa-info-circle"></i> Showing rates for: {{ $currentSubService->name }}
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        @if($services && $services->subServices && count($services->subServices) > 0)
+                            <div class="box_booking mb-3">
+                                <div style="padding: 15px; background: #f3e5f5; border-left: 4px solid #9c27b0; border-radius: 8px;">
+                                    <small style="color: #7b1fa2; font-weight: 600;">
+                                        <i class="fas fa-info-circle"></i> Showing general service rates for: {{ $services->name }}
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+
                     <!-- Appointment Type Tabs -->
                     <div class="box_booking appointment_types">
                         <div class="tabs">
@@ -1815,16 +2081,31 @@
                                                 <strong style="font-size:2rem; color:#2563eb; font-weight:700;">Rs. {{ number_format($rate->final_rate, 2) }}</strong><br>
                                                 <small style="font-size:1rem; color:#666;">{{ $perText }}</small>
                                             </div>
-                                            <button 
-                                                class="select-plan" 
-                                                data-plan="{{ $safeId }}" 
-                                                data-sessions="{{ $rate->num_sessions }}" 
-                                                data-rate="{{ $rate->final_rate }}"
-                                                style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer;"
-                                                onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
-                                            >
-                                                Select {{ ucfirst($rate->session_type) }}
-                                            </button>
+                                            @guest('user')
+                                                <div style="position: relative;">
+                                                    <button 
+                                                        class="select-plan-disabled" 
+                                                        style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
+                                                        disabled
+                                                    >
+                                                        Login to Select {{ ucfirst($rate->session_type) }}
+                                                    </button>
+                                                    <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
+                                                        <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
+                                                    </small>
+                                                </div>
+                                            @else
+                                                <button 
+                                                    class="select-plan" 
+                                                    data-plan="{{ $safeId }}" 
+                                                    data-sessions="{{ $rate->num_sessions }}" 
+                                                    data-rate="{{ $rate->final_rate }}"
+                                                    style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer;"
+                                                    onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
+                                                >
+                                                    Select {{ ucfirst($rate->session_type) }}
+                                                </button>
+                                            @endguest
                                         </div>
                                     </div>
                                 @endforeach
@@ -1839,74 +2120,97 @@
                             <a href="#0" class="close_panel_mobile"><i class="icon_close"></i></a>
                         </div>
                         <div class="main">
-                            <div id="selected-plan-display" style="display:none;">
-                                <strong>Selected Plan: </strong><span id="selected-plan-text">None</span>
-                                <input type="hidden" id="selected_plan" name="selected_plan" value="">
-                            </div>
-                            
-                            <div class="radio_select type">
-                                <ul>
-                                    <li>
-                                        <input type="radio" id="appointment" name="type" value="12.00pm">
-                                        <label for="appointment"><i class="icon-users"></i> Appointment</label>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div style="display: flex; justify-content: center; margin-top: 20px;">
-                                <div style="padding: 10px; background: #fff; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px;">
-                                    <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none;" />
-                                    <div id="calendarDiv"></div>
+                            @guest('user')
+                                <div class="auth-required-booking" style="text-align: center; padding: 40px 20px;">
+                                    <i class="fas fa-calendar-times" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                                    <h4 style="color: #666; margin-bottom: 15px; font-weight: 600;">Login Required</h4>
+                                    <p style="color: #888; margin-bottom: 20px;">You need to be logged in to select dates, times, and book appointments.</p>
+                                    <a href="javascript:void(0);" onclick="openLoginModal()" 
+                                       class="btn_1" 
+                                       style="background: #2563eb; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">
+                                        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Login to Book
+                                    </a>
                                 </div>
-                            </div>
-                            <div class="dropdown time mt-4">
-                                <a href="#" data-bs-toggle="dropdown">
-                                    <div>Hour</div>
-                                    <div id="selected_time"></div>
-                                </a>
+                            @else
+                                <div id="selected-plan-display" style="display:none;">
+                                    <strong>Selected Plan: </strong><span id="selected-plan-text">None</span>
+                                    <input type="hidden" id="selected_plan" name="selected_plan" value="">
+                                </div>
                                 
-                                <div class="dropdown-menu">
-                                    <div class="dropdown-menu-content">
-                                        <div class="radio_select d-flex flex-wrap gap-2">
-                                            @foreach($availabilities as $availability)
-                                                @php $weekdays = json_decode($availability->weekdays, true); @endphp
-                                                @if(is_array($weekdays))
-                                                    @foreach($availability->slots as $slot)
-                                                        @foreach($weekdays as $day)
-                                                            @php
-                                                                $weekday = strtolower($day);
-                                                                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
-                                                                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
-                                                            @endphp
+                                <div class="radio_select type">
+                                    <ul>
+                                        <li>
+                                            <input type="radio" id="appointment" name="type" value="12.00pm">
+                                            <label for="appointment"><i class="icon-users"></i> Appointment</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Date Selection Instructions -->
+                                <div id="date-selection-info" style="display:none; text-align: center; margin: 15px 0; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                                    <p style="margin: 0; color: #495057; font-weight: 500;">
+                                        <i class="fas fa-calendar-alt" style="margin-right: 5px; color: #2563eb;"></i>
+                                        Select <span id="required-dates">0</span> date(s) for your booking 
+                                        <span style="color: #2563eb;">(<span id="selected-dates-count">0</span> selected)</span>
+                                    </p>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                                    <div style="padding: 10px; background: #fff; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px;">
+                                        <input type="text" id="rangeInput" placeholder="Select Dates" style="display: none;" />
+                                        <div id="calendarDiv"></div>
+                                    </div>
+                                </div>
+                                <div class="dropdown time mt-4">
+                                    <a href="#" data-bs-toggle="dropdown">
+                                        <div>Hour</div>
+                                        <div id="selected_time"></div>
+                                    </a>
+                                    
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-menu-content">
+                                            <div class="radio_select d-flex flex-wrap gap-2">
+                                                @foreach($availabilities as $availability)
+                                                    @php $weekdays = json_decode($availability->weekdays, true); @endphp
+                                                    @if(is_array($weekdays))
+                                                        @foreach($availability->slots as $slot)
+                                                            @foreach($weekdays as $day)
+                                                                @php
+                                                                    $weekday = strtolower($day);
+                                                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
+                                                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
+                                                                @endphp
 
-                                                            <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
-                                                                <input type="radio"
-                                                                    id="time_{{ $slot->id }}_{{ $weekday }}"
-                                                                    name="time"
-                                                                    class="time-slot"
-                                                                    data-id="{{ $slot->id }}"
-                                                                    value="{{ $startTime }} to {{ $endTime }}"
-                                                                    data-start="{{ $startTime }}"
-                                                                    data-start-period="{{ strtoupper($slot->start_period) }}"
-                                                                    data-end="{{ $endTime }}"
-                                                                    data-end-period="{{ strtoupper($slot->end_period) }}">
+                                                                <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
+                                                                    <input type="radio"
+                                                                        id="time_{{ $slot->id }}_{{ $weekday }}"
+                                                                        name="time"
+                                                                        class="time-slot"
+                                                                        data-id="{{ $slot->id }}"
+                                                                        value="{{ $startTime }} to {{ $endTime }}"
+                                                                        data-start="{{ $startTime }}"
+                                                                        data-start-period="{{ strtoupper($slot->start_period) }}"
+                                                                        data-end="{{ $endTime }}"
+                                                                        data-end-period="{{ strtoupper($slot->end_period) }}">
 
-                                                                <label for="time_{{ $slot->id }}_{{ $weekday }}">
-                                                                    {{ $startTime }} - {{ $endTime }}
-                                                                </label>
-                                                            </div>
+                                                                    <label for="time_{{ $slot->id }}_{{ $weekday }}">
+                                                                        {{ $startTime }} - {{ $endTime }}
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
                                                         @endforeach
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <ul id="selected-time-list">
-                                <!-- Selected dates and times will be appended here -->
-                            </ul>
-                            
-                            <a href="javascript:void(0);" class="btn_1 full-width booking" id="bookNowBtn">Book Now</a>
+                                <ul id="selected-time-list">
+                                    <!-- Selected dates and times will be appended here -->
+                                </ul>
+                                
+                                <a href="javascript:void(0);" class="btn_1 full-width booking" id="bookNowBtn">Book Now</a>
+                            @endguest
                         </div>
                     </div>
                     
@@ -1919,7 +2223,19 @@
                             // Create SEO-friendly URL with professional name
                             $professionalName = $profile->name ?? 'Professional';
                             $seoFriendlyName = Str::slug($professionalName);
-                            $shareUrl = route('professionals.details', ['id' => $profile->professional_id, 'professional_name' => $seoFriendlyName]);
+                            
+                            // Build route parameters for share URL
+                            $shareRouteParams = ['id' => $profile->professional_id, 'professional_name' => $seoFriendlyName];
+                            
+                            // Add sub-service slug if currently viewing a specific sub-service
+                            if($requestedSubServiceId ?? null) {
+                                $currentSubService = \App\Models\SubService::find($requestedSubServiceId);
+                                if($currentSubService) {
+                                    $shareRouteParams['sub_service_slug'] = Str::slug($currentSubService->name);
+                                }
+                            }
+                            
+                            $shareUrl = route('professionals.details', $shareRouteParams);
                         @endphp
                         <ul class="share-buttons">
                             <li><a class="fb-share" href="#0" onclick="shareOnFacebookProfessional('{{ $professionalName }}', '{{ $shareUrl }}')"><i class="fab fa-facebook-f"></i> Facebook</a></li>
@@ -1947,7 +2263,7 @@
                         @if(Auth::guard('user')->check())
                             <form id="reviewForm">
                                 @csrf
-                                <input type="hidden" name="professional_id" value="{{ ($profile && $profile->professional && $profile->professional->id) ? $profile->professional->id : $id ?? '' }}">>
+                                <input type="hidden" name="professional_id" value="{{ ($profile && $profile->professional && $profile->professional->id) ? $profile->professional->id : $id ?? '' }}">
                                 
                                 <!-- Rating Stars -->
                                 <div class="rating-container text-center mb-4">
@@ -2003,11 +2319,447 @@
                 </div>
             </div>
         </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="login-modal">
+            <div class="login-modal-content">
+                <div class="login-modal-header">
+                    <img class="login-modal-logo" src="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="Logo">
+                    <h2><i class="fas fa-sign-in-alt wave-icon"></i>Welcome Back</h2>
+                    <span class="login-modal-close">&times;</span>
+                </div>
+                <div class="login-modal-body">
+                    <form id="loginForm">
+                        @csrf
+                        <div class="login-form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="login-form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                        </div>
+                        <div class="login-form-group">
+                            <button type="submit" class="login-btn" id="loginSubmitBtn">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="login-loading" id="loginLoading">
+                        <div class="login-spinner"></div>
+                        <p>Signing you in...</p>
+                    </div>
+
+                    <div class="login-divider">
+                        <span>OR</span>
+                    </div>
+                    
+                    <div class="login-footer">
+                        @if(Route::has('register'))
+                            <p>Don't have an account? <a href="{{ route('register') }}" target="_blank">Sign up here</a></p>
+                        @endif
+                        @if(Route::has('password.request'))
+                            <p><a href="{{ route('password.request') }}" target="_blank">Forgot your password?</a></p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
     @endsection
 
     @section('script')
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script>
+            // Check if user is authenticated
+            const isUserAuthenticated = @json(Auth::guard('user')->check());
+            const currentPageUrl = @json(url()->current());
+            const loginUrl = @json(route('login'));
+
+            // Login Modal Functions
+            function openLoginModal() {
+                document.getElementById('loginModal').style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+
+            function closeLoginModal() {
+                document.getElementById('loginModal').style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+                // Reset form
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginLoading').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            }
+
+            // Handle login form submission
+            function handleLogin(event) {
+                event.preventDefault();
+                
+                const form = document.getElementById('loginForm');
+                const formData = new FormData(form);
+                const submitBtn = document.getElementById('loginSubmitBtn');
+                const loadingDiv = document.getElementById('loginLoading');
+
+                // Show loading state
+                form.style.display = 'none';
+                loadingDiv.style.display = 'block';
+                submitBtn.disabled = true;
+
+                // Send login request
+                fetch('{{ route("login") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Success - show success message and reload page
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(data.message || 'Login successful! Refreshing page...');
+                        } else {
+                            alert(data.message || 'Login successful! Refreshing page...');
+                        }
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else if (data.status === 'confirm_logout') {
+                        // User is logged in on another device - ask for confirmation
+                        if (confirm(data.message)) {
+                            // User confirmed - force login
+                            formData.append('force_login', '1');
+                            handleForceLogin(formData, form, loadingDiv, submitBtn);
+                        } else {
+                            // User cancelled - reset form
+                            form.style.display = 'block';
+                            loadingDiv.style.display = 'none';
+                            submitBtn.disabled = false;
+                        }
+                    } else {
+                        // Error - show error message
+                        const errorMessage = data.message || 'Login failed. Please check your credentials.';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                        
+                        // Reset form display
+                        form.style.display = 'block';
+                        loadingDiv.style.display = 'none';
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    const errorMessage = 'An error occurred during login. Please try again.';
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(errorMessage);
+                    } else {
+                        alert(errorMessage);
+                    }
+                    
+                    // Reset form display
+                    form.style.display = 'block';
+                    loadingDiv.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+            }
+
+            // Handle force login after device confirmation
+            function handleForceLogin(formData, form, loadingDiv, submitBtn) {
+                fetch('{{ route("login") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(data.message || 'Login successful! Refreshing page...');
+                        } else {
+                            alert(data.message || 'Login successful! Refreshing page...');
+                        }
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        const errorMessage = data.message || 'Login failed. Please try again.';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                        
+                        // Reset form display
+                        form.style.display = 'block';
+                        loadingDiv.style.display = 'none';
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Force login error:', error);
+                    const errorMessage = 'An error occurred during login. Please try again.';
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(errorMessage);
+                    } else {
+                        alert(errorMessage);
+                    }
+                    
+                    // Reset form display
+                    form.style.display = 'block';
+                    loadingDiv.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+            }
+
+            // Initialize modal event listeners
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = document.getElementById('loginModal');
+                const closeBtn = document.querySelector('.login-modal-close');
+                const loginForm = document.getElementById('loginForm');
+
+                // Close modal when clicking the X
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', closeLoginModal);
+                }
+
+                // Close modal when clicking outside of it
+                window.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closeLoginModal();
+                    }
+                });
+
+                // Handle form submission
+                if (loginForm) {
+                    loginForm.addEventListener('submit', handleLogin);
+                }
+
+                // Replace all login links with modal triggers
+                document.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' && e.target.href && e.target.href.includes('/login')) {
+                        // Check if it's not a target="_blank" link
+                        if (e.target.target !== '_blank') {
+                            e.preventDefault();
+                            openLoginModal();
+                        }
+                    }
+                });
+
+                // Handle ESC key to close modal
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeLoginModal();
+                    }
+                });
+            });
+
+            // Function to generate select button based on authentication status
+            function generateSelectButton(rate, safeId) {
+                if (!isUserAuthenticated) {
+                    return `
+                        <div style="position: relative;">
+                            <button 
+                                class="select-plan-disabled" 
+                                style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
+                                disabled
+                            >
+                                Login to Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
+                            </button>
+                            <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
+                                <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
+                            </small>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <button 
+                            class="select-plan" 
+                            data-plan="${safeId}" 
+                            data-sessions="${rate.num_sessions}" 
+                            data-rate="${rate.final_rate}"
+                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer;"
+                            onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
+                        >
+                            Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
+                        </button>
+                    `;
+                }
+            }
+
+            // Sub-service selection functionality
+            let currentProfessionalId = {{ $profile->professional_id ?? 0 }};
+            // Fallback to 0 if $services or its id is not set
+            let currentProfessionalServiceId = {{ isset($services) && isset($services->id) ? $services->id : 0 }};
+
+            // Function to update rates and availability based on sub-service selection
+            function updateRatesAndAvailability(subServiceId = null) {
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+                loadingOverlay.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;';
+                
+                const appointmentContainer = document.querySelector('.appointment_types');
+                if (appointmentContainer) {
+                    appointmentContainer.style.position = 'relative';
+                    appointmentContainer.appendChild(loadingOverlay);
+                }
+
+                fetch(`{{ route('get.professional.rates.availability') }}?professional_id=${currentProfessionalId}&professional_service_id=${currentProfessionalServiceId}&sub_service_id=${subServiceId || ''}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update rates tabs
+                            updateRatesTabs(data.rates);
+                            
+                            // Update availability
+                            updateAvailabilityData(data.enabled_dates);
+                            
+                            // Reinitialize calendar with new dates
+                            initializeCalendar(data.enabled_dates);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating rates and availability:', error);
+                        alert('Error loading data. Please try again.');
+                    })
+                    .finally(() => {
+                        loadingOverlay.remove();
+                    });
+            }
+
+            // Function to update rates tabs
+            function updateRatesTabs(rates) {
+                const tabsList = document.querySelector('.appointment-tabs');
+                const tabContent = document.querySelector('.appointment-tab-content');
+                
+                if (!rates || rates.length === 0) {
+                    tabsList.innerHTML = '<li class="nav-item"><span class="nav-link">No rates available for this selection</span></li>';
+                    tabContent.innerHTML = '<div class="tab-pane fade show active"><div class="appointment-details"><p>No rates available for the selected service/sub-service combination.</p></div></div>';
+                    return;
+                }
+
+                // Clear existing tabs
+                tabsList.innerHTML = '';
+                tabContent.innerHTML = '';
+
+                rates.forEach((rate, index) => {
+                    const safeId = rate.session_type.toLowerCase().replace(/\s+/g, '_');
+                    const isActive = index === 0;
+                    
+                    // Create tab
+                    const tabItem = document.createElement('li');
+                    tabItem.className = 'nav-item';
+                    tabItem.style.marginBottom = '0';
+                    
+                    const tabLink = document.createElement('a');
+                    tabLink.className = `nav-link ${isActive ? 'active' : ''}`;
+                    tabLink.id = `${safeId}-tab`;
+                    tabLink.setAttribute('data-bs-toggle', 'tab');
+                    tabLink.setAttribute('href', `#${safeId}`);
+                    tabLink.setAttribute('role', 'tab');
+                    tabLink.style.cssText = 'font-weight:600; border-radius: 8px 8px 0 0; padding: 3px 9px; border: 1px solid #e0e7ef; transition: background 0.2s, color 0.2s;';
+                    tabLink.style.background = isActive ? '#2563eb' : '#f7f9fc';
+                    tabLink.style.color = isActive ? '#fff' : '#222';
+                    tabLink.textContent = rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1);
+                    
+                    tabItem.appendChild(tabLink);
+                    tabsList.appendChild(tabItem);
+                    
+                    // Create tab content
+                    const tabPane = document.createElement('div');
+                    tabPane.className = `tab-pane fade ${isActive ? 'show active' : ''}`;
+                    tabPane.id = safeId;
+                    tabPane.setAttribute('role', 'tabpanel');
+                    tabPane.setAttribute('aria-labelledby', `${safeId}-tab`);
+                    
+                    const perText = {
+                        'free hand': 'per session',
+                        'weekly': 'per week',
+                        'monthly': 'per month',
+                        'quarterly': 'per 3 months'
+                    }[rate.session_type.toLowerCase()] || 'per session';
+                    
+                    tabPane.innerHTML = `
+                        <div class="appointment-details" style="max-width:500px; margin:auto;">
+                            <h4 style="font-weight:700; color:#222; margin-bottom:10px;">${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)} Consultation</h4>
+                            <p style="color:#555; margin-bottom:18px;">Professional consultation service</p>
+                            <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
+                                <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${rate.num_sessions} sessions</span></li>
+                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                            </ul>
+                            <div class="price" style="margin-bottom:18px;">
+                                <strong style="font-size:2rem; color:#2563eb; font-weight:700;">Rs. ${Number(rate.final_rate).toFixed(2)}</strong><br>
+                                <small style="font-size:1rem; color:#666;">${perText}</small>
+                            </div>
+                            ${generateSelectButton(rate, safeId)}
+                        </div>
+                    `;
+                    
+                    tabContent.appendChild(tabPane);
+                });
+
+                // Re-attach event listeners for new select buttons
+                attachSelectPlanListeners();
+            }
+
+            // Function to update availability data
+            function updateAvailabilityData(newEnabledDates) {
+                enabledDates = newEnabledDates || [];
+            }
+
+            // Auto-load rates for pre-selected sub-service from URL
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get sub-service ID from URL parameter (passed from gridlisting filter)
+                const requestedSubServiceId = @json($requestedSubServiceId ?? null);
+                
+                // Always trigger update with the URL sub-service parameter
+                // If requestedSubServiceId is null, it will show service-level rates
+                // If requestedSubServiceId has a value, it will show sub-service-specific rates
+                updateRatesAndAvailability(requestedSubServiceId);
+            });
+
+            // Function to attach select plan listeners
+            function attachSelectPlanListeners() {
+                document.querySelectorAll('.select-plan').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const plan = this.getAttribute('data-plan');
+                        const sessions = this.getAttribute('data-sessions');
+                        const rate = this.getAttribute('data-rate');
+                        
+                        // Update selected plan display
+                        const display = document.getElementById('selected-plan-display');
+                        const text = document.getElementById('selected-plan-text');
+                        const input = document.getElementById('selected_plan');
+                        
+                        if (display && text && input) {
+                            text.textContent = `${plan.replace('_', ' ').toUpperCase()} - ${sessions} sessions - Rs. ${rate}`;
+                            input.value = plan;
+                            display.style.display = 'block';
+                        }
+                        
+                        // Remove active class from all buttons
+                        document.querySelectorAll('.select-plan').forEach(btn => {
+                            btn.style.background = '#2563eb';
+                            btn.textContent = btn.textContent.replace(' ✓', '');
+                        });
+                        
+                        // Add active state to clicked button
+                        this.style.background = '#1741a6';
+                        this.textContent += ' ✓';
+                    });
+                });
+            }
+
             document.addEventListener("DOMContentLoaded", function () {
                 let enabledDates = @json($enabledDates);
                 
@@ -2027,6 +2779,157 @@
                     return localDate.toISOString().split('T')[0];
                 }
 
+                // Function to initialize calendar
+                function initializeCalendar(dates) {
+                    // Destroy existing flatpickr instance if it exists
+                    const calendarElement = document.getElementById('calendarDiv');
+                    if (!calendarElement) return; // nothing to do without element
+                    if (calendarElement._flatpickr && typeof calendarElement._flatpickr.destroy === 'function') {
+                        calendarElement._flatpickr.destroy();
+                    }
+
+                    // Initialize new flatpickr with updated dates
+                    if (typeof flatpickr !== 'function') {
+                        console.warn('flatpickr is not available');
+                        return;
+                    }
+                    flatpickr("#calendarDiv", {
+                        inline: true,
+                        mode: "multiple",
+                        dateFormat: "Y-m-d",
+                        minDate: "today",
+                        enable: dates, 
+                        disable: [
+                            function (date) {
+                                const dateString = formatLocalDate(date);
+                                return !dates.includes(dateString) || date.getDay() === 0;
+                            }
+                        ],
+                        onDayCreate: function (dObj, dStr, fp, dayElem) {
+                            const date = dayElem.dateObj;
+                            const dateString = formatLocalDate(date);
+                            if (dates.includes(dateString) && date.getDay() !== 0) {
+                                dayElem.style.backgroundColor = '#28a745';
+                                dayElem.style.color = 'white';
+                            } else {
+                                dayElem.style.backgroundColor = '#ccc';
+                                dayElem.style.color = '#999';
+                            }
+                        },
+                        onChange: function (selectedDates, dateStr, instance) {
+                            // Only enforce session count limit if a plan has been selected
+                            if (sessionCount > 0 && selectedDates.length > sessionCount) {
+                                // If too many dates selected, remove the last one
+                                selectedDates.pop();
+                                instance.setDate(selectedDates);
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.warning(`You can only select ${sessionCount} date(s) for this session type.`);
+                                } else {
+                                    alert(`You can only select ${sessionCount} date(s) for this session type.`);
+                                }
+                                return;
+                            }
+                            
+                            // If no plan selected yet, show a helpful message
+                            if (sessionCount === 0 && selectedDates.length > 0) {
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.info('Please select a consultation plan first to determine how many dates you can choose.');
+                                } else {
+                                    alert('Please select a consultation plan first to determine how many dates you can choose.');
+                                }
+                            }
+                            
+                            handleDateSelection(selectedDates);
+                        }
+                    });
+                }
+
+                    // Expose initializer globally so other functions can call it
+                    window.initializeCalendar = initializeCalendar;
+
+                // Function to handle date selection
+                function handleDateSelection(selectedDates) {
+                    const offset = selectedDates.length ? selectedDates[0].getTimezoneOffset() : 0;
+                    const selectedDatesLocal = selectedDates.map(d => {
+                        return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
+                    });
+
+                    // Remove unselected dates from selectedBookings
+                    Object.keys(selectedBookings).forEach(date => {
+                        if (!selectedDatesLocal.includes(date)) {
+                            delete selectedBookings[date];
+                        }
+                    });
+
+                    // Update selected dates counter
+                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    if (selectedDatesCountSpan) {
+                        selectedDatesCountSpan.textContent = selectedDates.length;
+                        
+                        // Only show color-coded feedback if a plan has been selected
+                        const parentElement = selectedDatesCountSpan.parentElement;
+                        if (sessionCount > 0) {
+                            if (selectedDates.length === sessionCount) {
+                                parentElement.style.color = '#28a745'; // Green when correct
+                            } else if (selectedDates.length > sessionCount) {
+                                parentElement.style.color = '#dc3545'; // Red when too many
+                            } else {
+                                parentElement.style.color = '#2563eb'; // Blue when need more
+                            }
+                        } else {
+                            // No plan selected yet, use neutral color
+                            parentElement.style.color = '#6c757d'; // Gray/neutral
+                        }
+                    }
+
+                    // Hide all slot boxes first
+                    document.querySelectorAll('.slot-box').forEach(box => {
+                        box.style.display = 'none';
+                        box.removeAttribute('data-current-date');
+                    });
+
+                    // Show slots for last selected date only
+                    if (selectedDates.length > 0) {
+                        const selectedDateUTC = selectedDates[selectedDates.length - 1];
+                        const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
+                        const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                        const weekday = weekdayNames[selectedDate.getDay()];
+                        const dateString = selectedDate.toISOString().split('T')[0];
+
+                        // Show available slots for this weekday (use flex to match layout)
+                        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
+                            box.style.display = 'flex';
+                            box.setAttribute('data-current-date', dateString);
+                        });
+
+                        updateSelectedTimeDisplay();
+                    }
+                }
+
+                // Initialize select plan listeners on page load
+                attachSelectPlanListeners();
+
+                // Initialize calendar with default enabled dates
+                initializeCalendar(enabledDates);
+
+                // If no date is selected by the user yet, show slots for the first enabled date so hours are visible
+                if (enabledDates && Array.isArray(enabledDates) && enabledDates.length > 0) {
+                    try {
+                        const firstDate = new Date(enabledDates[0]);
+                        const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                        const weekday = weekdayNames[firstDate.getDay()];
+                        const dateString = enabledDates[0];
+                        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
+                            box.style.display = 'flex';
+                            box.setAttribute('data-current-date', dateString);
+                        });
+                        if (typeof updateSelectedTimeList === 'function') updateSelectedTimeList();
+                    } catch (e) {
+                        console.warn('Could not auto-show first enabled date slots:', e);
+                    }
+                }
+
+                // Original flatpickr initialization (keeping as backup/reference)
                 // Initialize Flatpickr
                 flatpickr("#calendarDiv", {
                     inline: true,
@@ -2213,6 +3116,25 @@
                             });
 
                             updateSelectedTimeList();
+                            
+                            // Update selected dates counter when a time slot is selected
+                            const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                            if (selectedDatesCountSpan) {
+                                const currentDateCount = Object.keys(selectedBookings).length;
+                                selectedDatesCountSpan.textContent = currentDateCount;
+                                
+                                // Update color based on requirement
+                                const parentElement = selectedDatesCountSpan.parentElement;
+                                if (sessionCount > 0) {
+                                    if (currentDateCount === sessionCount) {
+                                        parentElement.style.color = '#28a745'; // Green when correct
+                                    } else if (currentDateCount > sessionCount) {
+                                        parentElement.style.color = '#dc3545'; // Red when too many
+                                    } else {
+                                        parentElement.style.color = '#2563eb'; // Blue when need more
+                                    }
+                                }
+                            }
                         }
                     });
                 });
@@ -2240,6 +3162,20 @@
                     }
                 `;
                 document.head.appendChild(style);
+
+                // Function to update selected time display
+                function updateSelectedTimeDisplay() {
+                    const selectedTimeElement = document.getElementById('selected_time');
+                    const selectedTimes = Object.values(selectedBookings).flat();
+                    
+                    if (selectedTimeElement) {
+                        if (selectedTimes.length > 0) {
+                            selectedTimeElement.textContent = `${selectedTimes.length} slot(s) selected`;
+                        } else {
+                            selectedTimeElement.textContent = 'Select time slots';
+                        }
+                    }
+                }
 
                 function updateSelectedTimeList() {
                     const list = document.getElementById('selected-time-list');
@@ -2298,6 +3234,25 @@
                                     }
                                 }
                                 updateSelectedTimeList(); // Re-render the list
+                                
+                                // Update selected dates counter
+                                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                                if (selectedDatesCountSpan) {
+                                    const currentDateCount = Object.keys(selectedBookings).length;
+                                    selectedDatesCountSpan.textContent = currentDateCount;
+                                    
+                                    // Update color based on requirement
+                                    const parentElement = selectedDatesCountSpan.parentElement;
+                                    if (sessionCount > 0) {
+                                        if (currentDateCount === sessionCount) {
+                                            parentElement.style.color = '#28a745'; // Green when correct
+                                        } else if (currentDateCount > sessionCount) {
+                                            parentElement.style.color = '#dc3545'; // Red when too many
+                                        } else {
+                                            parentElement.style.color = '#2563eb'; // Blue when need more
+                                        }
+                                    }
+                                }
                             });
                         });
                     } else {
@@ -2421,6 +3376,22 @@
                     selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
                     selectedPlanDisplay.style.display = 'block';
                     selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Show date selection info and update required dates
+                    const dateSelectionInfo = document.getElementById('date-selection-info');
+                    const requiredDatesSpan = document.getElementById('required-dates');
+                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    
+                    if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
+                        requiredDatesSpan.textContent = sessionCount;
+                        selectedDatesCountSpan.textContent = Object.keys(selectedBookings).length;
+                        dateSelectionInfo.style.display = 'block';
+                    }
+                    
+                    // Reinitialize calendar with session limit
+                    if (window.initializeCalendar) {
+                        initializeCalendar(enabledDates);
+                    }
                 }
 
                 // Handle booking submission
@@ -2445,21 +3416,65 @@
                     const selectedDatesCount = Object.keys(bookingData).length;
     
 
-                    if (!planType) {
+                    if (!planType || sessionCount === 0) {
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('Please select a consultation plan.');
+                            toastr.error('Please select a consultation plan first.');
                         } else {
-                            alert('Please select a consultation plan.');
+                            alert('Please select a consultation plan first.');
+                        }
+                        
+                        // Scroll to plan selection area
+                        const planSection = document.querySelector('.appointment_types');
+                        if (planSection) {
+                            planSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                         return;
                     }
 
                     if (selectedDatesCount !== sessionCount) {
-                        const message = `You need to select ${sessionCount} dates for this booking.`;
+                        let message;
+                        if (selectedDatesCount === 0) {
+                            message = `Please select ${sessionCount} date(s) from the calendar to proceed with booking.`;
+                        } else if (selectedDatesCount < sessionCount) {
+                            message = `You need to select ${sessionCount - selectedDatesCount} more date(s). Currently selected: ${selectedDatesCount}/${sessionCount}`;
+                        } else {
+                            message = `You have selected too many dates. Please select only ${sessionCount} date(s). Currently selected: ${selectedDatesCount}/${sessionCount}`;
+                        }
+                        
                         if (typeof toastr !== 'undefined') {
                             toastr.error(message);
                         } else {
                             alert(message);
+                        }
+                        
+                        // Scroll to calendar area to help user see the issue
+                        const calendarDiv = document.getElementById('calendarDiv');
+                        if (calendarDiv) {
+                            calendarDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return;
+                    }
+
+                    // Check that each selected date has a time slot
+                    const datesWithoutTimeSlots = [];
+                    Object.keys(bookingData).forEach(date => {
+                        if (!bookingData[date] || bookingData[date].length === 0) {
+                            datesWithoutTimeSlots.push(date);
+                        }
+                    });
+
+                    if (datesWithoutTimeSlots.length > 0) {
+                        const message = `Please select a time slot for the following date(s): ${datesWithoutTimeSlots.join(', ')}`;
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(message);
+                        } else {
+                            alert(message);
+                        }
+                        
+                        // Scroll to time selection area
+                        const timeDropdown = document.querySelector('.dropdown.time');
+                        if (timeDropdown) {
+                            timeDropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                         return;
                     }
@@ -2492,6 +3507,12 @@
                     const professionalName = professionalNameEl.textContent.trim();
                     const professionalAddress = professionalAddressEl.textContent.trim();
                     const professionalId = {{ json_encode(($profile && $profile->professional && $profile->professional->id) ? $profile->professional->id : $id ?? null) }};
+                    
+                    // Get sub-service information from URL parameter (no dropdown anymore)
+                    const selectedSubServiceId = @json($requestedSubServiceId ?? null);
+                    const selectedSubServiceName = selectedSubServiceId ? 
+                        @json($services && $services->subServices ? $services->subServices->where('id', $requestedSubServiceId)->first()->name ?? null : null) : null;
+                    
                     // Format the bookings data into the expected structure
                     const formattedBookings = {};
                     Object.keys(bookingData).forEach(date => {
@@ -2510,7 +3531,9 @@
                             professional_id: professionalId,
                             plan_type: planType,
                             bookings: formattedBookings,
-                            total_amount: selectedRate
+                            total_amount: selectedRate,
+                            sub_service_id: selectedSubServiceId,
+                            sub_service_name: selectedSubServiceName
                         })
                     })
                     .then(res => {

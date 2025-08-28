@@ -464,7 +464,7 @@
             @endphp
             <li>
                 <img src="{{ asset('frontend/assets/img/new-icons/header-menu-icon/' . $icon) }}" alt="{{ $service->name }}">
-                <a href="{{ url('/service/' . $service->id) }}">{{ $service->name }}</a>
+                <a href="{{ url('/service/' . $service->slug) }}">{{ $service->name }}</a>
             </li>
         @endforeach
     </ul>

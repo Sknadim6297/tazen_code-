@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Availability;
 use App\Models\Booking;
+use App\Models\BookingTimedate;
 use App\Models\McqAnswer;
 use App\Models\Professional;
+use App\Models\ProfessionalOtherInformation;
 use App\Models\ProfessionalService;
 use App\Models\Profile;
 use App\Models\Rate;
+use App\Models\SubService;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Models\Service;
 use App\Models\Banner;
 use App\Models\AboutUs;
@@ -18,22 +22,20 @@ use App\Models\Whychoose;
 use App\Models\Testimonial;
 use App\Models\HomeBlog;
 use App\Models\Howworks;
+use Illuminate\Support\Facades\Session;
 use App\Models\ServiceMCQ;
 use App\Models\Blog;
 use App\Models\AllEvent;
-use App\Models\BookingTimedate;
 use App\Models\MCQ;
-use App\Models\ProfessionalOtherInformation;
 use App\Models\RequestedService;
-use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use App\Models\BlogPost;
 use App\Models\EventDetail;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 
 class HomeController extends Controller
@@ -139,7 +141,7 @@ class HomeController extends Controller
 
     public function professionals(Request $request)
     {
-        $services = Service::all();
+        $services = Service::with('subServices')->get();
 
         // Get selected service ID either from request or session
         $selectedServiceId = $request->input('service_id', Session::get('selected_service_id'));
@@ -156,15 +158,21 @@ class HomeController extends Controller
             }
         }
 
-        $professionalsQuery = Professional::with('profile', 'professionalServices')
+        $professionalsQuery = Professional::with('profile', 'professionalServices.subServices')
             ->where('status', 'accepted')
             ->where('active', true);
-
 
         // Filter by service
         if ($selectedServiceId) {
             $professionalsQuery->whereHas('professionalServices', function ($query) use ($selectedServiceId) {
                 $query->where('service_id', $selectedServiceId);
+            });
+        }
+
+        // Filter by sub-service
+        if ($request->has('sub_service_id') && !empty($request->sub_service_id)) {
+            $professionalsQuery->whereHas('professionalServices.subServices', function ($query) use ($request) {
+                $query->where('sub_services.id', $request->sub_service_id);
             });
         }
 
@@ -207,17 +215,60 @@ class HomeController extends Controller
         $professionals = $professionalsQuery->latest()->paginate(12);
 
         // When using filters, we need to append them to pagination links
-        if ($request->hasAny(['experience', 'price_range', 'service_id'])) {
-            $professionals->appends($request->only(['experience', 'price_range', 'service_id']));
+        if ($request->hasAny(['experience', 'price_range', 'service_id', 'sub_service_id'])) {
+            $professionals->appends($request->only(['experience', 'price_range', 'service_id', 'sub_service_id']));
         }
 
-        return view('frontend.sections.gridlisting', compact('professionals', 'services'));
+        // Get sub-services for the selected service to populate the filter dropdown
+        $subServices = collect();
+        if ($selectedServiceId) {
+            $selectedService = $services->find($selectedServiceId);
+            if ($selectedService) {
+                $subServices = $selectedService->subServices;
+            }
+        }
+
+        return view('frontend.sections.gridlisting', compact('professionals', 'services', 'subServices', 'selectedServiceId'));
     }
 
 
 
-    public function professionalsDetails($id, $professional_name = null)
+    public function professionalsDetails($id, $professional_name = null, $sub_service_slug = null)
     {
+        // Handle sub-service slug resolution
+        $requestedSubServiceId = null;
+        
+        if ($sub_service_slug) {
+            // Convert slug to sub-service ID
+            $subService = SubService::where('name', 'LIKE', '%' . str_replace('-', ' ', $sub_service_slug) . '%')
+                                  ->orWhere('name', 'LIKE', '%' . str_replace('-', '%', $sub_service_slug) . '%')
+                                  ->first();
+            
+            if (!$subService) {
+                // Try a more flexible approach - match slug pattern
+                $searchName = ucwords(str_replace('-', ' ', $sub_service_slug));
+                $subService = SubService::where('name', 'LIKE', '%' . $searchName . '%')->first();
+            }
+            
+            if ($subService) {
+                $requestedSubServiceId = $subService->id;
+            } else {
+                // If slug not found, check if old query parameter exists as fallback
+                $requestedSubServiceId = request('sub_service_id');
+                
+                // If no fallback found, redirect to professional page without sub-service
+                if (!$requestedSubServiceId) {
+                    return redirect()->route('professionals.details', [
+                        'id' => $id, 
+                        'professional_name' => $professional_name
+                    ]);
+                }
+            }
+        } else {
+            // Fallback to query parameter for backward compatibility
+            $requestedSubServiceId = request('sub_service_id');
+        }
+        
         $requestedService = ProfessionalOtherInformation::where('professional_id', $id)->first();
         $profile = Profile::with(['professional.reviews' => function ($query) {
             $query->with(['user' => function ($q) {
@@ -226,7 +277,7 @@ class HomeController extends Controller
         }])->where('professional_id', $id)->first();
 
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
-        $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
+        $services = ProfessionalService::where('professional_id', $id)->with('professional', 'subServices')->first();
         
         // Process requirements to ensure they are properly formatted
         if ($services && $services->requirements) {
@@ -244,7 +295,16 @@ class HomeController extends Controller
             }
         }
         
-        $rates = Rate::where('professional_id', $id)->with('professional')->get();
+        // Filter rates by sub-service if specified, otherwise show service-level rates
+        $ratesQuery = Rate::where('professional_id', $id)->with('professional', 'subService');
+        if ($requestedSubServiceId) {
+            // Show rates for the specific sub-service
+            $ratesQuery->where('sub_service_id', $requestedSubServiceId);
+        } else {
+            // Show service-level rates (rates without sub-service assignment)
+            $ratesQuery->whereNull('sub_service_id');
+        }
+        $rates = $ratesQuery->get();
 
         $enabledDates = [];
         $dayMap = [
@@ -293,8 +353,102 @@ class HomeController extends Controller
             'rates',
             'enabledDates',
             'requestedService',
-            'existingBookings'
+            'existingBookings',
+            'requestedSubServiceId'
         ), ['showFooter' => false]);
+    }
+
+    /**
+     * Get sub-services for a service via AJAX
+     */
+    public function getSubServices(Request $request)
+    {
+        $serviceId = $request->input('service_id');
+        $subServices = SubService::where('service_id', $serviceId)->get();
+        
+        return response()->json([
+            'success' => true,
+            'sub_services' => $subServices
+        ]);
+    }
+
+    /**
+     * Get rates and availability for a professional service/sub-service via AJAX
+     */
+    public function getProfessionalRatesAvailability(Request $request)
+    {
+        $professionalId = $request->input('professional_id');
+        $professionalServiceId = $request->input('professional_service_id');
+        $subServiceId = $request->input('sub_service_id');
+
+        // Get rates - show service-level rates when no sub-service, sub-service rates when specified
+        $ratesQuery = Rate::where('professional_id', $professionalId);
+        if ($professionalServiceId) {
+            $ratesQuery->where('professional_service_id', $professionalServiceId);
+        }
+        if ($subServiceId) {
+            // Show rates for the specific sub-service
+            $ratesQuery->where('sub_service_id', $subServiceId);
+        } else {
+            // Show service-level rates (rates without sub-service assignment)
+            $ratesQuery->whereNull('sub_service_id');
+        }
+        $rates = $ratesQuery->get();
+
+        // Get availability - show service-level availability when no sub-service, sub-service availability when specified
+        $availabilityQuery = Availability::where('professional_id', $professionalId)
+            ->with('slots');
+        if ($professionalServiceId) {
+            $availabilityQuery->where('professional_service_id', $professionalServiceId);
+        }
+        if ($subServiceId) {
+            // Show availability for the specific sub-service
+            $availabilityQuery->where('sub_service_id', $subServiceId);
+        } else {
+            // Show service-level availability (availability without sub-service assignment)
+            $availabilityQuery->whereNull('sub_service_id');
+        }
+        $availabilities = $availabilityQuery->get();
+
+        // Process availability dates
+        $enabledDates = [];
+        $dayMap = [
+            'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4,
+            'fri' => 5, 'sat' => 6, 'sun' => 7,
+        ];
+
+        foreach ($availabilities as $availability) {
+            try {
+                $monthNumber = \Carbon\Carbon::parse("1 " . $availability->month)->format('m');
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            $year = \Carbon\Carbon::now()->year;
+            $start = \Carbon\Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
+            $end = $start->copy()->endOfMonth();
+            $period = \Carbon\CarbonPeriod::create($start, $end);
+            $decoded = json_decode($availability->weekdays);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded);
+            }
+
+            $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
+            $isoDays = array_filter($isoDays);
+
+            foreach ($period as $date) {
+                if (in_array($date->dayOfWeekIso, $isoDays)) {
+                    $enabledDates[] = $date->toDateString();
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'rates' => $rates,
+            'availabilities' => $availabilities,
+            'enabled_dates' => $enabledDates
+        ]);
     }
 
 
@@ -459,6 +613,15 @@ class HomeController extends Controller
             $booking->plan_type = $bookingData['plan_type'];
             $booking->customer_phone = $request->phone;
             $booking->service_name = $serviceName ?? 'N/A';
+            
+            // Add sub-service data if available
+            if ($request->has('sub_service_id') && $request->sub_service_id) {
+                $booking->sub_service_id = $request->sub_service_id;
+            }
+            if ($request->has('sub_service_name') && $request->sub_service_name) {
+                $booking->sub_service_name = $request->sub_service_name;
+            }
+            
             $booking->session_type = 'online';
             $booking->customer_name = Auth::guard('user')->user()->name;
             $booking->customer_email = Auth::guard('user')->user()->email;
@@ -533,9 +696,18 @@ class HomeController extends Controller
         return view('customer.booking.booking', compact('services'));
     }
 
-    public function getServiceQuestions($id)
+    public function getServiceQuestions($slug)
     {
-        $questions = ServiceMCQ::where('service_id', $id)->get();
+        $service = Service::where('slug', $slug)->first();
+        
+        if (!$service) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Service not found'
+            ], 404);
+        }
+        
+        $questions = ServiceMCQ::where('service_id', $service->id)->get();
 
         return response()->json([
             'status' => 'success',
@@ -575,7 +747,7 @@ class HomeController extends Controller
         }
 
         $services = Service::where('name', 'LIKE', "%{$query}%")
-            ->select('id', 'name')
+            ->select('id', 'name', 'slug')
             ->limit(10)
             ->get();
 

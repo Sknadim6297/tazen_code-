@@ -49,6 +49,27 @@
                                                         <label for="service-name" class="form-label">Service Name</label>
                                                         <input type="text" class="form-control" name="name" id="service-name" placeholder="Enter service name" required>
                                                     </div>
+
+                                                    <!-- Slug -->
+                                                    <div class="col-xl-12">
+                                                        <label for="service-slug" class="form-label">Slug (URL friendly)</label>
+                                                        <input type="text" class="form-control" name="slug" id="service-slug" placeholder="Auto-generated from name">
+                                                        <small class="form-text text-muted">Leave empty to auto-generate from service name</small>
+                                                    </div>
+
+                                                    <!-- Meta Title -->
+                                                    <div class="col-xl-12">
+                                                        <label for="meta-title" class="form-label">Meta Title (SEO)</label>
+                                                        <input type="text" class="form-control" name="meta_title" id="meta-title" placeholder="Enter meta title for SEO" maxlength="255">
+                                                        <small class="form-text text-muted">Recommended: 50-60 characters</small>
+                                                    </div>
+
+                                                    <!-- Meta Description -->
+                                                    <div class="col-xl-12">
+                                                        <label for="meta-description" class="form-label">Meta Description (SEO)</label>
+                                                        <textarea class="form-control" name="meta_description" id="meta-description" rows="3" placeholder="Enter meta description for SEO" maxlength="500"></textarea>
+                                                        <small class="form-text text-muted">Recommended: 150-160 characters</small>
+                                                    </div>
                             
                                                     <!-- Image -->
                                                     <div class="col-xl-12">
@@ -86,6 +107,8 @@
                                             <input class="form-check-input check-all" type="checkbox" id="all-tasks" value="" aria-label="...">
                                         </th>
                                         <th scope="col">Service Name</th>
+                                        <th scope="col">Slug</th>
+                                        <th scope="col">Meta Title</th>
                                         <th scope="col">Image</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Action</th>
@@ -99,6 +122,12 @@
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $service->name }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ $service->slug ?? 'N/A' }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ Str::limit($service->meta_title ?? 'N/A', 30) }}</span>
                                             </td>
                                             <td>
                                                 @if($service->image)
@@ -163,4 +192,31 @@
 
     </div>
 </div>
+
+<script>
+// Auto-generate slug from service name
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceNameInput = document.getElementById('service-name');
+    const serviceSlugInput = document.getElementById('service-slug');
+    
+    if (serviceNameInput && serviceSlugInput) {
+        serviceNameInput.addEventListener('input', function() {
+            if (!serviceSlugInput.value || serviceSlugInput.dataset.userEdited !== 'true') {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+                    .trim();
+                serviceSlugInput.value = slug;
+            }
+        });
+        
+        // Mark slug as user-edited if manually changed
+        serviceSlugInput.addEventListener('input', function() {
+            this.dataset.userEdited = 'true';
+        });
+    }
+});
+</script>
 @endsection

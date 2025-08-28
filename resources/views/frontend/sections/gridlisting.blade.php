@@ -271,12 +271,22 @@
         <!-- Filter Section with Custom CSS -->
 <div class="filter-container">
     <form id="filterForm" action="{{ route('professionals') }}" method="GET">
-        <!-- Keep any existing filters -->
-        @if(request()->has('service_id'))
-            <input type="hidden" name="service_id" value="{{ request('service_id') }}">
-        @endif
-        
         <div class="filter-row">
+            <!-- Sub-Service Filter -->
+            <div class="filter-group">
+                <label for="sub_service">Sub-Service</label>
+                <div class="select-wrapper">
+                    <select id="sub_service" name="sub_service_id">
+                        <option value="">All Sub-Services</option>
+                        @foreach($subServices as $subService)
+                            <option value="{{ $subService->id }}" {{ request('sub_service_id') == $subService->id ? 'selected' : '' }}>
+                                {{ $subService->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            
             <!-- Experience Filter -->
             <div class="filter-group">
                 <label for="experience">Experience</label>
@@ -310,36 +320,53 @@
             <!-- Buttons -->
             <div class="filter-buttons">
                 <button type="submit" class="filter-btn apply-btn">Apply Filters</button>
-                <a href="{{ route('professionals', request()->has('service_id') ? ['service_id' => request('service_id')] : []) }}" class="filter-btn clear-btn">Clear</a>
+                <a href="{{ route('professionals') }}" class="filter-btn clear-btn">Clear All</a>
             </div>
         </div>
     </form>
 </div>
 
 <!-- Active Filters Display -->
-@if(request('experience') || request('price_range'))
+@if(request('sub_service_id') || request('experience') || request('price_range'))
 <div class="active-filters-container">
     <span class="active-filters-label">Active Filters:</span>
+    @if(request('sub_service_id'))
+    @php $selectedSubService = collect($subServices)->firstWhere('id', request('sub_service_id')) @endphp
+        @if($selectedSubService)
+            <span class="active-filter-badge">
+                Sub-Service: {{ $selectedSubService->name }}
+                <a href="{{ route('professionals', array_merge(request()->except('sub_service_id'), request()->only(['experience', 'price_range']))) }}" class="filter-remove">×</a>
+            </span>
+        @endif
+    @endif
     @if(request('experience'))
         <span class="active-filter-badge">
             Experience: {{ request('experience') }} years
-            <a href="{{ route('professionals', array_merge(request()->except('experience'), request()->has('service_id') ? ['service_id' => request('service_id')] : [])) }}" class="filter-remove">×</a>
+            <a href="{{ route('professionals', array_merge(request()->except('experience'), request()->only(['service_id', 'sub_service_id', 'price_range']))) }}" class="filter-remove">×</a>
         </span>
     @endif
     @if(request('price_range'))
         <span class="active-filter-badge">
             Price: {{ request('price_range') }}
-            <a href="{{ route('professionals', array_merge(request()->except('price_range'), request()->has('service_id') ? ['service_id' => request('service_id')] : [])) }}" class="filter-remove">×</a>
+            <a href="{{ route('professionals', array_merge(request()->except('price_range'), request()->only(['service_id', 'sub_service_id', 'experience']))) }}" class="filter-remove">×</a>
         </span>
     @endif
 </div>
 @endif
 
         <div class="row">
-            @foreach($professionals as $professional)
-                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-                    <div class="strip">
-                       <figure style="position: relative;">
+            @if($professionals->isEmpty())
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No professionals found for the selected filters.
+                    </div>
+                </div>
+            @else
+                @foreach($professionals as $professional)
+                    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                        <div class="strip">
+                           <figure style="position: relative;">
     {{-- Wishlist Heart Icon --}}
     <a href="#0" class="wish_bt"><i class="icon_heart"></i></a>
 
@@ -357,8 +384,21 @@
     @php
         $professionalName = $professional->name ?? 'Professional';
         $seoFriendlyName = Str::slug($professionalName);
+        
+        // Build route parameters
+        $routeParams = ['id' => $professional->id, 'professional_name' => $seoFriendlyName];
+        
+        // Add sub-service slug if selected
+        if(request('sub_service_id')) {
+            $selectedSubService = collect($subServices)->firstWhere('id', request('sub_service_id'));
+            if($selectedSubService) {
+                $routeParams['sub_service_slug'] = Str::slug($selectedSubService->name);
+            }
+        }
+        
+        $detailsUrl = route('professionals.details', $routeParams);
     @endphp
-    <a href="{{ route('professionals.details', ['id' => $professional->id, 'professional_name' => $seoFriendlyName]) }}" class="strip_info">
+    <a href="{{ $detailsUrl }}" class="strip_info">
         <div class="item_title">
             <h3>{{ $professional->name }}</h3>
             <p class="about">{{ $professional->bio }}</p>
@@ -382,23 +422,60 @@
                                 <div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
                             </li>
                         </ul>
-                    </a>
                     </div>
                 
-                </div>
-            @endforeach
+            </div>
+        @endforeach
         </div>
+    @endif
         
         
     <!-- /row -->
-    <div class="pagination_fg">
-        <a href="#">&laquo;</a>
-        <a href="#" class="active">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        <a href="#">4</a>
-        <a href="#">5</a>
-        <a href="#">&raquo;</a>
-    </div>
+    
+    <!-- Pagination -->
+    @if($professionals->hasPages())
+        <div class="pagination_fg">
+            {{-- Previous Page Link --}}
+            @if ($professionals->onFirstPage())
+                <span class="disabled">&laquo;</span>
+            @else
+                <a href="{{ $professionals->previousPageUrl() }}">&laquo;</a>
+            @endif
+
+            {{-- Pagination Elements --}}
+            @foreach ($professionals->getUrlRange(1, $professionals->lastPage()) as $page => $url)
+                @if ($page == $professionals->currentPage())
+                    <a href="#" class="active">{{ $page }}</a>
+                @else
+                    <a href="{{ $url }}">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            {{-- Next Page Link --}}
+            @if ($professionals->hasMorePages())
+                <a href="{{ $professionals->nextPageUrl() }}">&raquo;</a>
+            @else
+                <span class="disabled">&raquo;</span>
+            @endif
+        </div>
+        
+        <div class="pagination-info text-center mt-3">
+            <p>Showing {{ $professionals->firstItem() }} to {{ $professionals->lastItem() }} of {{ $professionals->total() }} professionals</p>
+        </div>
+    @endif
 </div>
+
 @endsection
+
+@section('scripts')
+<script>
+// Auto-submit form when filters change (optional)
+document.querySelectorAll('#filterForm select').forEach(select => {
+    select.addEventListener('change', function() {
+        // Uncomment the line below to auto-submit on filter change
+        // document.getElementById('filterForm').submit();
+    });
+});
+</script>
+@endsection
+ 

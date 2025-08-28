@@ -66,8 +66,9 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceCategory">Service Category * <span class="badge bg-success text-white" style="font-size: 11px; padding: 3px 6px;">Editable</span></label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required>
+                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary text-white" style="font-size: 11px; padding: 3px 6px;">Not editable</span></label>
+                        <!-- Service category is shown but not editable on the edit page. The hidden input ensures the value is submitted. -->
+                        <select name="serviceId_disabled" id="serviceCategory" class="form-control" disabled>
                             <option value="">Select Category</option>
                             @foreach($services as $serviceItem)
                                 <option value="{{ $serviceItem->id }}" 
@@ -77,7 +78,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">You can now change your service category if needed.</small>
+                        <input type="hidden" name="serviceId" value="{{ $service->service_id }}">
+                        <small class="text-muted">Service category is read-only on this page and cannot be changed.</small>
                     </div>
                 </div>
             </div>
@@ -249,21 +251,12 @@
         });
     }
 
-    // Limit selection to maximum of 2 checkboxes
+    // No limit on sub-service selection: allow professionals to choose any number of sub-services
     function enforceSubServiceLimit(container) {
+        // Intentionally left blank so checkboxes remain independent and unlimited selection is allowed.
         container.find('input[type="checkbox"]').off('change').on('change', function() {
-            const checked = container.find('input[type="checkbox"]:checked');
-            if (checked.length >= 2) {
-                container.find('input[type="checkbox"]:not(:checked)').attr('disabled', true).closest('.sub-service-item').addClass('disabled');
-            } else {
-                container.find('input[type="checkbox"]').attr('disabled', false).closest('.sub-service-item').removeClass('disabled');
-            }
+            // no-op: selection not limited
         });
-        // run initial enforcement in case pre-selected
-        const initChecked = container.find('input[type="checkbox"]:checked');
-        if (initChecked.length >= 2) {
-            container.find('input[type="checkbox"]:not(:checked)').attr('disabled', true).closest('.sub-service-item').addClass('disabled');
-        }
     }
     </script>
     

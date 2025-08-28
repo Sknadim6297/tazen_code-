@@ -488,6 +488,9 @@
                             @else
                                 {{ $booking->service_name }}
                             @endif
+                            @if($booking->sub_service_name)
+                                <br><small class="text-muted">Sub: {{ $booking->sub_service_name }}</small>
+                            @endif
                         </td>
                       <!-- Change this part in the table row -->
 <td>

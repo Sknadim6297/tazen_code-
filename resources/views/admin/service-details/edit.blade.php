@@ -30,6 +30,7 @@
                     @if($serviceDetail->banner_image)
                         <img src="{{ asset('storage/'.$serviceDetail->banner_image) }}" class="img-fluid mt-2" width="150">
                     @endif
+                    <input type="text" class="form-control mt-2" name="banner_image_alt" value="{{ $serviceDetail->banner_image_alt }}" placeholder="Banner image alt text">
                     <input type="text" class="form-control mt-2" name="banner_heading" value="{{ $serviceDetail->banner_heading }}" required>
                     <input type="text" class="form-control mt-2" name="banner_sub_heading" value="{{ $serviceDetail->banner_sub_heading }}">
                 </div>
@@ -43,6 +44,7 @@
                     @if($serviceDetail->about_image)
                         <img src="{{ asset('storage/'.$serviceDetail->about_image) }}" class="img-fluid mt-2" width="150">
                     @endif
+                    <input type="text" class="form-control mt-2" name="about_image_alt" value="{{ $serviceDetail->about_image_alt }}" placeholder="About image alt text">
                     <input type="text" class="form-control mt-2" name="about_heading" value="{{ $serviceDetail->about_heading }}" required>
                     <input type="text" class="form-control mt-2" name="about_subheading" value="{{ $serviceDetail->about_subheading }}">
                     <textarea class="form-control mt-2" name="about_description" rows="4">{{ $serviceDetail->about_description }}</textarea>
@@ -57,6 +59,7 @@
                     @if($serviceDetail->background_image)
                         <img src="{{ asset('storage/'.$serviceDetail->background_image) }}" class="img-fluid mt-2" width="150">
                     @endif
+                    <input type="text" class="form-control mt-2" name="background_image_alt" value="{{ $serviceDetail->background_image_alt }}" placeholder="Background image alt text">
                     <input type="text" class="form-control mt-2" name="how_it_works_subheading" value="{{ $serviceDetail->how_it_works_subheading }}">
                     <input type="text" class="form-control mt-2" name="content_heading" value="{{ $serviceDetail->content_heading }}" required>
                     <input type="text" class="form-control mt-2" name="content_sub_heading" value="{{ $serviceDetail->content_sub_heading }}">

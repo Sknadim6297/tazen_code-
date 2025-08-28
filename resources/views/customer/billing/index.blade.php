@@ -420,7 +420,12 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $booking->created_at->format('d M Y') }}</td>
-                            <td>{{ $booking->service_name }}</td>
+                            <td>
+                                {{ $booking->service_name }}
+                                @if($booking->sub_service_name)
+                                    <br><small class="text-muted">Sub: {{ $booking->sub_service_name }}</small>
+                                @endif
+                            </td>
                             <td>{{ $booking->professional->name ?? 'N/A' }}</td>
                             <td>
                                 <span class="badge badge-{{ str_replace('_', '-', $booking->plan_type) }}">

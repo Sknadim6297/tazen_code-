@@ -43,6 +43,7 @@ class ServiceDetailsController extends Controller
     
             // Banner Section
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'banner_image_alt' => 'nullable|string|max:255',
             'banner_heading' => 'required|string|max:255',
             'banner_sub_heading' => 'nullable|string|max:255',
     
@@ -51,12 +52,14 @@ class ServiceDetailsController extends Controller
             'about_subheading' => 'nullable|string|max:255',
             'about_description' => 'required|string',
             'about_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'about_image_alt' => 'nullable|string|max:255',
     
             // How It Works Section
             'how_it_works_subheading' => 'nullable|string|max:255',
             'content_heading' => 'required|string|max:255',
             'content_sub_heading' => 'nullable|string|max:255',
             'background_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'background_image_alt' => 'nullable|string|max:255',
     
             // Steps
             'step1_heading' => 'required|string|max:255',
@@ -112,12 +115,15 @@ public function update(Request $request, $id)
     $detail->service_id = $request->service_id;
     $detail->banner_heading = $request->banner_heading;
     $detail->banner_sub_heading = $request->banner_sub_heading;
+    $detail->banner_image_alt = $request->banner_image_alt;
     $detail->about_heading = $request->about_heading;
     $detail->about_subheading = $request->about_subheading;
     $detail->about_description = $request->about_description;
+    $detail->about_image_alt = $request->about_image_alt;
     $detail->how_it_works_subheading = $request->how_it_works_subheading;
     $detail->content_heading = $request->content_heading;
     $detail->content_sub_heading = $request->content_sub_heading;
+    $detail->background_image_alt = $request->background_image_alt;
 
     for ($i = 1; $i <= 3; $i++) {
         $detail->{'step'.$i.'_heading'} = $request->{'step'.$i.'_heading'};

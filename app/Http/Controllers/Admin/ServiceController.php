@@ -35,12 +35,18 @@ class ServiceController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:services,slug',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status' => 'required|in:active,inactive',
         ]);
 
         $data = [
             'name' => $request->name,
+            'slug' => $request->slug ?: \Illuminate\Support\Str::slug($request->name),
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
             'status' => $request->status,
         ];
 
@@ -81,12 +87,18 @@ class ServiceController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:services,slug,' . $id,
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status' => 'required|in:active,inactive',
         ]);
 
         $data = [
             'name' => $request->name,
+            'slug' => $request->slug ?: \Illuminate\Support\Str::slug($request->name),
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
             'status' => $request->status,
         ];
 

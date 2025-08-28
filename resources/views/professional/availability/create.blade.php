@@ -55,54 +55,79 @@
         <div class="card-body">
             <form id="availabilityForm">
                 @csrf
-                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <div class="form-row mb-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end;">
                     <div class="form-group">
-                        <label>Select Month</label>
-                        <select id="avail-month" class="form-control" name="month" required>
-                            <option value="">Select Month</option>
-                            @foreach($months as $num => $name)
-                                @if($num >= $currentMonth)
-                                    <option value="{{ strtolower(substr($name, 0, 3)) }}">{{ $name }}</option>
-                                @endif
+                        <label for="serviceSelect">Select Service <span class="text-danger">*</span></label>
+                        <select id="serviceSelect" name="professional_service_id" class="form-control" required>
+                            <option value="">Choose a service to set availability for</option>
+                            @foreach($professionalServices as $service)
+                                <option value="{{ $service->id }}">
+                                    {{ $service->service_name }}
+                                </option>
                             @endforeach
                         </select>
+                        <small class="text-muted">You can only set availability for services you have already created.</small>
                     </div>
-                    <div class="form-group">
-                        <label>Session Duration</label>
-                        <select class="form-control" name="session_duration" required>
-                            <option value="30">30 minutes</option>
-                            <option value="45">45 minutes</option>
-                            <option value="60" selected>60 minutes</option>
-                            <option value="90">90 minutes</option>
-                            <option value="120">2 hours</option>
+                    <div class="form-group" id="subServiceGroup">
+                        <label for="subServiceSelect">Select Sub-Service (optional)</label>
+                        <select id="subServiceSelect" name="sub_service_id" class="form-control" disabled>
+                            <option value="">All / None</option>
                         </select>
+                        <small class="text-muted">Selecting a sub-service will set availability only for that sub-service.</small>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Select Week Days</label>
-                    <div class="weekday-group">
-                        @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
-                        <label class="weekday-label">
-                            <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}"> {{ $dayName }}
-                        </label>
-                        @endforeach
+                
+                <div id="availabilityFormContainer" style="display: none;">
+                    <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Select Month</label>
+                            <select id="avail-month" class="form-control" name="month" required>
+                                <option value="">Select Month</option>
+                                @foreach($months as $num => $name)
+                                    @if($num >= $currentMonth)
+                                        <option value="{{ strtolower(substr($name, 0, 3)) }}">{{ $name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Session Duration</label>
+                            <select class="form-control" name="session_duration" required>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60" selected>60 minutes</option>
+                                <option value="90">90 minutes</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Time Slots</label>
-                    <div id="time-slots-container"></div>
-                    <button type="button" class="btn btn-success" id="addSlotBtn">
-                        <i class="fas fa-plus"></i> Add more
-                    </button>
-                </div>
+                    <div class="form-group">
+                        <label>Select Week Days</label>
+                        <div class="weekday-group">
+                            @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
+                            <label class="weekday-label">
+                                <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}"> {{ $dayName }}
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
 
-                <div class="form-actions mt-3">
-                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Availability
-                    </button>
+                    <div class="form-group">
+                        <label>Time Slots</label>
+                        <div id="time-slots-container"></div>
+                        <button type="button" class="btn btn-success" id="addSlotBtn">
+                            <i class="fas fa-plus"></i> Add more
+                        </button>
+                    </div>
+
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Availability
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -117,6 +142,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
     const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
+    const serviceSelect = document.getElementById('serviceSelect');
+    const availabilityFormContainer = document.getElementById('availabilityFormContainer');
+
+    // Service selection handler
+    serviceSelect.addEventListener('change', function() {
+        const selectedServiceId = this.value;
+        if (selectedServiceId) {
+            availabilityFormContainer.style.display = 'block';
+            // populate sub-services
+            const svc = @json($professionalServices).find(s => s.id == selectedServiceId);
+            const subGroup = document.getElementById('subServiceGroup');
+            const subSelect = document.getElementById('subServiceSelect');
+            subSelect.innerHTML = '<option value="">All / None</option>';
+            subSelect.disabled = true;
+            if (svc && (svc.sub_services && svc.sub_services.length)) {
+                svc.sub_services.forEach(ss => {
+                    const opt = document.createElement('option');
+                    opt.value = ss.id;
+                    opt.textContent = ss.name;
+                    subSelect.appendChild(opt);
+                });
+                subSelect.disabled = false;
+                subGroup.style.display = 'block';
+            } else {
+                // no sub-services: keep select disabled but visible
+                subSelect.disabled = true;
+                subGroup.style.display = 'block';
+            }
+            // Clear any existing time slots and add initial one
+            timeSlotsContainer.innerHTML = '';
+            createTimeSlot();
+        } else {
+            availabilityFormContainer.style.display = 'none';
+        }
+    });
 
     // Get the selected session duration in minutes
     function getSessionDuration() {
@@ -247,6 +307,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = this;
         const formData = new FormData(form);
         
+        // Validation: Check if service is selected
+        const selectedServiceId = serviceSelect.value;
+        if (!selectedServiceId) {
+            toastr.error("Please select a service first");
+            return false;
+        }
+        
         // Validation: Check if at least one weekday is selected
         const selectedWeekdays = document.querySelectorAll('input[name="weekdays[]"]:checked');
         if (selectedWeekdays.length === 0) {
@@ -302,10 +369,18 @@ document.addEventListener('DOMContentLoaded', function() {
             success: function(response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    form.reset();
-                    setTimeout(() => {
-                        window.location.href = "{{ route('professional.availability.index') }}";
-                    }, 1500);
+                    // Keep selected service and sub-service, just clear time slots
+                    document.querySelectorAll('#time-slots-container .time-slot').forEach((el, idx) => {
+                        if (idx > 0) el.remove();
+                        else {
+                            // clear values of first slot
+                            const start = el.querySelector('input[name="start_time[]"]');
+                            const end = el.querySelector('input[name="end_time[]"]');
+                            if (start) start.value = '';
+                            if (end) end.value = '';
+                        }
+                    });
+                    initializeFlatpickr();
                 } else {
                     $.each(response.errors, function(index, error) {
                         toastr.error(error);  

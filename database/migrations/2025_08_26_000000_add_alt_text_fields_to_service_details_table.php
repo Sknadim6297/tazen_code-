@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('service_details', function (Blueprint $table) {
+            // Add alt text fields for images
+            $table->string('banner_image_alt')->nullable()->after('banner_image');
+            $table->string('about_image_alt')->nullable()->after('about_image');
+            $table->string('background_image_alt')->nullable()->after('background_image');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('service_details', function (Blueprint $table) {
+            $table->dropColumn(['banner_image_alt', 'about_image_alt', 'background_image_alt']);
+        });
+    }
+};

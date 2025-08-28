@@ -16,6 +16,8 @@ class Booking extends Model
         'plan_type',
         'customer_phone',
         'service_name',
+        'sub_service_id',
+        'sub_service_name',
         'session_type',
         'customer_name',
         'customer_email',
@@ -50,6 +52,14 @@ class Booking extends Model
     public function professional()
     {
         return $this->belongsTo(Professional::class, 'professional_id');
+    }
+
+    /**
+     * Get the sub-service associated with this booking.
+     */
+    public function subService()
+    {
+        return $this->belongsTo(SubService::class, 'sub_service_id');
     }
 
     public function timedates()

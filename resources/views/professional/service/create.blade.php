@@ -241,16 +241,11 @@ function loadSubServices(serviceId) {
     });
 }
 
-// Limit selection to maximum of 2 checkboxes
+// No limit on sub-service selection: allow professionals to choose any number of sub-services
 function enforceSubServiceLimit(container) {
+    // Intentionally left blank so checkboxes remain independent and unlimited selection is allowed.
     container.find('input[type="checkbox"]').off('change').on('change', function() {
-        const checked = container.find('input[type="checkbox"]:checked');
-        if (checked.length >= 2) {
-            // disable all unchecked checkboxes
-            container.find('input[type="checkbox"]:not(:checked)').attr('disabled', true).closest('.sub-service-item').addClass('disabled');
-        } else {
-            container.find('input[type="checkbox"]').attr('disabled', false).closest('.sub-service-item').removeClass('disabled');
-        }
+        // no-op: selection not limited
     });
 }
 

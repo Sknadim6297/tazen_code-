@@ -1,5 +1,4 @@
 @extends('layouts.layout')
-
 @section('styles')
     {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
@@ -75,7 +74,7 @@
 
 @section('content')
 <main class="service-page">
-     <div class="hero_single fitness-yoga" style="background-image: url('{{ asset('storage/' . $service->detail->banner_image) }}'); background-size: cover; background-position: center;">
+     <div class="hero_single fitness-yoga" style="background-image: url('{{ asset('storage/' . $service->detail->banner_image) }}'); background-size: cover; background-position: center;" aria-label="{{ $service->detail->banner_image_alt ?? 'Service banner for ' . $service->name }}">
         <div class="opacity-mask" data-opacity-mask="rgba(0, 0, 0, 0.4)">
             <div class="container">
                 <div class="row">
@@ -95,7 +94,7 @@
     <h5>Trending:</h5>
     <ul class="new-ul-list-header">
         @foreach($services->take(4) as $service)
-            <li><a href="{{ url('/service/' . $service->id) }}">{{ strtolower($service->name) }}</a></li>
+            <li><a href="{{ url('/service/' . $service->slug) }}">{{ strtolower($service->name) }}</a></li>
         @endforeach
     </ul>
 </div> --}}
@@ -132,7 +131,7 @@
                         <img 
                             src="{{ asset('storage/' . $service->detail->about_image) }}" 
                             data-src="{{ asset('storage/' . $service->detail->about_image) }}" 
-                            alt="About Image" 
+                            alt="{{ $service->detail->about_image_alt ?? 'About ' . $service->name }}" 
                             class="img-fluid lazy" 
                             width="360" 
                             height="380">
@@ -144,7 +143,7 @@
         <!-- /container -->
     </div>
 
-    <section class="services-counter-section-info py-5" style="background: url('{{ asset('storage/' . $service->detail->background_image) }}')center center / cover no-repeat;">
+    <section class="services-counter-section-info py-5" style="background: url('{{ asset('storage/' . $service->detail->background_image) }}')center center / cover no-repeat;" aria-label="{{ $service->detail->background_image_alt ?? 'How it works background for ' . $service->name }}">
         <div class="container my-5">
             <div class="row heading">
                 <div class="col">
@@ -251,11 +250,11 @@
                                             <p class="text">{{ $t->description }}</p>
                                         </div>
                                         <div class="testimonial-img bg-blue">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="{{ $t->name ?? 'Customer' }} testimonial" style="width: 70%; height: 100%;">
                                         </div>
                                     @else
                                         <div class="testimonial-img bg-pink mb-15">
-                                            <img src="{{ asset('storage/'.$t->image) }}" alt="Testimonial Image" style="width: 70%; height: 100%;">
+                                            <img src="{{ asset('storage/'.$t->image) }}" alt="{{ $t->name ?? 'Customer' }} testimonial" style="width: 70%; height: 100%;">
                                         </div>
                                         <div class="testimonial-content bg-green">
                                             <p class="text">{{ $t->description }}</p>
@@ -292,7 +291,7 @@
             <div class="container clearfix">
                 <div class="row">
                     <div class="col-md-6 wow">
-                        <img src="{{ asset('frontend/assets/img/are-you-pro.png')}}" alt="">
+                        <img src="{{ asset('frontend/assets/img/are-you-pro.png')}}" alt="Professional consultation illustration">
                     </div>
                     <div class="col-md-6 wow">
                         <div class="box_1">

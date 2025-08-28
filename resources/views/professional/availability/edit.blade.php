@@ -58,6 +58,31 @@
                 @csrf
                 @method('PUT')
 
+                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end;">
+                    <div class="form-group">
+                        <label>Select Service <span class="text-danger">*</span></label>
+                        <select id="professional_service_id" class="form-control" name="professional_service_id" required>
+                            <option value="">Choose a service to set availability</option>
+                            @foreach($professionalServices as $service)
+                                <option value="{{ $service->id }}" {{ $availability->professional_service_id == $service->id ? 'selected' : '' }}>
+                                    {{ $service->service_name }}
+                                    @if($service->service_type)
+                                        ({{ $service->service_type }})
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Each service can have its own availability schedule</small>
+                    </div>
+                    <div class="form-group" id="subServiceGroup">
+                        <label>Select Sub-Service (optional)</label>
+                        <select id="subServiceSelect" name="sub_service_id" class="form-control" disabled>
+                            <option value="">All / None</option>
+                        </select>
+                        <small class="text-muted">Selecting a sub-service will set availability only for that sub-service.</small>
+                    </div>
+                </div>
+
                 <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label>Select Month</label>
@@ -143,6 +168,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
     const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
+    const professionalServices = @json($professionalServices);
+    const currentServiceId = '{{ $availability->professional_service_id }}';
+    const currentSubServiceId = '{{ $availability->sub_service_id ?? '' }}';
 
     // Get the selected session duration in minutes
     function getSessionDuration() {
@@ -266,6 +294,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize Flatpickr for existing time slots
     initializeFlatpickr();
+
+    // Populate sub-service select based on current or selected service
+    function populateSubServices(serviceId) {
+        const svc = professionalServices.find(s => s.id == serviceId);
+        const subGroup = document.getElementById('subServiceGroup');
+        const subSelect = document.getElementById('subServiceSelect');
+        subSelect.innerHTML = '<option value="">All / None</option>';
+        subSelect.disabled = true;
+        if (svc && svc.sub_services && svc.sub_services.length) {
+            svc.sub_services.forEach(ss => {
+                const opt = document.createElement('option');
+                opt.value = ss.id;
+                opt.textContent = ss.name;
+                if (ss.id == currentSubServiceId) opt.selected = true;
+                subSelect.appendChild(opt);
+            });
+            subSelect.disabled = false;
+            subGroup.style.display = 'block';
+        } else {
+            // keep visible but disabled so user sees context
+            subSelect.disabled = true;
+            subGroup.style.display = 'block';
+        }
+    }
+
+    // Initial populate
+    populateSubServices(currentServiceId);
+
+    document.getElementById('professional_service_id').addEventListener('change', function() {
+        populateSubServices(this.value);
+    });
 
     $('#availabilityForm').submit(function(e) {
         e.preventDefault();

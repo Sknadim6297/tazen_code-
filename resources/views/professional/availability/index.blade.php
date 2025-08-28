@@ -2,152 +2,39 @@
 
 @section('styles')
 <style>
-    .search-container {
-        max-width: 600px;
-    }
-    .search-form {
+    /* Search card - compact and responsive */
+    .search-card {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        padding: 12px 14px;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(17,24,39,0.03);
         display: flex;
+        gap: 12px;
         align-items: center;
-        gap: 15px;
+        justify-content: space-between;
+        margin-bottom: 20px;
     }
 
-    .form-group {
-        flex: 1 1 100%;
-    }
-    .form-group label {
-        font-weight: 600;
-        margin-bottom: 5px;
-        color: #333;
-    }
+    .search-card .form-group 
+    .search-card .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+    .search-card .form-control { padding: 10px 12px; border-radius: 6px; border: 1px solid #e6e9ef; background: #fff; }
 
-    .form-group select {
-        width: 100%;
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-    }
+    .search-actions { display:flex; gap:8px; align-items:center; }
+    .search-actions .btn { padding: 9px 14px; border-radius: 6px; }
+    .search-actions .btn + .btn { margin-left: 6px; }
 
-    .search-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-start;
-        margin-top: 10px;
-    }
-
-    .search-buttons .btn-success,
-    .search-buttons .btn-secondary {
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        text-decoration: none;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-
-    /* Fix for table scrolling */
-    .table-responsive {
-        overflow-x: auto;
-        width: 100%;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
-
-    /* Ensure the content doesn't overflow its container */
-    .card-body {
-        overflow: hidden;
-    }
-
-    /* Prevent table from expanding beyond container */
-    .table {
-        width: 100%;
-        table-layout: auto;
-        margin-bottom: 0;
-    }
-
-    /* Ensure parent containers respect width constraints */
-    .content-wrapper, .card {
-        width: 100%;
-        max-width: 100%;
-        overflow: hidden;
-    }
+    /* Small screens: stack search fields */
     @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+        .search-card { flex-direction: column; align-items: stretch; }
+        .search-card .form-group { width: 100%; }
+        .search-actions { justify-content: flex-end; }
     }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-}
+
+    /* Table layout tweaks kept minimal */
+    .table-responsive { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; }
+
 </style>
 @endsection
 
@@ -160,9 +47,10 @@
         </ul>
     </div>
     <div class="search-container">
-        <form action="{{ route('professional.availability.index') }}" method="GET" class="search-form">
-            <div class="form-group">
-                <label for="search_month">Month</label>
+        <form action="{{ route('professional.availability.index') }}" method="GET">
+            <div class="search-card">
+                <div class="form-group">
+                    <label for="search_month">Month</label>
                @php
         $monthNames = [
             'jan' => 'January',
@@ -189,25 +77,31 @@
         @endforeach
     </select>
             </div>
-            <div class="search-buttons">
-                <button type="submit" class="btn-success">Search</button>
-                <a href="{{ route('professional.availability.index') }}" class="btn-secondary">Reset</a>
+                <div class="search-actions">
+                    <button type="submit" class="btn btn-success">Search</button>
+                    <a href="{{ route('professional.availability.index') }}" class="btn btn-secondary">Reset</a>
+                </div>
             </div>
         </form>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <div class="card-header">
-                <h4>Availability List</h4>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">Availability List</h4>
+                    <small class="text-muted">Manage availability per sub-service</small>
+                </div>
                 <div class="card-actions">
-                    <a href="{{ route('professional.availability.create') }}" style="background-color: #0d67c7;color:white;padding:7px;border-radius:10px">Add Availability</a>
+                    <a href="{{ route('professional.availability.create') }}" class="btn btn-primary btn-sm">Add Availability</a>
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
+                            <th>Service</th>
+                            <th>Sub-Service</th>
                             <th>Month</th>
                             <th>Session Duration (mins)</th>
                             <th>Weekdays</th>
@@ -218,14 +112,26 @@
                     <tbody>
                         @forelse($availability as $item)
                             <tr>
-                                <td>{{ $item->month }}</td>
-                                <td>{{ $item->session_duration }}</td>
-                                <td>
+                                <td data-label="Service">
+                                    <div class="service-info">
+                                        <div class="service-name">{{ $item->professionalService->service_name ?? 'N/A' }}</div>
+                                    </div>
+                                </td>
+                                <td data-label="Sub-Service">
+                                    @if($item->subService)
+                                        {{ $item->subService->name }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td data-label="Month">{{ $item->month }}</td>
+                                <td data-label="Session Duration">{{ $item->session_duration }}</td>
+                                <td data-label="Weekdays">
                                     @foreach(json_decode($item->weekdays) as $day)
                                         <span class="badge bg-info text-dark">{{ $day }}</span>
                                     @endforeach
                                 </td>
-                                <td>
+                                <td data-label="Slots">
                                     @if($item->slots->count())
                                         <ul class="list-unstyled mb-0">
                                             @foreach($item->slots as $slot)
@@ -239,12 +145,12 @@
                                         <span class="text-muted">No slots</span>
                                     @endif
                                 </td>
-                                <td class="text-nowrap">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('professional.availability.edit', $item->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                <td data-label="Actions" class="text-nowrap">
+                                    <div class="" role="group">
+                                        <a href="{{ route('professional.availability.edit', $item->id) }}" class="rate-button" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="javascript:void(0)" data-url="{{  route('professional.availability.destroy', $item->id)  }}" class="btn btn-sm btn-outline-warning delete-item" title="Delete">
+                                        <a href="javascript:void(0)" data-url="{{  route('professional.availability.destroy', $item->id)  }}" class="delete-item" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
@@ -252,7 +158,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted">No availability found.</td>
+                                <td colspan="7" class="text-center text-muted">No availability found. Start by adding availability for your services.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -262,13 +168,33 @@
     </div>
 </div>
 <style>
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-    .user-profile-wrapper {
-        margin-top: -57px;
+    .service-name { font-weight: 600; color: #0d6efd; }
+    .subservice-name { font-size: 0.9rem; }
+
+    /* Ensure action links use outline look and are touch-friendly */
+    .rate-button, .delete-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        color: var(--text-dark);
+        background: transparent;
     }
-    .btn {
-    padding: 6px 6px;
-}
+
+    .rate-button { border-color: var(--primary); color: var(--primary); }
+    .rate-button:hover { background: var(--primary); color: #fff; }
+
+    .delete-item { border-color: var(--danger); color: var(--danger); }
+    .delete-item:hover { background: var(--danger); color: #fff; }
+
+    .table .service-info { min-width: 220px; }
+
+    /* Mobile: action buttons become flexible for stacked cards */
+    @media screen and (max-width: 767px) {
+        table.table td[data-label="Actions"] a { flex: 1 1 auto; margin-left: 8px; }
+    }
 </style>
 
 @endsection

@@ -137,40 +137,6 @@
     }
 </style>
 @endsection
-
-@section('schema')
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ url()->current() }}"
-  },
-    "headline": "{{ optional($blogPost)->title ?? '' }}",
-    "description": "{{ strip_tags(\Illuminate\Support\Str::limit(optional($blogPost)->content ?? '', 160)) }}",
-    "image": "{{ optional($blogPost)->image ? asset('storage/' . optional($blogPost)->image) : asset('frontend/assets/img/default-blog.png') }}",
-    "author": {
-        "@type": "Person",
-        "name": "{{ optional($blogPost)->author_name ?? 'Tazen' }}"
-    },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Tazen",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://tazen.in/frontend/assets/img/tazen-logo.png"
-    }
-  },
-    "datePublished": "{{ \Carbon\Carbon::parse(optional($blogPost)->published_at ?? optional($blogPost)->created_at ?? now())->toISOString() }}",
-    "dateModified": "{{ \Carbon\Carbon::parse(optional($blogPost)->updated_at ?? optional($blogPost)->created_at ?? now())->toISOString() }}",
-    "articleSection": "{{ optional($blogPost)->category ?? '' }}",
-    "keywords": "{{ strtolower(str_replace(' ', ', ', optional($blogPost)->category ?? '')) }}, career, health, finance, professional advice, tazen",
-  "url": "{{ url()->current() }}"
-}
-</script>
-@endsection
-
 @section('content')
 
 <main class="bg_color">
@@ -219,7 +185,7 @@
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
                             <p><b>{{ $latestBlog->blog->title }}</b></p>
-                            <h3><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}" title="{{ $latestBlog->blog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->blog->title, 50) }}</a></h3>
+                            <h3><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
                         </li>
                         @endforeach
                     </ul>
@@ -257,7 +223,7 @@
 
             <div class="col-lg-9">
                 <div class="singlepost">
-                    <figure><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}"><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></a></figure>
+                    <figure><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></figure>
                     <h1>{{ $relatedBlog->title }}</h1>
                     <div class="postmeta">
                         <ul>
@@ -268,7 +234,7 @@
                         </ul>
                     </div>
                     <div class="post-content">
-                        {!! optional($blogPost)->content ?? '' !!}
+                        {!! $blogPost->content !!}
                     </div>
                 </div>
                 

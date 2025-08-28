@@ -81,7 +81,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
 
 // Professional details page - public viewing but requires auth for booking
-Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+Route::get("professionals/details/{id}/{professional_name?}/{sub_service_slug?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+
+// AJAX routes for dynamic filtering
+Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
+Route::get('/get-professional-rates-availability', [HomeController::class, 'getProfessionalRatesAvailability'])->name('get.professional.rates.availability');
 
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
@@ -181,8 +185,8 @@ Route::get('allevent', function ($id) {
 });
 
 Route::get('/allevents', [EventController::class, 'index'])->name('allevents');
-Route::get('/service/{id}', [ServiceController::class, 'show'])->name('service.show');
-Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
+Route::get('/service/{service:slug}', [ServiceController::class, 'show'])->name('service.show');
+Route::get('/service/{service:slug}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
 
 Route::get('blog', function (Request $request) {
@@ -214,36 +218,32 @@ Route::get('blog', function (Request $request) {
 })->name('blog.index');
 Route::get('/blog-post/{identifier}', function ($identifier) {
     // identifier can be numeric ID or slugified title
+    // If numeric ID provided, redirect to slug URL for consistency
     if (is_numeric($identifier)) {
-        // Handle numeric ID
-        $blogPost = DB::table('blog_posts')->where('id', $identifier)->first();
+        $bp = App\Models\BlogPost::with('blog')->find($identifier);
+        if (! $bp) {
+            abort(404, 'Blog not found');
+        }
+        $slug = \Illuminate\Support\Str::slug($bp->blog->title ?? '');
+        if ($slug && $slug !== (string) $identifier) {
+            return redirect()->route('blog.show', $slug);
+        }
+        // If slug equals numeric or empty, continue to render using the model
+        $blogPost = $bp;
     } else {
         // Handle slug - find by matching slugified title
         $allBlogPosts = BlogPost::with('blog')->get();
         $blogPost = null;
         foreach ($allBlogPosts as $bp) {
-            if (\Illuminate\Support\Str::slug($bp->blog->title) === $identifier) {
+            if (\Illuminate\Support\Str::slug($bp->blog->title ?? '') === $identifier) {
                 $blogPost = $bp;
                 break;
             }
         }
-        // Convert to compatible format if found via Eloquent
-        if ($blogPost) {
-            $blogPost = (object) [
-                'id' => $blogPost->id,
-                'title' => $blogPost->blog->title,
-                'image' => $blogPost->image,
-                'content' => $blogPost->content,
-                'category' => $blogPost->category,
-                'published_at' => $blogPost->published_at,
-                'author_name' => $blogPost->author_name,
-                'blog_id' => $blogPost->blog_id,
-            ];
-        }
     }
 
     // Handle case where blog doesn't exist
-    if (!$blogPost) {
+    if (! $blogPost) {
         abort(404, 'Blog not found');
     }
 

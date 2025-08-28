@@ -117,6 +117,9 @@
                                 @endif
                                 <hr>
                                 <li>Service name: <span>{{ $serviceName }}</span></li>
+                                @if(isset($subServiceName) && !empty($subServiceName))
+                                    <li>Sub-service: <span>{{ $subServiceName }}</span></li>
+                                @endif
                                 <li>Plan type: <span>{{ isset($bookingData['plan_type']) ? ucwords(str_replace('_', ' ', $bookingData['plan_type'])) : 'N/A' }}</span></li>
                                 <li>Type: <span>Appointment</span></li>
                                 @php

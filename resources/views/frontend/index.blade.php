@@ -200,7 +200,7 @@
     <h5>Trending:</h5>
     <ul class="new-ul-list-header">
         @foreach($services->take(4) as $service)
-            <li><a href="{{ url('/service/' . $service->id) }}">{{ strtolower($service->name) }}</a></li>
+            <li><a href="{{ url('/service/' . $service->slug) }}">{{ strtolower($service->name) }}</a></li>
         @endforeach
     </ul>
 </div>
@@ -831,7 +831,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // If we already have results from typing, use the first result
         if (currentResults.length > 0) {
-            window.location.href = `/service/${currentResults[0].id}`;
+            window.location.href = `/service/${currentResults[0].slug}`;
             return;
         }
         
@@ -851,10 +851,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         service.name.toLowerCase() === query.toLowerCase());
                     
                     if (exactMatch) {
-                        window.location.href = `/service/${exactMatch.id}`;
+                        window.location.href = `/service/${exactMatch.slug}`;
                     } else {
                         // Otherwise go to first result
-                        window.location.href = `/service/${data.services[0].id}`;
+                        window.location.href = `/service/${data.services[0].slug}`;
                     }
                 } else {
                     toastr.error('No matching services found. Please try a different search term.');
@@ -890,7 +890,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     searchResults.innerHTML = `
                         <div class="list-group shadow">
                             ${currentResults.map(service => `
-                                <a href="/service/${service.id}" class="list-group-item list-group-item-action">
+                                <a href="/service/${service.slug}" class="list-group-item list-group-item-action">
                                     ${service.name}
                                 </a>
                             `).join('')}

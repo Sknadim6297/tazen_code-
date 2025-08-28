@@ -3,6 +3,30 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
 
 @endsection
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tazen.in/blog"
+  },
+  "name": "Tazen Blog",
+  "description": "Explore expert articles on career, health, finance, and lifestyle from verified professionals at Tazen.in.",
+  "url": "https://tazen.in/blog",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tazen",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tazen.in/frontend/assets/img/tazen-logo.png"
+    }
+  }
+}
+</script>
+@endsection
+
 @section('content')
 <main class="bg_color">
     @foreach($blogbanners as $banner)
@@ -14,7 +38,7 @@
              <div class="row">
                  <div class="col-xl-12 col-lg-12">
                      <h1>{{ $banner->heading }}</h1>
-                     <p>{{ $banner->subheading }}</p>
+                     <h2>{{ $banner->subheading }}</h2>
                      
                  </div>
              </div>
@@ -103,8 +127,8 @@
                                 </figure>
                                 <div class="post_info" style="padding: 15px;">
                                     <small>{{ $blogPost->category }} - {{ $blogPost->created_at->format('d M Y') }}</small>
-                                    <h2 style="font-size: 1.2rem; margin: 10px 0;"><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">{{ $blogPost->blog->title }}</a></h2>
-                                    <p style="font-size: 0.9rem;">{{ \Illuminate\Support\Str::limit($blogPost->content, 100) }}</p>
+                                    <h3 style="font-size: 1.2rem; margin: 10px 0;"><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">{{ $blogPost->blog->title }}</a></h3>
+                                    <p style="font-size: 0.9rem;">{{ \Illuminate\Support\Str::words(strip_tags($blogPost->content ?? ''), 30, '...') }}</p>
                                     <ul style="margin-top: 10px;">
                                         <li>
                                             <div class="thumb" style="width: 30px; height: 30px;">

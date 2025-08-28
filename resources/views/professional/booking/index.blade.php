@@ -531,7 +531,12 @@
                                     </button>
                                 </td>
                                 <td>{{ $booking->plan_type }}</td>
-                                <td>{{ $booking->service_name }}</td>
+                                <td>
+                                    {{ $booking->service_name }}
+                                    @if($booking->sub_service_name)
+                                        <br><small class="text-muted">Sub: {{ $booking->sub_service_name }}</small>
+                                    @endif
+                                </td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
                           <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
 
@@ -999,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let html = `<div class="questionnaire-details">
                         <h5>Customer: ${data.booking_details.customer_name}</h5>
                         <h6>Service: ${data.booking_details.service_name}</h6>
+                        ${data.booking_details.sub_service_name ? `<h6>Sub-service: ${data.booking_details.sub_service_name}</h6>` : ''}
                         <div class="answers-list">`;
                     
                     data.answers.forEach(item => {
@@ -1056,6 +1062,7 @@ function fetchQuestionnaireAnswers(bookingId) {
                 let html = `<div class="questionnaire-details">
                     <h5>Customer: ${data.booking_details.customer_name}</h5>
                     <h6>Service: ${data.booking_details.service_name}</h6>
+                    ${data.booking_details.sub_service_name ? `<h6>Sub-service: ${data.booking_details.sub_service_name}</h6>` : ''}
                     <div class="answers-list">`;
                 
                 data.answers.forEach(item => {

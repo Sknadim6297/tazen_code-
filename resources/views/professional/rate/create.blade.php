@@ -22,30 +22,57 @@
         <div class="form-container">
             <form id="rateForm">
                 @csrf
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Session Type</th>
-                                <th>No. of Sessions</th>
-                                <th>Rate Per Session (₹)</th>
-                                <th>Final Rate (₹)</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Initially empty -->
-                        </tbody>
-                    </table>
+                
+                <!-- Service and Sub-Service side-by-side -->
+                <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                    <div style="flex:1; min-width:220px;">
+                        <label for="serviceSelect">Select Service <span class="text-danger">*</span></label>
+                        <select id="serviceSelect" class="form-control" required>
+                            <option value="">Choose a service to add rates for</option>
+                            @foreach($professionalServices as $service)
+                                <option value="{{ $service->id }}">
+                                    {{ $service->service_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">You can only add rates for services you have already created.</small>
+                    </div>
+
+                    <div id="subServiceGroup" style="flex:1; min-width:220px; display:none;">
+                        <label for="subServiceSelect">Sub-Service (optional)</label>
+                        <select id="subServiceSelect" class="form-control">
+                            <option value="">All / None</option>
+                        </select>
+                        <small class="text-muted">Selecting a sub-service limits this rate to that sub-service.</small>
+                    </div>
                 </div>
                 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" id="addRateBtn">
-                        <i class="fas fa-plus"></i> Add New Rate
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Rates
-                    </button>
+                <div id="rateTableContainer" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Session Type</th>
+                                    <th>No. of Sessions</th>
+                                    <th>Rate Per Session (₹)</th>
+                                    <th>Final Rate (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Initially empty -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="addRateBtn">
+                            <i class="fas fa-plus"></i> Add New Rate
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Rates
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -119,29 +146,114 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand']; 
     let selectedSessionTypes = [];
+    let currentServiceId = null;
     
-    // Fetch existing session types first to prevent duplicates
+    // Service selection handler
+    document.getElementById('serviceSelect').addEventListener('change', function() {
+        currentServiceId = this.value;
+        if (currentServiceId) {
+            // Show the rate table
+            document.getElementById('rateTableContainer').style.display = 'block';
+
+            // populate sub-services
+            const svc = @json($professionalServices).find(s => s.id == currentServiceId);
+            const subGroup = document.getElementById('subServiceGroup');
+            const subSelect = document.getElementById('subServiceSelect');
+            subSelect.innerHTML = '<option value="">All / None</option>';
+
+            // Remove any previous listener to avoid duplicates
+            subSelect.onchange = null;
+
+            if (svc && svc.sub_services && svc.sub_services.length) {
+                svc.sub_services.forEach(ss => {
+                    const opt = document.createElement('option');
+                    opt.value = ss.id;
+                    opt.textContent = ss.name;
+                    subSelect.appendChild(opt);
+                });
+                subGroup.style.display = 'block';
+
+                // Services with sub-services can now have rates at service level (no sub-service) 
+                // or sub-service level. Fetch existing session types immediately for service level.
+                fetchExistingSessionTypes();
+
+                const addBtn = document.getElementById('addRateBtn');
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-plus"></i> Add New Rate';
+
+                subSelect.onchange = function() {
+                    // Clear existing rows when changing sub-service selection
+                    document.querySelector('.table tbody').innerHTML = '';
+
+                    // Fetch session types for the current selection (service or sub-service level)
+                    fetchExistingSessionTypes().then(() => {
+                        // Enabled/disabled state will be handled by updateAddButtonState
+                    }).catch(() => {
+                        // If fetch fails, still allow adding rates
+                        const addBtn = document.getElementById('addRateBtn');
+                        addBtn.disabled = false;
+                        addBtn.innerHTML = '<i class="fas fa-plus"></i> Add New Rate';
+                    });
+                };
+            } else {
+                subGroup.style.display = 'none';
+
+                // Clear existing rows
+                document.querySelector('.table tbody').innerHTML = '';
+
+                // No sub-services: safe to fetch immediately
+                fetchExistingSessionTypes();
+
+                // Ensure add button is enabled when service has no sub-services
+                const addBtn = document.getElementById('addRateBtn');
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-plus"></i> Add New Rate';
+            }
+        } else {
+            document.getElementById('rateTableContainer').style.display = 'none';
+        }
+    });
+    
+    // Fetch existing session types for the selected service
     function fetchExistingSessionTypes() {
         return new Promise((resolve, reject) => {
-            // Make an AJAX call to get existing session types for this professional
+            const subServiceVal = document.getElementById('subServiceSelect') ? document.getElementById('subServiceSelect').value : null;
+
             $.ajax({
                 url: "{{ route('professional.rate.get-session-types') }}",
                 type: "GET",
+                data: { professional_service_id: currentServiceId, sub_service_id: subServiceVal },
                 success: function(response) {
                     if (response.status === 'success') {
                         selectedSessionTypes = response.session_types || [];
+                        updateAddButtonState();
                         resolve(selectedSessionTypes);
                     } else {
-                        toastr.error("Failed to load existing session types.");
+                        toastr.error(response.message || "Failed to load existing session types.");
                         reject([]);
                     }
                 },
-                error: function() {
-                    toastr.error("Error checking existing session types. Please refresh the page.");
+                error: function(xhr) {
+                    const message = xhr.responseJSON?.message || "Error checking existing session types. Please refresh the page.";
+                    toastr.error(message);
                     reject([]);
                 }
             });
         });
+    }
+    
+    function updateAddButtonState() {
+        const availableTypes = sessionTypes.filter(type => !selectedSessionTypes.includes(type));
+        const addBtn = document.getElementById('addRateBtn');
+        
+        if (availableTypes.length === 0) {
+            addBtn.disabled = true;
+            addBtn.innerHTML = 'All session types already added for this service';
+            toastr.info('You have already added all available session types for this service.');
+        } else {
+            addBtn.disabled = false;
+            addBtn.innerHTML = '<i class="fas fa-plus"></i> Add New Rate';
+        }
     }
     
     // Improved function to update dropdown options
@@ -184,92 +296,86 @@ document.addEventListener('DOMContentLoaded', function() {
         finalRateInput.value = numSessions * ratePerSession;
     }
 
-    // Fetch existing types before initializing the form
-    fetchExistingSessionTypes().then(() => {
-        // Check if all types are already used
-        const availableTypes = sessionTypes.filter(type => !selectedSessionTypes.includes(type));
-        if (availableTypes.length === 0) {
-            document.getElementById('addRateBtn').disabled = true;
-            document.getElementById('addRateBtn').innerHTML = 'All session types already added';
-            toastr.info('You have already added all available session types.');
-        } else {
-            // Enable adding new rates
-            document.getElementById('addRateBtn').addEventListener('click', function() {
-                // Check if all 4 session types are already used
-                if (selectedSessionTypes.length >= 4) {
-                    toastr.error('You can only add up to 4 different session types.');
-                    return;
-                }
-                
-                // Check if there are any session types left to add
-                const currentSelections = Array.from(document.querySelectorAll('.session-type'))
-                    .map(select => select.value)
-                    .filter(value => value);
-                    
-                const availableTypes = sessionTypes.filter(type => 
-                    !selectedSessionTypes.includes(type) && !currentSelections.includes(type));
-                    
-                if (availableTypes.length === 0) {
-                    toastr.error('All session types have already been added or selected.');
-                    return;
-                }
-
-                const tbody = document.querySelector('.table tbody');
-                const newRow = document.createElement('tr');
-                
-                // Create dropdown with properly disabled options
-                let optionsHTML = '<option value="">Select Session Type</option>';
-                sessionTypes.forEach(type => {
-                    const isDisabled = selectedSessionTypes.includes(type) || currentSelections.includes(type);
-                    const disabledAttr = isDisabled ? 'disabled' : '';
-                    const label = selectedSessionTypes.includes(type) ? 
-                        `${type} (Already Added)` : type;
-                    const style = selectedSessionTypes.includes(type) ? 
-                        'style="color: #999;"' : '';
-                    
-                    optionsHTML += `<option value="${type}" ${disabledAttr} ${style}>${label}</option>`;
-                });
-                
-                newRow.innerHTML = `
-                    <td>
-                        <select class="form-control session-type" required>
-                            ${optionsHTML}
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control" value="1" min="1" required></td>
-                    <td><input type="number" class="form-control" value="0" min="0" step="100" required></td>
-                    <td><input type="number" class="form-control final-rate" name="final_rate[]" readonly></td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm delete-row">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(newRow);
-
-                const numSessionsInput = newRow.querySelector('td:nth-child(2) input');
-                const ratePerSessionInput = newRow.querySelector('td:nth-child(3) input');
-                const sessionTypeSelect = newRow.querySelector('.session-type');
-                
-                // Add event listeners to calculate final rate when inputs change
-                numSessionsInput.addEventListener('input', function() {
-                    calculateFinalRate(newRow);
-                });
-                ratePerSessionInput.addEventListener('input', function() {
-                    calculateFinalRate(newRow);
-                });
-
-                // Handle session type change
-                sessionTypeSelect.addEventListener('change', function() {
-                    updateDropdownOptions();
-                    calculateFinalRate(newRow);
-                });
-
-                // Initialize final rate calculation
-                calculateFinalRate(newRow);
-                updateDropdownOptions();
-            });
+    // Add rate button event listener
+    document.getElementById('addRateBtn').addEventListener('click', function() {
+        if (!currentServiceId) {
+            toastr.error('Please select a service first.');
+            return;
         }
+        
+        // Check if all session types are already used
+        if (selectedSessionTypes.length >= 4) {
+            toastr.error('You can only add up to 4 different session types per service.');
+            return;
+        }
+        
+        // Check if there are any session types left to add
+        const currentSelections = Array.from(document.querySelectorAll('.session-type'))
+            .map(select => select.value)
+            .filter(value => value);
+            
+        const availableTypes = sessionTypes.filter(type => 
+            !selectedSessionTypes.includes(type) && !currentSelections.includes(type));
+            
+        if (availableTypes.length === 0) {
+            toastr.error('All session types have already been added or selected for this service.');
+            return;
+        }
+
+        const tbody = document.querySelector('.table tbody');
+        const newRow = document.createElement('tr');
+        
+        // Create dropdown with properly disabled options
+        let optionsHTML = '<option value="">Select Session Type</option>';
+        sessionTypes.forEach(type => {
+            const isDisabled = selectedSessionTypes.includes(type) || currentSelections.includes(type);
+            const disabledAttr = isDisabled ? 'disabled' : '';
+            const label = selectedSessionTypes.includes(type) ? 
+                `${type} (Already Added)` : type;
+            const style = selectedSessionTypes.includes(type) ? 
+                'style="color: #999;"' : '';
+            
+            optionsHTML += `<option value="${type}" ${disabledAttr} ${style}>${label}</option>`;
+        });
+        
+        newRow.innerHTML = `
+            <td>
+                <select class="form-control session-type" required>
+                    ${optionsHTML}
+                </select>
+            </td>
+            <td><input type="number" class="form-control" value="1" min="1" required></td>
+            <td><input type="number" class="form-control" value="0" min="0" step="100" required></td>
+            <td><input type="number" class="form-control final-rate" name="final_rate[]" readonly></td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm delete-row">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(newRow);
+
+        const numSessionsInput = newRow.querySelector('td:nth-child(2) input');
+        const ratePerSessionInput = newRow.querySelector('td:nth-child(3) input');
+        const sessionTypeSelect = newRow.querySelector('.session-type');
+        
+        // Add event listeners to calculate final rate when inputs change
+        numSessionsInput.addEventListener('input', function() {
+            calculateFinalRate(newRow);
+        });
+        ratePerSessionInput.addEventListener('input', function() {
+            calculateFinalRate(newRow);
+        });
+
+        // Handle session type change
+        sessionTypeSelect.addEventListener('change', function() {
+            updateDropdownOptions();
+            calculateFinalRate(newRow);
+        });
+
+        // Initialize final rate calculation
+        calculateFinalRate(newRow);
+        updateDropdownOptions();
     });
 
     // Row deletion with improved handling of selected session types
@@ -286,6 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Submit form via AJAX with validation
     document.getElementById('rateForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        if (!currentServiceId) {
+            toastr.error('Please select a service.');
+            return;
+        }
         
         // Check if at least one rate has been added
         const rows = document.querySelectorAll('.table tbody tr');
@@ -344,6 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let postData = {
             professional_id: "{{ Auth::guard('professional')->id() }}", 
+            professional_service_id: currentServiceId,
+            sub_service_id: document.getElementById('subServiceSelect') ? document.getElementById('subServiceSelect').value : null,
             rateData: rateData, 
             _token: $('meta[name="csrf-token"]').attr('content') 
         };
@@ -390,13 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Only add an initial row if there are available session types
-    if (sessionTypes.length > selectedSessionTypes.length) {
-        setTimeout(() => {
-            document.getElementById('addRateBtn').click();
-        }, 200);
-    }
 });
 </script>
 @endsection
