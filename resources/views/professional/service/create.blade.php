@@ -114,20 +114,22 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary" style="font-size: 11px; padding: 3px 6px;">Selectable</span></label>
+                        <label for="serviceCategory">Service Category * <span class="badge bg-primary" style="font-size: 11px; padding: 3px 6px;">Based on Your Registration</span></label>
                         <select name="serviceId" id="serviceCategory" class="form-control" required>
                             <option value="">Select Category</option>
-                            @foreach($services as $service)
+                            @forelse($services as $service)
                                 <option value="{{ $service->id }}" {{ 
                                     (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' 
                                 }}>{{ $service->name }}</option>
-                            @endforeach
+                            @empty
+                                <option value="" disabled>No service categories available for your specialization</option>
+                            @endforelse
                         </select>
                         <!-- Keep the hidden input as backup -->
                         <input type="hidden" name="serviceIdBackup" value="{{ $matchingServiceId ?? '' }}">
                         <small class="text-muted">
-                            <strong>Note:</strong> Select the service category you want to offer.
-                            <br>You can change this when editing the service later.
+                            <strong>Note:</strong> You can only offer services in your registered specialization: {{ $specialization ?? 'Not specified' }}.
+                            If you need to change your specialization, please contact support.
                         </small>
                     </div>
                     </div>

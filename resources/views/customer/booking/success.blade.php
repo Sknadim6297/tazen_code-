@@ -147,7 +147,7 @@
                             @endif
                             <li>
                                 <strong>Total Amount Paid (including GST):</strong>
-                                <span>₹{{ number_format(session('booking_success.amount'), 2) }}</span>
+m                                <span>₹{{ number_format(session('booking_success.amount'), 2) }}</span>
                             </li>
                             <li>
                                 <strong>Booking Dates:</strong>
@@ -173,6 +173,254 @@
         </div>
     </div>
 </main>
+
+<!-- MCQ Modal -->
+@if(isset($mcqQuestions) && $mcqQuestions->count() > 0)
+<div class="modal fade" id="mcqModal" tabindex="-1" aria-labelledby="mcqModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="mcqModalLabel">
+                    <i class="fas fa-clipboard-list me-2"></i>Service Questionnaire
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Please complete this questionnaire to help us provide better service tailored to your needs.
+                </div>
+
+                <form id="mcqForm">
+                    @csrf
+                    <input type="hidden" id="service_id" name="service_id" value="{{ $serviceId }}">
+                    <input type="hidden" id="booking_id" name="booking_id" value="{{ $bookingId }}">
+
+                    @foreach($mcqQuestions as $index => $question)
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-primary">Question {{ $index + 1 }}:</h6>
+                            <p class="question-text">{{ $question->question }}</p>
+                            
+                            <div class="options-container">
+                                @php
+                                    $options = $question->formatted_options;
+                                @endphp
+                                
+                                @foreach($options as $optionKey => $optionValue)
+                                    @if(!empty($optionValue))
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="answers[{{ $index }}][selected_answer]" 
+                                                   id="question_{{ $question->id }}_option_{{ $optionKey }}" 
+                                                   value="{{ $optionValue }}" required>
+                                            <label class="form-check-label" for="question_{{ $question->id }}_option_{{ $optionKey }}">
+                                                <strong>{{ $optionKey }}:</strong> {{ $optionValue }}
+                                            </label>
+                                        </div>
+                                    @endif
+                                @endforeach
+
+                                @if($question->has_other_option)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" 
+                                               name="answers[{{ $index }}][selected_answer]" 
+                                               id="question_{{ $question->id }}_option_other" 
+                                               value="Other" required>
+                                        <label class="form-check-label" for="question_{{ $question->id }}_option_other">
+                                            <strong>Other:</strong>
+                                        </label>
+                                        <input type="text" class="form-control mt-2 other-input" 
+                                               name="answers[{{ $index }}][other_answer]" 
+                                               placeholder="Please specify..." 
+                                               style="display: none;">
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Hidden inputs for form submission -->
+                            <input type="hidden" name="answers[{{ $index }}][mcq_id]" value="{{ $question->id }}">
+                            <input type="hidden" name="answers[{{ $index }}][question]" value="{{ $question->question }}">
+                        </div>
+
+                        @if(!$loop->last)
+                            <hr>
+                        @endif
+                    @endforeach
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Skip for Now
+                </button>
+                <button type="button" class="btn btn-primary" id="submitMCQ">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Answers
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.question-text {
+    background: #f8f9fa;
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.options-container {
+    padding-left: 20px;
+}
+
+.form-check {
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.form-check:hover {
+    background-color: #f8f9fa;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.other-input {
+    margin-left: 24px;
+    max-width: 300px;
+}
+
+.modal-header {
+    border-bottom: 3px solid #dee2e6;
+}
+
+.modal-footer {
+    border-top: 3px solid #dee2e6;
+}
+
+#mcqModal .modal-body {
+    font-size: 14px;
+}
+
+#mcqModal h6 {
+    font-size: 16px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show MCQ modal automatically after success page loads
+    @if(isset($mcqQuestions) && $mcqQuestions->count() > 0)
+        setTimeout(function() {
+            var mcqModal = new bootstrap.Modal(document.getElementById('mcqModal'));
+            mcqModal.show();
+        }, 1500); // Show after 1.5 seconds
+    @endif
+
+    // Handle "Other" option selection
+    document.addEventListener('change', function(e) {
+        if (e.target.type === 'radio' && e.target.value === 'Other') {
+            const otherInput = e.target.closest('.form-check').querySelector('.other-input');
+            if (otherInput) {
+                otherInput.style.display = 'block';
+                otherInput.required = true;
+                otherInput.focus();
+            }
+        } else if (e.target.type === 'radio' && e.target.value !== 'Other') {
+            // Hide other inputs in the same question group
+            const questionContainer = e.target.closest('.mb-4');
+            const otherInputs = questionContainer.querySelectorAll('.other-input');
+            otherInputs.forEach(input => {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            });
+        }
+    });
+
+    // Handle MCQ form submission
+    document.getElementById('submitMCQ').addEventListener('click', function() {
+        const form = document.getElementById('mcqForm');
+        const formData = new FormData(form);
+        const submitBtn = this;
+        
+        // Validate form
+        const requiredInputs = form.querySelectorAll('input[required]');
+        let isValid = true;
+        
+        requiredInputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.closest('.mb-4').classList.add('border', 'border-danger');
+            } else {
+                input.closest('.mb-4').classList.remove('border', 'border-danger');
+            }
+        });
+
+        if (!isValid) {
+            alert('Please answer all questions before submitting.');
+            return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+
+        // Convert FormData to JSON
+        const answers = [];
+        const serviceId = formData.get('service_id');
+        const bookingId = formData.get('booking_id');
+
+        @foreach($mcqQuestions as $index => $question)
+            const answer{{ $index }} = {
+                mcq_id: formData.get('answers[{{ $index }}][mcq_id]'),
+                question: formData.get('answers[{{ $index }}][question]'),
+                selected_answer: formData.get('answers[{{ $index }}][selected_answer]'),
+                other_answer: formData.get('answers[{{ $index }}][other_answer]') || null
+            };
+            answers.push(answer{{ $index }});
+        @endforeach
+
+        // Submit via AJAX
+        fetch('{{ route("user.booking.mcq.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                service_id: serviceId,
+                booking_id: bookingId,
+                answers: answers
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show success message and close modal
+                alert(data.message);
+                bootstrap.Modal.getInstance(document.getElementById('mcqModal')).hide();
+            } else {
+                throw new Error(data.message || 'Failed to submit answers');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to submit your answers. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit Answers';
+        });
+    });
+});
+</script>
+@endif
+
 @endsection
 
 

@@ -11,24 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('prof_service_sub_services')) {
+            return;
+        }
+
         Schema::create('prof_service_sub_services', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('professional_service_id');
             $table->unsignedBigInteger('sub_service_id');
             $table->timestamps();
 
-            // Foreign key constraints with custom names
-            $table->foreign('professional_service_id', 'prof_svc_id_fk')
+            // Use short, explicit foreign key names to avoid MySQL identifier length errors
+            $table->foreign('professional_service_id', 'pss_prof_svc_fk')
                   ->references('id')->on('professional_services')->onDelete('cascade');
-            $table->foreign('sub_service_id', 'sub_svc_id_fk')
+
+            $table->foreign('sub_service_id', 'pss_sub_svc_fk')
                   ->references('id')->on('sub_services')->onDelete('cascade');
 
-            // Ensure a professional service can't have the same sub-service twice
-            $table->unique(['professional_service_id', 'sub_service_id'], 'prof_svc_sub_svc_unique');
-            
-            // Add indexes for performance
-            $table->index('professional_service_id', 'prof_svc_id_idx');
-            $table->index('sub_service_id', 'sub_svc_id_idx');
+            $table->unique(['professional_service_id', 'sub_service_id'], 'prof_svc_sub_unique');
         });
     }
 

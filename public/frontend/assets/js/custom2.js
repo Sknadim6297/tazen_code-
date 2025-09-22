@@ -85,7 +85,8 @@ function scrollToTop() {
 
 
 // responsive Logoipsum Slider
-$('.logoipsum-slider').slick({
+if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
+    $('.logoipsum-slider').slick({
     arrows: false,
     dots: false,
     infinite: true,
@@ -180,31 +181,36 @@ function open_img_two(evt, cityName) {
 
 
 // ============= testimonial Slider
-$(document).ready(function() {
-    var slider = $('.testimonial_slider');
+if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
+    $(document).ready(function() {
+        var slider = $('.testimonial_slider');
 
-    slider.slick({
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        arrows: true,
-        dots: false,
-    });
+        slider.slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            arrows: true,
+            dots: false,
+        });
 
-    // Pause the slider on hover
-    slider.on('mouseenter', function() {
-        slider.slick('slickPause');
-    });
+        // Pause the slider on hover
+        slider.on('mouseenter', function() {
+            slider.slick('slickPause');
+        });
 
-    // Resume the slider when not hovering
-    slider.on('mouseleave', function() {
-        slider.slick('slickPlay');
+        // Resume the slider when not hovering
+        slider.on('mouseleave', function() {
+            slider.slick('slickPlay');
+        });
     });
-});
+} else {
+    console.warn('Slick slider is not available. Skipping testimonial slider initialization.');
+}
 
 // responsive star Slider
-$('.star-slider').slick({
+if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
+    $('.star-slider').slick({
     arrows: false,
     dots: false,
     infinite: false,
@@ -237,7 +243,8 @@ $('.star-slider').slick({
 });
 
 // responsive team Slider
-$('.team-slider').slick({
+if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
+    $('.team-slider').slick({
     arrows: true,
     dots: false,
     infinite: false,
@@ -269,11 +276,15 @@ $('.team-slider').slick({
             }
         }
     ]
-});
+    });
+} else {
+    console.warn('Slick slider is not available. Skipping team-slider initialization.');
+}
 // ============= slider end
 
-// responsive team Slider
-$('.service-slider').slick({
+// responsive service Slider
+if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
+    $('.service-slider').slick({
     arrows: true,
     dots: false,
     infinite: false,
@@ -305,7 +316,10 @@ $('.service-slider').slick({
             }
         }
     ]
-});
+    });
+} else {
+    console.warn('Slick slider is not available. Skipping service-slider initialization.');
+}
 // ============= slider end
 
 // ============= counter start ============= // 

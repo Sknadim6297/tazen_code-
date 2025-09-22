@@ -527,12 +527,96 @@ class BookingController extends Controller
 
     public function successPage()
     {
-        return view('customer.booking.success');
+        $user = Auth::guard('user')->user();
+        $mcqQuestions = collect();
+        $serviceId = null;
+        $bookingId = null;
+
+        // Check if we have MCQ questions to show
+        if (session('booking_success.service_id')) {
+            $serviceId = session('booking_success.service_id');
+            $bookingId = session('booking_success.booking_id');
+            
+            // Get MCQ questions for this service
+            $mcqQuestions = \App\Models\ServiceMCQ::getQuestionsForService($serviceId);
+        }
+
+        return view('customer.booking.success', compact('mcqQuestions', 'serviceId', 'bookingId'));
     }
 
     public function bookingSuccessPage()
     {
-        return view('customer.booking.success');
+        $user = Auth::guard('user')->user();
+        $mcqQuestions = collect();
+        $serviceId = null;
+        $bookingId = null;
+
+        // Check if we have MCQ questions to show
+        if (session('booking_success.service_id')) {
+            $serviceId = session('booking_success.service_id');
+            $bookingId = session('booking_success.booking_id');
+            
+            // Get MCQ questions for this service
+            $mcqQuestions = \App\Models\ServiceMCQ::getQuestionsForService($serviceId);
+        }
+
+        return view('customer.booking.success', compact('mcqQuestions', 'serviceId', 'bookingId'));
+    }
+
+    /**
+     * Store MCQ answers from the user after successful booking
+     */
+    public function storeMCQAnswers(Request $request)
+    {
+        $user = Auth::guard('user')->user();
+        
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $request->validate([
+            'service_id' => 'required|integer|exists:services,id',
+            'booking_id' => 'nullable|integer',
+            'answers' => 'required|array',
+            'answers.*.mcq_id' => 'required|integer|exists:service_m_c_q_s,id',
+            'answers.*.question' => 'required|string',
+            'answers.*.selected_answer' => 'required|string',
+            'answers.*.other_answer' => 'nullable|string'
+        ]);
+
+        try {
+            foreach ($request->answers as $answer) {
+                \App\Models\UserMCQAnswer::create([
+                    'user_id' => $user->id,
+                    'service_id' => $request->service_id,
+                    'service_mcq_id' => $answer['mcq_id'],
+                    'booking_id' => $request->booking_id,
+                    'question' => $answer['question'],
+                    'selected_answer' => $answer['selected_answer'],
+                    'other_answer' => $answer['other_answer'] ?? null
+                ]);
+            }
+
+            // Clear the MCQ session data
+            session()->forget(['booking_success.service_id', 'booking_success.booking_id']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Thank you for completing the questionnaire! Your answers have been saved.'
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to save MCQ answers: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'service_id' => $request->service_id,
+                'error' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save your answers. Please try again.'
+            ], 500);
+        }
     }
 
     public function resetBooking()
@@ -570,5 +654,34 @@ class BookingController extends Controller
             
             return redirect()->route('professionals.details', ['id' => $professionalId, 'professional_name' => $seoFriendlyName]);
         }
+    }
+
+    /**
+     * Test method to set MCQ session data for testing
+     */
+    public function setMCQTestSession(Request $request)
+    {
+        $serviceId = $request->input('service_id', 1);
+        $bookingId = $request->input('booking_id', 1);
+        
+        // Set session data that would normally be set after successful payment
+        session([
+            'booking_success.service_id' => $serviceId,
+            'booking_success.booking_id' => $bookingId,
+            'booking_success.service_name' => 'Test Service'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'MCQ session data set successfully'
+        ]);
+    }
+
+    /**
+     * Test page to simulate MCQ functionality
+     */
+    public function mcqTestPage()
+    {
+        return view('test.mcq-test');
     }
 }

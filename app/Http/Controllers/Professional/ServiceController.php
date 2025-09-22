@@ -32,24 +32,26 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        $services = Service::all();
-        
         // Get professional's profile and specialization
         $professional = Auth::guard('professional')->user();
         $profile = $professional->profile;
         $specialization = $profile ? $profile->specialization : null;
         
-        // Find the matching service ID for this specialization
+        // Only get services that match the professional's specialization
+        $services = collect();
         $matchingServiceId = null;
+        
         if ($specialization) {
+            $allServices = Service::all();
+            
             // Try to find an exact match first
-            $matchingService = $services->first(function($service) use ($specialization) {
+            $matchingService = $allServices->first(function($service) use ($specialization) {
                 return strtolower($service->name) === strtolower($specialization);
             });
             
             // If no exact match, try to find partial match
             if (!$matchingService) {
-                $matchingService = $services->first(function($service) use ($specialization) {
+                $matchingService = $allServices->first(function($service) use ($specialization) {
                     return stripos($service->name, $specialization) !== false || 
                            stripos($specialization, $service->name) !== false;
                 });
@@ -57,7 +59,18 @@ class ServiceController extends Controller
             
             if ($matchingService) {
                 $matchingServiceId = $matchingService->id;
+                // Only provide the matching service(s) - professionals can only create services in their specialization
+                $services = collect([$matchingService]);
             }
+        }
+        
+        // Check if professional has no specialization or no matching services
+        if (!$specialization) {
+            return redirect()->back()->with('error', 'Please complete your profile with a valid specialization before creating services.');
+        }
+        
+        if ($services->isEmpty()) {
+            return redirect()->back()->with('error', 'No service categories found matching your specialization: ' . $specialization . '. Please contact support for assistance.');
         }
         
         // Log information for debugging
@@ -111,6 +124,27 @@ class ServiceController extends Controller
             'subServices' => 'nullable|array|max:2',
             'subServices.*' => 'exists:sub_services,id',
         ]);
+        
+        // Validate that the professional can only create services in their specialization
+        $professional = Auth::guard('professional')->user();
+        $profile = $professional->profile;
+        $specialization = $profile ? $profile->specialization : null;
+        
+        if ($specialization) {
+            $selectedService = Service::find($request->serviceId);
+            if ($selectedService) {
+                $isValidSpecialization = strtolower($selectedService->name) === strtolower($specialization) ||
+                                       stripos($selectedService->name, $specialization) !== false ||
+                                       stripos($specialization, $selectedService->name) !== false;
+                
+                if (!$isValidSpecialization) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You can only create services in your registered specialization: ' . $specialization
+                    ], 422);
+                }
+            }
+        }
         
         // If no serviceId is provided, get the professional's specialization 
         // and find matching service

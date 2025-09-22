@@ -6,6 +6,10 @@
         9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
     ];
     $selectedWeekdays = json_decode($availability->weekdays, true);
+    $professional = Auth::guard('professional')->user();
+    $professionalService = $professional->professionalServices->first();
+    $isServiceAvailability = !$availability->sub_service_id;
+    $isSubServiceAvailability = $availability->sub_service_id;
 @endphp
 
 @extends('professional.layout.layout')
@@ -54,101 +58,144 @@
             <h4>Update Your Availability</h4>
         </div>
         <div class="card-body">
-            <form id="availabilityForm">
-                @csrf
-                @method('PUT')
+            @if($professionalService)
+                <form id="availabilityForm">
+                    @csrf
+                    @method('PUT')
 
-                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end;">
-                    <div class="form-group">
-                        <label>Select Service <span class="text-danger">*</span></label>
-                        <select id="professional_service_id" class="form-control" name="professional_service_id" required>
-                            <option value="">Choose a service to set availability</option>
-                            @foreach($professionalServices as $service)
-                                <option value="{{ $service->id }}" {{ $availability->professional_service_id == $service->id ? 'selected' : '' }}>
-                                    {{ $service->service_name }}
-                                    @if($service->service_type)
-                                        ({{ $service->service_type }})
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="text-muted">Each service can have its own availability schedule</small>
-                    </div>
-                    <div class="form-group" id="subServiceGroup">
-                        <label>Select Sub-Service (optional)</label>
-                        <select id="subServiceSelect" name="sub_service_id" class="form-control" disabled>
-                            <option value="">All / None</option>
-                        </select>
-                        <small class="text-muted">Selecting a sub-service will set availability only for that sub-service.</small>
-                    </div>
-                </div>
+                    <!-- Hidden fields for auto-detected service -->
+                    <input type="hidden" name="professional_service_id" value="{{ $professionalService->id }}">
+                    @if($isSubServiceAvailability)
+                        <input type="hidden" name="sub_service_id" value="{{ $availability->sub_service_id }}">
+                    @endif
 
-                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label>Select Month</label>
-                        <select id="avail-month" class="form-control" name="month" required>
-                            <option value="">Select Month</option>
-                            @foreach($months as $num => $name)
-                                @if($num >= $currentMonth)
-                                    <option value="{{ strtolower(substr($name, 0, 3)) }}" {{ strtolower(substr($name, 0, 3)) == $availability->month ? 'selected' : '' }}>{{ $name }}</option>
+                    @if($isServiceAvailability)
+                        <!-- Service Availability Section -->
+                        <div class="service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
                                 @endif
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Session Duration</label>
-                        <select class="form-control" name="session_duration" required>
-                            @foreach([30, 45, 60, 90, 120] as $duration)
-                                <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
-                                    {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Select Week Days</label>
-                    <div class="weekday-group">
-                        @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
-                            <label class="weekday-label">
-                                <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}" {{ in_array($dayVal, $selectedWeekdays) ? 'checked' : '' }}> {{ $dayName }}
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Time Slots</label>
-                    <div id="time-slots-container">
-                        @foreach($availability->slots as $slot)
-                            <div class="time-slot">
-                                <label>From</label>
-                                <div class="time-input-group">
-                                    <input type="text" class="form-control timepicker" name="start_time[]" value="{{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}" required>
-                                </div>
-                                <label>To</label>
-                                <div class="time-input-group">
-                                    <input type="text" class="form-control timepicker" name="end_time[]" value="{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}" required readonly>
-                                </div>
-                                <button type="button" class="remove-slot-btn" title="Remove slot">
-                                    <i class="fas fa-trash"></i>
-                                </button>
                             </div>
-                        @endforeach
-                    </div>
-                    <button type="button" class="btn btn-success" id="addSlotBtn">
-                        <i class="fas fa-plus"></i> Add more
-                    </button>
-                </div>
 
-                <div class="form-actions mt-3">
-                    <a href="{{ route('professional.availability.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Update
-                    </button>
+                            <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Select Month</label>
+                                    <select id="avail-month" class="form-control" name="month" required>
+                                        <option value="">Select Month</option>
+                                        @foreach($months as $num => $name)
+                                            @if($num >= $currentMonth)
+                                                <option value="{{ strtolower(substr($name, 0, 3)) }}" {{ strtolower(substr($name, 0, 3)) == $availability->month ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Session Duration</label>
+                                    <select class="form-control" name="session_duration" required>
+                                        @foreach([30, 45, 60, 90, 120] as $duration)
+                                            <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
+                                                {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Sub-Service Availability Section -->
+                        @php
+                            $subService = $professionalService->subServices->where('id', $availability->sub_service_id)->first();
+                        @endphp
+                        <div class="sub-service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
+                                @endif
+                            </div>
+
+                            <div class="sub-service-header mb-3 p-2" style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px;">
+                                <h6 class="mb-0">{{ $subService->name ?? 'Sub-Service' }}</h6>
+                            </div>
+
+                            <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Select Month</label>
+                                    <select id="avail-month" class="form-control" name="month" required>
+                                        <option value="">Select Month</option>
+                                        @foreach($months as $num => $name)
+                                            @if($num >= $currentMonth)
+                                                <option value="{{ strtolower(substr($name, 0, 3)) }}" {{ strtolower(substr($name, 0, 3)) == $availability->month ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Session Duration</label>
+                                    <select class="form-control" name="session_duration" required>
+                                        @foreach([30, 45, 60, 90, 120] as $duration)
+                                            <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
+                                                {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-group">
+                        <label>Select Week Days</label>
+                        <div class="weekday-group">
+                            @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
+                                <label class="weekday-label">
+                                    <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}" {{ in_array($dayVal, $selectedWeekdays) ? 'checked' : '' }}> {{ $dayName }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Slots</label>
+                        <div id="time-slots-container">
+                            @foreach($availability->slots as $slot)
+                                <div class="time-slot">
+                                    <label>From</label>
+                                    <div class="time-input-group">
+                                        <input type="text" class="form-control timepicker" name="start_time[]" value="{{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}" required>
+                                    </div>
+                                    <label>To</label>
+                                    <div class="time-input-group">
+                                        <input type="text" class="form-control timepicker" name="end_time[]" value="{{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}" required readonly>
+                                    </div>
+                                    <button type="button" class="remove-slot-btn" title="Remove slot">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button type="button" class="btn btn-success" id="addSlotBtn">
+                            <i class="fas fa-plus"></i> Add more
+                        </button>
+                    </div>
+
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <a href="{{ route('professional.availability.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Availability
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Availability
+                        </button>
+                    </div>
+                </form>
+            @else
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    You don't have any services set up yet. Please set up your services first.
                 </div>
-            </form>
+            @endif
         </div>
     </div>
 </div>
@@ -168,9 +215,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
     const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
-    const professionalServices = @json($professionalServices);
-    const currentServiceId = '{{ $availability->professional_service_id }}';
-    const currentSubServiceId = '{{ $availability->sub_service_id ?? '' }}';
 
     // Get the selected session duration in minutes
     function getSessionDuration() {
@@ -294,37 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize Flatpickr for existing time slots
     initializeFlatpickr();
-
-    // Populate sub-service select based on current or selected service
-    function populateSubServices(serviceId) {
-        const svc = professionalServices.find(s => s.id == serviceId);
-        const subGroup = document.getElementById('subServiceGroup');
-        const subSelect = document.getElementById('subServiceSelect');
-        subSelect.innerHTML = '<option value="">All / None</option>';
-        subSelect.disabled = true;
-        if (svc && svc.sub_services && svc.sub_services.length) {
-            svc.sub_services.forEach(ss => {
-                const opt = document.createElement('option');
-                opt.value = ss.id;
-                opt.textContent = ss.name;
-                if (ss.id == currentSubServiceId) opt.selected = true;
-                subSelect.appendChild(opt);
-            });
-            subSelect.disabled = false;
-            subGroup.style.display = 'block';
-        } else {
-            // keep visible but disabled so user sees context
-            subSelect.disabled = true;
-            subGroup.style.display = 'block';
-        }
-    }
-
-    // Initial populate
-    populateSubServices(currentServiceId);
-
-    document.getElementById('professional_service_id').addEventListener('change', function() {
-        populateSubServices(this.value);
-    });
 
     $('#availabilityForm').submit(function(e) {
         e.preventDefault();

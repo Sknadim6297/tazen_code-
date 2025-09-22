@@ -148,15 +148,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Toggle sidebar on mobile
-        document.querySelector('.toggle-sidebar').addEventListener('click', function () {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
+        // Defensive sidebar toggle/close to avoid errors when elements are missing
+        (function () {
+            const toggleBtn = document.querySelector('.toggle-sidebar');
+            const closeBtn = document.querySelector('.close-sidebar');
+            const sidebarEl = document.querySelector('.sidebar');
 
-        // Close sidebar on mobile
-        document.querySelector('.close-sidebar').addEventListener('click', function () {
-            document.querySelector('.sidebar').classList.remove('active');
-        });
+            if (toggleBtn && sidebarEl && typeof toggleBtn.addEventListener === 'function') {
+                toggleBtn.addEventListener('click', function () {
+                    sidebarEl.classList.toggle('active');
+                });
+            }
+
+            if (closeBtn && sidebarEl && typeof closeBtn.addEventListener === 'function') {
+                closeBtn.addEventListener('click', function () {
+                    sidebarEl.classList.remove('active');
+                });
+            }
+        })();
     </script>
      <script>
 		@if (session('success'))

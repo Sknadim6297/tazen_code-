@@ -43,7 +43,7 @@
 	<style>
     .header-video {
         position: relative;
-        height: 500px; /* Set your desired height */
+        height: 500px;
         overflow: hidden;
     }
     .header-video--media {
@@ -80,25 +80,24 @@
 	.text{
 		color: white;
 	}
-	/* Updated Search Results Styling */
 #searchResults {
     max-height: 250px;
     overflow-y: auto;
     border-radius: 0.25rem;
-    left: 0; /* Align to the left */
-    right: auto; /* Override any right alignment */
-    width: 100%; /* Full width of parent */
+    left: 0; 
+    right: auto; 
+    width: 100%; 
 }
 
 .search-container {
-    position: relative; /* Ensure proper positioning context */
+    position: relative; 
     width: 100%;
 }
 
 #searchResults .list-group-item {
     border-left: none;
     border-right: none;
-    text-align: left; /* Left-align text */
+    text-align: left; 
     padding-left: 15px;
 }
 
@@ -214,13 +213,29 @@
 
 			<!-- Video Tag to Add the Video -->
 				@foreach($banners as $banner)
-    <video class="header-video--media" autoplay loop muted>
-        <source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <!-- Fallback image for mobile -->
-    <img src="{{ asset('frontend/assets/img/slides/slide_home_2.jpg') }}" class="mobile-video-fallback" >
-@endforeach
+					@if($banner->banner_video)
+						@php
+							$fileExtension = pathinfo($banner->banner_video, PATHINFO_EXTENSION);
+							$isGif = strtolower($fileExtension) === 'gif';
+						@endphp
+						
+						@if($isGif)
+							<img src="{{ asset('storage/' . $banner->banner_video) }}" class="header-video--media" alt="Banner GIF" style="width: 100%; height: auto; object-fit: cover;">
+						@else
+							<video class="header-video--media" autoplay loop muted>
+								<source src="{{ asset('storage/' . $banner->banner_video) }}" type="video/mp4">
+								Your browser does not support the video tag.
+							</video>
+						@endif
+					@else
+						<video class="header-video--media" autoplay loop muted>
+							<source src="{{ asset('frontend/assets/video/hero-video.mp4') }}" type="video/mp4">
+							Your browser does not support the video tag.
+						</video>
+					@endif
+					<!-- Fallback image for mobile -->
+					<img src="{{ asset('frontend/assets/img/slides/slide_home_2.jpg') }}" class="mobile-video-fallback" >
+				@endforeach
 		</div>
 		<!-- /header-video -->
 		<!-- fun facts sections  -->

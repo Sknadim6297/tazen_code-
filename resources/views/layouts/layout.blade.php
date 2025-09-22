@@ -4,8 +4,6 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
-	<meta name="keywords" content="career counselling, health experts, finance professionals, business consultants, verified experts, professional consultation, appointment booking, Tazen">
 	<meta name="author" content="Tazen">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	
@@ -14,21 +12,29 @@
 	<meta name="googlebot" content="index, follow">
 	<link rel="canonical" href="{{ url()->current() }}">
 	
-	<!-- Open Graph Meta Tags for Social Media -->
-	<meta property="og:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
-	<meta property="og:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
-	<meta property="og:type" content="website">
-	<meta property="og:url" content="{{ url()->current() }}">
-	<meta property="og:site_name" content="Tazen.in">
-	<meta property="og:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
-	
-	<!-- Twitter Card Meta Tags -->
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
-	<meta name="twitter:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
-	<meta name="twitter:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
-	
-	<title>{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}</title>
+	@hasSection('meta')
+		@yield('meta')
+	@else
+		<!-- Default Meta Tags -->
+		<meta name="description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
+		<meta name="keywords" content="career counselling, health experts, finance professionals, business consultants, verified experts, professional consultation, appointment booking, Tazen">
+		
+		<!-- Open Graph Meta Tags for Social Media -->
+		<meta property="og:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
+		<meta property="og:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="{{ url()->current() }}">
+		<meta property="og:site_name" content="Tazen.in">
+		<meta property="og:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
+		
+		<!-- Twitter Card Meta Tags -->
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}">
+		<meta name="twitter:description" content="{{ isset($metaDescription) ? $metaDescription : 'Discover trusted professionals in career counselling, business, health, finance, and more. Book verified experts easily with Tazen.in.' }}">
+		<meta name="twitter:image" content="{{ asset('frontend/assets/img/tazen-logo.png') }}">
+		
+		<title>{{ isset($metaTitle) ? $metaTitle : 'Tazen.in | Find Verified Experts for Career, Health & Finance' }}</title>
+	@endif
 
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.6.0/css/all.css">
@@ -409,7 +415,8 @@ function initSlider() {
     });
     
     
-    slider.slick({
+	if (typeof jQuery !== 'undefined' && typeof jQuery.fn !== 'undefined' && typeof jQuery.fn.slick === 'function') {
+		slider.slick({
         prevArrow: "<button type='button' class='slick-prev' aria-label='Previous picture'></button>",
         nextArrow: "<button type='button' class='slick-next' aria-label='Next Picture'></button>",
         centerMode: true,
@@ -417,7 +424,10 @@ function initSlider() {
         dots: true,
     autoplay: true,
     slidesToShow: 1,
-    });
+		});
+	} else {
+		console.warn('Slick is not available. initSlider will skip slider initialization.');
+	}
     
 }
 
@@ -432,7 +442,8 @@ function checkSlides(slider, currentSlide) {
     </script>
 
     <script type="text/javascript">
-        jQuery(".property-slide").slick({
+		if (typeof jQuery !== 'undefined' && typeof jQuery.fn !== 'undefined' && typeof jQuery.fn.slick === 'function') {
+			jQuery(".property-slide").slick({
           dots: false,
           infinite: true,
           speed: 300,
@@ -471,13 +482,20 @@ function checkSlides(slider, currentSlide) {
             // settings: "unslick"
             // instead of a settings object
           ]
-        });
+			});
+		} else {
+			console.warn('Slick is not available. Skipping property-slide initialization.');
+		}
 
     </script>
 	<script>
 		$(document).ready(function(){
-			$('.slick_slider').slick();
-		});
+				if (typeof jQuery !== 'undefined' && typeof jQuery.fn !== 'undefined' && typeof jQuery.fn.slick === 'function') {
+					$('.slick_slider').slick();
+				} else {
+					console.warn('Slick is not available. Skipping slick_slider initialization.');
+				}
+			});
 	</script>
 	
 

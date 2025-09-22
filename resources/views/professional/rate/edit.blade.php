@@ -1,93 +1,148 @@
 @extends('professional.layout.layout')
 
-@section('style')
-<!-- Add custom styles here if needed -->
-@endsection
-
 @section('content')
 <div class="content-wrapper">
     <div class="page-header">
-        <div class="page-title">
-            <h3>Edit Rate</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Edit Rate</li>
-        </ul>
+        <h3>Edit Rate</h3>
     </div>
 
-    <div class="form-container">
-        <form id="rateForm" method="POST" action="{{ route('professional.rate.update', $rates->id) }}">
-            @csrf
-            @method('PUT')
-            
-            <!-- Service and Sub-Service side-by-side -->
-            <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
-                <div style="flex:1; min-width:220px;">
-                    <label>Service <span class="text-danger">*</span></label>
-                    <select id="professional_service_id" class="form-control" name="professional_service_id" required>
-                        <option value="">Choose a service</option>
-                        @foreach($professionalServices as $service)
-                            <option value="{{ $service->id }}" {{ $rates->professional_service_id == $service->id ? 'selected' : '' }}>
-                                {{ $service->service_name }}
-                                @if($service->service_type)
-                                    ({{ $service->service_type }})
+    <div class="card">
+        <div class="card-header">
+            <h4>Update Rate Information</h4>
+        </div>
+        <div class="card-body">
+            @php
+                $professional = Auth::guard('professional')->user();
+                $professionalService = $professional->professionalServices->first();
+                $hasSubServices = $professionalService && $professionalService->subServices->count() > 0;
+                $isServiceRate = !$rates->sub_service_id;
+                $isSubServiceRate = $rates->sub_service_id;
+            @endphp
+
+            <form id="rateForm" action="{{ route('professional.rate.update', $rates->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <!-- Hidden fields for auto-detected service -->
+                <input type="hidden" name="professional_service_id" value="{{ $professionalService->id }}">
+                @if($isSubServiceRate)
+                    <input type="hidden" name="sub_service_id" value="{{ $rates->sub_service_id }}">
+                @endif
+
+                @if($professionalService)
+                    @if($isServiceRate)
+                        <!-- Service Rate Section -->
+                        <div class="service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
                                 @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <small class="text-muted">Each service can have its own rate structure</small>
-                </div>
+                            </div>
 
-                <div id="subServiceGroup" style="flex:1; min-width:220px; display:none;">
-                    <label>Sub-Service (optional)</label>
-                    <select id="subServiceSelect" name="sub_service_id" class="form-control">
-                        <option value="">All / None</option>
-                    </select>
-                    <small class="text-muted">Selecting a sub-service limits this rate to that sub-service.</small>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Session Type</th>
-                            <th>No. of Sessions</th>
-                            <th>Rate Per Session (₹)</th>
-                            <th>Final Rate (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <select class="form-control session-type" name="session_type" disabled>
-                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
-                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
-                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
-                            </td>
-                            <td>
-                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
-                            </td>
-                            <td>
-                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Session Type</th>
+                                            <th>No. of Sessions</th>
+                                            <th>Rate Per Session (₹)</th>
+                                            <th>Final Rate (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control session-type" name="session_type">
+                                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
+                                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
+                                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Sub-Service Rate Section -->
+                        @php
+                            $subService = $professionalService->subServices->where('id', $rates->sub_service_id)->first();
+                        @endphp
+                        <div class="sub-service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
+                                @endif
+                            </div>
 
-            <div class="form-actions mt-3 d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Update Rate
-                </button>
-            </div>
-        </form>
+                            <div class="sub-service-header mb-3 p-2" style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px;">
+                                <h6 class="mb-0">{{ $subService->name ?? 'Sub-Service' }}</h6>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Session Type</th>
+                                            <th>No. of Sessions</th>
+                                            <th>Rate Per Session (₹)</th>
+                                            <th>Final Rate (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control session-type" name="session_type">
+                                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
+                                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
+                                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <a href="{{ route('professional.rate.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Rates
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Update Rate
+                        </button>
+                    </div>
+                @else
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        You don't have any services set up yet. Please set up your services first.
+                    </div>
+                @endif
+            </form>
+        </div>
     </div>
 </div>
 
@@ -181,33 +236,6 @@
 
 <script>
     $(document).ready(function () {
-        const professionalServices = @json($professionalServices);
-        const currentServiceId = '{{ $rates->professional_service_id }}';
-        const currentSubServiceId = '{{ $rates->sub_service_id ?? '' }}';
-
-        function populateSubServices(serviceId) {
-            const svc = professionalServices.find(s => s.id == serviceId);
-            const subGroup = $('#subServiceGroup');
-            const select = $('#subServiceSelect');
-            select.html('<option value="">All / None</option>');
-            if (svc && svc.sub_services && svc.sub_services.length) {
-                svc.sub_services.forEach(ss => {
-                    const selected = (ss.id == currentSubServiceId) ? 'selected' : '';
-                    select.append(`<option value="${ss.id}" ${selected}>${ss.name}</option>`);
-                });
-                subGroup.show();
-            } else {
-                subGroup.hide();
-            }
-        }
-
-        // Initial populate
-        populateSubServices(currentServiceId);
-
-        $('#professional_service_id').change(function() {
-            populateSubServices(this.value);
-        });
-
         $('#rateForm').submit(function (e) {
             e.preventDefault();
 

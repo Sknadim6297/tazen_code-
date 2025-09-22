@@ -224,6 +224,9 @@
                                     <li class="slide">
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.re-requested-service.index') }}" class="side-menu__item">Re-requested Service </a>
+                                    </li>
                                 </ul>
                             </li>
 

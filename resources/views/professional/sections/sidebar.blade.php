@@ -39,6 +39,11 @@
             <i class="fas fa-dollar-sign"></i>
             <span>Other Information</span>
         </a>
+        
+        <a href="{{ route('professional.re-requested-service.index') }}" class="menu-item {{ Route::is('professional.re-requested-service.*') ? 'active' : '' }}">
+            <i class="fas fa-redo-alt"></i>
+            <span>Re-requested Service</span>
+        </a>
 
         <div class="menu-title">Bookings</div>
         <a href="{{ route('professional.booking.index') }}" class="menu-item {{ Route::is('professional.booking.*') ? 'active' : '' }}">

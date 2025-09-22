@@ -10,6 +10,7 @@ use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\RequestedServiceController;
 use App\Http\Controllers\Professional\ServiceController;
+use App\Http\Controllers\Professional\ReRequestedServiceController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,17 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
     Route::resource('booking', BookingController::class);
     Route::resource('billing', BillingController::class);
     Route::resource('requested_services', RequestedServiceController::class);
+    
+    // Re-requested Service Routes
+    Route::prefix('re-requested-service')->name('re-requested-service.')->group(function () {
+        Route::get('/', [ReRequestedServiceController::class, 'index'])->name('index');
+        Route::get('/create', [ReRequestedServiceController::class, 'create'])->name('create');
+        Route::post('/', [ReRequestedServiceController::class, 'store'])->name('store');
+        Route::get('/{id}', [ReRequestedServiceController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ReRequestedServiceController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ReRequestedServiceController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ReRequestedServiceController::class, 'destroy'])->name('destroy');
+    });
 
     // Additional billing routes
     Route::get('/billing/download-invoice/{booking}', [BillingController::class, 'downloadInvoice'])->name('billing.download-invoice');

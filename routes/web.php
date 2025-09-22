@@ -65,17 +65,13 @@ use App\Http\Controllers\Customer\BookingController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
 // Route to check login status (no authentication required)
 Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
-
-Route::get('/run-migrations', function() {
-        Artisan::call('migrate', ['--force' => true]);
-        return "Migrations ran successfully!";
-});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
@@ -346,6 +342,9 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/verify-payment', [CustomerBookingController::class, 'verifyPayment'])->name('user.booking.verify-payment');
     Route::get('/booking/success', [CustomerBookingController::class, 'success'])->name('user.booking.success');
     Route::get('/event/booking/success', [CustomerBookingController::class, 'eventSuccess'])->name('user.event.booking.success');
+    Route::post('/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.booking.payment.failed');
+    Route::get('/booking', [HomeController::class, 'booking'])->name('user.booking');
+    Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('user.booking.session.store');
 
     // Customer Billing routes
     Route::get('/customer/billing', [CustomerBookingController::class, 'billing'])->name('user.billing.index');
@@ -354,6 +353,10 @@ Route::middleware(['auth:user'])->group(function () {
     // New routes for paymentFailed and retryBooking
     Route::post('customer/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.customer.booking.payment.failed');
     Route::get('customer/booking/retry/{booking_id}', [CustomerBookingController::class, 'retryBooking'])->name('user.customer.booking.retry');
+
+    // MCQ routes
+    Route::post('/get-mcq-questions', [CustomerBookingController::class, 'getMCQQuestions'])->name('get.mcq.questions');
+    Route::post('/submit-mcq-answers', [CustomerBookingController::class, 'submitMCQAnswers'])->name('user.mcq.submit');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');
@@ -510,3 +513,8 @@ Route::get('/privacy', function () {
 
 // Add this in the professional group routes section
 Route::get('/professional/rate/session-types', [App\Http\Controllers\Professional\RateController::class, 'getSessionTypes'])->name('professional.rate.get-session-types')->middleware('auth:professional');
+
+// Fallback route - MUST be the last route defined
+Route::fallback(function () {
+    abort(404);
+});

@@ -2522,6 +2522,144 @@
                 });
             }
 
+            // Global selectPlan function (accessible from anywhere)
+            window.selectPlan = function(planButton) {
+                
+                const plan = planButton.getAttribute('data-plan');
+                const sessionsAttr = planButton.getAttribute('data-sessions');
+                let sessionCount = parseInt(sessionsAttr); 
+                const selectedRate = parseFloat(planButton.getAttribute('data-rate'));
+                
+                // Store selectedRate globally
+                window.selectedRate = selectedRate;
+                
+                // Get the selected plan input element
+                const selectedPlanInput = document.getElementById('selected_plan');
+                const selectedPlanDisplay = document.getElementById('selected-plan-display');
+                const selectedPlanText = document.getElementById('selected-plan-text');
+                
+                if (selectedPlanInput) {
+                    selectedPlanInput.value = plan;
+                }
+                
+                // Values set for selected plan
+                
+                // Validate sessionCount
+                if (isNaN(sessionCount) || sessionCount <= 0) {
+                    console.error('Invalid sessionCount detected! Setting to 1 as fallback');
+                    sessionCount = 1;
+                }
+                
+                // Validate selectedRate
+                if (isNaN(selectedRate) || selectedRate <= 0) {
+                    console.error('Invalid selectedRate detected! Setting to 0 as fallback');
+                    window.selectedRate = 0;
+                }
+                
+                // Format the plan name for display
+                const displayPlan = plan.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                
+                if (selectedPlanText && selectedPlanDisplay) {
+                    selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
+                    selectedPlanDisplay.style.display = 'block';
+                    selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Show date selection info and update required dates
+                const dateSelectionInfo = document.getElementById('date-selection-info');
+                const requiredDatesSpan = document.getElementById('required-dates');
+                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                
+                if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
+                    requiredDatesSpan.textContent = sessionCount;
+                    
+                    // Get current selected bookings
+                    const selectedBookings = window.selectedBookings || {};
+                    selectedDatesCountSpan.textContent = Object.keys(selectedBookings).length;
+                    dateSelectionInfo.style.display = 'block';
+                    
+                    // Update the color based on current selection
+                    const currentDateCount = Object.keys(selectedBookings).length;
+                    const parentElement = selectedDatesCountSpan.parentElement;
+                    if (currentDateCount === sessionCount) {
+                        parentElement.style.color = '#28a745'; // Green when correct
+                    } else if (currentDateCount > sessionCount) {
+                        parentElement.style.color = '#dc3545'; // Red when too many
+                    } else {
+                        parentElement.style.color = '#2563eb'; // Blue when need more
+                    }
+                }
+                
+                // Store sessionCount globally to ensure it's accessible everywhere
+                window.currentSessionCount = sessionCount;
+                window.sessionCount = sessionCount; // Also store as window.sessionCount for consistency
+                
+                // All values set after selection
+                
+                // Reinitialize calendar with session limit after a small delay to ensure variables are set
+                setTimeout(() => {
+                    // Calendar reinitialize timeout
+                    
+                    if (window.initializeCalendar && window.enabledDates) {
+                        window.initializeCalendar(window.enabledDates);
+                    }
+                }, 100);
+            };
+
+            // Global checkAuthenticationBeforePlanSelection function
+            window.checkAuthenticationBeforePlanSelection = function(planButton) {
+                if (!isUserAuthenticated) {
+                    showLoginPopupForPlanSelection(planButton);
+                } else {
+                    window.selectPlan(planButton);
+                }
+            };
+
+            // Global showLoginPopupForPlanSelection function
+            window.showLoginPopupForPlanSelection = function(planButton) {
+                // Show login popup for plan selection
+                
+                const plan = planButton.getAttribute('data-plan');
+                const planDisplayName = plan.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                // Plan display name computed
+
+                // Check if Swal is available
+                if (typeof Swal === 'undefined') {
+                    console.error('SweetAlert2 not loaded!');
+                    alert('Please login to select a consultation plan and proceed with booking.');
+                    window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
+                    return;
+                }
+
+                // Showing SweetAlert popup
+                
+                Swal.fire({
+                    title: '👋 Login Required!',
+                    html: `<p style="margin-bottom: 15px;">Please login to select the <strong>${planDisplayName}</strong> consultation plan and proceed with booking.</p>`,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: '🔐 Login Now',
+                    cancelButtonText: 'Cancel',
+                    customClass: {
+                        popup: 'login-popup-custom',
+                        confirmButton: 'login-popup-btn',
+                        title: 'login-popup-title'
+                    },
+                    buttonsStyling: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect to login with current professional page as intended destination
+                        window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
+                    }
+                    // If cancelled, do nothing - user stays on current page
+                });
+            };
+
             // Initialize modal event listeners
             document.addEventListener('DOMContentLoaded', function() {
                 const modal = document.getElementById('loginModal');
@@ -2614,7 +2752,8 @@
                     appointmentContainer.appendChild(loadingOverlay);
                 }
 
-                fetch(`{{ route('get.professional.rates.availability') }}?professional_id=${currentProfessionalId}&professional_service_id=${currentProfessionalServiceId}&sub_service_id=${subServiceId || ''}`)
+                const requestUrl = `{{ route('get.professional.rates.availability') }}?professional_id=${currentProfessionalId}&professional_service_id=${currentProfessionalServiceId}&sub_service_id=${subServiceId || ''}`;
+                fetch(requestUrl)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -2714,7 +2853,9 @@
 
             // Function to update availability data
             function updateAvailabilityData(newEnabledDates) {
-                enabledDates = newEnabledDates || [];
+                window.enabledDates = newEnabledDates || [];
+                // Keep local reference for backward compatibility
+                enabledDates = window.enabledDates;
             }
 
             // Auto-load rates for pre-selected sub-service from URL
@@ -2732,20 +2873,17 @@
             function attachSelectPlanListeners() {
                 document.querySelectorAll('.select-plan').forEach(button => {
                     button.addEventListener('click', function() {
-                        const plan = this.getAttribute('data-plan');
-                        const sessions = this.getAttribute('data-sessions');
-                        const rate = this.getAttribute('data-rate');
                         
-                        // Update selected plan display
-                        const display = document.getElementById('selected-plan-display');
-                        const text = document.getElementById('selected-plan-text');
-                        const input = document.getElementById('selected_plan');
-                        
-                        if (display && text && input) {
-                            text.textContent = `${plan.replace('_', ' ').toUpperCase()} - ${sessions} sessions - Rs. ${rate}`;
-                            input.value = plan;
-                            display.style.display = 'block';
+                        // Check authentication before plan selection
+                        if (!isUserAuthenticated) {
+                            // User not authenticated - show login modal
+                            window.checkAuthenticationBeforePlanSelection(this);
+                            return;
                         }
+                        
+                        // User is authenticated, proceed with plan selection
+                        // User authenticated - proceed with plan selection
+                        window.selectPlan(this);
                         
                         // Remove active class from all buttons
                         document.querySelectorAll('.select-plan').forEach(btn => {
@@ -2761,16 +2899,16 @@
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-                let enabledDates = @json($enabledDates);
+                // Make these globally accessible
+                window.enabledDates = @json($enabledDates);
+                window.selectedRate = 0; // Initialize global selectedRate
                 
                 // Get existing bookings for this professional
                 const existingBookings = @json($existingBookings ?? []);
                 
-                // Debug: Log the existing bookings data
-                console.log('Existing bookings data:', existingBookings);
-                console.log('Enabled dates:', enabledDates);
+                // Existing bookings and enabled dates are available for internal use
                 
-                let selectedBookings = {};
+                window.selectedBookings = {};
 
                 // Helper function to format the date to local date string
                 function formatLocalDate(date) {
@@ -2781,9 +2919,13 @@
 
                 // Function to initialize calendar
                 function initializeCalendar(dates) {
+                    // Initialize calendar with provided dates
                     // Destroy existing flatpickr instance if it exists
                     const calendarElement = document.getElementById('calendarDiv');
-                    if (!calendarElement) return; // nothing to do without element
+                    if (!calendarElement) {
+                        console.error('Calendar element not found!');
+                        return; // nothing to do without element
+                    }
                     if (calendarElement._flatpickr && typeof calendarElement._flatpickr.destroy === 'function') {
                         calendarElement._flatpickr.destroy();
                     }
@@ -2793,6 +2935,7 @@
                         console.warn('flatpickr is not available');
                         return;
                     }
+                    
                     flatpickr("#calendarDiv", {
                         inline: true,
                         mode: "multiple",
@@ -2818,24 +2961,30 @@
                         },
                         onChange: function (selectedDates, dateStr, instance) {
                             // Only enforce session count limit if a plan has been selected
-                            if (sessionCount > 0 && selectedDates.length > sessionCount) {
+                            const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                            if (currentSessionCount > 0 && selectedDates.length > currentSessionCount) {
                                 // If too many dates selected, remove the last one
                                 selectedDates.pop();
                                 instance.setDate(selectedDates);
                                 if (typeof toastr !== 'undefined') {
-                                    toastr.warning(`You can only select ${sessionCount} date(s) for this session type.`);
+                                    toastr.warning(`You can only select ${currentSessionCount} date(s) for this session type.`);
                                 } else {
-                                    alert(`You can only select ${sessionCount} date(s) for this session type.`);
+                                    alert(`You can only select ${currentSessionCount} date(s) for this session type.`);
                                 }
                                 return;
                             }
                             
                             // If no plan selected yet, show a helpful message
-                            if (sessionCount === 0 && selectedDates.length > 0) {
-                                if (typeof toastr !== 'undefined') {
-                                    toastr.info('Please select a consultation plan first to determine how many dates you can choose.');
-                                } else {
-                                    alert('Please select a consultation plan first to determine how many dates you can choose.');
+                            if (currentSessionCount === 0 && selectedDates.length > 0) {
+                                // Double check if plan display is visible (means plan was selected)
+                                const planDisplay = document.getElementById('selected-plan-display');
+                                if (!planDisplay || planDisplay.style.display === 'none') {
+                                    if (typeof toastr !== 'undefined') {
+                                        toastr.info('Please select a consultation plan first to determine how many dates you can choose.');
+                                    } else {
+                                        alert('Please select a consultation plan first to determine how many dates you can choose.');
+                                    }
+                                    return;
                                 }
                             }
                             
@@ -2855,9 +3004,9 @@
                     });
 
                     // Remove unselected dates from selectedBookings
-                    Object.keys(selectedBookings).forEach(date => {
+                    Object.keys(window.selectedBookings).forEach(date => {
                         if (!selectedDatesLocal.includes(date)) {
-                            delete selectedBookings[date];
+                            delete window.selectedBookings[date];
                         }
                     });
 
@@ -2868,10 +3017,11 @@
                         
                         // Only show color-coded feedback if a plan has been selected
                         const parentElement = selectedDatesCountSpan.parentElement;
-                        if (sessionCount > 0) {
-                            if (selectedDates.length === sessionCount) {
+                        const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                        if (currentSessionCount > 0) {
+                            if (selectedDates.length === currentSessionCount) {
                                 parentElement.style.color = '#28a745'; // Green when correct
-                            } else if (selectedDates.length > sessionCount) {
+                            } else if (selectedDates.length > currentSessionCount) {
                                 parentElement.style.color = '#dc3545'; // Red when too many
                             } else {
                                 parentElement.style.color = '#2563eb'; // Blue when need more
@@ -3018,9 +3168,6 @@
 
                 // Function to check if a time slot is already booked
                 function isTimeSlotBooked(date, timeSlot) {
-                    console.log('Checking if booked - Date:', date, 'TimeSlot:', timeSlot);
-                    console.log('Available bookings for date:', existingBookings[date]);
-                    
                     if (!existingBookings[date]) return false;
                     
                     // Normalize both time slot formats for comparison
@@ -3029,15 +3176,10 @@
                     };
                     
                     const normalizedTimeSlot = normalizeTimeSlot(timeSlot);
-                    console.log('Normalized time slot:', normalizedTimeSlot);
-                    
                     const isBooked = existingBookings[date].some(bookedTime => {
                         const normalizedBookedTime = normalizeTimeSlot(bookedTime);
-                        console.log('Comparing with booked time:', normalizedBookedTime);
                         return normalizedTimeSlot === normalizedBookedTime;
                     });
-                    
-                    console.log('Is booked result:', isBooked);
                     return isBooked;
                 }
 
@@ -3125,10 +3267,11 @@
                                 
                                 // Update color based on requirement
                                 const parentElement = selectedDatesCountSpan.parentElement;
-                                if (sessionCount > 0) {
-                                    if (currentDateCount === sessionCount) {
+                                const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                                if (currentSessionCount > 0) {
+                                    if (currentDateCount === currentSessionCount) {
                                         parentElement.style.color = '#28a745'; // Green when correct
-                                    } else if (currentDateCount > sessionCount) {
+                                    } else if (currentDateCount > currentSessionCount) {
                                         parentElement.style.color = '#dc3545'; // Red when too many
                                     } else {
                                         parentElement.style.color = '#2563eb'; // Blue when need more
@@ -3243,10 +3386,11 @@
                                     
                                     // Update color based on requirement
                                     const parentElement = selectedDatesCountSpan.parentElement;
-                                    if (sessionCount > 0) {
-                                        if (currentDateCount === sessionCount) {
+                                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                                    if (currentSessionCount > 0) {
+                                        if (currentDateCount === currentSessionCount) {
                                             parentElement.style.color = '#28a745'; // Green when correct
-                                        } else if (currentDateCount > sessionCount) {
+                                        } else if (currentDateCount > currentSessionCount) {
                                             parentElement.style.color = '#dc3545'; // Red when too many
                                         } else {
                                             parentElement.style.color = '#2563eb'; // Blue when need more
@@ -3277,8 +3421,6 @@
 
                 // Function to check authentication before plan selection
                 function checkAuthenticationBeforePlanSelection(planButton) {
-                    console.log('Checking authentication for plan selection...');
-                    
                     fetch('/check-login', {
                         method: 'POST',
                         headers: {
@@ -3290,41 +3432,30 @@
                         })
                     })
                     .then(response => {
-                        console.log('Authentication response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Authentication response data:', data);
                         if (data.logged_in) {
                             // User is logged in, proceed with plan selection
-                            console.log('User is authenticated, selecting plan...');
                             selectPlan(planButton);
                         } else {
                             // User is not logged in, show login popup
-                            console.log('User is not authenticated, showing login popup...');
-                            console.log('Swal object available:', typeof Swal);
                             showLoginPopupForPlanSelection(planButton);
                         }
                     })
                     .catch(error => {
                         console.error('Error checking login status:', error);
                         // On error, show login popup (safer fallback)
-                        console.log('Error occurred, showing login popup as fallback...');
                         showLoginPopupForPlanSelection(planButton);
                     });
                 }
 
                 // Function to show login popup for plan selection
                 function showLoginPopupForPlanSelection(planButton) {
-                    console.log('showLoginPopupForPlanSelection called');
-                    console.log('Swal available:', typeof Swal !== 'undefined');
-                    
                     const plan = planButton.getAttribute('data-plan');
                     const planDisplayName = plan.split('_')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ');
-
-                    console.log('Plan:', plan, 'Display name:', planDisplayName);
 
                     // Check if Swal is available
                     if (typeof Swal === 'undefined') {
@@ -3333,8 +3464,6 @@
                         window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
                         return;
                     }
-
-                    console.log('Showing SweetAlert popup...');
 
                     // Show the login popup with custom styling
                     Swal.fire({
@@ -3352,7 +3481,6 @@
                         background: 'linear-gradient(135deg, #152a70, #c51010, #f39c12)',
                         backdrop: 'rgba(0,0,0,0.8)'
                     }).then((result) => {
-                        console.log('SweetAlert result:', result);
                         if (result.isConfirmed) {
                             // Redirect to login with current professional page as intended destination
                             window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
@@ -3363,10 +3491,20 @@
 
                 // Function to actually select the plan (for authenticated users)
                 function selectPlan(planButton) {
+                    
                     const plan = planButton.getAttribute('data-plan');
-                    sessionCount = parseInt(planButton.getAttribute('data-sessions')); 
+                    const sessionsAttr = planButton.getAttribute('data-sessions');
+                    sessionCount = parseInt(sessionsAttr); 
                     selectedRate = parseFloat(planButton.getAttribute('data-rate'));
                     selectedPlanInput.value = plan;
+                    
+                    // Debug: ensure sessionCount is valid
+                    
+                    // Validate sessionCount
+                    if (isNaN(sessionCount) || sessionCount <= 0) {
+                        console.error('Invalid sessionCount detected! Setting to 1 as fallback');
+                        sessionCount = 1;
+                    }
                     
                     // Format the plan name for display
                     const displayPlan = plan.split('_')
@@ -3386,12 +3524,30 @@
                         requiredDatesSpan.textContent = sessionCount;
                         selectedDatesCountSpan.textContent = Object.keys(selectedBookings).length;
                         dateSelectionInfo.style.display = 'block';
+                        
+                        // Update the color based on current selection
+                        const currentDateCount = Object.keys(selectedBookings).length;
+                        const parentElement = selectedDatesCountSpan.parentElement;
+                        if (currentDateCount === sessionCount) {
+                            parentElement.style.color = '#28a745'; // Green when correct
+                        } else if (currentDateCount > sessionCount) {
+                            parentElement.style.color = '#dc3545'; // Red when too many
+                        } else {
+                            parentElement.style.color = '#2563eb'; // Blue when need more
+                        }
                     }
                     
-                    // Reinitialize calendar with session limit
-                    if (window.initializeCalendar) {
-                        initializeCalendar(enabledDates);
-                    }
+                    // Store sessionCount globally to ensure it's accessible everywhere
+                    window.currentSessionCount = sessionCount;
+                    
+                    
+                    
+                    // Reinitialize calendar with session limit after a small delay to ensure variables are set
+                        setTimeout(() => {
+                        if (window.initializeCalendar) {
+                            initializeCalendar(enabledDates);
+                        }
+                    }, 100);
                 }
 
                 // Handle booking submission
@@ -3414,31 +3570,43 @@
 
                     // Get the number of dates selected by the user
                     const selectedDatesCount = Object.keys(bookingData).length;
-    
+                    
+                    // Get current session count with multiple fallbacks
+                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                    
+                    // Check plan display state
+                    const planDisplay = document.getElementById('selected-plan-display');
+                    const planIsVisible = planDisplay && planDisplay.style.display !== 'none';
 
-                    if (!planType || sessionCount === 0) {
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error('Please select a consultation plan first.');
-                        } else {
-                            alert('Please select a consultation plan first.');
-                        }
+                    if (!planType || currentSessionCount === 0) {
+                        // Additional check for plan display visibility
+                        const planDisplay = document.getElementById('selected-plan-display');
+                        const planIsVisible = planDisplay && planDisplay.style.display !== 'none';
                         
-                        // Scroll to plan selection area
-                        const planSection = document.querySelector('.appointment_types');
-                        if (planSection) {
-                            planSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        if (!planIsVisible && !planType) {
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error('Please select a consultation plan first.');
+                            } else {
+                                alert('Please select a consultation plan first.');
+                            }
+                            
+                            // Scroll to plan selection area
+                            const planSection = document.querySelector('.appointment_types');
+                            if (planSection) {
+                                planSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            return;
                         }
-                        return;
                     }
 
-                    if (selectedDatesCount !== sessionCount) {
+                    if (selectedDatesCount !== currentSessionCount) {
                         let message;
                         if (selectedDatesCount === 0) {
-                            message = `Please select ${sessionCount} date(s) from the calendar to proceed with booking.`;
-                        } else if (selectedDatesCount < sessionCount) {
-                            message = `You need to select ${sessionCount - selectedDatesCount} more date(s). Currently selected: ${selectedDatesCount}/${sessionCount}`;
+                            message = `Please select ${currentSessionCount} date(s) from the calendar to proceed with booking.`;
+                        } else if (selectedDatesCount < currentSessionCount) {
+                            message = `You need to select ${currentSessionCount - selectedDatesCount} more date(s). Currently selected: ${selectedDatesCount}/${currentSessionCount}`;
                         } else {
-                            message = `You have selected too many dates. Please select only ${sessionCount} date(s). Currently selected: ${selectedDatesCount}/${sessionCount}`;
+                            message = `You have selected too many dates. Please select only ${currentSessionCount} date(s). Currently selected: ${selectedDatesCount}/${currentSessionCount}`;
                         }
                         
                         if (typeof toastr !== 'undefined') {
@@ -3447,7 +3615,6 @@
                             alert(message);
                         }
                         
-                        // Scroll to calendar area to help user see the issue
                         const calendarDiv = document.getElementById('calendarDiv');
                         if (calendarDiv) {
                             calendarDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3518,6 +3685,12 @@
                     Object.keys(bookingData).forEach(date => {
                         formattedBookings[date] = bookingData[date];
                     });
+                    
+                    // Use global selectedRate with fallback
+                    const finalRate = window.selectedRate || 0;
+                    
+                    // Prepare to submit booking
+                    
                     // Send the booking data to the server
                     fetch("{{ route('user.booking.session.store') }}", {
                         method: 'POST',
@@ -3531,7 +3704,7 @@
                             professional_id: professionalId,
                             plan_type: planType,
                             bookings: formattedBookings,
-                            total_amount: selectedRate,
+                            total_amount: finalRate,
                             sub_service_id: selectedSubServiceId,
                             sub_service_name: selectedSubServiceName
                         })
@@ -3579,22 +3752,20 @@
                     .catch(err => {
                         console.error('Booking error:', err);
                         let message = 'Server error. Please try again later.';
-                        
+
                         if (err.message === 'Authentication required') {
                             message = 'Please login to complete your booking.';
-                            // Show login modal or redirect to login
                             if (typeof toastr !== 'undefined') {
                                 toastr.info(message);
                             } else {
                                 alert(message);
                             }
-                            // Redirect to login with current page as the redirect
                             setTimeout(() => {
                                 window.location.href = "{{ route('login') }}?redirect=" + encodeURIComponent(window.location.href);
                             }, 1500);
                             return;
                         }
-                        
+
                         if (typeof toastr !== 'undefined') {
                             toastr.error(message);
                         } else {

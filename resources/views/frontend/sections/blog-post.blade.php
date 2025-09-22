@@ -1,4 +1,27 @@
 @extends('layouts.layout')
+
+@section('meta')
+<!-- Blog-specific Meta Tags -->
+<meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta name="keywords" content="{{ $blogPost->category }}, {{ $relatedBlog->title }}, blog, Tazen">
+
+<!-- Open Graph Meta Tags for Social Media -->
+<meta property="og:title" content="{{ $relatedBlog->title }}">
+<meta property="og:site_name" content="Tazen.in">
+<meta property="og:url" content="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}">
+<meta property="og:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta property="og:type" content="article">
+<meta property="og:image" content="{{ asset('storage/' . $blogPost->image) }}">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $relatedBlog->title }}">
+<meta name="twitter:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta name="twitter:image" content="{{ asset('storage/' . $blogPost->image) }}">
+
+<title>{{ $relatedBlog->title }} | Tazen.in Blog</title>
+@endsection
+
 @section('styles')
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
@@ -135,42 +158,121 @@
             padding: 8px 10px;
         }
     }
+    
+    /* Social Media Share Buttons */
+    .social-share-section {
+        margin: 30px 0;
+        padding: 20px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .social-share-section h5 {
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .social-share-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 16px;
+    }
+    
+    .share-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        text-decoration: none;
+        color: white;
+    }
+    
+    .share-btn.facebook {
+        background-color: #3b5998;
+    }
+    
+    .share-btn.facebook:hover {
+        background-color: #2d4373;
+        color: white;
+    }
+    
+    .share-btn.twitter {
+        background-color: #1da1f2;
+    }
+    
+    .share-btn.twitter:hover {
+        background-color: #0d8bd9;
+        color: white;
+    }
+    
+    .share-btn.linkedin {
+        background-color: #0077b5;
+    }
+    
+    .share-btn.linkedin:hover {
+        background-color: #005582;
+        color: white;
+    }
+    
+    .share-btn.whatsapp {
+        background-color: #25d366;
+    }
+    
+    .share-btn.whatsapp:hover {
+        background-color: #1aab4b;
+        color: white;
+    }
+    
+    .share-btn.email {
+        background-color: #ea4335;
+    }
+    
+    .share-btn.email:hover {
+        background-color: #d23321;
+        color: white;
+    }
+    
+    .share-btn.copy {
+        background-color: #6c757d;
+    }
+    
+    .share-btn.copy:hover {
+        background-color: #545b62;
+        color: white;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .social-share-section {
+            margin: 20px 0;
+            padding: 15px 0;
+        }
+        
+        .social-share-buttons {
+            justify-content: center;
+        }
+        
+        .share-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+        }
+    }
 </style>
 @endsection
-
-@section('schema')
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ url()->current() }}"
-  },
-    "headline": "{{ optional($blogPost)->title ?? '' }}",
-    "description": "{{ strip_tags(\Illuminate\Support\Str::limit(optional($blogPost)->content ?? '', 160)) }}",
-    "image": "{{ optional($blogPost)->image ? asset('storage/' . optional($blogPost)->image) : asset('frontend/assets/img/default-blog.png') }}",
-    "author": {
-        "@type": "Person",
-        "name": "{{ optional($blogPost)->author_name ?? 'Tazen' }}"
-    },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Tazen",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://tazen.in/frontend/assets/img/tazen-logo.png"
-    }
-  },
-    "datePublished": "{{ \Carbon\Carbon::parse(optional($blogPost)->published_at ?? optional($blogPost)->created_at ?? now())->toISOString() }}",
-    "dateModified": "{{ \Carbon\Carbon::parse(optional($blogPost)->updated_at ?? optional($blogPost)->created_at ?? now())->toISOString() }}",
-    "articleSection": "{{ optional($blogPost)->category ?? '' }}",
-    "keywords": "{{ strtolower(str_replace(' ', ', ', optional($blogPost)->category ?? '')) }}, career, health, finance, professional advice, tazen",
-  "url": "{{ url()->current() }}"
-}
-</script>
-@endsection
-
 @section('content')
 
 <main class="bg_color">
@@ -213,13 +315,13 @@
                         @foreach($latestBlogs as $latestBlog)
                         <li>
                             <div class="alignleft">
-                                <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}">
+                                <a href="{{ route('blog.show', $latestBlog->id) }}">
                                     <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
                                 </a>
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
-                            <p><b>{{ $latestBlog->blog->title }}</b></p>
-                            <h3><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}" title="{{ $latestBlog->blog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->blog->title, 50) }}</a></h3>
+                            <p><a href="{{ route('blog.show', $latestBlog->id) }}"><b>{{ $latestBlog->blog->title }}</b></a></p>
+                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
                         </li>
                         @endforeach
                     </ul>
@@ -257,7 +359,7 @@
 
             <div class="col-lg-9">
                 <div class="singlepost">
-                    <figure><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}"><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></a></figure>
+                    <figure><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></figure>
                     <h1>{{ $relatedBlog->title }}</h1>
                     <div class="postmeta">
                         <ul>
@@ -267,8 +369,43 @@
                             {{-- <li><a href="#"><i class="icon_comment_alt"></i> ({{ $blogPost->comment_count ?? 0 }}) Comments</a></li> --}}
                         </ul>
                     </div>
+                    
+                    <!-- Social Media Share Section -->
+                    <div class="social-share-section">
+                        <h5>Share this post:</h5>
+                        <div class="social-share-buttons">
+                            @php
+                                $blogUrl = route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title));
+                                $blogTitle = $relatedBlog->title;
+                                $shareText = $blogTitle . ' - ' . $blogUrl;
+                            @endphp
+                            
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($blogUrl) }}" 
+                               target="_blank" class="share-btn facebook" title="Share on Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode($blogUrl) }}&text={{ urlencode($blogTitle) }}" 
+                               target="_blank" class="share-btn twitter" title="Share on Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode($blogUrl) }}" 
+                               target="_blank" class="share-btn linkedin" title="Share on LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://wa.me/?text={{ urlencode($shareText) }}" 
+                               target="_blank" class="share-btn whatsapp" title="Share on WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="mailto:?subject={{ urlencode($blogTitle) }}&body={{ urlencode('Check out this blog post: ' . $blogUrl) }}" 
+                               class="share-btn email" title="Share via Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                    
                     <div class="post-content">
-                        {!! optional($blogPost)->content ?? '' !!}
+                        {!! $blogPost->content !!}
                     </div>
                 </div>
                 
@@ -339,4 +476,88 @@
     
 </main>
 
+@endsection
+
+@section('scripts')
+<script>
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success message
+                showCopyMessage('Link copied to clipboard!');
+            }, function(err) {
+                // Fallback method
+                fallbackCopyTextToClipboard(text);
+            });
+        } else {
+            // Fallback method for older browsers
+            fallbackCopyTextToClipboard(text);
+        }
+    }
+    
+    // Fallback copy method for older browsers
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            var successful = document.execCommand('copy');
+            if (successful) {
+                showCopyMessage('Link copied to clipboard!');
+            } else {
+                showCopyMessage('Failed to copy link');
+            }
+        } catch (err) {
+            showCopyMessage('Failed to copy link');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    // Show copy message
+    function showCopyMessage(message) {
+        // Create or update message element
+        var messageEl = document.getElementById('copy-message');
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.id = 'copy-message';
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                z-index: 9999;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            document.body.appendChild(messageEl);
+        }
+        
+        messageEl.textContent = message;
+        messageEl.style.backgroundColor = message.includes('Failed') ? '#dc3545' : '#28a745';
+        
+        // Show message
+        setTimeout(() => {
+            messageEl.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+            messageEl.style.transform = 'translateX(100%)';
+        }, 3000);
+    }
+</script>
 @endsection

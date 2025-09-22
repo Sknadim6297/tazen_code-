@@ -276,7 +276,6 @@ class HomeController extends Controller
             }])->orderBy('created_at', 'desc');
         }])->where('professional_id', $id)->first();
 
-        $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
         $services = ProfessionalService::where('professional_id', $id)->with('professional', 'subServices')->first();
         
         // Process requirements to ensure they are properly formatted
@@ -295,16 +294,22 @@ class HomeController extends Controller
             }
         }
         
-        // Filter rates by sub-service if specified, otherwise show service-level rates
+        // Filter both rates and availabilities by sub-service if specified
         $ratesQuery = Rate::where('professional_id', $id)->with('professional', 'subService');
+        $availabilitiesQuery = Availability::where('professional_id', $id)->with('slots');
+        
         if ($requestedSubServiceId) {
-            // Show rates for the specific sub-service
+            // Show rates and availabilities for the specific sub-service
             $ratesQuery->where('sub_service_id', $requestedSubServiceId);
+            $availabilitiesQuery->where('sub_service_id', $requestedSubServiceId);
         } else {
-            // Show service-level rates (rates without sub-service assignment)
+            // Show service-level rates and availabilities (without sub-service assignment)
             $ratesQuery->whereNull('sub_service_id');
+            $availabilitiesQuery->whereNull('sub_service_id');
         }
+        
         $rates = $ratesQuery->get();
+        $availabilities = $availabilitiesQuery->get();
 
         $enabledDates = [];
         $dayMap = [
@@ -318,19 +323,41 @@ class HomeController extends Controller
         ];
 
         foreach ($availabilities as $availability) {
+            
+            // Handle both numeric months (9, 11) and month names (sep, nov)
             try {
-                $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
+                if (is_numeric($availability->month)) {
+                    $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                } else {
+                    $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
+                }
             } catch (\Exception $e) {
+                Log::error('Failed to parse month: ' . $availability->month, ['error' => $e->getMessage()]);
                 continue;
             }
 
-            $year = Carbon::now()->year;
+            $currentYear = Carbon::now()->year;
+            $currentMonth = Carbon::now()->month;
+            
+            // Determine the correct year - if the availability month is before or equal to current month, use next year
+            $year = $currentYear;
+            if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && Carbon::now()->day > 15)) {
+                $year = $currentYear + 1;
+            }
+            
+            // Date calculation completed for availability
+            
             $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
             $end = $start->copy()->endOfMonth();
             $period = CarbonPeriod::create($start, $end);
-            $decoded = json_decode($availability->weekdays);
+            
+            // Handle weekdays - check if it's already an array (due to cast) or JSON string
+            $decoded = $availability->weekdays;
             if (is_string($decoded)) {
                 $decoded = json_decode($decoded);
+                if (is_string($decoded)) {
+                    $decoded = json_decode($decoded);
+                }
             }
 
             $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
@@ -410,6 +437,8 @@ class HomeController extends Controller
         }
         $availabilities = $availabilityQuery->get();
 
+        // AJAX availability request received
+
         // Process availability dates
         $enabledDates = [];
         $dayMap = [
@@ -418,13 +447,31 @@ class HomeController extends Controller
         ];
 
         foreach ($availabilities as $availability) {
+            // processing availability
+            
+            // Handle both numeric months (9, 11) and month names (sep, nov)
             try {
-                $monthNumber = \Carbon\Carbon::parse("1 " . $availability->month)->format('m');
+                if (is_numeric($availability->month)) {
+                    $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                } else {
+                    $monthNumber = \Carbon\Carbon::parse("1 " . $availability->month)->format('m');
+                }
             } catch (\Exception $e) {
+                Log::error('AJAX Failed to parse month: ' . $availability->month, ['error' => $e->getMessage()]);
                 continue;
             }
 
-            $year = \Carbon\Carbon::now()->year;
+            $currentYear = \Carbon\Carbon::now()->year;
+            $currentMonth = \Carbon\Carbon::now()->month;
+            
+            // Determine the correct year - if the availability month is before or equal to current month, use next year
+            $year = $currentYear;
+            if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && \Carbon\Carbon::now()->day > 15)) {
+                $year = $currentYear + 1;
+            }
+            
+            // AJAX date calculation completed
+            
             $start = \Carbon\Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
             $end = $start->copy()->endOfMonth();
             $period = \Carbon\CarbonPeriod::create($start, $end);
@@ -436,12 +483,17 @@ class HomeController extends Controller
             $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
             $isoDays = array_filter($isoDays);
 
+            // AJAX weekdays processed
+
             foreach ($period as $date) {
                 if (in_array($date->dayOfWeekIso, $isoDays)) {
                     $enabledDates[] = $date->toDateString();
+                    // AJAX added enabled date
                 }
             }
         }
+
+        // Return final enabled dates
 
         return response()->json([
             'success' => true,

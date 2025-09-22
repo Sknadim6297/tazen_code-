@@ -49,6 +49,7 @@ class RateController extends Controller
             'rateData.*.num_sessions' => 'required|integer|min:1',
             'rateData.*.rate_per_session' => 'required|numeric|min:0',
             'rateData.*.final_rate' => 'required|numeric|min:0',
+            'rateData.*.sub_service_id' => 'nullable|exists:sub_services,id',
         ]);
         
         $professionalId = Auth::guard('professional')->id();
@@ -75,38 +76,54 @@ class RateController extends Controller
                 }
             }
         
-        // Check for duplicate session types
-        $sessionTypes = array_map(function($item) {
-            return $item['session_type'];
-        }, $request->input('rateData'));
-        
-        // Check for duplicates within the submitted data
-        if (count($sessionTypes) !== count(array_unique($sessionTypes))) {
+        // Build keys to detect duplicates within submission and prepare DB checks
+        $submittedKeys = [];
+        $duplicateKeys = [];
+        $toCheckAgainstDb = [];
+
+        foreach ($request->input('rateData') as $item) {
+            $sessionType = $item['session_type'];
+            // prefer per-rate sub_service_id, fall back to top-level sub_service_id
+            $subServiceId = $item['sub_service_id'] ?? ($request->sub_service_id ?? null);
+            $key = $sessionType . '|' . ($subServiceId === null ? 'null' : $subServiceId);
+
+            if (isset($submittedKeys[$key])) {
+                $duplicateKeys[] = $sessionType . ($subServiceId ? ' (sub-service ' . $subServiceId . ')' : ' (service level)');
+            }
+            $submittedKeys[$key] = true;
+
+            $toCheckAgainstDb[] = ['session_type' => $sessionType, 'sub_service_id' => $subServiceId];
+        }
+
+        if (!empty($duplicateKeys)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Duplicate session types are not allowed in the same submission.',
+                'message' => 'Duplicate session types for the same scope are not allowed in the same submission: ' . implode(', ', $duplicateKeys),
             ], 422);
         }
-        
-        // Build query to check against existing session types for this professional service/sub-service
-        $existingQuery = Rate::where('professional_id', $professionalId)
-            ->where('professional_service_id', $professionalServiceId);
 
-        // When checking duplicates we should scope to the same level:
-        // - if sub_service_id provided => check rates for that sub-service
-        // - if no sub_service_id => check service-level rates (sub_service_id IS NULL)
-        if ($request->filled('sub_service_id')) {
-            $existingQuery->where('sub_service_id', $request->sub_service_id);
-        } else {
-            $existingQuery->whereNull('sub_service_id');
+        // Check against existing session types in DB for each (session_type, sub_service_id)
+        $existingSessionTypes = [];
+        foreach ($toCheckAgainstDb as $check) {
+            $query = Rate::where('professional_id', $professionalId)
+                ->where('professional_service_id', $professionalServiceId)
+                ->where('session_type', $check['session_type']);
+
+            if ($check['sub_service_id']) {
+                $query->where('sub_service_id', $check['sub_service_id']);
+            } else {
+                $query->whereNull('sub_service_id');
+            }
+
+            if ($query->exists()) {
+                $existingSessionTypes[] = $check['session_type'] . ($check['sub_service_id'] ? ' (sub-service ' . $check['sub_service_id'] . ')' : ' (service level)');
+            }
         }
-
-        $existingSessionTypes = $existingQuery->whereIn('session_type', $sessionTypes)->pluck('session_type')->toArray();
 
         if (!empty($existingSessionTypes)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You already have rates for the following session types for this service: ' . implode(', ', $existingSessionTypes),
+                'message' => 'You already have rates for the following session types for this service: ' . implode(', ', array_unique($existingSessionTypes)),
             ], 422);
         }
 
@@ -114,10 +131,24 @@ class RateController extends Controller
 
         try {
             foreach ($request->input('rateData') as $rate) {
+                // determine per-rate sub_service_id (may be null)
+                $rowSubServiceId = $rate['sub_service_id'] ?? ($request->sub_service_id ?? null);
+
+                // If a sub_service_id is provided per-row, validate it belongs to this professional service
+                if ($rowSubServiceId !== null && $professionalService->subServices()->exists()) {
+                    $exists = $professionalService->subServices()->where('sub_services.id', $rowSubServiceId)->exists();
+                    if (!$exists) {
+                        throw new \Exception('Invalid sub-service selection for one of the rates.');
+                    }
+                } elseif (!$professionalService->subServices()->exists()) {
+                    // service has no sub-services; ensure we store null
+                    $rowSubServiceId = null;
+                }
+
                 Rate::create([
                     'professional_id' => $professionalId,
                     'professional_service_id' => $professionalServiceId,
-                    'sub_service_id' => $request->sub_service_id ?? null,
+                    'sub_service_id' => $rowSubServiceId,
                     'session_type' => $rate['session_type'],
                     'num_sessions' => $rate['num_sessions'],
                     'rate_per_session' => $rate['rate_per_session'],

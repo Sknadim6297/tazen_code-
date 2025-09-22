@@ -25,22 +25,37 @@
 
                                 <!-- Existing Video Preview -->
                                 <div class="col-xl-12">
-                                    <label class="form-label">Current Banner Video</label><br>
+                                    <label class="form-label">Current Banner Video/GIF</label><br>
                                     @if($banner->banner_video)
-                                        <video width="320" height="240" controls>
-                                            <source src="{{ asset($banner->banner_video) }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
+                                        @php
+                                            $fileExtension = pathinfo($banner->banner_video, PATHINFO_EXTENSION);
+                                            $isGif = strtolower($fileExtension) === 'gif';
+                                        @endphp
+                                        
+                                        @if($isGif)
+                                            <img src="{{ asset('storage/' . $banner->banner_video) }}" alt="Banner GIF" style="max-width: 320px; max-height: 240px;">
+                                        @else
+                                            <video width="320" height="240" controls>
+                                                <source src="{{ asset('storage/' . $banner->banner_video) }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        @endif
                                     @else
-                                        <p>No video available</p>
+                                        <p>No video/GIF available</p>
                                     @endif
                                 </div>
 
                                 <!-- Upload New Video -->
                                 <div class="col-xl-12">
-                                    <label for="banner_video" class="form-label">Change Banner Video (optional)</label>
-                                    <input type="file" class="form-control" name="banner_video" id="banner_video" accept="video/*">
-                                    <small class="text-muted">Leave blank to keep existing video.</small>
+                                    <label for="banner_video" class="form-label">Change Banner Video/GIF (optional)</label>
+                                    <input type="file" class="form-control" name="banner_video" id="banner_video" accept="video/*,image/gif" onchange="validateFileSize(this, 104857600)">
+                                    <small class="text-muted">Supports MP4, AVI, MOV, WMV videos and GIF files (Max: 100MB). Leave blank to keep existing video.</small>
+                                    <div id="upload_progress_edit" class="mt-2" style="display: none;">
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted">Uploading large file, please wait...</small>
+                                    </div>
                                 </div>
 
                                 <!-- Status -->
@@ -63,4 +78,54 @@
 
     </div>
 </div>
+
+<script>
+function validateFileSize(input, maxSize) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const fileSize = file.size;
+        
+        // Show file size to user
+        const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+        console.log('Selected file size: ' + fileSizeMB + ' MB');
+        
+        if (fileSize > maxSize) {
+            alert('File size (' + fileSizeMB + ' MB) exceeds the maximum allowed size of 100 MB. Please choose a smaller file.');
+            input.value = ''; // Clear the input
+            return false;
+        }
+        
+        // Show progress indicator for large files (>10MB)
+        if (fileSize > 10485760) { // 10MB
+            const progressDiv = input.closest('.col-xl-12').querySelector('[id*="upload_progress"]');
+            if (progressDiv) {
+                progressDiv.style.display = 'block';
+            }
+        }
+        
+        return true;
+    }
+}
+
+// Show progress on form submission for large files
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const fileSize = fileInput.files[0].size;
+                if (fileSize > 10485760) { // 10MB
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
 @endsection

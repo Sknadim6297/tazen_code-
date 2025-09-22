@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ManageAdminController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReRequestedServiceController;
 use App\Http\Controllers\frontend\HomeController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -237,4 +238,20 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         
         return response()->json(['success' => true, 'updated' => $updated]);
     })->name('notifications.mark-all-as-read');
+
+    // Re-requested Service Routes
+    Route::prefix('re-requested-service')->name('re-requested-service.')->group(function () {
+        Route::get('/', [ReRequestedServiceController::class, 'index'])->name('index');
+        Route::get('/analytics', [ReRequestedServiceController::class, 'analytics'])->name('analytics');
+        Route::get('/export', [ReRequestedServiceController::class, 'export'])->name('export');
+        Route::post('/bulk-action', [ReRequestedServiceController::class, 'bulkAction'])->name('bulk-action');
+        Route::get('/{id}', [ReRequestedServiceController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ReRequestedServiceController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ReRequestedServiceController::class, 'update'])->name('update');
+        Route::post('/{id}/approve', [ReRequestedServiceController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [ReRequestedServiceController::class, 'reject'])->name('reject');
+        Route::post('/{id}/send-email', [ReRequestedServiceController::class, 'sendEmail'])->name('send-email');
+    // Delete route
+    Route::delete('/{id}', [ReRequestedServiceController::class, 'destroy'])->name('destroy');
+    });
 });
