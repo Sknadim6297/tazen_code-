@@ -199,6 +199,17 @@
     }
 
     /* Specialization badge styles */
+    .specialization-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background-color: #e9f8f3;
+        color: #198754;
+        border-radius: 12px;
+        border: 1px solid #d1e7dd;
+    }
+
     .badge {
         padding: 5px 10px;
         border-radius: 15px;
@@ -366,6 +377,37 @@
             margin-bottom: 0.5rem;
         }
     }
+
+    /* Custom Pagination Styling (copied from Requested_professional) */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endsection
 
@@ -412,38 +454,24 @@
                             </div>
                         </div>
                         
-                        <!-- Service Filter -->
-                        <div class="col-lg-3 col-md-6">
-                            <label for="serviceFilter" class="form-label fw-medium text-muted mb-2">
-                                <i class="ri-briefcase-line me-1"></i>Service
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="ri-settings-line text-muted"></i>
-                                </span>
-                                <select id="serviceFilter" name="service_id" class="form-select border-start-0">
-                                    <option value="">All Services</option>
-                                    @foreach($services as $service)
-                                        <option value="{{ $service->id }}">{{ $service->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        
                         <!-- Specialization Filter -->
                         <div class="col-lg-3 col-md-6">
                             <label for="specializationFilter" class="form-label fw-medium text-muted mb-2">
-                                <i class="ri-star-line me-1"></i>Specialization
+                                <i class="ri-award-line me-1"></i>Services
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
-                                    <i class="ri-award-line text-muted"></i>
+                                    <i class="ri-star-line text-muted"></i>
                                 </span>
-                                <select id="specializationFilter" name="specialization" class="form-select border-start-0">
-                                    <option value="">All Specializations</option>
-                                    @foreach($specializations as $specialization)
-                                        <option value="{{ $specialization }}">{{ $specialization }}</option>
-                                    @endforeach
+                                <select name="specialization" class="form-select border-start-0" id="specializationFilter">
+                                    <option value="">All Services</option>
+                                    @if(isset($specializations))
+                                        @foreach($specializations as $specialization)
+                                            <option value="{{ $specialization }}" {{ request('specialization') == $specialization ? 'selected' : '' }}>
+                                                {{ $specialization }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -497,7 +525,6 @@
         <form id="export-form" method="GET" action="{{ route('admin.manage-professional.index') }}">
             <!-- Hidden inputs to carry over current filters -->
             <input type="hidden" name="search" id="export-search">
-            <input type="hidden" name="service_id" id="export-service">
             <input type="hidden" name="specialization" id="export-specialization">
             <input type="hidden" name="start_date" id="export-start-date">
             <input type="hidden" name="end_date" id="export-end-date">
@@ -521,8 +548,7 @@
                                         <th scope="col">Sl.No</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Services Offered</th>
-                                        <th scope="col">Specialization</th> <!-- New column -->
+                                        <th scope="col">Service Offered</th>
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Active</th> 
@@ -546,18 +572,9 @@
                                                 <span class="fw-medium">{{ $professional->email }}</span>
                                             </td>
                                             <td>
-                                                @if($professional->professionalServices->count() > 0)
-                                                    @foreach($professional->professionalServices as $ps)
-                                                        <span class="badge bg-info mb-1">{{ $ps->service->name ?? $ps->service_name }}</span>
-                                                        @if(!$loop->last) <br> @endif
-                                                    @endforeach
-                                                @else
-                                                    <span class="text-muted">No Services</span>
-                                                @endif
-                                            </td>
-                                            <td>
+                                                <!-- Specialization Column -->
                                                 @if($professional->profile && $professional->profile->specialization)
-                                                    <span class="badge bg-primary">{{ $professional->profile->specialization }}</span>
+                                                    <span class="specialization-badge">{{ $professional->profile->specialization }}</span>
                                                 @else
                                                     <span class="text-muted">Not specified</span>
                                                 @endif
@@ -620,6 +637,16 @@
                                                 <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
+                                                <a href="{{ route('admin.manage-professional.edit', $professional->id) }}" class="btn btn-primary-light btn-icon btn-sm ms-1" data-bs-toggle="tooltip" data-bs-title="edit">
+                                                    <i class="ri-edit-line"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
+                                                        data-participant-type="professional" 
+                                                        data-participant-id="{{ $professional->id }}" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-title="Chat">
+                                                    <i class="ri-message-3-line"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -628,11 +655,10 @@
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0 float-end">
-                                {{ $professionals->links() }}
-                            </ul>
-                        </nav>
+                        <div class="d-flex justify-content-center">
+                            {{ $professionals->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
+                        <div id="pagination-links" class="d-flex justify-content-center"></div>
                     </div>
                 </div>
             </div>
@@ -649,7 +675,6 @@
         $('form').on('submit', function(e) {
             e.preventDefault();
             let searchTerm = $('#autoComplete').val();
-            let serviceId = $('#serviceFilter').val();
             let specializationFilter = $('#specializationFilter').val();
             let startDate = $('#start_date').val();
             let endDate = $('#end_date').val();
@@ -663,7 +688,7 @@
                 }
             }
             
-            filterData(startDate, endDate, searchTerm, serviceId, specializationFilter);
+            filterData(startDate, endDate, searchTerm, specializationFilter);
         });
 
         // Individual filter change handlers for immediate filtering
@@ -675,7 +700,7 @@
             }
         });
 
-        $('#serviceFilter, #specializationFilter').on('change', function() {
+        $('#specializationFilter').on('change', function() {
             $('form').submit();
         });
 
@@ -687,7 +712,7 @@
         });
 
         // Function to fetch data based on filters
-        function filterData(startDate = '', endDate = '', searchTerm = '', serviceId = '', specializationFilter = '') {
+        function filterData(startDate = '', endDate = '', searchTerm = '', specializationFilter = '', page = 1) {
             // Show loading indicator
             $('#professional-table-body').html('<tr><td colspan="11" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
             
@@ -709,8 +734,8 @@
                     search: searchTerm,
                     start_date: startDate,
                     end_date: endDate,
-                    service_id: serviceId,
-                    specialization: specializationFilter
+                    specialization: specializationFilter,
+                    page: page
                 },
                 success: function(response) {
                     let professionalsHtml = '';
@@ -719,25 +744,10 @@
                         professionalsHtml = '<tr><td colspan="11" class="text-center">No professionals found matching your criteria</td></tr>';
                     } else {
                         $.each(response.professionals.data, function(index, professional) {
-                            // Generate services HTML
-                            let servicesHtml = '';
-                            if (professional.professional_services && professional.professional_services.length > 0) {
-                                professional.professional_services.forEach(function(ps, idx) {
-                                    // Use the same format as the blade template
-                                    let serviceName = (ps.service && ps.service.name) ? ps.service.name : ps.service_name;
-                                    servicesHtml += `<span class="badge bg-info mb-1">${serviceName}</span>`;
-                                    if (idx < professional.professional_services.length - 1) {
-                                        servicesHtml += '<br>';
-                                    }
-                                });
-                            } else {
-                                servicesHtml = '<span class="text-muted">No Services</span>';
-                            }
-                            
                             // Generate specialization HTML
                             let specializationHtml = '';
                             if (professional.profile && professional.profile.specialization) {
-                                specializationHtml = `<span class="badge bg-primary">${professional.profile.specialization}</span>`;
+                                specializationHtml = `<span class="specialization-badge">${professional.profile.specialization}</span>`;
                             } else {
                                 specializationHtml = '<span class="text-muted">Not specified</span>';
                             }
@@ -788,7 +798,6 @@
                                     <td><span class="fw-medium">${index + 1}</span></td>
                                     <td><span class="fw-medium">${professional.name}</span></td>
                                     <td><span class="fw-medium">${professional.email}</span></td>
-                                    <td>${servicesHtml}</td>
                                     <td>${specializationHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
@@ -798,12 +807,24 @@
                                         <a href="/admin/manage-professional/${professional.id}" class="btn btn-success-light btn-icon btn-sm">
                                             <i class="ri-eye-line"></i>
                                         </a>
+                                        <a href="/admin/manage-professional/${professional.id}/edit" class="btn btn-primary-light btn-icon btn-sm ms-1">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
+                                                data-participant-type="professional" 
+                                                data-participant-id="${professional.id}" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-title="Chat">
+                                            <i class="ri-message-3-line"></i>
+                                        </button>
                                     </td>
                                 </tr>`;
                         });
                     }
                     
                     $('#professional-table-body').html(professionalsHtml);
+                    // Update pagination links and center them
+                    $('#pagination-links').html(response.pagination).addClass('d-flex justify-content-center');
                 },
                 error: function() {
                     $('#professional-table-body').html('<tr><td colspan="11" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
@@ -1018,7 +1039,6 @@
             
             // Set the values of the hidden inputs to current filter values
             document.getElementById('export-search').value = document.getElementById('autoComplete').value;
-            document.getElementById('export-service').value = document.getElementById('serviceFilter').value;
             document.getElementById('export-specialization').value = document.getElementById('specializationFilter').value;
             document.getElementById('export-start-date').value = document.getElementById('start_date').value;
             document.getElementById('export-end-date').value = document.getElementById('end_date').value;
@@ -1029,6 +1049,22 @@
             // Submit the form
             document.getElementById('export-form').submit();
         }
+
+        // Handle AJAX pagination link clicks
+        $(document).on('click', '#pagination-links .pagination a', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var page = 1;
+            var match = url.match(/page=(\d+)/);
+            if (match) {
+                page = match[1];
+            }
+            let searchTerm = $('#autoComplete').val();
+            let specializationFilter = $('#specializationFilter').val();
+            let startDate = $('#start_date').val();
+            let endDate = $('#end_date').val();
+            filterData(startDate, endDate, searchTerm, specializationFilter, page);
+        });
     });
 </script>
 @endsection

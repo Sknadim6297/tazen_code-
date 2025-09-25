@@ -41,7 +41,7 @@ class BookingController extends Controller
             });
         }
 
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10)->withQueryString();
         $statuses = ['pending', 'completed', 'cancelled'];
 
         // Get all unique services for the dropdown
@@ -87,7 +87,7 @@ class BookingController extends Controller
         }
 
         // Fetch the bookings
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'free_hand')
@@ -173,7 +173,7 @@ class BookingController extends Controller
         }
 
         // Fetch the bookings
-        $bookings = $query->latest()->get();
+        $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'monthly')
@@ -253,7 +253,7 @@ class BookingController extends Controller
         }
 
         // Fetch the bookings
-        $bookings = $query->latest()->paginate(10);
+        $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
         $services = Booking::where('plan_type', 'quarterly')

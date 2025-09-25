@@ -57,8 +57,20 @@ class LoginController extends Controller
             }
             
             // Perform the login first - this creates a session
+            // BUT FIRST: Preserve booking data before session regeneration
+            $bookingData = session('booking_data');
+            $selectedServiceName = session('selected_service_name');
+            
             Auth::guard('user')->login($user, $remember);
             $request->session()->regenerate();
+            
+            // Restore booking data after session regeneration
+            if ($bookingData) {
+                session(['booking_data' => $bookingData]);
+            }
+            if ($selectedServiceName) {
+                session(['selected_service_name' => $selectedServiceName]);
+            }
             
             // Get the new session ID
             $newSessionId = Session::getId();
@@ -72,7 +84,24 @@ class LoginController extends Controller
             // Register this session
             $this->registerUserSession($user->id, $request);
 
-            $redirectUrl = $request->input('redirect', route('user.dashboard'));
+            // Determine redirect URL priority:
+            // 1. Explicit redirect parameter from request
+            // 2. Laravel's intended URL (from middleware)
+            // 3. If user has booking data, go to booking page
+            // 4. Default to dashboard
+            $redirectUrl = $request->input('redirect');
+            
+            if (!$redirectUrl) {
+                $redirectUrl = session()->pull('url.intended');
+            }
+            
+            if (!$redirectUrl) {
+                if (session()->has('booking_data')) {
+                    $redirectUrl = route('user.booking');
+                } else {
+                    $redirectUrl = route('user.dashboard');
+                }
+            }
 
             return response()->json([
                 'status' => 'success',

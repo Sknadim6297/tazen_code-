@@ -19,6 +19,7 @@ class ProfessionalService extends Model
         'requirements',
         'image_path',
         'professional_id',
+        'service_id',
     ];
 
     // Define relationships

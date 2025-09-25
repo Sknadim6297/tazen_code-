@@ -1,316 +1,187 @@
 @extends('admin.layouts.layout')
 
-@section('content')
-<div class="main-content app-content">
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>MCQ Answers Management</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Dashboard</li>
-            <li class="active">MCQ Answers</li>
-        </ul>
-    </div>
-
-    <!-- Filter Section -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h4>Filter Options</h4>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('admin.mcq-answers.index') }}" method="GET" id="filter-form">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" 
-                               value="{{ request('username') }}" placeholder="Search by username">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="service" class="form-label">Service Name</label>
-                        <select class="form-control" id="service" name="service">
-                            <option value="">All Services</option>
-                            @foreach($services as $service)
-                                <option value="{{ $service->id }}" {{ request('service') == $service->id ? 'selected' : '' }}>
-                                    {{ $service->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" 
-                               value="{{ request('start_date') }}">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" 
-                               value="{{ request('end_date') }}">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Apply Filters
-                        </button>
-                        <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Reset
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">MCQ Answers</h3>
-                    <div class="card-tools">
-                        <span class="badge badge-info">{{ $filteredRecords }} of {{ $totalRecords }} Records</span>
-                    </div>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <!-- Filter Status Display -->
-                    @if(request('username') || request('service') || request('start_date') || request('end_date'))
-                    <div class="alert alert-info mb-3">
-                        <strong>Active Filters:</strong>
-                        @if(request('username'))
-                            <span class="badge badge-primary me-2">Username: {{ request('username') }}</span>
-                        @endif
-                        @if(request('service'))
-                            @php
-                                $selectedService = $services->find(request('service'));
-                            @endphp
-                            <span class="badge badge-primary me-2">Service: {{ $selectedService ? $selectedService->name : 'Unknown' }}</span>
-                        @endif
-                        @if(request('start_date'))
-                            <span class="badge badge-primary me-2">From: {{ request('start_date') }}</span>
-                        @endif
-                        @if(request('end_date'))
-                            <span class="badge badge-primary me-2">To: {{ request('end_date') }}</span>
-                        @endif
-                        <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-sm btn-outline-danger ms-2">
-                            <i class="fas fa-times"></i> Clear All
-                        </a>
-                    </div>
-                    @endif
-
-                    @if($mcqAnswers->count() > 0)
-                    <div class="table-responsive" style="overflow-x: auto; width: 100%;">
-                        <table id="mcqTable" class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Service</th>
-                                    <th>Question</th>
-                                    <th>Answer</th>
-                                    <th>Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($mcqAnswers as $answer)
-                                <tr>
-                                    <td>{{ $answer->id }}</td>
-                                    <td>
-                                        <strong>{{ $answer->user->name ?? 'N/A' }}</strong>
-                                        @if($answer->user)
-                                            <br><small class="text-muted">{{ $answer->user->email ?? '' }}</small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-secondary">{{ $answer->service->name ?? 'N/A' }}</span>
-                                    </td>
-                                    <td>{{ Str::limit($answer->question->question ?? 'N/A', 50) }}</td>
-                                    <td>{{ Str::limit($answer->answer, 30) }}</td>
-                                    <td>{{ $answer->created_at->format('M d, Y H:i') }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    @else
-                    <div class="alert alert-warning text-center">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        @if(request('username') || request('service') || request('start_date') || request('end_date'))
-                            No records found matching your current filters.
-                            <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-sm btn-outline-primary ms-2">
-                                Clear Filters
-                            </a>
-                        @else
-                            No MCQ answers found in the system.
-                        @endif
-                    </div>
-                    @endif
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-        </div>
-        <!-- /.col -->
-    </div>
-    <!-- /.row -->
-</div>
-</div>
-<!-- /.container-fluid -->
-
+@section('styles')
 <style>
-    /* Modern Page Header */
-    .page-header {
+    /* Export buttons styling */
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-success {
+        background-color: #1f7244;
+        color: white;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #155a33;
+    }
+
+    .btn-danger {
+        background-color: #c93a3a;
+        color: white;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background-color: #a52929;
+    }
+
+    /* Filter Section Styling */
+    .filter-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .filter-card .card-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .page-title h3 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .breadcrumb {
-        background: none;
-        padding: 0;
-        margin: 0;
-        list-style: none;
-        display: flex;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .breadcrumb li {
-        position: relative;
-    }
-
-    .breadcrumb li:not(:last-child)::after {
-        content: '>';
-        margin-left: 0.5rem;
-        opacity: 0.7;
-    }
-
-    .breadcrumb li.active {
-        font-weight: 600;
-    }
-
-    /* Card Styling */
-    .card {
+        border-radius: 12px 12px 0 0;
         border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        overflow: hidden;
-        margin-bottom: 2rem;
-        background: white;
+        padding: 1rem 1.5rem;
     }
 
-    .card-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 1px solid #e9ecef;
-        padding: 1.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .card-header h3, .card-header h4 {
-        margin: 0;
-        font-size: 1.25rem;
+    .filter-card .card-title {
+        color: white;
         font-weight: 600;
-        color: #2d3748;
+        font-size: 1.1rem;
     }
 
-    .card-body {
-        padding: 2rem;
-    }
-
-    /* Form Controls */
-    .form-control {
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        background: #f8f9fa;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        background: white;
-        outline: none;
+    .filter-card .card-body {
+        padding: 1.5rem;
+        background: #fafbfc;
     }
 
     .form-label {
-        font-weight: 600;
-        color: #4a5568;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6c757d;
         margin-bottom: 0.5rem;
-        display: block;
     }
 
-    /* Buttons */
-    .btn {
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+    }
+
+    .input-group:focus-within {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .input-group-text {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #6c757d;
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
 
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
     }
 
     .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
 
-    .btn-secondary {
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
         background: #6c757d;
+        border-color: #6c757d;
         color: white;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268;
         transform: translateY(-2px);
-        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
     }
 
-    /* Badge Styling */
+    /* Answer Group Cards */
+    .answer-group {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .answer-group:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .answer-group .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .answer-group .card-body {
+        padding: 1.5rem;
+        background: white;
+    }
+
     .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-weight: 500;
     }
 
     .badge-info {
-        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
         color: white;
     }
 
-    .badge-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .badge-success {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
         color: white;
     }
 
@@ -319,157 +190,393 @@
         color: white;
     }
 
-    /* Alert Styling */
-    .alert {
-        border: none;
-        border-radius: 15px;
-        padding: 1rem 1.5rem;
-        font-weight: 500;
-    }
-
-    .alert-info {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        color: #1565c0;
-        border-left: 4px solid #2196f3;
-    }
-
-    .alert-warning {
-        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-        color: #ef6c00;
-        border-left: 4px solid #ff9800;
-    }
-
-    /* Button Styling for Filter Status */
-    .btn-sm {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        border-radius: 8px;
-    }
-
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-        color: #dc3545;
-        background: transparent;
-    }
-
-    .btn-outline-danger:hover {
-        background: #dc3545;
+    .badge-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        transform: translateY(-1px);
-    }
-
-    .btn-outline-primary {
-        border: 2px solid #667eea;
-        color: #667eea;
-        background: transparent;
-    }
-
-    .btn-outline-primary:hover {
-        background: #667eea;
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    /* Text Utilities */
-    .text-muted {
-        color: #6c757d !important;
-    }
-
-    .me-2 {
-        margin-right: 0.5rem !important;
-    }
-
-    .ms-2 {
-        margin-left: 0.5rem !important;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem !important;
     }
 
     /* Table Styling */
     .table {
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 0;
     }
 
-    .table thead th {
+    .table th {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         font-weight: 600;
         border: none;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
     }
 
-    .table tbody td {
-        padding: 1rem;
-        border-bottom: 1px solid #f1f5f9;
+    .table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f1f3f4;
         vertical-align: middle;
     }
 
     .table tbody tr:hover {
-        background: #f8f9fa;
-        transform: scale(1.01);
-        transition: all 0.3s ease;
+        background-color: #f8f9fa;
     }
 
-    /* Responsive Design */
+    /* Responsive adjustments */
     @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-            flex-direction: column;
-            align-items: flex-start;
+        .filter-card .card-body {
+            padding: 1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
         }
 
-        .page-title h3 {
-            font-size: 1.5rem;
-        }
-
-        .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-        }
-
-        .card-body {
+        .answer-group .card-header {
             padding: 1rem;
         }
 
-        .btn {
-            padding: 0.6rem 1rem;
-            font-size: 0.85rem;
+        .answer-group .card-body {
+            padding: 1rem;
         }
     }
 
-    /* Animation */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Custom Pagination Styling */
+    .pagination {
+        margin-bottom: 0;
     }
-
-    .card {
-        animation: fadeInUp 0.6s ease-out;
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
     }
 </style>
 @endsection
 
+@section('content')
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">MCQ Answers Management</h1>
+                <div>
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">MCQ Answers</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section - Modern Design -->
+        <div class="card custom-card filter-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-filter-3-line me-2 text-primary"></i>
+                    Filter MCQ Answers
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('admin.mcq-answers.index') }}" method="GET" id="filter-form">
+                    <div class="row g-3">
+                        <!-- Username Search -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="username" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-user-line me-1"></i>Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-search-line text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="username" name="username" 
+                                       value="{{ request('username') }}" placeholder="Search by username">
+                            </div>
+                        </div>
+                        
+                        <!-- Service Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="service" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-service-line me-1"></i>Service
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-settings-line text-muted"></i>
+                                </span>
+                                <select class="form-select border-start-0" id="service" name="service">
+                                    <option value="">All Services</option>
+                                    @foreach($services as $service)
+                                        <option value="{{ $service->id }}" {{ request('service') == $service->id ? 'selected' : '' }}>
+                                            {{ $service->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Date Range -->
+                        <div class="col-lg-6 col-md-12">
+                            <label class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-calendar-line me-1"></i>Date Range
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-calendar-event-line text-muted"></i>
+                                </span>
+                                <input type="date" class="form-control border-start-0 border-end-0" 
+                                       name="start_date" value="{{ request('start_date') }}" placeholder="Start Date">
+                                <span class="input-group-text bg-light border-start-0 border-end-0 text-muted">to</span>
+                                <input type="date" class="form-control border-start-0" 
+                                       name="end_date" value="{{ request('end_date') }}" placeholder="End Date">
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end pt-2">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="ri-search-line me-1"></i>Apply Filters
+                                </button>
+                                <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-outline-secondary px-4">
+                                    <i class="ri-refresh-line me-1"></i>Clear Filters
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="d-flex justify-content-end mb-3">
+            <div class="export-buttons" style="display: flex; gap: 10px;">
+                <button type="button" class="btn btn-success export-btn" onclick="exportData('excel')">
+                    <i class="ri-file-excel-line me-1"></i> Export Excel
+                </button>
+                <button type="button" class="btn btn-danger export-btn" onclick="exportData('pdf')">
+                    <i class="ri-file-pdf-line me-1"></i> Export PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Hidden Export Form -->
+        <form id="export-form" method="GET" action="{{ route('admin.mcq-answers.export') }}">
+            <!-- Hidden inputs to carry over current filters -->
+            <input type="hidden" name="username" id="export-username">
+            <input type="hidden" name="service" id="export-service">
+            <input type="hidden" name="start_date" id="export-start-date">
+            <input type="hidden" name="end_date" id="export-end-date">
+            <input type="hidden" name="type" id="export-type">
+        </form>
+
+        <!-- Flash Messages -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <!-- Filter Status Display -->
+        @if(request('username') || request('service') || request('start_date') || request('end_date'))
+        <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+            <strong><i class="ri-filter-line me-1"></i>Active Filters:</strong>
+            @if(request('username'))
+                <span class="badge badge-primary me-2">Username: {{ request('username') }}</span>
+            @endif
+            @if(request('service'))
+                @php
+                    $selectedService = $services->find(request('service'));
+                @endphp
+                <span class="badge badge-info me-2">Service: {{ $selectedService ? $selectedService->name : 'Unknown' }}</span>
+            @endif
+            @if(request('start_date'))
+                <span class="badge badge-secondary me-2">From: {{ request('start_date') }}</span>
+            @endif
+            @if(request('end_date'))
+                <span class="badge badge-secondary me-2">To: {{ request('end_date') }}</span>
+            @endif
+            <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-sm btn-outline-danger ms-2">
+                <i class="ri-close-line me-1"></i> Clear All
+            </a>
+        </div>
+        @endif
+
+        <!-- MCQ Answers Display -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-question-answer-line me-2"></i>MCQ Answers
+                </h5>
+                <span class="badge badge-info">{{ $filteredRecords }} of {{ $totalRecords }} Records</span>
+            </div>
+            <div class="card-body">
+                @if(count($groupedAnswers) > 0)
+                    @foreach($groupedAnswers as $key => $group)
+                    <div class="card answer-group">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <h6 class="mb-1 fw-semibold">
+                                        <i class="ri-user-line text-primary me-1"></i>
+                                        {{ $group['user']->name ?? 'N/A' }}
+                                    </h6>
+                                    <small class="text-muted">{{ $group['user']->email ?? '' }}</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1 fw-semibold">
+                                        <i class="ri-service-line text-info me-1"></i>
+                                        Service: <span class="badge badge-info">{{ $group['service']->name ?? 'N/A' }}</span>
+                                    </h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1 fw-semibold">
+                                        <i class="ri-user-star-line text-success me-1"></i>
+                                        Professional: 
+                                        @if($group['professional'] && $group['professional']->profile)
+                                            <span class="badge badge-success">{{ $group['professional']->name }}</span>
+                                            <br><small class="text-muted">{{ $group['professional']->profile->specialization ?? '' }}</small>
+                                        @else
+                                            <span class="badge badge-secondary">Not Assigned</span>
+                                        @endif
+                                    </h6>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="ri-time-line me-1"></i>
+                                    Answered on: {{ $group['created_at']->format('M d, Y H:i') }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th width="10%">#</th>
+                                            <th width="60%">Question</th>
+                                            <th width="30%">Answer</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($group['answers'] as $index => $answer)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                <strong>{{ $answer->question->question ?? 'Question not found' }}</strong>
+                                                @if($answer->question && $answer->question->options)
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <i class="ri-list-check me-1"></i>Options: 
+                                                        @php
+                                                            $options = is_string($answer->question->options) ? json_decode($answer->question->options, true) : $answer->question->options;
+                                                        @endphp
+                                                        @if(is_array($options))
+                                                            {{ implode(', ', $options) }}
+                                                        @else
+                                                            {{ $answer->question->options }}
+                                                        @endif
+                                                    </small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-primary">{{ $answer->answer }}</span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-center">
+                            {{ $mcqAnswers->withQueryString()->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
+                @else
+                    <div class="text-center py-5">
+                        <i class="ri-emotion-sad-line fs-48 text-muted mb-3"></i>
+                        <h5 class="text-muted">
+                            @if(request('username') || request('service') || request('start_date') || request('end_date'))
+                                No records found matching your current filters.
+                            @else
+                                No MCQ answers found in the system.
+                            @endif
+                        </h5>
+                        @if(request('username') || request('service') || request('start_date') || request('end_date'))
+                            <a href="{{ route('admin.mcq-answers.index') }}" class="btn btn-outline-primary mt-2">
+                                <i class="ri-refresh-line me-1"></i>Clear Filters
+                            </a>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
 @section('scripts')
 <script>
-    $(function () {
-        $("#mcqTable").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"]
-        }).buttons().container().appendTo('#mcqTable_wrapper .col-md-6:eq(0)');
+    $(document).ready(function() {
+        // Handle Enter key on search inputs
+        $('input[name="username"]').keypress(function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#filter-form').submit();
+            }
+        });
     });
+    
+    // Export data function
+    window.exportData = function(type) {
+        console.log('Export requested:', type);
+        
+        // Set the export type
+        document.getElementById('export-type').value = type;
+        
+        // Set the values of the hidden inputs to current filter values
+        document.getElementById('export-username').value = document.querySelector('input[name="username"]')?.value || '';
+        document.getElementById('export-service').value = document.getElementById('service')?.value || '';
+        document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]')?.value || '';
+        document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]')?.value || '';
+        
+        // Show a loading message (optional)
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Preparing ' + type.toUpperCase() + ' export...');
+        }
+        
+        // Submit the form
+        document.getElementById('export-form').submit();
+    }
 </script>
 @endsection 

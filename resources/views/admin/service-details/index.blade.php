@@ -77,6 +77,10 @@
                                                                 <input type="file" class="form-control" name="banner_image" id="banner_image">
                                                             </div>
                                                             <div class="col-md-6">
+                                                                <label for="banner_image_alt" class="form-label">Banner Image Alt Text</label>
+                                                                <input type="text" class="form-control" name="banner_image_alt" id="banner_image_alt" placeholder="Describe the banner image">
+                                                            </div>
+                                                            <div class="col-md-6">
                                                                 <label for="banner_heading" class="form-label">Banner Heading</label>
                                                                 <input type="text" class="form-control" name="banner_heading" id="banner_heading" required>
                                                             </div>
@@ -98,6 +102,10 @@
                                                             <div class="col-md-6">
                                                                 <label for="about_image" class="form-label">About Image</label>
                                                                 <input type="file" class="form-control" name="about_image" id="about_image">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label for="about_image_alt" class="form-label">About Image Alt Text</label>
+                                                                <input type="text" class="form-control" name="about_image_alt" id="about_image_alt" placeholder="Describe the about section image">
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <label for="about_heading" class="form-label">About Heading</label>
@@ -125,6 +133,10 @@
                                                             <div class="col-12">
                                                                 <label for="background_image" class="form-label">Background Image</label>
                                                                 <input type="file" class="form-control" name="background_image" id="background_image">
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label for="background_image_alt" class="form-label">Background Image Alt Text</label>
+                                                                <input type="text" class="form-control" name="background_image_alt" id="background_image_alt" placeholder="Describe the background image">
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <label for="how_it_works_subheading" class="form-label">Section Subheading</label>

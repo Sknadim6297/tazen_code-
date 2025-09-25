@@ -14,8 +14,8 @@ use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Service;
 
-// Route to check login status (no authentication required)
-Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
+
+Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('booking.session.store');
 
 Route::middleware(['auth:user'])->group(function () {
     Route::get('dashboard', function () {
@@ -40,10 +40,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/service/{id}/questions', [HomeController::class, 'getServiceQuestions'])->name('service.questions');
 
 
-    Route::get('booking', function () {
-        $services = Service::latest()->get();
-        return view('customer.booking.booking', compact('services'));
-    })->name('booking');
+    Route::get('booking', [HomeController::class, 'booking'])->name('booking');
 
 
     Route::post('/booking/store', [HomeController::class, 'store'])->name('booking.store');
@@ -51,13 +48,15 @@ Route::middleware(['auth:user'])->group(function () {
 
 
     Route::get('/booking/success', [HomeController::class, 'success'])->name('booking.success');
-    Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('booking.session.store');
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::post('/set-service', [HomeController::class, 'setServiceSession'])->name('service.save');
     Route::resource('all-appointment', AppointmentController::class);
     Route::resource('upcoming-appointment', UpcomingAppointmentController::class);
+    Route::post('/upcoming-appointment/reschedule', [UpcomingAppointmentController::class, 'reschedule'])->name('upcoming-appointment.reschedule');
+    Route::get('/get-professional-availability/{professionalId}', [UpcomingAppointmentController::class, 'getProfessionalAvailability']);
+    Route::post('/upload-document', [UpcomingAppointmentController::class, 'uploadDocument'])->name('upload.document');
+    Route::get('/document-info/{id}', [UpcomingAppointmentController::class, 'getDocumentInfo'])->name('document.info');
 
     Route::get('appointments/{id}/details', [AppointmentController::class, 'showDetails'])->name('appointment.details');
 
@@ -73,6 +72,14 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
 
-Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
-    ->name('billing.export-all');
+    Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
+        ->name('billing.export-all');
+
+    // Chat Routes for Customer/User
+    Route::post('/chat/initialize', [App\Http\Controllers\ChatController::class, 'initializeChat'])->name('user.chat.initialize');
+    Route::get('/chat/{chatId}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('user.chat.messages');
+    Route::post('/chat/{chatId}/send', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('user.chat.send');
+    Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('user.chat.list');
+    Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('user.chat.activity');
+    Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('user.chat.unread');
 });

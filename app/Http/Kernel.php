@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         // Custom guards for admin and user
         'auth:admin' => \App\Http\Middleware\Authenticate::class,
         'auth:user' => \App\Http\Middleware\Authenticate::class,
+        'professional.status' => \App\Http\Middleware\ProfessionalStatusMiddleware::class,
         'auth:professional' => \App\Http\Middleware\Authenticate::class,
     ];
 
@@ -92,5 +93,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         // Add role middleware
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'admin.menu' => \App\Http\Middleware\AdminMenuAccess::class,
     ];
 }

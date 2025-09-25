@@ -28,6 +28,7 @@
                             <th>No. of Sessions</th>
                             <th>Rate Per Session (₹)</th>
                             <th>Final Rate (₹)</th>
+                            <th>Features</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -48,6 +49,23 @@
                             </td>
                             <td>
                                 <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
+                            </td>
+                            <td>
+                                <div class="features-container">
+                                    @php
+                                        $existingFeatures = $rates->features ?? [];
+                                        if (empty($existingFeatures)) {
+                                            $existingFeatures = [''];
+                                        }
+                                    @endphp
+                                    @foreach($existingFeatures as $index => $feature)
+                                        <div class="feature-item d-flex align-items-center mb-2">
+                                            <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" value="{{ $feature }}" style="margin-right: 8px;">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 32px;">×</button>
+                                        </div>
+                                    @endforeach
+                                    <button type="button" class="btn btn-sm btn-outline-primary add-feature" onclick="addFeature(this)">+ Add Feature</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -191,6 +209,32 @@
                 }
             });
         });
+        
+        // Feature management functions
+        window.addFeature = function(button) {
+            const container = button.closest('.features-container');
+            const newFeature = document.createElement('div');
+            newFeature.className = 'feature-item d-flex align-items-center mb-2';
+            newFeature.innerHTML = `
+                <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" style="margin-right: 8px;">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 32px;">×</button>
+            `;
+            container.insertBefore(newFeature, button);
+        };
+
+        window.removeFeature = function(button) {
+            const featureItem = button.closest('.feature-item');
+            const container = featureItem.closest('.features-container');
+            const featureItems = container.querySelectorAll('.feature-item');
+            
+            // Don't allow removing the last feature input
+            if (featureItems.length > 1) {
+                featureItem.remove();
+            } else {
+                // Just clear the input instead of removing it
+                featureItem.querySelector('.feature-input').value = '';
+            }
+        };
     });
 </script>
 @endsection

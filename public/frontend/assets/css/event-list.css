@@ -4733,6 +4733,46 @@ input[type="date"]{
         padding: 0;
     }
 }
+
+@media (max-width: 599px) {
+    ul.campain-upper-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0;
+        margin: 0;
+    }
+    
+    ul.campain-upper-list li {
+        display: inline-block;
+        background-color: transparent;
+        padding: 8px 16px;
+        margin: 0;
+        border: 2px solid #175c62;
+        border-radius: 20px;
+        background: #e1f0ee;
+        font-size: 14px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    ul.campain-upper-list li a {
+        color: #175c62;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        padding: 0;
+    }
+    
+    ul.campain-upper-list li:hover {
+        background: #175c62;
+        border-color: #175c62;
+    }
+    
+    ul.campain-upper-list li:hover a {
+        color: #fff;
+    }
+}
 @media (min-width: 600px) {
     ul.campain-upper-list li {
         display: inline-block;
@@ -4838,3 +4878,5 @@ ul.campain-upper-list li:hover {
     background:#039d99;
    
 }
+
+

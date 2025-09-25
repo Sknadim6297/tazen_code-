@@ -3,6 +3,30 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
 
 @endsection
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tazen.in/blog"
+  },
+  "name": "Tazen Blog",
+  "description": "Explore expert articles on career, health, finance, and lifestyle from verified professionals at Tazen.in.",
+  "url": "https://tazen.in/blog",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tazen",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tazen.in/frontend/assets/img/tazen-logo.png"
+    }
+  }
+}
+</script>
+@endsection
+
 @section('content')
 <main class="bg_color">
     @foreach($blogbanners as $banner)
@@ -14,7 +38,7 @@
              <div class="row">
                  <div class="col-xl-12 col-lg-12">
                      <h1>{{ $banner->heading }}</h1>
-                     <p>{{ $banner->subheading }}</p>
+                     <h2>{{ $banner->subheading }}</h2>
                      
                  </div>
              </div>
@@ -47,13 +71,13 @@
                         @foreach($latestBlogs as $latestBlog)
                         <li>
                             <div class="alignleft">
-                                <a href="{{ route('blog.show', $latestBlog->id) }}">
+                                <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}">
                                     <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
                                 </a>
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
                             <p><b>{{ $latestBlog->blog->title }}</b></p>
-                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
+                            <h3><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}" title="{{ $latestBlog->blog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->blog->title, 50) }}</a></h3>
                         </li>
                         @endforeach
                     </ul>
@@ -96,15 +120,15 @@
                         <div class="col-md-4">
                             <article class="blog" style="max-width: 100%; margin-bottom: 20px;">
                                 <figure style="height: 200px; overflow: hidden;">
-                                    <a href="{{ route('blog.show', $blogPost->id) }}">
+                                    <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">
                                         <img src="{{ asset('storage/' . $blogPost->image) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                                         <div class="preview"><span>Read more</span></div>
                                     </a>
                                 </figure>
                                 <div class="post_info" style="padding: 15px;">
                                     <small>{{ $blogPost->category }} - {{ $blogPost->created_at->format('d M Y') }}</small>
-                                    <h2 style="font-size: 1.2rem; margin: 10px 0;"><a href="{{ route('blog.show', $blogPost->id) }}">{{ $blogPost->blog->title }}</a></h2>
-                                    <p style="font-size: 0.9rem;">{{ \Illuminate\Support\Str::limit($blogPost->content, 100) }}</p>
+                                    <h3 style="font-size: 1.2rem; margin: 10px 0;"><a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">{{ $blogPost->blog->title }}</a></h3>
+                                    <p style="font-size: 0.9rem;">{{ \Illuminate\Support\Str::words(strip_tags($blogPost->content ?? ''), 30, '...') }}</p>
                                     <ul style="margin-top: 10px;">
                                         <li>
                                             <div class="thumb" style="width: 30px; height: 30px;">

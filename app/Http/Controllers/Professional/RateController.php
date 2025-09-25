@@ -42,13 +42,41 @@ class RateController extends Controller
             'rateData.*.num_sessions' => 'required|integer|min:1',
             'rateData.*.rate_per_session' => 'required|numeric|min:0',
             'rateData.*.final_rate' => 'required|numeric|min:0',
+            'rateData.*.features' => 'nullable|array',
+            'rateData.*.features.*' => 'nullable|string|max:255',
         ]);
+        
         $professionalId = Auth::guard('professional')->id();
+        
+        // Check for duplicate session types
+        $sessionTypes = array_map(function($item) {
+            return $item['session_type'];
+        }, $request->input('rateData'));
+        
+        // Check for duplicates within the submitted data
+        if (count($sessionTypes) !== count(array_unique($sessionTypes))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Duplicate session types are not allowed in the same submission.',
+            ], 422);
+        }
+        
+        // Check against existing session types for this professional
+        $existingSessionTypes = Rate::where('professional_id', $professionalId)
+            ->whereIn('session_type', $sessionTypes)
+            ->pluck('session_type')
+            ->toArray();
+            
+        if (!empty($existingSessionTypes)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You already have rates for the following session types: ' . implode(', ', $existingSessionTypes),
+            ], 422);
+        }
 
         DB::beginTransaction();
 
         try {
-
             foreach ($request->input('rateData') as $rate) {
                 Rate::create([
                     'professional_id' => $professionalId,
@@ -56,7 +84,7 @@ class RateController extends Controller
                     'num_sessions' => $rate['num_sessions'],
                     'rate_per_session' => $rate['rate_per_session'],
                     'final_rate' => $rate['final_rate'],
-
+                    'features' => $rate['features'] ?? [],
                 ]);
             }
             DB::commit();
@@ -76,10 +104,21 @@ class RateController extends Controller
         }
     }
 
-
-
-
-
+    /**
+     * Get already used session types for the logged in professional
+     */
+    public function getSessionTypes()
+    {
+        $professionalId = Auth::guard('professional')->id();
+        $sessionTypes = Rate::where('professional_id', $professionalId)
+            ->pluck('session_type')
+            ->toArray();
+        
+        return response()->json([
+            'status' => 'success',
+            'session_types' => $sessionTypes
+        ]);
+    }
 
     /**
      * Display the specified resource.
@@ -107,6 +146,8 @@ class RateController extends Controller
             'num_sessions' => 'required|integer|min:1',
             'rate_per_session' => 'required|numeric|min:0',
             'final_rate' => 'required|numeric|min:0',
+            'features' => 'nullable|array',
+            'features.*' => 'nullable|string|max:255',
         ]);
 
         $rate = Rate::findOrFail($id);

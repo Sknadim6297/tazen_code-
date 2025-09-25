@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Tazen - Professional Login</title>
 
     <!-- Fonts -->
@@ -38,6 +39,51 @@
             font-size: 14px;
             margin-top: 5px;
         }
+        
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        /* Terms checkbox disabled state */
+        input[type="checkbox"]:disabled + .checkmark {
+            background-color: #e9ecef;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .container_check input:disabled ~ .checkmark {
+            background-color: #e9ecef;
+            opacity: 0.6;
+        }
+        
+        .scroll-indicator {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            z-index: 10;
+        }
+        
+        .terms-content {
+            padding: 20px 0;
+        }
+        
+        .terms-content h6 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .terms-content p, .terms-content li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 
@@ -47,18 +93,20 @@
             <a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
         </figure>
         <aside style="display:flex; flex-direction:column; gap:50px;">
-            <h2 class="text-center">Professional Login</h2>
+            <h1 class="text-center">Professional Login</h1>
             <form id="loginForm">
                 @csrf
 
                 <div class="form-group">
                     <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
                     <i class="icon_mail_alt"></i>
+                    <div class="invalid-feedback" id="email-error"></div>
                 </div>
 
                 <div class="form-group">
                     <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
                     <i class="icon_lock_alt"></i>
+                    <div class="invalid-feedback" id="password-error"></div>
                 </div>
 
                 <div class="clearfix add_bottom_30">
@@ -75,16 +123,17 @@
 
                 <!-- Add Terms and Conditions checkbox -->
                 <div class="form-group mb-3">
-                    <label class="container_check">I accept the <a href="{{ route('professional.terms') }}" target="_blank">Terms and Conditions</a>
-                        <input type="checkbox" name="terms_accepted" id="terms_accepted">
+                    <label class="container_check">I accept the <a href="#" onclick="openTermsModal(event)">Terms and Conditions</a>
+                        <input type="checkbox" name="terms_accepted" id="terms_accepted" disabled>
                         <span class="checkmark"></span>
                     </label>
                     <div class="invalid-feedback" id="terms-error">
-                        You must accept the Terms and Conditions to continue.
+                        You must read the complete Terms and Conditions to continue.
                     </div>
+                    <small class="text-muted">Please read the complete terms and conditions to enable the checkbox.</small>
                 </div>
 
-                <button type="submit" class="btn_1 full-width">Login to Tazen</button>
+                <button type="submit" class="btn_1 full-width">Login-Experts</button>
 
                 <div class="text-center add_top_10">
                     New to Tazen? <strong><a href="{{ route('professional.register') }}">Sign up!</a></strong>
@@ -119,6 +168,25 @@
         </div>
     </div>
 
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Professional Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="termsModalBody" style="max-height: 400px; overflow-y: auto;">
+                    @include('professional.terms_agreement')
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="agreeButton" disabled onclick="agreeToTerms()">I Agree</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="{{ asset('frontend/assets/js/common_scripts.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/common_func.js') }}"></script>
@@ -127,27 +195,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+        // CSRF Token Management
+        function refreshCSRFToken() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '/csrf-token',
+                    type: 'GET',
+                    timeout: 5000,
+                    success: function(data) {
+                        if (data && data.csrf_token) {
+                            $('meta[name="csrf-token"]').attr('content', data.csrf_token);
+                            $('input[name="_token"]').val(data.csrf_token);
+                            resolve(data.csrf_token);
+                        } else {
+                            reject('Invalid CSRF token response');
+                        }
+                    },
+                    error: function() {
+                        reject('Failed to refresh CSRF token');
+                    }
+                });
+            });
+        }
+
+        // Global AJAX setup for CSRF
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!settings.crossDomain && settings.type !== 'GET') {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                }
+            }
+        });
+
+        // Terms Modal Functions
+        function openTermsModal(event) {
+            event.preventDefault();
+            $('#termsModal').modal('show');
+        }
+
+        function agreeToTerms() {
+            $('#terms_accepted').prop('disabled', false).prop('checked', true);
+            $('#terms-error').hide();
+            $('#termsModal').modal('hide');
+            toastr.success('Thank you for accepting the Terms and Conditions');
+        }
+
+        // Scroll detection for terms modal
+        $('#termsModal').on('shown.bs.modal', function() {
+            const modalBody = document.getElementById('termsModalBody');
+            const agreeButton = document.getElementById('agreeButton');
+            
+            // Reset agree button state
+            agreeButton.disabled = true;
+            agreeButton.textContent = 'Please scroll to bottom';
+            
+            modalBody.addEventListener('scroll', function() {
+                const scrollTop = modalBody.scrollTop;
+                const scrollHeight = modalBody.scrollHeight;
+                const clientHeight = modalBody.clientHeight;
+                
+                // Check if user has scrolled to bottom (with small tolerance)
+                if (scrollTop + clientHeight >= scrollHeight - 10) {
+                    agreeButton.disabled = false;
+                    agreeButton.textContent = 'I Agree';
+                    $('.scroll-indicator').html('<small class="text-success">✓ You have read the complete terms</small>');
+                }
+            });
+        });
+
         $('#loginForm').submit(function (e) {
             e.preventDefault();
 
             // Check if terms checkbox is checked
             if (!$('#terms_accepted').is(':checked')) {
                 $('#terms-error').show();
-                toastr.error('You must accept the Terms and Conditions to continue.');
+                toastr.error('You must read and accept the Terms and Conditions to continue.');
                 return false;
             }
 
             const $form = $(this);
             const $submitBtn = $form.find('button[type="submit"]');
-            $submitBtn.prop('disabled', true);
+            $submitBtn.prop('disabled', true).text('Logging in...');
 
             $.ajax({
                 url: "{{ route('professional.store') }}",
                 method: "POST",
                 data: $form.serialize(),
-                headers: {
-                    "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
-                },
                 success: function (response) {
                     if (response.status === 'rejected') {
                         toastr.warning(response.message || "Your account has been rejected.");
@@ -160,17 +293,49 @@
                     }
                 },
                 error: function (xhr) {
-                    if (xhr.status === 403 && xhr.responseJSON.status === 'deactivated') {
+                    if (xhr.status === 419) {
+                        // CSRF token mismatch - refresh token and retry
+                        refreshCSRFToken().then(function() {
+                            toastr.info('Session refreshed. Please try logging in again.');
+                        }).catch(function() {
+                            toastr.error('Session expired. Please refresh the page and try again.');
+                        });
+                    } else if (xhr.status === 403 && xhr.responseJSON.status === 'deactivated') {
                         // Show deactivated account modal
                         $('#deactivatedModal').modal('show');
                     } else if (xhr.status === 422) {
-                        $.each(xhr.responseJSON.errors, (key, value) => toastr.error(value[0]));
+                        // Validation errors - show inline
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            // Clear previous errors
+                            $('.form-control').removeClass('is-invalid');
+                            $('.invalid-feedback').hide();
+                            
+                            // Show specific field errors
+                            $.each(xhr.responseJSON.errors, (key, value) => {
+                                const $field = $(`#${key}`);
+                                const $error = $(`#${key}-error`);
+                                
+                                if ($field.length && $error.length) {
+                                    $field.addClass('is-invalid');
+                                    $error.text(value[0]).show();
+                                } else {
+                                    toastr.error(value[0]);
+                                }
+                            });
+                        } else {
+                            toastr.error('Validation failed. Please check your input.');
+                        }
                     } else {
-                        toastr.error(xhr.responseJSON.message || "An error occurred. Please try again.");
+                        // Other errors
+                        var errorMessage = 'An error occurred. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMessage);
                     }
                 },
                 complete: function () {
-                    $submitBtn.prop('disabled', false);
+                    $submitBtn.prop('disabled', false).text('Login to Tazen');
                 }
             });
         });
@@ -183,8 +348,14 @@
                 }
             });
             
-            // Initially hide the error message
-            $('#terms-error').hide();
+            // Clear field errors when user starts typing
+            $('#email, #password').on('input', function() {
+                $(this).removeClass('is-invalid');
+                $(`#${this.id}-error`).hide();
+            });
+            
+            // Initially hide all error messages
+            $('.invalid-feedback').hide();
         });
     </script>
     <script>

@@ -73,25 +73,24 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceName">Service Name *</label>
-                        <input type="text" name="serviceName" id="serviceName" class="form-control" placeholder="Enter service name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="serviceCategory">Service Category *</label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required>
+                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary" style="font-size: 11px; padding: 3px 6px;">Fixed</span></label>
+                        <select name="serviceId" id="serviceCategory" class="form-control" required disabled style="background-color: #f8f9fa;">
                             <option value="">Select Category</option>
                             @foreach($services as $service)
-                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                <option value="{{ $service->id }}" {{ 
+                                    (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' 
+                                }}>{{ $service->name }}</option>
                             @endforeach
                         </select>
+                        <!-- Add a hidden input to ensure the value is submitted even when disabled -->
+                        <input type="hidden" name="serviceId" value="{{ $matchingServiceId ?? '' }}">
+                        <small class="text-muted">
+                            <strong>Note:</strong> This is based on your registration information and cannot be changed now.
+                            <br>You can change your service category later when editing this service.
+                        </small>
+                    </div>
                     </div>
                 </div>
-            </div>
-    
-            <div class="form-group">
-                <label for="serviceDescription">Description *</label>
-                <textarea name="serviceDescription" id="serviceDescription" class="form-control" placeholder="Describe your service in detail" rows="5" required></textarea>
             </div>
     
             <div class="form-row">
@@ -100,7 +99,7 @@
                         <label>Service Features</label>
                         <div class="checkbox-group">
                             <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="online"> Online Sessions
+                                <input type="checkbox" name="features[]" value="online" checked> Online Sessions
                             </label>
                         </div>
                         

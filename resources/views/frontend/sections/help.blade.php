@@ -44,26 +44,26 @@
 									@case('Payment')
 										<i class="icon_wallet"></i>
 										@break
-									@case('Registration')
-										<i class="icon_cloud-upload_alt"></i>
+									@case('Booking')
+										<i class="icon_calendar"></i>
+										@break
+									@case('Events')
+										<i class="icon_globe-2"></i>
+										@break
+									@case('Blogs and Reviews')
+										<i class="icon_star"></i>
+										@break
+									@case('Contacts')
+										<i class="icon_phone"></i>
 										@break
 									@case('General')
 										<i class="icon_lifesaver"></i>
-										@break
-									@case('Event')
-										<i class="icon_globe-2"></i>
-										@break
-									@case('Cancellation')
-										<i class="icon_close_alt2"></i>
-										@break
-									@case('Reviews')
-										<i class="icon_star"></i>
 										@break
 									@default
 										<i class="icon_documents_alt"></i>
 								@endswitch
 							</span>
-							<h3>{{ $category }}</h3>
+							<h4>{{ $category }}</h4>
 							<p>{{ $helps->where('category', $category)->count() }} articles available</p>
 						</a>
 					</div>
@@ -77,7 +77,7 @@
 		<div class="container margin_60_40">
 				<div class="main_title version_2">
 					<span><em></em></span>
-					<h2>{{ request('category') ? request('category') . ' FAQs' : 'All FAQs' }}</h2>
+					<h3>{{ request('category') ? request('category') . ' FAQs' : 'All FAQs' }}</h3>
 					<p>Find answers to your questions about {{ request('category') ? strtolower(request('category')) : 'our services' }}</p>
 				</div>
 				@if($helps->isEmpty())
@@ -157,5 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
 
 @endsection

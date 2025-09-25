@@ -37,7 +37,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label>Requested Service *</label>
-                            <input type="text" name="requested_service[]" class="form-control" required placeholder="Enter service name">
+                            <input type="text" name="requested_service[]" class="form-control" required placeholder="Add field related to your service which you can offer">
                         </div>
                     </div>
                     <div class="form-col">
@@ -49,29 +49,6 @@
                 </div>
             </div>
             <button type="button" id="addService" class="btn btn-sm btn-secondary mt-2"> <i class="fas fa-plus me-2" style="font-size: 18px;"></i>Add More Requested Service</button>
-
-            <!-- Professional Statement -->
-            <div class="form-row mt-4">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="statement">Professional Statement</label>
-                        <textarea name="statement" id="statement" class="form-control" rows="4" placeholder="Enter professional statement"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Specializations -->
-            <div id="specializationsContainer">
-                <div class="form-row specialization">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label>Specialization</label>
-                            <input type="text" name="specializations[]" class="form-control" placeholder="Enter specialization">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button type="button" id="addSpecialization" class="btn btn-sm btn-secondary mt-2"> <i class="fas fa-plus me-2" style="font-size: 18px;"></i>Add More Specialization</button>
 
             <!-- Education -->
             <div class="form-row mt-4">
@@ -87,13 +64,13 @@
     <div class="form-row education-entry">
         <div class="form-col">
             <div class="form-group">
-                <label>College Name *</label>
+                <label>College Name</label>
                 <input type="text" name="college_name[]" class="form-control" placeholder="Enter college name">
             </div>
         </div>
         <div class="form-col">
             <div class="form-group">
-                <label>Degree *</label>
+                <label>Degree</label>
                 <input type="text" name="degree[]" class="form-control" placeholder="Enter degree">
             </div>
         </div>
@@ -142,22 +119,6 @@ $('#addService').click(function () {
     `);
 });
 
-// Add Specialization with a Delete Button
-$('#addSpecialization').click(function () {
-    $('#specializationsContainer').append(`
-        <div class="form-row specialization">
-            <div class="form-col">
-                <div class="form-group">
-                    <input type="text" name="specializations[]" class="form-control" placeholder="Enter specialization">
-                </div>
-            </div>
-            <div class="form-col">
-                <button type="button" class="btn btn-sm btn-danger remove-specialization">Delete</button>
-            </div>
-        </div>
-    `);
-});
-
 // Add Education Entry with a Delete Button
 $('#addEducation').click(function () {
     $('#educationContainer').append(`
@@ -181,10 +142,6 @@ $('#addEducation').click(function () {
 
 $(document).on('click', '.remove-service', function () {
     $(this).closest('.requested-service').remove();
-});
-
-$(document).on('click', '.remove-specialization', function () {
-    $(this).closest('.specialization').remove();
 });
 
 $(document).on('click', '.remove-education', function () {

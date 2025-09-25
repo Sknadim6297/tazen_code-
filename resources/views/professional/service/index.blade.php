@@ -171,10 +171,8 @@
                 <table class="table table-bordered data-table">
                     <thead>
                         <tr>
-                            <th>Service Name</th>
                             <th>Service Category</th>
-                            <th>Image</th>
-                            <th>Description</th>
+                            <th>Session Type</th>
                             <th>Tags</th>
                             <th>Client Requirements</th>
                             <th>Actions</th>
@@ -183,16 +181,12 @@
                     <tbody>
                         @foreach($services as $service)
                             <tr>
-                                <td>{{ $service->service_name }}</td>
                                 <td>{{ $service->service->name }}</td> 
                                 <td>
-                                    @if($service->image_path)
-                                        <img src="{{ asset('upload/services/' . $service->image_path) }}" alt="Image" width="60">
-                                    @else
-                                        <span class="text-muted">No Image</span>
-                                    @endif
+                                    <span class="badge" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
+                                        Online Session
+                                    </span>
                                 </td>
-                                <td>{{ Str::limit($service->description, 50) }}</td>
                                 <td>{{ $service->tags }}</td>
                                 <td>{{ $service->requirements }}</td>
                                 <td>

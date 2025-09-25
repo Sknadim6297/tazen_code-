@@ -10,10 +10,51 @@ use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\RequestedServiceController;
 use App\Http\Controllers\Professional\ServiceController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
+// Routes accessible for authenticated professionals regardless of status
 Route::middleware(['auth:professional'])->group(function () {
+    Route::get('rejected', [ProfessionalController::class, 'rejectedPage'])->name('rejected.view');
+    Route::post('/re-submit', [ProfessionalController::class, 'reSubmit'])->name('register.re-submit');
+    Route::get('/pending', [ProfessionalController::class, 'pendingPage'])->name('pending.view');
+    
+    // Debug route to test authentication
+    Route::get('/debug-auth', function () {
+        return response()->json([
+            'authenticated' => Auth::guard('professional')->check(),
+            'user_id' => Auth::guard('professional')->id(),
+            'user_name' => Auth::guard('professional')->user()->name ?? 'No user'
+        ]);
+    });
+    
+    // Chat Routes for Professional - Available regardless of status
+    Route::post('/chat/initialize', [App\Http\Controllers\ChatController::class, 'initializeChat'])->name('professional.chat.initialize');
+    Route::get('/chat/{chatId}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('professional.chat.messages');
+    Route::post('/chat/{chatId}/send', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('professional.chat.send');
+    Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('professional.chat.list');
+    Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('professional.chat.activity');
+    Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('professional.chat.unread');
+});
+
+// Routes only for accepted professionals
+Route::middleware(['auth:professional', 'professional.status'])->group(function () {
     Route::get('dashboard', function () {
+        $professional = Auth::guard('professional')->user();
+        
+        // Clean up notifications older than 30 days
+        $thirtyDaysAgo = \Carbon\Carbon::now()->subDays(30);
+        DB::table('notifications')
+            ->where('notifiable_type', 'App\Models\Professional')
+            ->where('notifiable_id', $professional->id)
+            ->where('created_at', '<', $thirtyDaysAgo)
+            ->delete();
+        
+        // For professional dashboard, we don't show reschedule notifications (they're only in notification icon)
+        // Only get unread notifications for notification icon count, but don't pass reschedule notifications to view
+        
         return view('professional.index');
     })->name('dashboard');
 
@@ -24,9 +65,11 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::resource('booking', BookingController::class);
     Route::resource('billing', BillingController::class);
     Route::resource('requested_services', RequestedServiceController::class);
-    Route::get('rejected', [ProfessionalController::class, 'rejectedPage'])->name('rejected.view');
-    Route::post('/re-submit', [ProfessionalController::class, 'reSubmit'])->name('register.re-submit');
-    Route::get('/pending', [ProfessionalController::class, 'pendingPage'])->name('pending.view');
+
+    // Additional billing routes
+    Route::get('/billing/download-invoice/{booking}', [BillingController::class, 'downloadInvoice'])->name('billing.download-invoice');
+    Route::get('/billing/customer-invoice/{booking}', [BillingController::class, 'viewCustomerInvoice'])->name('billing.customer-invoice.view');
+    Route::get('/billing/customer-invoice/{booking}/download', [BillingController::class, 'downloadCustomerInvoice'])->name('billing.customer-invoice.download');
 
     Route::get('bookings/{id}/details', [BookingController::class, 'details']);
     Route::post('bookings/search', [BookingController::class, 'search'])->name('booking.search');
@@ -36,5 +79,24 @@ Route::middleware(['auth:professional'])->group(function () {
 
     // Add route for getting questionnaire answers
     Route::get('/bookings/{booking}/questionnaire', [App\Http\Controllers\Professional\BookingController::class, 'getQuestionnaireAnswers'])->name('booking.questionnaire');
+    
+    // Notification routes
+    Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
+        $professional = Auth::guard('professional')->user();
+        
+        // Use DB query to find and update notification
+        $updated = DB::table('notifications')
+            ->where('id', $notificationId)
+            ->where('notifiable_type', 'App\Models\Professional')
+            ->where('notifiable_id', $professional->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+        
+        if ($updated) {
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false], 404);
+    })->name('notifications.mark-as-read');
 
 });

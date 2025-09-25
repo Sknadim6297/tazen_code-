@@ -31,8 +31,6 @@
                             <th>Heading</th>
                             <th>Requested Services</th>
                             <th>Prices</th>
-                            <th>Statement</th>
-                            <th>Specializations</th>
                             <th>Education Statement</th>
                             <th>Education</th>
                             <th class="actions-cell">Actions</th>
@@ -44,7 +42,6 @@
                             // Decode the JSON fields properly
                             $servicesList = json_decode($service->requested_service, true) ?? [];
                             $pricesList = json_decode($service->price, true) ?? [];
-                            $specializationsList = json_decode($service->specializations, true) ?? [];
                             $educationList = json_decode($service->education, true) ?? [];
                         @endphp
                         
@@ -59,12 +56,6 @@
                             <td>
                                 @foreach($pricesList as $price)
                                     <div>₹{{ number_format((float) $price, 2) }}</div>
-                                @endforeach
-                            </td>
-                            <td>{{ Str::limit($service->statement, 50) }}</td>
-                            <td>
-                                @foreach($specializationsList as $spec)
-                                    <span class="badge">{{ $spec ?? '-' }}</span>
                                 @endforeach
                             </td>
                             <td>{{ $service->education_statement }}</td>
@@ -91,7 +82,7 @@
                         </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">No data found.</td>
+                                <td colspan="6" class="text-center">No data found.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -1024,7 +1024,7 @@ a.btn_explore:hover {
     background-size: cover;
     background-position: top center;
     /* padding: 8% 0px ; */
-    padding-top: 100px;
+    padding-top: 30px;
 }
 
 .call_section .box_1 {
@@ -1437,11 +1437,11 @@ margin-bottom: 0px;
 }
 .faq .text-center h2 {
     color: #ffffff;
-    padding: 0 55px 0 0;
+    padding: 0 0 0 0;
 }
 .faq .text-center p {
     color: #ffffff;
-    padding: 0 123px 0 0;
+    padding: 0 0 0 0;
 }
 .faq h5 {
     color: #ffffff;

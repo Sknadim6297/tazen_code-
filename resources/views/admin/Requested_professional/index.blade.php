@@ -130,6 +130,31 @@
         border-radius: 12px;
         border: 1px solid #d1e7dd;
     }
+    /* Custom Pagination Styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
     @media (max-width: 768px) {
         .filter-card .card-body {
             padding: 1rem;
@@ -150,6 +175,10 @@
         }
         .export-buttons .export-btn {
             flex: 1;
+        }
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
         }
     }
 </style>
@@ -199,14 +228,14 @@
                         <!-- Specialization Filter -->
                         <div class="col-lg-3 col-md-6">
                             <label for="specializationFilter" class="form-label fw-medium text-muted mb-2">
-                                <i class="ri-award-line me-1"></i>Specialization
+                                <i class="ri-award-line me-1"></i>Service Offered
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="ri-briefcase-line text-muted"></i>
                                 </span>
                                 <select name="specialization" class="form-select border-start-0" id="specializationFilter">
-                                    <option value="">All Specializations</option>
+                                    <option value="">All Services</option>
                                     @foreach($specializations as $specialization)
                                         <option value="{{ $specialization }}" {{ request('specialization') == $specialization ? 'selected' : '' }}>
                                             {{ $specialization }}
@@ -283,7 +312,7 @@
                             Total Professionals
                         </div>
                         <div>
-                            <span class="badge bg-primary">{{ $requestedProfessionals->count() }} Professionals</span>
+                            <span class="badge bg-primary">{{ $requestedProfessionals->total() }} Professionals</span>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -295,7 +324,7 @@
                                         <th scope="col">Sl.No</th>
                                         <th scope="col">Professional Name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Specialization</th>
+                                        <th scope="col">Service Offered</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Type</th>
@@ -311,7 +340,7 @@
                                                 <input class="form-check-input" type="checkbox" value="{{ $professional->id }}" aria-label="...">
                                             </td>
                                             <td>
-                                                <span class="fw-medium">{{ $loop->iteration }}</span>
+                                                <span class="fw-medium">{{ ($requestedProfessionals->currentPage() - 1) * $requestedProfessionals->perPage() + $loop->iteration }}</span>
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $professional->name }}</span>
@@ -391,7 +420,10 @@
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
-                        <!-- Pagination (if needed) -->
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-center">
+                            {{ $requestedProfessionals->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -539,6 +571,16 @@ function exportData(type) {
         document.getElementById('export-type').value = '';
     }, 100);
 }
+
+// Ensure pagination preserves filter values when navigating
+document.addEventListener('DOMContentLoaded', function() {
+    // Add a loading state when clicking pagination links
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        link.addEventListener('click', function() {
+            showLoader();
+        });
+    });
+});
 </script>
 <script>
     flatpickr("#start_date", {

@@ -10945,7 +10945,8 @@ ul#top_menu>li a.btn_access.green {
 .container_check input:checked~.checkmark:after,
 .main_title span,
 .owl-carousel.owl-loaded {
-    display: block
+    display: block;
+    /*margin-bottom: -100px;*/
 }
 
 .main_title span em {
@@ -11108,7 +11109,8 @@ ul#top_menu>li a.btn_access.green {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none
+    user-select: none;
+    margin-bottom: 116px;
 }
 
 .owl-carousel.owl-grab {
@@ -11444,7 +11446,7 @@ a.btn_1 {
 }
 
 .margin_60_40 {
-    padding-top: 60px;
+    padding-top: 48px;
     padding-bottom: 40px
 }
 
@@ -11454,7 +11456,7 @@ a.btn_1 {
 }
 
 .margin_45_40 {
-    padding-top: 45px;
+    padding-top: 0px;
     padding-bottom: 40px
 }
 
@@ -11493,12 +11495,22 @@ a.btn_1 {
 }
 
 .bg_gray {
-    background-color: #f4f7fb
+     background-color: whitesmoke;
+            background-size: 400% 400%;
+            animation: gradientBG 18s ease infinite;
+            min-height: 100vh;
+                /*margin-bottom: -164px;*/
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
 }
 
-.bg_gray.pattern {
-    background: url(../img/pattern_2.svg) center center #f4f7fb
-}
+
+/*.bg_gray.pattern {*/
+/*    background: url(../img/pattern_2.svg) center center #f4f7fb*/
+/*}*/
 
 .bg_gray.pattern_mail {
     background: url(../img/pattern_4.svg) center center #f4f7fb
@@ -11531,7 +11543,7 @@ a.btn_1 {
 }
 a.new-unique-btn{
     border: none;
-    background: #1f2f6a;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
     outline: 0;
     cursor: pointer;
     padding: 10px 20px;
@@ -12189,7 +12201,7 @@ footer .links ul li a:after {
     -moz-border-radius: 0 3px 3px 0;
     -ms-border-radius: 0 3px 3px 0;
     border-radius: 0 3px 3px 0;
-    background-color: #039d99;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
     transition: .3s ease-in-out;
     outline: 0;
 }
@@ -13148,6 +13160,13 @@ a.social_bt.google {
     color: #fff
 }
 
+.pagination_fg .disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 #toTop {
     right: 0;
     opacity: 0;
@@ -13253,7 +13272,7 @@ a.social_bt.google {
 }
 
 #cookie-bar .cb-policy {
-    background: #039d99;
+    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
 }
 
 #cookie-bar.fixed {
@@ -13475,7 +13494,7 @@ a.social_bt.google {
 
     .hero_single .opacity-mask h1,
     .hero_single .opacity-mask h3 {
-        font-size: 2.25rem
+        font-size: 2rem
     }
 
     .hero_single .opacity-mask p {
@@ -13608,6 +13627,7 @@ a.social_bt.google {
 .owl-carousel .item {
     position: relative;
     padding: 20px;
+    margin-bottom: 50px;
 }
 
 .owl-carousel .content {
@@ -13728,7 +13748,7 @@ background: url(../img/professionals_photos/Interior\ Designer\ consultant.jpg) 
     -o-background-size: cover;
 }
 .hero_single.help-page{
-    background: url(../img/professionals_photos/help-bg.jpg) center center/cover no-repeat #ededed;
+    background: url(../img/professionals_photos/help-bg.jpg) top center/cover no-repeat #ededed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

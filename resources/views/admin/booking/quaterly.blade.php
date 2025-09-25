@@ -198,6 +198,37 @@
         font-size: 0.7em;
         padding: 2px 5px;
     }
+
+    /* Custom Pagination Styling (copied from event/index.blade.php) */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endsection
 
@@ -365,9 +396,9 @@
                                         <th>Professional Name</th>
                                         <th>Service Required</th>
                                         <th>Paid Amount</th>
-                                        <th>Number Of Session</th>
-                                        <th>Number Of Session Taken</th>
-                                        <th>Number Of Session Pending</th>
+                                        <th>#Sessions</th>
+                                        <th>#Sessions Taken</th>
+                                        <th>#Sessions Pending</th>
                                         <th>Validity Till</th>
                                         <th>Current Service Date On</th>
                                         <th>Current Service Time</th>
@@ -406,7 +437,7 @@
                                     @endphp
 
                                     <tr>
-                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $bookings->firstItem() + $key }}</td>
                                         <td>
                                             {{ $booking->customer_name }}
                                             <br>
@@ -533,8 +564,8 @@
                         </div>
                     </div>
                     
-                    <div class="card-footer border-top-0">
-                        {{ $bookings->links() }}
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $bookings->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>

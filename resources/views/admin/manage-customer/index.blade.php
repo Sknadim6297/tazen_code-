@@ -73,10 +73,17 @@
                                                 <a href="{{ route('admin.manage-customer.show', $user->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" title="View">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
+                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
+                                                        data-participant-type="user" 
+                                                        data-participant-id="{{ $user->id }}" 
+                                                        data-bs-toggle="tooltip" 
+                                                        title="Chat">
+                                                    <i class="ri-message-3-line"></i>
+                                                </button>
                                                 <form method="POST" action="{{ route('admin.manage-customer.destroy', $user->id) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button class="btn btn-danger-light btn-icon btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure?')">
+                                                    <button class="btn btn-danger-light btn-icon btn-sm ms-1" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure?')">
                                                         <i class="ri-delete-bin-5-line"></i>
                                                     </button>
                                                 </form>

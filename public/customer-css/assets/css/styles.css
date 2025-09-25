@@ -408,6 +408,7 @@ a {
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+         z-index: 1060;
     }
 
     .sidebar.active {
@@ -420,6 +421,7 @@ a {
 
     .header {
         padding: 0 15px;
+        z-index: 97;
     }
 
     .search-box input {
@@ -432,6 +434,21 @@ a {
 
     .card-grid {
         grid-template-columns: 1fr;
+    }
+    /* Ensure sidebar header (logo) is always visible on mobile */
+    .sidebar .sidebar-header {
+        position: relative;
+        z-index: 1061;
+    }
+
+    /* Ensure sidebar overlays everything on mobile when active */
+    .sidebar.active {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        z-index: 1060;
     }
 }
 

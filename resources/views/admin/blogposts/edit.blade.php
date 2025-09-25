@@ -38,7 +38,7 @@
 
             <div class="form-group">
                 <label>Content:</label>
-                <textarea name="content" required>{{ $blogPost->content }}</textarea>
+                <textarea id="content" name="content" required>{{ $blogPost->content }}</textarea>
             </div>
 
             <div class="form-grid">
@@ -304,4 +304,75 @@
         }
     }
 </style>
+
+@section('scripts')
+<!-- CKEditor CDN -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+<script>
+    let editor;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize CKEditor for the content textarea
+        ClassicEditor
+            .create(document.querySelector('#content'), {
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'blockQuote',
+                    'insertTable',
+                    'undo',
+                    'redo'
+                ],
+                placeholder: 'Enter Blog Content...',
+                height: '300px'
+            })
+            .then(newEditor => {
+                editor = newEditor;
+                console.log('CKEditor initialized successfully');
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor:', error);
+            });
+
+        // Handle form submission to sync CKEditor content
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission detected');
+                // Update the textarea with CKEditor content before form submission
+                if (editor) {
+                    const content = editor.getData();
+                    document.querySelector('#content').value = content;
+                    console.log('Content synced:', content);
+                } else {
+                    console.log('Editor not found');
+                }
+            });
+        } else {
+            console.log('Form not found');
+        }
+
+        // Also handle the submit button click directly
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(e) {
+                console.log('Submit button clicked');
+                if (editor) {
+                    const content = editor.getData();
+                    document.querySelector('#content').value = content;
+                    console.log('Content synced from button click');
+                }
+            });
+        }
+    });
+</script>
 @endsection

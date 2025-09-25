@@ -36,7 +36,7 @@
                             <!-- Start::add task modal -->
                             <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <form action="{{ route('admin.blogposts.store') }}" method="POST" enctype="multipart/form-data">
+                                    <form id="blogPostForm" action="{{ route('admin.blogposts.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -68,7 +68,7 @@
                                                     </div>
                                                     <div class="col-xl-12 mb-3">
                                                         <label for="content" class="form-label">Content</label>
-                                                        <textarea class="form-control" id="content" name="content" rows="5" placeholder="Enter Blog Content" required></textarea>
+                                                        <textarea class="form-control" id="content" name="content" rows="10" placeholder="Enter Blog Content" required></textarea>
                                                     </div>
                                                     <div class="col-xl-6 mb-3">
                                                         <label for="author_name" class="form-label">Author Name</label>
@@ -115,7 +115,7 @@
                                             <td>{{ $blogPost->category }}</td>
                                             <td>{{ $blogPost->published_at->format('Y-m-d') }}</td>
                                             <td>{{ $blogPost->blog->title }}</td> <!-- Assuming the blog relationship exists -->
-                                            <td>{{ Str::limit($blogPost->content, 50) }}</td> <!-- Displaying truncated content -->
+                                            <td>{!! Str::limit(strip_tags($blogPost->content), 100) !!}</td> <!-- Displaying truncated content without HTML tags -->
                                             <td>{{ $blogPost->author_name }}</td>
                                             <td>
                                                 @if($blogPost->author_avatar)
@@ -165,4 +165,76 @@
 
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<!-- CKEditor CDN -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+<script>
+    let editor;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize CKEditor for the content textarea
+        ClassicEditor
+            .create(document.querySelector('#content'), {
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'blockQuote',
+                    'insertTable',
+                    'undo',
+                    'redo'
+                ],
+                placeholder: 'Enter Blog Content...',
+                height: '300px'
+            })
+            .then(newEditor => {
+                editor = newEditor;
+                console.log('CKEditor initialized successfully');
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor:', error);
+            });
+
+        // Handle form submission to sync CKEditor content
+        const form = document.getElementById('blogPostForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission detected');
+                // Update the textarea with CKEditor content before form submission
+                if (editor) {
+                    const content = editor.getData();
+                    document.querySelector('#content').value = content;
+                    console.log('Content synced:', content);
+                } else {
+                    console.log('Editor not found');
+                }
+            });
+        } else {
+            console.log('Form not found');
+        }
+
+        // Also handle the submit button click directly
+        const submitBtn = document.querySelector('#blogPostForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(e) {
+                console.log('Submit button clicked');
+                if (editor) {
+                    const content = editor.getData();
+                    document.querySelector('#content').value = content;
+                    console.log('Content synced from button click');
+                }
+            });
+        }
+    });
+</script>
 @endsection

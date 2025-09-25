@@ -45,8 +45,10 @@ class AboutUsController extends Controller
         return view('admin.aboutus.edit', compact('about'));
     }
 
-    public function update(Request $request, AboutUs $aboutus)
+    public function update(Request $request, $aboutu)
     {
+        $aboutus = AboutUs::findOrFail($aboutu);
+        
         $request->validate([
             'heading'             => 'required|string|max:255',
             'year_of_experience'  => 'required|integer',
@@ -85,8 +87,8 @@ class AboutUsController extends Controller
     public function destroy($id)
     {
         $about = AboutUs::findOrFail($id);
-        if ($about->image && file_exists(public_path('uploads/aboutus/' . $about->image))) {
-            unlink(public_path('uploads/aboutus/' . $about->image));
+        if ($about->image && file_exists(public_path('storage/' . $about->image))) {
+            unlink(public_path('storage/' . $about->image));
         }
         $about->delete();
         return back()->with('success', 'Deleted successfully.');

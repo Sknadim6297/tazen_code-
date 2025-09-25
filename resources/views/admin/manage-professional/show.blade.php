@@ -159,6 +159,12 @@
         background: var(--gray-100);
     }
 
+    .profile-actions .btn:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
     /* Profile Cards */
     .profile-grid {
         display: grid;
@@ -710,13 +716,27 @@
                                 <div class="stat-label">Years Exp.</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">₹{{ number_format($profile->starting_price) }}</div>
+                                <div class="stat-value">
+                                    @if($profile->starting_price)
+                                        ₹{{ $profile->starting_price }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </div>
                                 <div class="stat-label">Starting Price</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value">{{ \Carbon\Carbon::parse($profile->created_at)->format('M Y') }}</div>
                                 <div class="stat-label">Member Since</div>
                             </div>
+                        </div>
+                        
+                        <!-- Edit Button -->
+                        <div class="profile-actions" style="margin-top: 1.5rem;">
+                            <button onclick="confirmEdit({{ $professional->id }})" class="btn btn-primary" style="background: var(--white); color: var(--primary); border: 2px solid var(--white);">
+                                <i class="fas fa-edit"></i>
+                                Edit Professional
+                            </button>
                         </div>
                     </div>
 
@@ -740,6 +760,28 @@
                                     <div class="detail-label">Phone Number</div>
                                     <div class="detail-value">{{ $profile->phone }}</div>
                                 </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Address</div>
+                                    <div class="detail-value">{{ $profile->address ?: 'Not provided' }}</div>
+                                </div>
+                                @if($profile->gst_number)
+                                <div class="detail-item">
+                                    <div class="detail-label">GST Number</div>
+                                    <div class="detail-value">{{ $profile->gst_number }}</div>
+                                </div>
+                                @endif
+                                @if($profile->state_code)
+                                <div class="detail-item">
+                                    <div class="detail-label">State Code</div>
+                                    <div class="detail-value">{{ $profile->state_code }} - {{ $profile->state_name ?? 'N/A' }}</div>
+                                </div>
+                                @endif
+                                @if($profile->gst_address)
+                                <div class="detail-item">
+                                    <div class="detail-label">GST Address</div>
+                                    <div class="detail-value">{{ $profile->gst_address }}</div>
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -770,14 +812,14 @@
                                     </div>
                                 </div>
                                 
-                                <div class="document-card {{ $profile->aadhaar_card ? 'has-file' : '' }}">
+                                <div class="document-card {{ $profile->id_proof_document ? 'has-file' : '' }}">
                                     <div class="document-icon">
                                         <i class="fas fa-id-card"></i>
                                     </div>
-                                    <div class="document-name">Aadhaar Card</div>
+                                    <div class="document-name">ID Proof Document (Aadhaar / PAN Card)</div>
                                     <div class="document-status">
-                                        @if($profile->aadhaar_card)
-                                            <a href="{{ asset('storage/'.$profile->aadhaar_card) }}" target="_blank" class="document-action">
+                                        @if($profile->id_proof_document)
+                                            <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
@@ -786,24 +828,108 @@
                                         @endif
                                     </div>
                                 </div>
-                                
-                                <div class="document-card {{ $profile->pan_card ? 'has-file' : '' }}">
+                            
+                                @if($profile->gst_number)
+                                <div class="document-card {{ $profile->gst_certificate ? 'has-file' : '' }}">
                                     <div class="document-icon">
-                                        <i class="fas fa-credit-card"></i>
+                                        <i class="fas fa-file-invoice-dollar"></i>
                                     </div>
-                                    <div class="document-name">PAN Card</div>
+                                    <div class="document-name">GST Certificate</div>
                                     <div class="document-status">
-                                        @if($profile->pan_card)
-                                            <a href="{{ asset('storage/'.$profile->pan_card) }}" target="_blank" class="document-action">
+                                        @if($profile->gst_certificate)
+                                            <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank" class="document-action">
                                                 <i class="fas fa-eye"></i>
                                                 View Document
                                             </a>
                                         @else
                                             <span style="color: var(--gray-400);">Not uploaded</span>
                                         @endif
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Bank Account Details -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h3 class="section-title">
+                                    <i class="fas fa-university"></i>
+                                    Bank Account Details
+                                </h3>
+                                <div class="header-actions">
+                                    @if($profile->account_number && $profile->ifsc_code && $profile->account_holder_name && $profile->bank_name)
+                                        <button onclick="downloadBankDetails({{ $profile->id }})" class="btn btn-outline">
+                                            <i class="fas fa-download"></i>
+                                            Download Details
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Holder Name</div>
+                                    <div class="detail-value">{{ $profile->account_holder_name ?: 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Bank Name</div>
+                                    <div class="detail-value">{{ $profile->bank_name ?: 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Number</div>
+                                    <div class="detail-value">
+                                        @if($profile->account_number)
+                                            <span id="account-{{ $profile->id }}" style="display: none;">{{ $profile->account_number }}</span>
+                                            <span id="masked-{{ $profile->id }}">{{ str_repeat('*', strlen($profile->account_number) - 4) . substr($profile->account_number, -4) }}</span>
+                                            <button onclick="toggleAccountNumber({{ $profile->id }})" class="btn" style="padding: 0.25rem 0.5rem; margin-left: 0.5rem; font-size: 0.75rem;">
+                                                <i id="eye-{{ $profile->id }}" class="fas fa-eye"></i>
+                                            </button>
+                                        @else
+                                            Not provided
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">IFSC Code</div>
+                                    <div class="detail-value">{{ $profile->ifsc_code ?: 'Not provided' }}</div>
+                                </div>
+                                @if($profile->account_type)
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Type</div>
+                                    <div class="detail-value">{{ ucfirst($profile->account_type) }}</div>
+                                </div>
+                                @endif
+                                @if($profile->bank_branch)
+                                <div class="detail-item">
+                                    <div class="detail-label">Branch</div>
+                                    <div class="detail-value">{{ $profile->bank_branch }}</div>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            @if($profile->bank_document)
+                            <div class="documents-grid" style="margin-top: 1.5rem;">
+                                <div class="document-card has-file">
+                                    <div class="document-icon">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </div>
+                                    <div class="document-name">Bank Account Proof</div>
+                                    <div class="document-status">
+                                        <a href="{{ asset('storage/'.$profile->bank_document) }}" target="_blank" class="document-action">
+                                            <i class="fas fa-eye"></i>
+                                            View Document
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            @else
+                            <div class="empty-state" style="padding: 1.5rem; margin-top: 1rem;">
+                                <i class="fas fa-file-invoice"></i>
+                                <h3>No Bank Document</h3>
+                                <p>Professional hasn't uploaded bank account proof yet</p>
+                            </div>
+                            @endif
                         </div>
 
                         <!-- Gallery -->
@@ -848,6 +974,12 @@
                                     <i class="fas fa-concierge-bell"></i>
                                     Services Offered
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editServices({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Services
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($services->count() > 0)
@@ -890,6 +1022,12 @@
                                     <i class="fas fa-money-bill-wave"></i>
                                     Pricing Plans
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editRates({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Rates
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($rates->count() > 0)
@@ -923,6 +1061,12 @@
                                     <i class="fas fa-calendar-check"></i>
                                     Availability Schedule
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editAvailability({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Availability
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($availabilities->count() > 0)
@@ -958,4 +1102,63 @@
         </div>
     </div>
 </div>
+
+<script>
+// Toggle account number visibility
+function toggleAccountNumber(profileId) {
+    const accountSpan = document.getElementById(`account-${profileId}`);
+    const maskedSpan = document.getElementById(`masked-${profileId}`);
+    const eyeIcon = document.getElementById(`eye-${profileId}`);
+    
+    if (accountSpan.style.display === 'none') {
+        accountSpan.style.display = 'inline';
+        maskedSpan.style.display = 'none';
+        eyeIcon.className = 'fas fa-eye-slash';
+    } else {
+        accountSpan.style.display = 'none';
+        maskedSpan.style.display = 'inline';
+        eyeIcon.className = 'fas fa-eye';
+    }
+}
+
+// Download bank details
+function downloadBankDetails(profileId) {
+    // Redirect to export route with professional ID
+    window.location.href = `{{ route('admin.professional.bank-details.export') }}?professional_id=${profileId}`;
+}
+
+// Confirm edit action
+function confirmEdit(professionalId) {
+    if (confirm('Are you sure you want to edit this professional\'s details?')) {
+        // Redirect to edit page
+        window.location.href = '/admin/manage-professional/' + professionalId + '/edit';
+    }
+}
+
+// Edit Services
+function editServices(professionalId) {
+    if (confirm('Edit services for this professional?')) {
+        // Redirect to admin professional services management page
+        window.location.href = '/admin/professional/' + professionalId + '/services';
+    }
+}
+
+// Edit Rates
+function editRates(professionalId) {
+    if (confirm('Edit rates/pricing for this professional?')) {
+        // Redirect to admin professional rates management page
+        window.location.href = '/admin/professional/' + professionalId + '/rates';
+    }
+}
+
+// Edit Availability
+function editAvailability(professionalId) {
+    if (confirm('Edit availability schedule for this professional?')) {
+        // Redirect to admin professional availability management page
+        window.location.href = '/admin/professional/' + professionalId + '/availability';
+    }
+}
+
+</script>
+
 @endsection

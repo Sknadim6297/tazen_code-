@@ -66,7 +66,20 @@
         overflow-y: auto;
         /* Optional: for smooth scrolling */
         scroll-behavior: smooth;
+        z-index: 1000; /* Ensure sidebar is above header in mobile */
     }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+        .sidebar {
+            z-index: 1000; /* Higher than header's z-index: 998 */
+        }
+        
+        .sidebar.active {
+            z-index: 1000; /* Maintain high z-index when active */
+        }
+    }
+    
     .menu-item.active {
         background: linear-gradient(45deg, #FF4500, #FFA500);
         color: white;

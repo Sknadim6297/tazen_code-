@@ -8,6 +8,7 @@ use App\Models\Profile;
 use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -148,17 +149,28 @@ class ProfileController extends Controller
             'phone' => 'nullable|string',
             'specialization' => 'nullable|string',
             'experience' => 'nullable|string',
-            'startingPrice' => 'nullable|numeric',
+            'startingPrice' => 'nullable|string|regex:/^(\d+(\.\d{1,2})?(-\d+(\.\d{1,2})?)?)$/',
             'address' => 'nullable|string',
             'education' => 'nullable|string',
             'comments' => 'nullable|string',
             'bio' => 'nullable|string',
+            'gst_number' => 'nullable|string|max:15',
+            'gst_address' => 'nullable|string|max:1000',
+            'gst_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
             'photo' => 'nullable|image',
             'gallery.*' => 'nullable|image',
             'deleted_images' => 'nullable|string', // Changed from delete_gallery array to deleted_images string
             'qualificationDocument' => 'nullable|file',
             'aadhaarCard' => 'nullable|file',
             'panCard' => 'nullable|file',
+            // Bank account details
+            'account_holder_name' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:50',
+            'ifsc_code' => 'nullable|string|max:11',
+            'account_type' => 'nullable|in:savings,current',
+            'bank_branch' => 'nullable|string|max:255',
+            'bank_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
         $profile = Profile::findOrFail($id);
@@ -180,6 +192,11 @@ class ProfileController extends Controller
 
         // Enhanced gallery handling - preserve existing images and handle deletions
         $currentGallery = $profile->gallery ? json_decode($profile->gallery, true) : [];
+        
+        // Ensure $currentGallery is always an array (in case json_decode returns null)
+        if (!is_array($currentGallery)) {
+            $currentGallery = [];
+        }
         
         // Handle image deletions using the deleted_images field
         if ($request->filled('deleted_images')) {
@@ -209,12 +226,24 @@ class ProfileController extends Controller
         // Add new gallery images
         if ($request->hasFile('gallery')) {
             $newImages = $this->uploadMultipleImage($request, 'gallery', 'uploads/profiles/gallery');
-            // Merge with existing images
-            $currentGallery = array_merge($currentGallery, $newImages);
+            
+            // Ensure both arrays are valid before merging
+            if (is_array($newImages) && is_array($currentGallery)) {
+                $currentGallery = array_merge($currentGallery, $newImages);
+            } elseif (is_array($newImages)) {
+                // If currentGallery is not an array, use only new images
+                $currentGallery = $newImages;
+            }
         }
         
         // Update gallery with preserved + new images
-        $profile->gallery = json_encode($currentGallery);
+        try {
+            $profile->gallery = json_encode($currentGallery);
+        } catch (\Exception $e) {
+            // Fallback: if JSON encoding fails, store empty array
+            Log::error('Gallery JSON encoding failed: ' . $e->getMessage());
+            $profile->gallery = json_encode([]);
+        }
 
         // Handle document uploads
         if ($request->hasFile('qualificationDocument')) {
@@ -224,18 +253,25 @@ class ProfileController extends Controller
             $profile->qualification_document = $this->uploadImage($request, 'qualificationDocument', 'uploads/profiles/documents');
         }
 
-        if ($request->hasFile('aadhaarCard')) {
-            if ($profile->aadhaar_card) {
-                Storage::disk('public')->delete($profile->aadhaar_card);
+        if ($request->hasFile('idProofDocument')) {
+            if ($profile->id_proof_document) {
+                Storage::disk('public')->delete($profile->id_proof_document);
             }
-            $profile->aadhaar_card = $this->uploadImage($request, 'aadhaarCard', 'uploads/profiles/identity');
+            $profile->id_proof_document = $this->uploadImage($request, 'idProofDocument', 'uploads/profiles/identity');
         }
 
-        if ($request->hasFile('panCard')) {
-            if ($profile->pan_card) {
-                Storage::disk('public')->delete($profile->pan_card);
+        if ($request->hasFile('gst_certificate')) {
+            if ($profile->gst_certificate) {
+                Storage::disk('public')->delete($profile->gst_certificate);
             }
-            $profile->pan_card = $this->uploadImage($request, 'panCard', 'uploads/profiles/identity');
+            $profile->gst_certificate = $this->uploadImage($request, 'gst_certificate', 'uploads/profiles/gst');
+        }
+
+        if ($request->hasFile('bank_document')) {
+            if ($profile->bank_document) {
+                Storage::disk('public')->delete($profile->bank_document);
+            }
+            $profile->bank_document = $this->uploadImage($request, 'bank_document', 'uploads/profiles/bank');
         }
 
         // Update other fields
@@ -250,12 +286,33 @@ class ProfileController extends Controller
         $profile->education = $data['education'] ?? null;
         $profile->comments = $data['comments'] ?? null;
         $profile->bio = $data['bio'] ?? null;
+        $profile->gst_number = $data['gst_number'] ?? null;
+        $profile->gst_address = $data['gst_address'] ?? null;
+        
+        // Update bank account details
+        $profile->account_holder_name = $data['account_holder_name'] ?? null;
+        $profile->bank_name = $data['bank_name'] ?? null;
+        $profile->account_number = $data['account_number'] ?? null;
+        $profile->ifsc_code = $data['ifsc_code'] ?? null;
+        $profile->account_type = $data['account_type'] ?? null;
+        $profile->bank_branch = $data['bank_branch'] ?? null;
+        
         $profile->save();
 
         // Update Professional name also
         $professional = Professional::findOrFail($professionalId);
         $professional->name = $data['name'];
-        $professional->save();
+        $professional->email = $data['email']; // Also update email in professionals table
+        $professionalSaved = $professional->save();
+
+        // Log for debugging
+        Log::info('Professional Profile Update:', [
+            'profile_saved' => $profile->wasRecentlyCreated || $profile->wasChanged(),
+            'professional_saved' => $professionalSaved,
+            'professional_name' => $professional->name,
+            'profile_name' => $profile->name,
+            'professional_id' => $professionalId
+        ]);
 
         return response()->json(['status' => 'success', 'message' => 'Profile updated successfully!']);
     }

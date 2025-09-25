@@ -22,11 +22,23 @@
         <input type="hidden" name="serviceDuration" value="{{ old('serviceDuration', $service->duration ?? 60) }}">
         
         <div class="form-container">
-        
-            <div class="form-group">
-                <label for="serviceDescription">Description *</label>
-                <textarea name="serviceDescription" id="serviceDescription" class="form-control" 
-                    placeholder="Describe your service in detail" rows="5" required>{{ old('serviceDescription', $service->description ?? '') }}</textarea>
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="serviceCategory">Service Category * <span class="badge bg-success text-white" style="font-size: 11px; padding: 3px 6px;">Editable</span></label>
+                        <select name="serviceId" id="serviceCategory" class="form-control" required>
+                            <option value="">Select Category</option>
+                            @foreach($services as $serviceItem)
+                                <option value="{{ $serviceItem->id }}" 
+                                    {{ $service->service_id == $serviceItem->id ? 'selected' : 
+                                       (isset($matchingServiceId) && $matchingServiceId == $serviceItem->id ? 'selected' : '') }}>
+                                    {{ $serviceItem->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">You can now change your service category if needed.</small>
+                    </div>
+                </div>
             </div>
         
             <div class="form-row">
@@ -42,7 +54,7 @@
                             @foreach($allFeatures as $key => $label)
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="features[]" value="{{ $key }}" 
-                                        {{ in_array($key, old('features', $selectedFeatures)) ? 'checked' : '' }}> {{ $label }}
+                                        {{ in_array($key, old('features', $selectedFeatures)) ? 'checked' : 'checked' }}> {{ $label }}
                                 </label>
                             @endforeach
                         </div>
