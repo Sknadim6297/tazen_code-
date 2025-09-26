@@ -27,7 +27,6 @@ class ChatSystem {
             case 'user':
                 return '/user';
             default:
-                // If no user-type meta tag is found, assume it's a user page
                 return '/user';
         }
     }
@@ -457,7 +456,19 @@ class ChatSystem {
         const currentUserType = document.querySelector('meta[name="user-type"]')?.getAttribute('content');
         const currentUserId = document.querySelector('meta[name="user-id"]')?.getAttribute('content');
         
-        return message.sender_type === currentUserType && message.sender_id == currentUserId;
+        // Convert currentUserId to number for proper comparison
+        const currentUserIdNum = currentUserId ? parseInt(currentUserId) : null;
+        
+        // Debug logging (can be removed in production)
+        console.log('Message alignment check:', {
+            message_sender_type: message.sender_type,
+            message_sender_id: message.sender_id,
+            current_user_type: currentUserType,
+            current_user_id: currentUserIdNum,
+            is_my_message: message.sender_type === currentUserType && message.sender_id === currentUserIdNum
+        });
+        
+        return message.sender_type === currentUserType && message.sender_id === currentUserIdNum;
     }
 
     getFileIcon(messageType) {
