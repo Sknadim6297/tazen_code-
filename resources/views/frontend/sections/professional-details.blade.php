@@ -557,6 +557,31 @@
                 display: block !important;
                 margin-bottom: 20px;
                 margin-top: 20px;
+                background: #ffffff !important;
+                border-radius: 12px !important;
+                overflow: hidden !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+            }
+            
+            /* Mobile appointment types header styling */
+            .mobile-appointment-types h3 {
+                background: linear-gradient(135deg, #6f42c1, #e83e8c) !important;
+                color: white !important;
+                padding: 16px 20px !important;
+                margin: 0 0 20px 0 !important;
+                border-radius: 12px 12px 0 0 !important;
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                text-align: center !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .mobile-appointment-types h3::before {
+                content: '⏰' !important;
+                margin-right: 8px !important;
+                font-size: 20px !important;
             }
             
             /* Show mobile booking section and hide desktop version on mobile */
@@ -564,6 +589,25 @@
                 display: block !important;
                 margin-bottom: 20px;
                 margin-top: 20px;
+            }
+            
+            /* Mobile booking section header */
+            .mobile-booking-section h3 {
+                background: linear-gradient(135deg, #fd7e14, #dc3545) !important;
+                color: white !important;
+                padding: 16px 20px !important;
+                margin: 0 0 20px 0 !important;
+                border-radius: 12px 12px 0 0 !important;
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                text-align: center !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+            }
+            
+            .mobile-booking-section h3::before {
+                content: '📅' !important;
+                margin-right: 8px !important;
+                font-size: 20px !important;
             }
             
             /* Hide original appointment types and booking on mobile */
@@ -708,18 +752,159 @@
                 max-width: 100%;
             }
             .select-plan, .btn_1 {
-                padding: 8px 6px;
-                font-size: 13px;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                min-height: 44px !important;
+                min-width: 44px !important;
+                border-radius: 8px !important;
+                touch-action: manipulation !important;
+                user-select: none !important;
+                -webkit-touch-callout: none !important;
+                -webkit-user-select: none !important;
+                transition: all 0.2s ease !important;
+                cursor: pointer !important;
             }
+            
+            .select-plan:active, .btn_1:active {
+                transform: scale(0.98) !important;
+                background: #0056b3 !important;
+                color: white !important;
+            }
+            
+            /* Mobile Book Now button styling */
+            #mobile-bookNowBtn {
+                background: linear-gradient(135deg, #28a745, #20c997) !important;
+                color: white !important;
+                border: none !important;
+                padding: 16px 24px !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                border-radius: 12px !important;
+                text-align: center !important;
+                text-decoration: none !important;
+                display: block !important;
+                margin: 20px 0 !important;
+                min-height: 56px !important;
+                line-height: 1.2 !important;
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+                transition: all 0.3s ease !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            #mobile-bookNowBtn:hover, #mobile-bookNowBtn:active {
+                background: linear-gradient(135deg, #218838, #1e7e34) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+                color: white !important;
+                text-decoration: none !important;
+            }
+            
+            #mobile-bookNowBtn:active {
+                transform: translateY(0) scale(0.98) !important;
+            }
+            
+            /* Better time slot styling for mobile */
+            .time-slot + label, .mobile-time-slot + label {
+                min-height: 48px !important;
+                min-width: 100px !important;
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                border-radius: 8px !important;
+                border: 2px solid #e9ecef !important;
+                background: #ffffff !important;
+                color: #495057 !important;
+                touch-action: manipulation !important;
+                user-select: none !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: all 0.2s ease !important;
+                margin: 4px !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                overflow: visible !important;
+                position: relative !important;
+                z-index: 1 !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
+            
+            .time-slot + label:hover, .mobile-time-slot + label:hover {
+                border-color: #007bff !important;
+                background: #f8f9ff !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 8px rgba(0,123,255,0.2) !important;
+            }
+            
+            /* Mobile time slot container improvements */
+            .mobile-appointment-types .slot-box {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                align-items: center !important;
+                margin: 8px 0 !important;
+                padding: 4px !important;
+                min-height: 60px !important;
+                background: #f8f9fa !important;
+                border-radius: 8px !important;
+                border: 1px solid #e9ecef !important;
+            }
+            
+            /* Fix hidden/covered time slots */
+            .mobile-appointment-types .tab-content {
+                padding: 16px !important;
+                background: #ffffff !important;
+                border-radius: 0 0 12px 12px !important;
+                min-height: 300px !important;
+                overflow: visible !important;
+            }
+            
+            .mobile-appointment-types .tab-pane {
+                padding: 16px 8px !important;
+                overflow: visible !important;
+            }
+            
+            .time-slot:checked + label, .mobile-time-slot:checked + label {
+                background: #007bff !important;
+                color: white !important;
+                border-color: #0056b3 !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(0,123,255,0.3) !important;
+            }
+            
             .slot-box {
                 flex: 0 0 100%;
+                margin-bottom: 8px !important;
             }
             .container.margin_detail {
                 margin-top: 50px;
-                padding: 4px;
+                padding: 8px;
             }
+            
             .box_booking {
-                padding: 6px;
+                padding: 16px;
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                margin-bottom: 16px;
+            }
+            
+            /* Mobile booking section main container */
+            .mobile-booking-section .main {
+                padding: 20px 16px !important;
+                background: #ffffff !important;
+                border-radius: 0 0 12px 12px !important;
+            }
+            
+            /* Mobile appointment types main container */
+            .mobile-appointment-types {
+                background: #ffffff !important;
+                border-radius: 12px !important;
+                overflow: hidden !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+                margin-bottom: 20px !important;
             }
             .modal-dialog {
                 max-width: 98vw;
@@ -740,12 +925,39 @@
                 font-size: 0.9rem;
             }
             .appointment_types .nav-link {
-                padding: 4px 2px;
-                font-size: 10px;
+                padding: 8px 4px;
+                font-size: 12px;
+                min-height: 36px;
             }
             .container.margin_detail {
                 margin-top: 30px;
-                padding: 2px;
+                padding: 4px;
+            }
+            
+            /* Ultra mobile responsive */
+            .mobile-appointment-types .nav-tabs .nav-link {
+                font-size: 11px !important;
+                padding: 8px 10px !important;
+                min-width: 70px !important;
+                min-height: 36px !important;
+            }
+            
+            .time-slot + label, .mobile-time-slot + label {
+                min-width: 80px !important;
+                font-size: 12px !important;
+                padding: 10px 12px !important;
+                min-height: 40px !important;
+            }
+            
+            #mobile-selected-plan-display {
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+            }
+            
+            #mobile-bookNowBtn {
+                padding: 14px 20px !important;
+                font-size: 15px !important;
+                min-height: 50px !important;
             }
         }
 
@@ -2355,14 +2567,73 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Mobile Detection and UI Switching
+            function isMobileDevice() {
+                return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            
+            function toggleMobileDesktopViews() {
+                const isMobile = isMobileDevice();
+                
+                // Mobile appointment types
+                const mobileAppointmentTypes = document.querySelector('.mobile-appointment-types');
+                const desktopAppointmentTypes = document.querySelector('.appointment_types:not(.mobile-appointment-types)');
+                
+                // Mobile booking section
+                const mobileBookingSection = document.querySelector('.mobile-booking-section');
+                const desktopBookingSection = document.querySelector('.box_booking:not(.mobile-booking-section):not(.mobile-appointment-types)');
+                
+                if (isMobile) {
+                    // Show mobile versions
+                    if (mobileAppointmentTypes) {
+                        mobileAppointmentTypes.style.display = 'block';
+                    }
+                    if (mobileBookingSection) {
+                        mobileBookingSection.style.display = 'block';
+                    }
+                    
+                    // Hide desktop versions
+                    if (desktopAppointmentTypes) {
+                        desktopAppointmentTypes.style.display = 'none';
+                    }
+                    if (desktopBookingSection) {
+                        desktopBookingSection.style.display = 'none';
+                    }
+                } else {
+                    // Show desktop versions
+                    if (desktopAppointmentTypes) {
+                        desktopAppointmentTypes.style.display = 'block';
+                    }
+                    if (desktopBookingSection) {
+                        desktopBookingSection.style.display = 'block';
+                    }
+                    
+                    // Hide mobile versions
+                    if (mobileAppointmentTypes) {
+                        mobileAppointmentTypes.style.display = 'none';
+                    }
+                    if (mobileBookingSection) {
+                        mobileBookingSection.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Initial mobile/desktop view setup
+            toggleMobileDesktopViews();
+            
+            // Handle window resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(toggleMobileDesktopViews, 100);
+            });
+            
             let enabledDates = @json($enabledDates);
             
             // Get existing bookings for this professional
             const existingBookings = @json($existingBookings ?? []);
             
-            // Debug: Log the existing bookings data
-            console.log('Existing bookings data:', existingBookings);
-            console.log('Enabled dates:', enabledDates);
+            // Initialize booking data
             
             let selectedBookings = {};
             
@@ -2438,14 +2709,9 @@
                             const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
                             const selectedMonth = monthNames[selectedDate.getMonth()];
 
-                            console.log('Selected date:', dateString, 'Weekday:', weekday, 'Month:', selectedMonth);
-                            console.log('Looking for slots with selector:', `.slot-box[data-weekday="${weekday}"][data-month="${selectedMonth}"]`);
-
                             const relevantSlotBoxes = isMobile ? 
                                 Array.from(document.querySelectorAll(`.slot-box[data-weekday="${weekday}"][data-month="${selectedMonth}"] .mobile-time-slot`)).map(slot => slot.closest('.slot-box')) :
                                 Array.from(document.querySelectorAll(`.slot-box[data-weekday="${weekday}"][data-month="${selectedMonth}"] .time-slot`)).map(slot => slot.closest('.slot-box'));
-
-                            console.log('Found', relevantSlotBoxes.length, 'relevant slot boxes for', weekday, selectedMonth);
 
                             relevantSlotBoxes.forEach(box => {
                                 if (box) {
@@ -2512,9 +2778,6 @@
 
             // Function to check if a time slot is already booked
             function isTimeSlotBooked(date, timeSlot) {
-                console.log('Checking if booked - Date:', date, 'TimeSlot:', timeSlot);
-                console.log('Available bookings for date:', existingBookings[date]);
-                
                 if (!existingBookings[date]) return false;
                 
                 // Normalize both time slot formats for comparison
@@ -2523,15 +2786,12 @@
                 };
                 
                 const normalizedTimeSlot = normalizeTimeSlot(timeSlot);
-                console.log('Normalized time slot:', normalizedTimeSlot);
                 
                 const isBooked = existingBookings[date].some(bookedTime => {
                     const normalizedBookedTime = normalizeTimeSlot(bookedTime);
-                    console.log('Comparing with booked time:', normalizedBookedTime);
                     return normalizedTimeSlot === normalizedBookedTime;
                 });
                 
-                console.log('Is booked result:', isBooked);
                 return isBooked;
             }
             
@@ -2641,6 +2901,43 @@
                 });
             }
 
+            // Enhanced mobile touch support for time slots
+            function addMobileTouchSupport() {
+                const timeSlotSelectors = ['.time-slot', '.mobile-time-slot'];
+                
+                timeSlotSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(slot => {
+                        const label = slot.nextElementSibling;
+                        
+                        if (label) {
+                            // Add touch feedback
+                            label.addEventListener('touchstart', function() {
+                                if (!slot.disabled) {
+                                    this.style.transform = 'scale(0.95)';
+                                    this.style.opacity = '0.8';
+                                }
+                            }, { passive: true });
+                            
+                            label.addEventListener('touchend', function() {
+                                this.style.transform = '';
+                                this.style.opacity = '';
+                            }, { passive: true });
+                            
+                            // Ensure click works on mobile
+                            label.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                if (!slot.disabled) {
+                                    slot.click();
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // Call mobile touch support initialization
+            addMobileTouchSupport();
+
             // Handle slot selection for both desktop and mobile
             function initializeSlotHandlers(isMobile = false) {
                 const selector = isMobile ? '.mobile-time-slot' : '.time-slot';
@@ -2677,13 +2974,380 @@
             initializeSlotHandlers(false); // Desktop
             initializeSlotHandlers(true); // Mobile
             
-            // Add CSS for booked slots
+            // Reinitialize mobile touch support when DOM changes
+            const observer = new MutationObserver(function(mutations) {
+                let shouldReinitialize = false;
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1 && (node.classList.contains('slot-box') || node.querySelector('.time-slot, .mobile-time-slot'))) {
+                                shouldReinitialize = true;
+                            }
+                        });
+                    }
+                });
+                if (shouldReinitialize) {
+                    setTimeout(addMobileTouchSupport, 100);
+                }
+            });
+            
+            // Observe the appointment sections for changes
+            const appointmentSections = document.querySelectorAll('.appointment_types, .mobile-appointment-types');
+            appointmentSections.forEach(section => {
+                if (section) {
+                    observer.observe(section, { childList: true, subtree: true });
+                }
+            });
+            
+            // Add event delegation for dynamically created elements
+            document.addEventListener('click', function(e) {
+                // Handle plan selection buttons
+                if (e.target.classList.contains('select-plan') || e.target.closest('.select-plan')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const button = e.target.classList.contains('select-plan') ? e.target : e.target.closest('.select-plan');
+                    checkAuthenticationBeforePlanSelection(button);
+                }
+                
+                // Handle time slot labels
+                if (e.target.tagName === 'LABEL' && (e.target.previousElementSibling?.classList.contains('time-slot') || e.target.previousElementSibling?.classList.contains('mobile-time-slot'))) {
+                    e.preventDefault();
+                    const input = e.target.previousElementSibling;
+                    if (!input.disabled) {
+                        input.checked = !input.checked;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+            
+            // Add touch event delegation for better mobile support
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.classList.contains('select-plan') || e.target.closest('.select-plan')) {
+                    const button = e.target.classList.contains('select-plan') ? e.target : e.target.closest('.select-plan');
+                    button.style.transform = 'scale(0.95)';
+                    button.style.opacity = '0.8';
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+                if (e.target.classList.contains('select-plan') || e.target.closest('.select-plan')) {
+                    const button = e.target.classList.contains('select-plan') ? e.target : e.target.closest('.select-plan');
+                    button.style.transform = '';
+                    button.style.opacity = '';
+                }
+            }, { passive: true });
+            
+            // Add CSS for booked slots and mobile interactions
             const style = document.createElement('style');
             style.textContent = `
                 .slot-booked {
                     opacity: 0.6;
                     position: relative;
                 }
+                .slot-booked::after {
+                    content: "BOOKED";
+                }
+                
+                /* Mobile touch feedback */
+                @media (max-width: 768px) {
+                    .select-plan, .btn_1, .time-slot + label, .mobile-time-slot + label {
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    /* Mobile calendar styling */
+                    .flatpickr-calendar {
+                        width: 100% !important;
+                        max-width: 350px !important;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+                        border-radius: 12px !important;
+                        border: none !important;
+                    }
+                    
+                    .flatpickr-day {
+                        width: 40px !important;
+                        height: 40px !important;
+                        line-height: 40px !important;
+                        font-size: 14px !important;
+                        border-radius: 8px !important;
+                        margin: 2px !important;
+                    }
+                    
+                    .flatpickr-day.selected {
+                        background: #007bff !important;
+                        border-color: #0056b3 !important;
+                        box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
+                    }
+                    
+                    .flatpickr-day:hover {
+                        background: #e3f2fd !important;
+                        border-color: #007bff !important;
+                    }
+                    
+                    .select-plan::before, .btn_1::before, .time-slot + label::before, .mobile-time-slot + label::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        width: 0;
+                        height: 0;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.5);
+                        transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+                        transform: translate(-50%, -50%);
+                        pointer-events: none;
+                    }
+                    
+                    .select-plan:active::before, .btn_1:active::before, 
+                    .time-slot:checked + label::before, .mobile-time-slot:checked + label::before {
+                        width: 200px;
+                        height: 200px;
+                    }
+                    
+            /* Ensure tap targets are large enough */
+            .nav-link {
+                min-height: 48px !important;
+                padding: 12px 16px !important;
+            }
+            
+            /* Mobile navigation tabs styling */
+            .mobile-appointment-types .nav-tabs {
+                background: #f8f9fa !important;
+                padding: 8px !important;
+                border-radius: 12px !important;
+                border: none !important;
+                margin-bottom: 16px !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+            }
+            
+            .mobile-appointment-types .nav-tabs .nav-link {
+                border: 2px solid transparent !important;
+                border-radius: 8px !important;
+                margin: 4px !important;
+                background: #ffffff !important;
+                color: #495057 !important;
+                font-weight: 500 !important;
+                font-size: 13px !important;
+                min-width: 80px !important;
+                text-align: center !important;
+                transition: all 0.2s ease !important;
+                padding: 10px 12px !important;
+                min-height: 40px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .mobile-appointment-types .nav-tabs .nav-link.active {
+                background: #007bff !important;
+                color: white !important;
+                border-color: #0056b3 !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 8px rgba(0,123,255,0.3) !important;
+            }
+            
+            .mobile-appointment-types .nav-tabs .nav-link:hover:not(.active) {
+                background: #e3f2fd !important;
+                border-color: #007bff !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            /* Better spacing for mobile */
+            .slot-box {
+                margin: 4px 0 !important;
+            }
+            
+            /* Mobile selected time list styling */
+            #mobile-selected-time-list {
+                background: #f8f9fa !important;
+                border-radius: 12px !important;
+                padding: 16px !important;
+                margin: 16px 0 !important;
+                border: 2px solid #e9ecef !important;
+                min-height: 60px !important;
+            }
+            
+            #mobile-selected-time-list:empty::before {
+                content: '🕐 No time slots selected yet' !important;
+                color: #6c757d !important;
+                font-style: italic !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 40px !important;
+                font-size: 14px !important;
+            }
+            
+            #mobile-selected-time-list li {
+                background: linear-gradient(135deg, #28a745, #20c997) !important;
+                color: white !important;
+                padding: 12px 16px !important;
+                margin: 8px 0 !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                font-weight: 500 !important;
+                box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+            }
+            
+            #mobile-selected-time-list .remove-booking-item {
+                background: rgba(255, 255, 255, 0.2) !important;
+                color: white !important;
+                border: none !important;
+                width: 24px !important;
+                height: 24px !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 14px !important;
+                cursor: pointer !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            #mobile-selected-time-list .remove-booking-item:hover {
+                background: rgba(220, 53, 69, 0.8) !important;
+                transform: scale(1.1) !important;
+            }
+        }
+                
+                /* Mobile z-index and positioning fixes */
+                .mobile-appointment-types, .mobile-booking-section {
+                    position: relative !important;
+                    z-index: 10 !important;
+                }
+                
+                .mobile-appointment-types .nav-tabs {
+                    z-index: 11 !important;
+                    position: relative !important;
+                }
+                
+                .mobile-appointment-types .tab-content {
+                    z-index: 12 !important;
+                    position: relative !important;
+                    background: #ffffff !important;
+                }
+                
+                /* Mobile time slot visibility and styling fixes */
+                .mobile-appointment-types .slot-box {
+                    min-height: 50px !important;
+                    background: #ffffff !important;
+                    border: 2px solid #e9ecef !important;
+                    border-radius: 8px !important;
+                    padding: 12px 8px !important;
+                    margin: 8px 4px !important;
+                    text-align: center !important;
+                    cursor: pointer !important;
+                    transition: all 0.3s ease !important;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    color: #495057 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    position: relative !important;
+                    overflow: visible !important;
+                    z-index: 15 !important;
+                }
+                
+                .mobile-appointment-types .slot-box:hover {
+                    background: #e3f2fd !important;
+                    border-color: #007bff !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2) !important;
+                }
+                
+                .mobile-appointment-types .slot-box.selected {
+                    background: linear-gradient(135deg, #28a745, #20c997) !important;
+                    color: white !important;
+                    border-color: #28a745 !important;
+                    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+                }
+                
+                .mobile-appointment-types .slot-box.slot-booked {
+                    background: #f8d7da !important;
+                    color: #721c24 !important;
+                    border-color: #f5c6cb !important;
+                    cursor: not-allowed !important;
+                    opacity: 0.7 !important;
+                }
+                
+                /* Fix covered time slots issue */
+                .mobile-appointment-types .tab-pane {
+                    padding: 16px 8px !important;
+                    overflow: visible !important;
+                    min-height: 200px !important;
+                }
+                
+                .mobile-appointment-types .row {
+                    margin: 0 -4px !important;
+                    overflow: visible !important;
+                }
+                
+                .mobile-appointment-types .col-4 {
+                    padding: 0 4px !important;
+                    margin-bottom: 8px !important;
+                    overflow: visible !important;
+                }
+                
+                /* Mobile selected plan section styling to match desktop */
+                .mobile-booking-section .selected-plan-info {
+                    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+                    border: 2px solid #007bff !important;
+                    border-radius: 12px !important;
+                    padding: 20px !important;
+                    margin: 16px 0 !important;
+                    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15) !important;
+                }
+                
+                .mobile-booking-section .selected-plan-info h5 {
+                    color: #007bff !important;
+                    font-weight: 600 !important;
+                    margin-bottom: 12px !important;
+                    font-size: 18px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                }
+                
+                .mobile-booking-section .selected-plan-info h5::before {
+                    content: '📋 ' !important;
+                    margin-right: 8px !important;
+                }
+                
+                .mobile-booking-section .selected-plan-info p {
+                    margin: 8px 0 !important;
+                    font-size: 16px !important;
+                    color: #495057 !important;
+                    line-height: 1.5 !important;
+                }
+                
+                .mobile-booking-section .selected-plan-info strong {
+                    color: #28a745 !important;
+                    font-weight: 600 !important;
+                }
+                
+                /* Mobile booking summary styling */
+                .mobile-booking-section .booking-summary {
+                    background: #ffffff !important;
+                    border: 2px solid #28a745 !important;
+                    border-radius: 12px !important;
+                    padding: 20px !important;
+                    margin: 16px 0 !important;
+                    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15) !important;
+                }
+                
+                .mobile-booking-section .booking-summary h6 {
+                    color: #28a745 !important;
+                    font-weight: 600 !important;
+                    margin-bottom: 16px !important;
+                    padding-bottom: 8px !important;
+                    border-bottom: 2px solid #e9ecef !important;
+                    font-size: 16px !important;
+                }
+                
                 .slot-booked::after {
                     content: "BOOKED";
                     position: absolute;
@@ -2698,13 +3362,72 @@
                     white-space: nowrap;
                     z-index: 2;
                 }
+                
+                /* Mobile booking action buttons */
+                .mobile-booking-section .btn {
+                    min-height: 50px !important;
+                    font-size: 16px !important;
+                    font-weight: 600 !important;
+                    border-radius: 8px !important;
+                    transition: all 0.3s ease !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 0.5px !important;
+                    border: none !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+                }
+                
+                .mobile-booking-section .btn-primary {
+                    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+                    color: white !important;
+                }
+                
+                .mobile-booking-section .btn-primary:hover {
+                    background: linear-gradient(135deg, #0056b3, #004085) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3) !important;
+                }
+                
+                .mobile-booking-section .btn-success {
+                    background: linear-gradient(135deg, #28a745, #20c997) !important;
+                    color: white !important;
+                }
+                
+                .mobile-booking-section .btn-success:hover {
+                    background: linear-gradient(135deg, #218838, #1e7e34) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3) !important;
+                }
+                
+                /* Mobile responsive improvements */
+                @media (max-width: 480px) {
+                    .mobile-appointment-types .col-4 {
+                        flex: 0 0 50% !important;
+                        max-width: 50% !important;
+                    }
+                    
+                    .mobile-booking-section .btn {
+                        width: 100% !important;
+                        margin: 8px 0 !important;
+                    }
+                    
+                    .mobile-booking-section .selected-plan-info,
+                    .mobile-booking-section .booking-summary {
+                        margin: 12px 0 !important;
+                        padding: 16px !important;
+                    }
+                }
             `;
             document.head.appendChild(style);
 
             function updateSelectedTimeList() {
                 const list = document.getElementById('selected-time-list');
-                if (list) {
-                    list.innerHTML = '';
+                const mobileList = document.getElementById('mobile-selected-time-list');
+                
+                // Clear both lists
+                if (list) list.innerHTML = '';
+                if (mobileList) mobileList.innerHTML = '';
+                
+                if (list || mobileList) {
 
                     // Sort the dates first
                     const sortedDates = Object.keys(selectedBookings).sort();
@@ -2716,18 +3439,32 @@
                         });
 
                         sortedTimes.forEach(time => {
-                            const item = document.createElement('li');
-                            item.classList.add('selected-booking-item');
                             // Convert YYYY-MM-DD to dd/mm/yy for display
                             let [year, month, day] = date.split('-');
                             let displayDate = `${day}/${month}/${year.slice(-2)}`;
-                            item.innerHTML = `
+                            
+                            const itemHTML = `
                                 <span>${displayDate} - ${time}</span>
                                 <button type="button" class="remove-booking-item" data-date="${date}" data-time="${time}" aria-label="Remove booking">
                                     &#x2716;
                                 </button>
                             `;
-                            list.appendChild(item);
+                            
+                            // Add to desktop list
+                            if (list) {
+                                const item = document.createElement('li');
+                                item.classList.add('selected-booking-item');
+                                item.innerHTML = itemHTML;
+                                list.appendChild(item);
+                            }
+                            
+                            // Add to mobile list  
+                            if (mobileList) {
+                                const mobileItem = document.createElement('li');
+                                mobileItem.classList.add('selected-booking-item');
+                                mobileItem.innerHTML = itemHTML;
+                                mobileList.appendChild(mobileItem);
+                            }
                         });
                     });
                     const bookingDataInput = document.getElementById('booking_data_json');
@@ -2765,25 +3502,47 @@
                 }
             }
 
-            // Handle plan selection
+            // Handle plan selection for both desktop and mobile
             const planButtons = document.querySelectorAll('.select-plan');
             const selectedPlanDisplay = document.getElementById('selected-plan-display');
             const selectedPlanText = document.getElementById('selected-plan-text');
             const selectedPlanInput = document.getElementById('selected_plan');
+            
+            // Mobile elements
+            const mobileSelectedPlanDisplay = document.getElementById('mobile-selected-plan-display');
+            const mobileSelectedPlanText = document.getElementById('mobile-selected-plan-text');
+            const mobileSelectedPlanInput = document.getElementById('mobile-selected_plan');
+            
             let sessionCount = 0; 
             let selectedRate = 0;
 
             planButtons.forEach(button => {
-                button.addEventListener('click', function () {
+                // Improved mobile button handling
+                const handlePlanClick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     // First check if user is logged in before allowing plan selection
                     checkAuthenticationBeforePlanSelection(this);
-                });
+                };
+                
+                // Add both click and touch events for better mobile support
+                button.addEventListener('click', handlePlanClick);
+                button.addEventListener('touchstart', handlePlanClick, { passive: false });
+                
+                // Add visual feedback for touch
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                    this.style.opacity = '0.8';
+                }, { passive: true });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                    this.style.opacity = '';
+                }, { passive: true });
             });
 
             // Function to check authentication before plan selection
             function checkAuthenticationBeforePlanSelection(planButton) {
-                console.log('Checking authentication for plan selection...');
-                
                 fetch('/check-login', {
                     method: 'POST',
                     headers: {
@@ -2795,51 +3554,36 @@
                     })
                 })
                 .then(response => {
-                    console.log('Authentication response status:', response.status);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Authentication response data:', data);
                     if (data.logged_in) {
                         // User is logged in, proceed with plan selection
-                        console.log('User is authenticated, selecting plan...');
                         selectPlan(planButton);
                     } else {
                         // User is not logged in, show login popup
-                        console.log('User is not authenticated, showing login popup...');
-                        console.log('Swal object available:', typeof Swal);
                         showLoginPopupForPlanSelection(planButton);
                     }
                 })
                 .catch(error => {
-                    console.error('Error checking login status:', error);
                     // On error, show login popup (safer fallback)
-                    console.log('Error occurred, showing login popup as fallback...');
                     showLoginPopupForPlanSelection(planButton);
                 });
             }
 
             // Function to show login popup for plan selection
             function showLoginPopupForPlanSelection(planButton) {
-                console.log('showLoginPopupForPlanSelection called');
-                console.log('Swal available:', typeof Swal !== 'undefined');
-                
                 const plan = planButton.getAttribute('data-plan');
                 const planDisplayName = plan.split('_')
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
 
-                console.log('Plan:', plan, 'Display name:', planDisplayName);
-
                 // Check if Swal is available
                 if (typeof Swal === 'undefined') {
-                    console.error('SweetAlert2 not loaded!');
                     alert('Please login to select a consultation plan and proceed with booking.');
                     window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
                     return;
                 }
-
-                console.log('Showing SweetAlert popup...');
 
                 // Show the login popup with custom styling
                 Swal.fire({
@@ -2857,7 +3601,6 @@
                     background: 'linear-gradient(135deg, #152a70, #c51010, #f39c12)',
                     backdrop: 'rgba(0,0,0,0.8)'
                 }).then((result) => {
-                    console.log('SweetAlert result:', result);
                     if (result.isConfirmed) {
                         // Redirect to login with current professional page as intended destination
                         window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
@@ -2871,16 +3614,30 @@
                 const plan = planButton.getAttribute('data-plan');
                 sessionCount = parseInt(planButton.getAttribute('data-sessions')); 
                 selectedRate = parseFloat(planButton.getAttribute('data-rate'));
-                selectedPlanInput.value = plan;
                 
                 // Format the plan name for display
                 const displayPlan = plan.split('_')
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
-                    
-                selectedPlanText.textContent = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
-                selectedPlanDisplay.style.display = 'block';
-                selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                
+                const displayText = `${displayPlan} Consultation (Total ${sessionCount} Sessions)`;
+                
+                // Update desktop elements
+                if (selectedPlanInput) selectedPlanInput.value = plan;
+                if (selectedPlanText) selectedPlanText.textContent = displayText;
+                if (selectedPlanDisplay) {
+                    selectedPlanDisplay.style.display = 'block';
+                    selectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Update mobile elements
+                if (mobileSelectedPlanInput) mobileSelectedPlanInput.value = plan;
+                if (mobileSelectedPlanText) mobileSelectedPlanText.textContent = displayText;
+                if (mobileSelectedPlanDisplay) {
+                    mobileSelectedPlanDisplay.style.display = 'block';
+                    mobileSelectedPlanDisplay.scrollIntoView({ behavior: 'smooth' });
+                }
+                
             }
 
             // Handle booking submission for both desktop and mobile
@@ -2903,12 +3660,27 @@
             // Initialize booking handlers for both desktop and mobile
             initializeBookingHandlers(false); // Desktop
             initializeBookingHandlers(true); // Mobile
+            
+            // Mobile booking validation helper
+            function validateMobileBookingState() {
+                const isMobile = window.innerWidth <= 768;
+                if (!isMobile) return true;
+                
+                // Ensure required mobile elements exist
+                const mobileList = document.getElementById('mobile-selected-time-list');
+                const mobileBookBtn = document.getElementById('mobile-bookNowBtn');
+                const mobilePlanInput = document.getElementById('mobile-selected_plan');
+                
+                return mobileList && mobileBookBtn && mobilePlanInput;
+            }
 
             // Function to proceed with booking (for authenticated users)
             function proceedWithBooking() {
-                const planType = selectedPlanInput.value;
+                // Check both desktop and mobile plan inputs
+                const planType = (selectedPlanInput && selectedPlanInput.value) || 
+                               (mobileSelectedPlanInput && mobileSelectedPlanInput.value);
                 const bookingData = selectedBookings;
-
+                
                 // Get the number of dates selected by the user
                 const selectedDatesCount = Object.keys(bookingData).length;
 

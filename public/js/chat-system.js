@@ -35,8 +35,6 @@ class ChatSystem {
         this.bindEvents();
         this.startActivityTracking();
         this.checkUnreadMessages();
-        
-        // Check for unread messages every 30 seconds
         setInterval(() => {
             this.checkUnreadMessages();
         }, 30000);
