@@ -18,15 +18,29 @@ yarn-error.log
 /.idea
 /.vscode
 
-# Ignore large files and vendor binaries
+# Ignore large files and media uploads
+/storage/app/public/*
 /public/admin/assets/audio/*.mp3
 /public/admin/assets/audio/*.wav
 /public/admin/assets/audio/*.mp4
+/public/frontend/assets/video/*.mp4
+/public/frontend/assets/video/*.mov
+/public/frontend/assets/video/*.avi
 /vendor/**/builds/
 /vendor/**/pint
 
+# Ignore large file types globally
+*.mp4
+*.mp3
+*.mov
+*.avi
+*.zip
+*.rar
+*.psd
+*.ai
+*.eps
+
 # Ignore uploaded media and storage files
 /storage/app/public/
-/public/frontend/assets/video/
 /public/frontend/assets/img/slides/
 /public/frontend/assets/img/services-pic/
