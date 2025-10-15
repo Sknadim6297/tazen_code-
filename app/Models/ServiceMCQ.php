@@ -14,11 +14,7 @@ class ServiceMCQ extends Model
         'question',
         'question_type',
         'options',
-        'has_other_option',
-        'answer1',
-        'answer2',
-        'answer3',
-        'answer4'
+        'has_other_option'
     ];
 
     protected $casts = [
@@ -29,5 +25,33 @@ class ServiceMCQ extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * Get formatted options for display
+     */
+    public function getFormattedOptionsAttribute()
+    {
+        if (is_array($this->options)) {
+            return $this->options;
+        }
+        
+        // Fallback to answer1-4 format if options is empty
+        return array_filter([
+            'A' => $this->answer1,
+            'B' => $this->answer2,
+            'C' => $this->answer3,
+            'D' => $this->answer4
+        ]);
+    }
+
+    /**
+     * Get all MCQ questions for a specific service
+     */
+    public static function getQuestionsForService($serviceId)
+    {
+        return self::where('service_id', $serviceId)
+                   ->where('question_type', 'mcq')
+                   ->get();
     }
 }

@@ -36,6 +36,10 @@
                 <i class="fas fa-clock"></i>
                 <span>Events</span>
             </a>
+            <a href="{{ route('user.additional-services.index') }}" class="menu-item {{ Route::is('user.additional-services.*') ? 'active' : '' }}">
+                <i class="fas fa-plus-square"></i>
+                <span>Additional Services</span>
+            </a>
 
             <div class="menu-title">Billing</div>
             <a href="{{ route('user.billing.index') }}" class="menu-item {{ Route::is('user.billing.*') ? 'active' : '' }}">

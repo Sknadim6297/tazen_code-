@@ -7,6 +7,19 @@
     $profile = $professional ? Profile::where('professional_id', $professional->id)->first() : null;
 @endphp
 
+@php
+    // Ensure notification-related variables exist to avoid undefined variable errors
+    // when the view is rendered without an authenticated professional.
+    $newBookings = $newBookings ?? 0;
+    $rescheduleCount = $rescheduleCount ?? 0;
+    $rescheduleNotifications = $rescheduleNotifications ?? collect();
+    $hasServices = $hasServices ?? false;
+    $hasRates = $hasRates ?? false;
+    $hasAvailability = $hasAvailability ?? false;
+    $hasRequestedServices = $hasRequestedServices ?? false;
+    $totalNotifications = $totalNotifications ?? 0;
+@endphp
+
 <div class="header">
     <div class="header-left">
         <div class="toggle-sidebar">
@@ -52,8 +65,16 @@
                 // Check if professional has requested services (other information)
                 $hasRequestedServices = \App\Models\ProfessionalOtherInformation::where('professional_id', $professionalId)->exists();
                 
+                // Check for additional service notifications
+                $additionalServiceNotifications = DB::table('notifications')
+                    ->where('notifiable_type', 'App\Models\Professional')
+                    ->where('notifiable_id', $professionalId)
+                    ->where('type', 'App\Notifications\AdditionalServiceNotification')
+                    ->whereNull('read_at')
+                    ->count();
+                
                 // Count total notifications (including reschedule notifications in icon)
-                $totalNotifications = $newBookings + $rescheduleCount;
+                $totalNotifications = $newBookings + $rescheduleCount + $additionalServiceNotifications;
                 if (!$hasServices) $totalNotifications++;
                 if (!$hasRates) $totalNotifications++;
                 if (!$hasAvailability) $totalNotifications++;
@@ -87,7 +108,13 @@
 
             <div class="user-profile-wrapper">
                 <div class="user-profile">
-                    <img src="{{ $profile && $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
+                    @php
+                        $profileImage = $profile && $profile->photo ? $profile->photo : null;
+                        $imageUrl = $profileImage && file_exists(public_path('storage/' . $profileImage)) 
+                            ? asset('storage/' . $profileImage) 
+                            : asset('default.jpg');
+                    @endphp
+                    <img src="{{ $imageUrl }}" alt="Profile Photo">
                 </div>
                 
                 <div class="user-info">

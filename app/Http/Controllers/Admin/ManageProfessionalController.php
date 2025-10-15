@@ -308,32 +308,62 @@ class ManageProfessionalController extends Controller
     public function updateMargin(Request $request, $id)
     {
         try {
-            $request->validate([
-                'margin_percentage' => 'required|numeric|min:0|max:100',
-            ]);
+            // Validate both old format (margin_percentage) and new format (margin, service_request_margin, service_request_offset)
+            $rules = [];
+            
+            // Check if it's the old format (single margin field)
+            if ($request->has('margin_percentage')) {
+                $rules['margin_percentage'] = 'required|numeric|min:0|max:100';
+            } else {
+                // New format with all commission fields
+                $rules = [
+                    'margin' => 'required|numeric|min:0|max:100',
+                    'service_request_margin' => 'required|numeric|min:0|max:100',
+                    'service_request_offset' => 'required|numeric|min:0|max:100',
+                ];
+            }
+            
+            $request->validate($rules);
 
             $professional = \App\Models\Professional::findOrFail($id);
-            $professional->margin = $request->margin_percentage;
+            
+            // Update based on the format received
+            if ($request->has('margin_percentage')) {
+                // Old format - only update margin
+                $professional->margin = $request->margin_percentage;
+            } else {
+                // New format - update all commission settings
+                $professional->update([
+                    'margin' => $request->margin,
+                    'service_request_margin' => $request->service_request_margin,
+                    'service_request_offset' => $request->service_request_offset,
+                ]);
+            }
+            
             $professional->save();
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Margin updated successfully',
-                    'margin' => $professional->margin
+                    'message' => 'Commission settings updated successfully',
+                    'data' => [
+                        'margin' => $professional->margin,
+                        'service_request_margin' => $professional->service_request_margin,
+                        'service_request_offset' => $professional->service_request_offset,
+                    ]
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Margin updated successfully');
+            return redirect()->back()->with('success', 'Commission settings updated successfully');
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error updating margin: ' . $e->getMessage()
+                    'message' => 'Error updating commission settings: ' . $e->getMessage()
                 ], 422);
             }
 
-            return redirect()->back()->with('error', 'Error updating margin: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating commission settings: ' . $e->getMessage());
         }
     }
 
@@ -643,7 +673,8 @@ class ManageProfessionalController extends Controller
     public function storeAvailability(Request $request, $professionalId)
     {
         $request->validate([
-            'month' => 'required|string',
+            'months' => 'required|array|min:1',
+            'months.*' => 'string|regex:/^\d{4}-\d{2}$/',
             'session_duration' => 'required|integer|min:15',
             'weekdays' => 'required|array|min:1',
             'weekdays.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
@@ -653,44 +684,82 @@ class ManageProfessionalController extends Controller
         ]);
 
         $professional = Professional::findOrFail($professionalId);
-
-        // Check if availability for this month already exists
-        $existingAvailability = Availability::where('professional_id', $professionalId)
-                                            ->where('month', $request->month)
-                                            ->first();
-
-        if ($existingAvailability) {
-            return back()->with('error', 'Availability for this month already exists.');
-        }
+        
+        $successfulMonths = [];
+        $skippedMonths = [];
+        $errorMonths = [];
 
         DB::beginTransaction();
         try {
-            $availability = Availability::create([
-                'professional_id' => $professionalId,
-                'month' => $request->month,
-                'session_duration' => $request->session_duration,
-                'weekdays' => json_encode($request->weekdays)
-            ]);
+            foreach ($request->months as $month) {
+                // Check if availability for this month already exists
+                $existingAvailability = Availability::where('professional_id', $professionalId)
+                                                    ->where('month', $month)
+                                                    ->first();
 
-            // Create slots
-            foreach ($request->slots as $slot) {
-                $availability->slots()->create([
-                    'start_time' => $slot['start_time'],
-                    'end_time' => $slot['end_time']
-                ]);
+                if ($existingAvailability) {
+                    $skippedMonths[] = $month;
+                    continue;
+                }
+
+                try {
+                    $availability = Availability::create([
+                        'professional_id' => $professionalId,
+                        'month' => $month,
+                        'session_duration' => $request->session_duration,
+                        'weekdays' => json_encode($request->weekdays)
+                    ]);
+
+                    // Create slots
+                    foreach ($request->slots as $slot) {
+                        $availability->slots()->create([
+                            'start_time' => $slot['start_time'],
+                            'end_time' => $slot['end_time']
+                        ]);
+                    }
+                    
+                    $successfulMonths[] = $month;
+                } catch (\Exception $e) {
+                    $errorMonths[] = $month;
+                    \Log::error("Failed to create availability for month {$month}: " . $e->getMessage());
+                }
             }
 
             DB::commit();
             
+            // Prepare response message
+            $message = '';
+            if (count($successfulMonths) > 0) {
+                $message .= 'Availability created for ' . count($successfulMonths) . ' month(s). ';
+            }
+            if (count($skippedMonths) > 0) {
+                $message .= count($skippedMonths) . ' month(s) already had availability and were skipped. ';
+            }
+            if (count($errorMonths) > 0) {
+                $message .= count($errorMonths) . ' month(s) failed to save due to errors. ';
+            }
+            
+            $isSuccess = count($successfulMonths) > 0;
+            
             // Return JSON response for AJAX requests
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Availability added successfully!'
+                    'success' => $isSuccess,
+                    'message' => $message ?: 'No availability was created.',
+                    'details' => [
+                        'successful' => $successfulMonths,
+                        'skipped' => $skippedMonths,
+                        'errors' => $errorMonths
+                    ]
                 ]);
             }
             
-            return back()->with('success', 'Availability added successfully!');
+            if ($isSuccess) {
+                return back()->with('success', $message);
+            } else {
+                return back()->with('error', $message ?: 'Failed to create any availability.');
+            }
+            
         } catch (\Exception $e) {
             DB::rollback();
             
@@ -713,7 +782,8 @@ class ManageProfessionalController extends Controller
     public function updateAvailability(Request $request, $professionalId, $availabilityId)
     {
         $request->validate([
-            'month' => 'required|string',
+            'months' => 'required|array|min:1',
+            'months.*' => 'string|regex:/^\d{4}-\d{2}$/',
             'session_duration' => 'required|integer|min:15',
             'weekdays' => 'required|array|min:1',
             'weekdays.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
@@ -728,33 +798,115 @@ class ManageProfessionalController extends Controller
 
         DB::beginTransaction();
         try {
-            // Update availability
-            $availability->update([
-                'month' => $request->month,
-                'session_duration' => $request->session_duration,
-                'weekdays' => json_encode($request->weekdays)
-            ]);
-
-            // Delete existing slots and create new ones
-            $availability->slots()->delete();
-            foreach ($request->slots as $slot) {
-                $availability->slots()->create([
-                    'start_time' => $slot['start_time'],
-                    'end_time' => $slot['end_time']
+            // If user selected multiple months, we need to handle this carefully
+            // For edit mode, we'll update the current availability to the first selected month
+            // and create new ones for additional months
+            
+            $selectedMonths = $request->months;
+            $firstMonth = array_shift($selectedMonths); // Get and remove first month
+            
+            $successfulMonths = [];
+            $skippedMonths = [];
+            $errorMonths = [];
+            
+            // Update the existing availability with the first selected month
+            // Check if another availability already exists for this month (excluding current one)
+            $conflictingAvailability = Availability::where('professional_id', $professionalId)
+                                                    ->where('month', $firstMonth)
+                                                    ->where('id', '!=', $availabilityId)
+                                                    ->first();
+            
+            if ($conflictingAvailability) {
+                $skippedMonths[] = $firstMonth;
+            } else {
+                // Update availability
+                $availability->update([
+                    'month' => $firstMonth,
+                    'session_duration' => $request->session_duration,
+                    'weekdays' => json_encode($request->weekdays)
                 ]);
+
+                // Delete existing slots and create new ones
+                $availability->slots()->delete();
+                foreach ($request->slots as $slot) {
+                    $availability->slots()->create([
+                        'start_time' => $slot['start_time'],
+                        'end_time' => $slot['end_time']
+                    ]);
+                }
+                
+                $successfulMonths[] = $firstMonth;
+            }
+            
+            // Create new availabilities for additional months
+            foreach ($selectedMonths as $month) {
+                $existingAvailability = Availability::where('professional_id', $professionalId)
+                                                    ->where('month', $month)
+                                                    ->first();
+
+                if ($existingAvailability) {
+                    $skippedMonths[] = $month;
+                    continue;
+                }
+
+                try {
+                    $newAvailability = Availability::create([
+                        'professional_id' => $professionalId,
+                        'month' => $month,
+                        'session_duration' => $request->session_duration,
+                        'weekdays' => json_encode($request->weekdays)
+                    ]);
+
+                    // Create slots
+                    foreach ($request->slots as $slot) {
+                        $newAvailability->slots()->create([
+                            'start_time' => $slot['start_time'],
+                            'end_time' => $slot['end_time']
+                        ]);
+                    }
+                    
+                    $successfulMonths[] = $month;
+                } catch (\Exception $e) {
+                    $errorMonths[] = $month;
+                    \Log::error("Failed to create availability for month {$month}: " . $e->getMessage());
+                }
             }
 
             DB::commit();
             
+            // Prepare response message
+            $message = '';
+            if (count($successfulMonths) > 0) {
+                $message .= 'Availability updated/created for ' . count($successfulMonths) . ' month(s). ';
+            }
+            if (count($skippedMonths) > 0) {
+                $message .= count($skippedMonths) . ' month(s) already had availability and were skipped. ';
+            }
+            if (count($errorMonths) > 0) {
+                $message .= count($errorMonths) . ' month(s) failed to save due to errors. ';
+            }
+            
+            $isSuccess = count($successfulMonths) > 0;
+            
             // Return JSON response for AJAX requests
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Availability updated successfully!'
+                    'success' => $isSuccess,
+                    'message' => $message ?: 'No availability was updated.',
+                    'details' => [
+                        'successful' => $successfulMonths,
+                        'skipped' => $skippedMonths,
+                        'errors' => $errorMonths
+                    ]
                 ]);
             }
             
-            return back()->with('success', 'Availability updated successfully!');
+            if ($isSuccess) {
+                return back()->with('success', $message);
+            } else {
+                return back()->with('error', $message ?: 'Failed to update any availability.');
+            }
+            
         } catch (\Exception $e) {
             DB::rollback();
             
@@ -810,6 +962,45 @@ class ManageProfessionalController extends Controller
             }
             
             return back()->with('error', 'Failed to delete availability.');
+        }
+    }
+
+    /**
+     * Update commission settings for a professional
+     */
+    public function updateCommission(Request $request, $id)
+    {
+        $request->validate([
+            'margin' => 'required|numeric|min:0|max:100',
+            'service_request_margin' => 'required|numeric|min:0|max:100',
+            'service_request_offset' => 'required|numeric|min:0|max:100',
+        ]);
+
+        try {
+            $professional = Professional::findOrFail($id);
+            
+            $professional->update([
+                'margin' => $request->margin,
+                'service_request_margin' => $request->service_request_margin,
+                'service_request_offset' => $request->service_request_offset,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Commission settings updated successfully.',
+                'data' => [
+                    'margin' => $professional->margin,
+                    'service_request_margin' => $professional->service_request_margin,
+                    'service_request_offset' => $professional->service_request_offset,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update commission settings.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

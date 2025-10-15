@@ -78,17 +78,24 @@
 
     .btn-group {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.25rem;
+        flex-wrap: wrap;
     }
 
     .btn {
-        padding: 0.5rem 1rem;
+        padding: 0.375rem 0.75rem;
         border-radius: 6px;
         font-weight: 500;
         text-decoration: none;
         border: none;
         cursor: pointer;
         transition: all 0.2s ease;
+        font-size: 0.875rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
     }
 
     .btn-primary {
@@ -331,6 +338,51 @@
         margin-left: 8px;
         min-width: auto;
     }
+
+    /* Month selection styling */
+    .month-selection-container {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .month-checkbox-label {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .month-checkbox-label:hover {
+        background: #f3f4f6;
+        border-color: #4f46e5;
+    }
+
+    .month-checkbox-label input[type="checkbox"]:checked + span {
+        font-weight: 600;
+        color: #4f46e5;
+    }
+
+    .months-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    #selectAllMonths:checked ~ .months-grid .month-checkbox-label {
+        background: #f0f9ff;
+        border-color: #4f46e5;
+    }
+
+    #editSelectAllMonths:checked ~ #editMonthsGrid .month-checkbox-label {
+        background: #f0f9ff;
+        border-color: #4f46e5;
+    }
 </style>
 @endsection
 
@@ -384,13 +436,35 @@
                             <div class="availability-header">
                                 <div>
                                     @php
-                                        $monthNames = [
-                                            'jan' => 'January', 'feb' => 'February', 'mar' => 'March', 
-                                            'apr' => 'April', 'may' => 'May', 'jun' => 'June',
-                                            'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
-                                            'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
-                                        ];
-                                        $fullMonth = $monthNames[$availability->month] ?? ucfirst($availability->month);
+                                        // Handle both old format (jan, feb, etc.), new format (2025-10),
+                                        // and the special 'all_months' value which means the next 6 months.
+                                        $monthValue = $availability->month;
+
+                                        if ($monthValue === 'all_months') {
+                                            // Build a human-readable list of the next 6 months
+                                            $months = [];
+                                            $currentDate = now();
+                                            for ($i = 0; $i < 6; $i++) {
+                                                $months[] = $currentDate->copy()->addMonths($i)->format('F Y');
+                                            }
+                                            $fullMonth = implode(', ', $months);
+                                        } elseif (strpos($monthValue, '-') !== false) {
+                                            // New format: 2025-10
+                                            try {
+                                                $fullMonth = \Carbon\Carbon::createFromFormat('Y-m', $monthValue)->format('F Y');
+                                            } catch (\Exception $e) {
+                                                $fullMonth = $monthValue;
+                                            }
+                                        } else {
+                                            // Old format: jan, feb, etc.
+                                            $monthNames = [
+                                                'jan' => 'January', 'feb' => 'February', 'mar' => 'March', 
+                                                'apr' => 'April', 'may' => 'May', 'jun' => 'June',
+                                                'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
+                                                'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
+                                            ];
+                                            $fullMonth = $monthNames[$monthValue] ?? ucfirst($monthValue);
+                                        }
                                     @endphp
                                     <h3 class="availability-month">{{ $fullMonth }}</h3>
                                     <div class="availability-duration">{{ $availability->session_duration }} min sessions</div>
@@ -410,11 +484,14 @@
                                     @endif
                                 </div>
                                 <div class="btn-group">
-                                    <button onclick="editAvailability({{ $availability->id }})" class="btn btn-primary">
+                                    <button onclick="editAvailability({{ $availability->id }})" class="btn btn-primary btn-sm">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
-                                    <button onclick="deleteAvailability({{ $availability->id }})" class="btn btn-danger">
+                                    <button onclick="deleteAvailability({{ $availability->id }})" class="btn btn-danger btn-sm">
                                         <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                    <button onclick="editSpecificMonth('{{ $availability->month }}', {{ $availability->id }})" class="btn btn-info btn-sm">
+                                        <i class="fas fa-calendar-edit"></i> Edit This Month Only
                                     </button>
                                 </div>
                             </div>
@@ -424,8 +501,18 @@
                                     @foreach($availability->slots as $slot)
                                         <div class="slot-badge">
                                             @php
-                                                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('g:i A');
-                                                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('g:i A');
+                                                // Use Carbon::parse so both "H:i" and "H:i:s" are accepted
+                                                try {
+                                                    $startTime = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
+                                                } catch (\Exception $e) {
+                                                    $startTime = $slot->start_time;
+                                                }
+
+                                                try {
+                                                    $endTime = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
+                                                } catch (\Exception $e) {
+                                                    $endTime = $slot->end_time;
+                                                }
                                             @endphp
                                             {{ $startTime }} - {{ $endTime }}
                                         </div>
@@ -473,36 +560,46 @@
             <form id="addAvailabilityForm">
                 @csrf
                 <div class="modal-body">
-                    <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group">
-                            <label for="month">Select Month</label>
-                            <select class="form-control" id="month" name="month" required>
-                                <option value="">Select Month</option>
+                    <div class="form-group mb-3">
+                        <label>Select Months</label>
+                        <div class="month-selection-container" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                            <div class="d-flex align-items-center mb-3">
+                                <label class="d-flex align-items-center mb-0" style="cursor: pointer;">
+                                    <input type="checkbox" id="selectAllMonths" class="mr-2">
+                                    <strong>Select All Next 6 Months</strong>
+                                </label>
+                            </div>
+                            <div class="months-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
                                 @php
-                                    $currentMonth = now()->format('n');
-                                    $months = [
-                                        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                                        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                                        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
-                                    ];
+                                    $currentDate = now();
+                                    for ($i = 0; $i < 6; $i++) {
+                                        $monthDate = $currentDate->copy()->addMonths($i);
+                                        $monthKey = $monthDate->format('Y-m'); // e.g., 2025-10
+                                        $monthDisplay = $monthDate->format('F Y'); // e.g., October 2025
                                 @endphp
-                                @foreach($months as $num => $name)
-                                    @if($num >= $currentMonth)
-                                        <option value="{{ strtolower(substr($name, 0, 3)) }}">{{ $name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                                        <label class="month-checkbox-label" style="display: flex; align-items: center; padding: 8px 12px; background: white; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="checkbox" name="months[]" value="{{ $monthKey }}" class="month-checkbox mr-2">
+                                            <span>{{ $monthDisplay }}</span>
+                                        </label>
+                                @php
+                                    }
+                                @endphp
+                            </div>
+                            <div class="text-muted mt-2" style="font-size: 0.875rem;">
+                                <i class="fas fa-info-circle"></i>
+                                Select one or multiple months to create availability schedules.
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="session_duration">Session Duration</label>
-                            <select class="form-control" id="session_duration" name="session_duration" required>
-                                @foreach([30, 45, 60, 90, 120] as $duration)
-                                    <option value="{{ $duration }}" {{ $duration == 60 ? 'selected' : '' }}>
-                                        {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="session_duration">Session Duration</label>
+                        <select class="form-control" id="session_duration" name="session_duration" required>
+                            @foreach([30, 45, 60, 90, 120] as $duration)
+                                <option value="{{ $duration }}" {{ $duration == 60 ? 'selected' : '' }}>
+                                    {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Select Week Days</label>
@@ -521,8 +618,18 @@
                         <!-- Individual Slot Generator -->
                         <div class="slot-config">
                             <div>
-                                <label for="slotStartTime">Slot Start Time</label>
-                                <input type="text" id="slotStartTime" class="form-control" placeholder="e.g., 3:00 PM, 15:00" />
+                                <label>Slot Start Time</label>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <input type="text" id="slotHour" class="form-control" style="width: 80px;" placeholder="Hr" maxlength="2">
+                                    <span>:</span>
+                                    <input type="text" id="slotMinute" class="form-control" style="width: 80px;" placeholder="MM" maxlength="2">
+                                    <select id="slotAMPM" class="form-control" style="width: 80px;">
+                                        <option value="">--</option>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" id="slotStartTime" />
                             </div>
                             <div>
                                 <button type="button" class="btn btn-success" id="addGeneratedSlotBtn">
@@ -533,8 +640,8 @@
                         
                         <div class="text-muted mb-3" style="font-size: 0.9em;">
                             <i class="fas fa-info-circle"></i> 
-                            Add individual time slots. End time will be calculated automatically based on session duration.
-                            <br>Examples: "3:00 PM" → 3:00-3:30 PM (30min), "15:00" → 3:00-4:00 PM (60min)
+                            Add individual time slots using AM/PM format only. End time will be calculated automatically based on session duration.
+                            <br>Examples: "9:00 AM" → 9:00-9:30 AM (30min), "3:00 PM" → 3:00-4:00 PM (60min)
                         </div>
 
                         <!-- Generated Slots Preview -->
@@ -545,21 +652,6 @@
                                 <i class="fas fa-trash"></i> Clear All Slots
                             </button>
                         </div>
-
-                        <!-- Toggle Manual Mode -->
-                        <div style="text-align: center; margin: 15px 0;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleManualMode">
-                                <i class="fas fa-cog"></i> Switch to Manual Mode
-                            </button>
-                        </div>
-
-                        <!-- Manual Time Slots Container (fallback) -->
-                        <div id="timeSlotsContainer" style="display: none;">
-                            <!-- Dynamic time slots will be added here -->
-                        </div>
-                        <button type="button" class="btn btn-success btn-sm" id="addSlotBtn" style="display: none;">
-                            <i class="fas fa-plus"></i> Add Manual Time Slot
-                        </button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -585,36 +677,46 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group">
-                            <label for="edit_month">Select Month</label>
-                            <select class="form-control" id="edit_month" name="month" required>
-                                <option value="">Select Month</option>
+                    <div class="form-group mb-3">
+                        <label>Select Months</label>
+                        <div class="month-selection-container" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                            <div class="d-flex align-items-center mb-3">
+                                <label class="d-flex align-items-center mb-0" style="cursor: pointer;">
+                                    <input type="checkbox" id="editSelectAllMonths" class="mr-2">
+                                    <strong>Select All Next 6 Months</strong>
+                                </label>
+                            </div>
+                            <div class="months-grid" id="editMonthsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
                                 @php
-                                    $currentMonth = now()->format('n');
-                                    $months = [
-                                        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                                        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                                        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
-                                    ];
+                                    $currentDate = now();
+                                    for ($i = 0; $i < 6; $i++) {
+                                        $monthDate = $currentDate->copy()->addMonths($i);
+                                        $monthKey = $monthDate->format('Y-m'); // e.g., 2025-10
+                                        $monthDisplay = $monthDate->format('F Y'); // e.g., October 2025
                                 @endphp
-                                @foreach($months as $num => $name)
-                                    @if($num >= $currentMonth)
-                                        <option value="{{ strtolower(substr($name, 0, 3)) }}">{{ $name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                                        <label class="month-checkbox-label" style="display: flex; align-items: center; padding: 8px 12px; background: white; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="checkbox" name="months[]" value="{{ $monthKey }}" class="edit-month-checkbox mr-2">
+                                            <span>{{ $monthDisplay }}</span>
+                                        </label>
+                                @php
+                                    }
+                                @endphp
+                            </div>
+                            <div class="text-muted mt-2" style="font-size: 0.875rem;">
+                                <i class="fas fa-info-circle"></i>
+                                Select one or multiple months to create availability schedules.
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="edit_session_duration">Session Duration</label>
-                            <select class="form-control" id="edit_session_duration" name="session_duration" required>
-                                @foreach([30, 45, 60, 90, 120] as $duration)
-                                    <option value="{{ $duration }}">
-                                        {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="edit_session_duration">Session Duration</label>
+                        <select class="form-control" id="edit_session_duration" name="session_duration" required>
+                            @foreach([30, 45, 60, 90, 120] as $duration)
+                                <option value="{{ $duration }}">
+                                    {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Select Week Days</label>
@@ -633,8 +735,18 @@
                         <!-- Individual Slot Generator -->
                         <div class="slot-config">
                             <div>
-                                <label for="editSlotStartTime">Slot Start Time</label>
-                                <input type="text" id="editSlotStartTime" class="form-control" placeholder="e.g., 3:00 PM, 15:00" />
+                                <label>Slot Start Time</label>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <input type="text" id="editSlotHour" class="form-control" style="width: 80px;" placeholder="Hr" maxlength="2">
+                                    <span>:</span>
+                                    <input type="text" id="editSlotMinute" class="form-control" style="width: 80px;" placeholder="MM" maxlength="2">
+                                    <select id="editSlotAMPM" class="form-control" style="width: 80px;">
+                                        <option value="">--</option>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" id="editSlotStartTime" />
                             </div>
                             <div>
                                 <button type="button" class="btn btn-success" id="editAddGeneratedSlotBtn">
@@ -645,8 +757,8 @@
                         
                         <div class="text-muted mb-3" style="font-size: 0.9em;">
                             <i class="fas fa-info-circle"></i> 
-                            Add individual time slots. End time will be calculated automatically based on session duration.
-                            <br>Examples: "3:00 PM" → 3:00-3:30 PM (30min), "15:00" → 3:00-4:00 PM (60min)
+                            Add individual time slots using AM/PM format only. End time will be calculated automatically based on session duration.
+                            <br>Examples: "9:00 AM" → 9:00-9:30 AM (30min), "3:00 PM" → 3:00-4:00 PM (60min)
                         </div>
 
                         <!-- Generated Slots Preview -->
@@ -657,21 +769,6 @@
                                 <i class="fas fa-trash"></i> Clear All Slots
                             </button>
                         </div>
-
-                        <!-- Toggle Manual Mode -->
-                        <div style="text-align: center; margin: 15px 0;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleEditManualMode">
-                                <i class="fas fa-cog"></i> Switch to Manual Mode
-                            </button>
-                        </div>
-
-                        <!-- Manual Time Slots Container (fallback) -->
-                        <div id="editTimeSlotsContainer" style="display: none;">
-                            <!-- Dynamic time slots will be inserted here -->
-                        </div>
-                        <button type="button" class="btn btn-success btn-sm" id="addEditSlotBtn" style="display: none;">
-                            <i class="fas fa-plus"></i> Add Manual Time Slot
-                        </button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -686,163 +783,118 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const timeSlotsContainer = document.getElementById('timeSlotsContainer');
-    const addSlotBtn = document.getElementById('addSlotBtn');
-    const sessionDurationSelect = document.querySelector('#session_duration');
-
-    // Get the selected session duration in minutes
-    function getSessionDuration() {
-        return parseInt(sessionDurationSelect?.value || 60);
-    }
-    
-    // Initialize Flatpickr with duration-based settings
-    function initializeFlatpickr() {
-        const duration = getSessionDuration();
-        
-        // Destroy existing instances first to prevent duplicates
-        document.querySelectorAll('.timepicker').forEach(el => {
-            if (el._flatpickr) {
-                el._flatpickr.destroy();
-            }
-        });
-        
-        // Initialize start time pickers
-        document.querySelectorAll('input[name="start_time[]"]').forEach(el => {
-            flatpickr(el, {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "h:i K",
-                time_24hr: false,
-                minuteIncrement: 15,
-                disableMobile: true,
-                onChange: function(selectedDates, dateStr, instance) {
-                    // When start time changes, update end time
-                    if (dateStr) {
-                        const timeSlot = instance.element.closest('.time-slot');
-                        const endTimeInput = timeSlot.querySelector('input[name="end_time[]"]');
-                        
-                        // Calculate end time based on duration
-                        const startTime = new Date(`1/1/2023 ${dateStr}`);
-                        const endTime = new Date(startTime.getTime() + (duration * 60 * 1000));
-                        
-                        // Format end time for display
-                        const hours = endTime.getHours();
-                        const minutes = endTime.getMinutes();
-                        const ampm = hours >= 12 ? 'PM' : 'AM';
-                        const formattedHours = hours % 12 || 12;
-                        const formattedMinutes = minutes.toString().padStart(2, '0');
-                        const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-                        
-                        // Set the end time value
-                        if (endTimeInput._flatpickr) {
-                            endTimeInput._flatpickr.setDate(formattedTime);
-                        } else {
-                            endTimeInput.value = formattedTime;
-                        }
-                    }
-                }
-            });
-        });
-        
-        // Initialize end time pickers (readonly)
-        document.querySelectorAll('input[name="end_time[]"]').forEach(el => {
-            flatpickr(el, {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "h:i K",
-                time_24hr: false,
-                minuteIncrement: 15,
-                disableMobile: true,
-                allowInput: false,
-                clickOpens: false
-            });
-        });
-    }
-
-    // Create new time slot
-    function createTimeSlot(start = '', end = '') {
-        const div = document.createElement('div');
-        div.classList.add('time-slot');
-        div.innerHTML = `
-            <label>From</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="start_time[]" value="${start}" required placeholder="Start Time">
-            </div>
-            <label>To</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="end_time[]" value="${end}" required placeholder="End Time" readonly>
-            </div>
-            <button type="button" class="remove-slot-btn" title="Remove slot">
-                <i class="fas fa-trash"></i>
-            </button>
-        `;
-        timeSlotsContainer.appendChild(div);
-        initializeFlatpickr(); 
-    }
-
-    // Add new time slot when button is clicked
-    addSlotBtn?.addEventListener('click', () => createTimeSlot());
-
-    // Remove time slot
-    timeSlotsContainer?.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-slot-btn')) {
-            const timeSlots = timeSlotsContainer.querySelectorAll('.time-slot');
-            if (timeSlots.length > 1) {
-                e.target.closest('.time-slot').remove();
-            } else {
-                // Clear inputs instead of removing if it's the last slot
-                const inputs = e.target.closest('.time-slot').querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                    if (input._flatpickr) {
-                        input._flatpickr.clear();
-                    }
-                });
-            }
-        }
-    });
-    
-    // Recalculate time slots when duration changes
-    sessionDurationSelect?.addEventListener('change', function() {
-        // Re-initialize all pickers with new duration
-        initializeFlatpickr();
-        
-        // Reset any existing end times to match new duration
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            const startInput = slot.querySelector('input[name="start_time[]"]');
-            const endInput = slot.querySelector('input[name="end_time[]"]');
-
-            if (startInput && startInput.value) {
-                // Trigger onChange event to recalculate end time
-                if (startInput._flatpickr) {
-                    const currentValue = startInput.value;
-                    startInput._flatpickr.setDate(currentValue);
-                }
-            }
-        });
-    });
-
+    // Initialize month checkboxes functionality
+    setupMonthCheckboxes();
     // Generate slots - individual slot addition
     let generatedSlots = [];
     let editGeneratedSlots = [];
     
-    function addIndividualSlot(isEdit = false) {
-        const slotStartTimeId = isEdit ? 'editSlotStartTime' : 'slotStartTime';
-        const startTimeInput = document.getElementById(slotStartTimeId);
-        const startTime = startTimeInput.value;
-        const sessionDuration = isEdit ? 
-            parseInt(document.getElementById('edit_session_duration')?.value || 60) : 
-            getSessionDuration();
+    // Handle select all months functionality
+    function setupMonthCheckboxes() {
+        // For Add Modal
+        const selectAllMonths = document.getElementById('selectAllMonths');
+        const monthCheckboxes = document.querySelectorAll('.month-checkbox');
         
-        if (!startTime) {
-            toastr.error('Please enter a start time');
-            return;
+        if (selectAllMonths) {
+            selectAllMonths.addEventListener('change', function() {
+                monthCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
         }
         
+        monthCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(monthCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(monthCheckboxes).some(cb => cb.checked);
+                
+                if (selectAllMonths) {
+                    selectAllMonths.checked = allChecked;
+                    selectAllMonths.indeterminate = anyChecked && !allChecked;
+                }
+            });
+        });
+        
+        // For Edit Modal
+        const editSelectAllMonths = document.getElementById('editSelectAllMonths');
+        const editMonthCheckboxes = document.querySelectorAll('.edit-month-checkbox');
+        
+        if (editSelectAllMonths) {
+            editSelectAllMonths.addEventListener('change', function() {
+                editMonthCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+        
+        editMonthCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(editMonthCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(editMonthCheckboxes).some(cb => cb.checked);
+                
+                if (editSelectAllMonths) {
+                    editSelectAllMonths.checked = allChecked;
+                    editSelectAllMonths.indeterminate = anyChecked && !allChecked;
+                }
+            });
+        });
+    }
+    
+    function addIndividualSlot(isEdit = false) {
+        const prefix = isEdit ? 'editSlot' : 'slot';
+        const hourInput = document.getElementById(prefix + 'Hour');
+        const minuteInput = document.getElementById(prefix + 'Minute');
+        const ampmSelect = document.getElementById(prefix + 'AMPM');
+
+        let hour = (hourInput?.value || '').toString().trim();
+        let minute = (minuteInput?.value || '').toString().trim();
+        const ampm = (ampmSelect?.value || '').toString().trim();
+
+        // Validation
+        if (!hour || !minute || !ampm) {
+            toastr.error('Please enter hour, minute and select AM/PM');
+            return;
+        }
+
+        // Normalize numeric inputs
+        // Remove non-digits
+        hour = hour.replace(/[^0-9]/g, '');
+        minute = minute.replace(/[^0-9]/g, '');
+
+        if (hour === '') hour = '0';
+        if (minute === '') minute = '00';
+
+        let hourNum = parseInt(hour, 10);
+        let minuteNum = parseInt(minute, 10);
+
+        if (isNaN(hourNum) || isNaN(minuteNum)) {
+            toastr.error('Invalid hour or minute');
+            return;
+        }
+
+        // Clamp hour to 1-12
+        if (hourNum < 1) hourNum = 1;
+        if (hourNum > 12) hourNum = 12;
+
+        // Clamp minutes to 0-59
+        if (minuteNum < 0) minuteNum = 0;
+        if (minuteNum > 59) minuteNum = 59;
+
+        // Pad minutes
+        const hourStr = String(hourNum);
+        const minuteStr = String(minuteNum).padStart(2, '0');
+
+        // Construct time string
+        const startTime = `${hourStr}:${minuteStr} ${ampm}`;
+        
+        const sessionDuration = isEdit ? 
+            parseInt(document.getElementById('edit_session_duration')?.value || 60) : 
+            parseInt(document.getElementById('session_duration')?.value || 60);
+        
         // Parse start time
-        const startDate = parseTimeString(startTime);
+        const startDate = parseAMPMTime(startTime);
         if (!startDate) {
-            toastr.error('Invalid start time format. Use format like "9:00 AM" or "14:30"');
+            toastr.error('Invalid time selection');
             return;
         }
         
@@ -889,8 +941,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return new Date(`1/1/2023 ${a.start24}`) - new Date(`1/1/2023 ${b.start24}`);
         });
         
-        // Clear the input
-        startTimeInput.value = '';
+    // Clear the inputs
+    if (hourInput) hourInput.value = '';
+    if (minuteInput) minuteInput.value = '00'; // Reset to 00
+    if (ampmSelect) ampmSelect.value = '';
         
         // Update display
         if (isEdit) {
@@ -902,31 +956,36 @@ document.addEventListener('DOMContentLoaded', function() {
         toastr.success('Time slot added successfully');
     }
     
-    function parseTimeString(timeStr) {
-        // Handle formats like "9:00 AM", "14:30", "9 AM", "2:30 PM"
+    // Validate AM/PM format
+    function isValidAMPMFormat(timeStr) {
+        const ampmRegex = /^(1[0-2]|0?[1-9]):([0-5][0-9])\s?(AM|PM)$/i;
+        return ampmRegex.test(timeStr.trim());
+    }
+    
+    // Parse AM/PM time string to Date object
+    function parseAMPMTime(timeStr) {
         const time = timeStr.trim().toUpperCase();
         
-        if (time.includes('AM') || time.includes('PM')) {
-            // 12-hour format
-            const [timePart, period] = time.split(/\s+/);
-            let [hours, minutes = '00'] = timePart.split(':');
-            
-            hours = parseInt(hours);
-            minutes = parseInt(minutes);
-            
-            if (period === 'PM' && hours !== 12) hours += 12;
-            if (period === 'AM' && hours === 12) hours = 0;
-            
-            const date = new Date();
-            date.setHours(hours, minutes, 0, 0);
-            return date;
-        } else {
-            // 24-hour format
-            const [hours, minutes = '00'] = time.split(':');
-            const date = new Date();
-            date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-            return date;
+        if (!(time.includes('AM') || time.includes('PM'))) {
+            return null; // Only accept AM/PM format
         }
+        
+        const [timePart, period] = time.split(/\s+/);
+        let [hours, minutes = '00'] = timePart.split(':');
+        
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+        
+        if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+            return null;
+        }
+        
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+        
+        const date = new Date();
+        date.setHours(hours, minutes, 0, 0);
+        return date;
     }
     
     function formatTime12Hour(date) {
@@ -938,11 +997,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function formatTime24Hour(date) {
-        return date.toLocaleString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
     }
     
     function displayGeneratedSlots() {
@@ -1005,6 +1062,10 @@ document.addEventListener('DOMContentLoaded', function() {
         toastr.success('All time slots cleared');
     }
 
+    // Make functions globally available
+    window.removeGeneratedSlot = removeGeneratedSlot;
+    window.clearAllSlots = clearAllSlots;
+
     // Show add modal
     window.showAddAvailabilityModal = function() {
         // Reset form
@@ -1015,8 +1076,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('slotStartTime').value = '';
         document.getElementById('generatedSlotsPreview').style.display = 'none';
         
-        // Clear manual slots container
-        timeSlotsContainer.innerHTML = '';
+        // Clear manual slots container (if present)
+        if (typeof timeSlotsContainer !== 'undefined' && timeSlotsContainer) {
+            timeSlotsContainer.innerHTML = '';
+        }
         
         // Show modal
         $('#addAvailabilityModal').modal('show');
@@ -1068,6 +1131,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const form = this;
         
+        // Validation: Check if at least one month is selected
+        const selectedMonths = document.querySelectorAll('input[name="months[]"]:checked');
+        if (selectedMonths.length === 0) {
+            toastr.error("Please select at least one month");
+            return false;
+        }
+        
         // Validation: Check if at least one weekday is selected
         const selectedWeekdays = document.querySelectorAll('input[name="weekdays[]"]:checked');
         if (selectedWeekdays.length === 0) {
@@ -1075,61 +1145,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Gather manual slots and validate presence when no generated slots
-        const manualTimeSlots = document.querySelectorAll('#timeSlotsContainer .time-slot');
+        // Validation: Check if time slots are generated
         if (generatedSlots.length === 0) {
-            if (manualTimeSlots.length === 0) {
-                toastr.error("Please generate time slots or add manual slots");
-                return false;
-            }
-
-            for (const slot of manualTimeSlots) {
-                const startEl = slot.querySelector('input[name="start_time[]"]');
-                const endEl = slot.querySelector('input[name="end_time[]"]');
-                const startTime = getInputValue(startEl);
-                const endTime = getInputValue(endEl);
-
-                if (!startEl || !endEl || !startTime || !endTime) {
-                    toastr.error("Please fill all time slots");
-                    return false;
-                }
-            }
+            toastr.error("Please add at least one time slot using AM/PM format");
+            return false;
         }
 
-        // Build timeRanges from both generatedSlots and manual slots for overlap checking
-        const timeRanges = [];
-        // Add generated slots first
-        if (generatedSlots.length > 0) {
-            generatedSlots.forEach(slot => {
-                if (slot.start && slot.end) {
-                    timeRanges.push({ start: slot.start, end: slot.end });
-                }
-            });
-        }
-
-        // Add manual slots (if any)
-        Array.from(manualTimeSlots).forEach(slot => {
-            const startEl = slot.querySelector('input[name="start_time[]"]');
-            const endEl = slot.querySelector('input[name="end_time[]"]');
-            const startTime = getInputValue(startEl);
-            const endTime = getInputValue(endEl);
-            if (startTime && endTime) {
-                timeRanges.push({ start: startTime, end: endTime });
-            }
-        });
-
-        // Filter out incomplete ranges
-        const filteredRanges = timeRanges.filter(tr => tr.start && tr.end);
+        // Check for overlaps in generated slots
+        const filteredSlots = generatedSlots.filter(slot => slot.start && slot.end);
         
         // Sort by start time for easier comparison
-        filteredRanges.sort((a, b) => {
+        filteredSlots.sort((a, b) => {
             return new Date(`1/1/2023 ${a.start}`) - new Date(`1/1/2023 ${b.start}`);
         });
 
         // Check for overlaps
-        for (let i = 0; i < filteredRanges.length - 1; i++) {
-            const currentEnd = new Date(`1/1/2023 ${filteredRanges[i].end}`);
-            const nextStart = new Date(`1/1/2023 ${filteredRanges[i+1].start}`);
+        for (let i = 0; i < filteredSlots.length - 1; i++) {
+            const currentEnd = new Date(`1/1/2023 ${filteredSlots[i].end}`);
+            const nextStart = new Date(`1/1/2023 ${filteredSlots[i+1].start}`);
 
             if (currentEnd > nextStart) {
                 toastr.error("Time slots cannot overlap. Please adjust your schedule.");
@@ -1140,46 +1173,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create custom FormData with proper slot format
         const formData = new FormData();
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-    const monthEl = document.getElementById('month');
-    const sessionDurationEl = document.getElementById('session_duration');
-    formData.append('month', monthEl ? monthEl.value : '');
-    formData.append('session_duration', sessionDurationEl ? sessionDurationEl.value : '60');
+        
+        // Add selected months
+        selectedMonths.forEach(checkbox => {
+            formData.append('months[]', checkbox.value);
+        });
+        
+        const sessionDurationEl = document.getElementById('session_duration');
+        formData.append('session_duration', sessionDurationEl ? sessionDurationEl.value : '60');
         
         // Add weekdays
         selectedWeekdays.forEach(checkbox => {
             formData.append('weekdays[]', checkbox.value);
         });
         
-        // Add slots in the correct format
-        let slotIndex = 0;
-        
-        // Use generated slots if available
-        if (generatedSlots.length > 0) {
-            generatedSlots.forEach((slot) => {
-                formData.append(`slots[${slotIndex}][start_time]`, slot.start24);
-                formData.append(`slots[${slotIndex}][end_time]`, slot.end24);
-                slotIndex++;
-            });
-        } else {
-            // Use manual slots
-            const timeSlots = document.querySelectorAll('#timeSlotsContainer .time-slot');
-            timeSlots.forEach((slot) => {
-                const startEl = slot.querySelector('input[name="start_time[]"]');
-                const endEl = slot.querySelector('input[name="end_time[]"]');
-                if (!startEl || !endEl) return; // skip malformed slot
+        // Add generated slots
+        generatedSlots.forEach((slot, index) => {
+            formData.append(`slots[${index}][start_time]`, slot.start24);
+            formData.append(`slots[${index}][end_time]`, slot.end24);
+        });
 
-                const startTime = getInputValue(startEl);
-                const endTime = getInputValue(endEl);
-                if (!startTime || !endTime) return;
-
-                // Convert to 24-hour format
-                const startTime24 = convertTo24Hour(startTime);
-                const endTime24 = convertTo24Hour(endTime);
-
-                formData.append(`slots[${slotIndex}][start_time]`, startTime24);
-                formData.append(`slots[${slotIndex}][end_time]`, endTime24);
-                slotIndex++;
-            });
+        // Show loading message for multiple months
+        if (selectedMonths.length > 1) {
+            toastr.info(`Creating availability for ${selectedMonths.length} months... This may take a moment.`);
         }
 
         $.ajax({
@@ -1193,15 +1209,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message || "Availability added successfully");
-                    form.reset();
-                    $('#addAvailabilityModal').modal('hide');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    toastr.error(response.message || "Error adding availability");
+                try {
+                    // Prefer structured details when provided
+                    const details = response.details || { successful: [], skipped: [], errors: [] };
+                    const created = details.successful || [];
+                    const skipped = details.skipped || [];
+                    const errors = details.errors || [];
+
+                    if (created.length > 0) {
+                        toastr.success((response.message || 'Availability created for ' + created.length + ' month(s)'));
+                    }
+
+                    if (skipped.length > 0) {
+                        toastr.warning((skipped.length) + ' month(s) were skipped because availability already exists: ' + skipped.join(', '));
+                        console.warn('Skipped months:', skipped);
+                    }
+
+                    if (errors.length > 0) {
+                        toastr.error((errors.length) + ' month(s) failed to create. See console for details');
+                        console.error('Availability create errors:', errors);
+                    }
+
+                    // Reset form and UI only if at least one month was created
+                    if (created.length > 0) {
+                        form.reset();
+                        document.querySelectorAll('input[name="months[]"]').forEach(cb => cb.checked = false);
+                        const selectAll = document.getElementById('selectAllMonths');
+                        if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+                        $('#addAvailabilityModal').modal('hide');
+                        setTimeout(() => { window.location.reload(); }, 1200);
+                    }
+                } catch (e) {
+                    console.error('Unexpected response format', response, e);
+                    toastr.error(response.message || 'Unexpected response from server');
                 }
             },
             error: function(xhr) {
@@ -1225,6 +1265,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const form = this;
         
+        // Validation: Check if at least one month is selected
+        const selectedMonths = document.querySelectorAll('#editAvailabilityModal input[name="months[]"]:checked');
+        if (selectedMonths.length === 0) {
+            toastr.error("Please select at least one month");
+            return false;
+        }
+        
         // Validation: Check if at least one weekday is selected
         const selectedWeekdays = document.querySelectorAll('#editAvailabilityModal input[name="weekdays[]"]:checked');
         if (selectedWeekdays.length === 0) {
@@ -1232,65 +1279,35 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Validation: Check if all time slots are filled
-        const timeSlots = document.querySelectorAll('#editTimeSlotsContainer .time-slot');
-        for (const slot of timeSlots) {
-            const startEl = slot.querySelector('input[name="start_time[]"]');
-            const endEl = slot.querySelector('input[name="end_time[]"]');
-            const startTime = startEl ? startEl.value : null;
-            const endTime = endEl ? endEl.value : null;
-
-            if (!startEl || !endEl || !startTime || !endTime) {
-                toastr.error("Please fill all time slots");
-                return false;
-            }
+        // Validation: Check if time slots are generated
+        if (editGeneratedSlots.length === 0) {
+            toastr.error("Please add at least one time slot using AM/PM format");
+            return false;
         }
         
         // Create custom FormData with proper slot format
         const formData = new FormData();
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
         formData.append('_method', 'PUT');
-    const editMonthEl = document.getElementById('edit_month');
-    const editSessionDurationEl = document.getElementById('edit_session_duration');
-    formData.append('month', editMonthEl ? editMonthEl.value : '');
-    formData.append('session_duration', editSessionDurationEl ? editSessionDurationEl.value : '60');
+        
+        // Add selected months
+        selectedMonths.forEach(checkbox => {
+            formData.append('months[]', checkbox.value);
+        });
+        
+        const editSessionDurationEl = document.getElementById('edit_session_duration');
+        formData.append('session_duration', editSessionDurationEl ? editSessionDurationEl.value : '60');
         
         // Add weekdays
         selectedWeekdays.forEach(checkbox => {
             formData.append('weekdays[]', checkbox.value);
         });
         
-        // Add slots in the correct format
-        let slotIndex = 0;
-        
-        // Use generated slots if available
-        if (editGeneratedSlots.length > 0) {
-            editGeneratedSlots.forEach((slot) => {
-                formData.append(`slots[${slotIndex}][start_time]`, slot.start24);
-                formData.append(`slots[${slotIndex}][end_time]`, slot.end24);
-                slotIndex++;
-            });
-        } else {
-            // Use manual slots
-            const timeSlots = document.querySelectorAll('#editTimeSlotsContainer .time-slot');
-            timeSlots.forEach((slot) => {
-                const startEl = slot.querySelector('input[name="start_time[]"]');
-                const endEl = slot.querySelector('input[name="end_time[]"]');
-                if (!startEl || !endEl) return;
-
-                const startTime = startEl.value;
-                const endTime = endEl.value;
-                if (!startTime || !endTime) return;
-
-                // Convert to 24-hour format
-                const startTime24 = convertTo24Hour(startTime);
-                const endTime24 = convertTo24Hour(endTime);
-
-                formData.append(`slots[${slotIndex}][start_time]`, startTime24);
-                formData.append(`slots[${slotIndex}][end_time]`, endTime24);
-                slotIndex++;
-            });
-        }
+        // Add generated slots
+        editGeneratedSlots.forEach((slot, index) => {
+            formData.append(`slots[${index}][start_time]`, slot.start24);
+            formData.append(`slots[${index}][end_time]`, slot.end24);
+        });
 
         $.ajax({
             url: form.action,
@@ -1303,15 +1320,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message || "Availability updated successfully");
-                    form.reset();
-                    $('#editAvailabilityModal').modal('hide');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    toastr.error(response.message || "Error updating availability");
+                try {
+                    const details = response.details || { successful: [], skipped: [], errors: [] };
+                    const updated = details.successful || [];
+                    const skipped = details.skipped || [];
+                    const errors = details.errors || [];
+
+                    if (updated.length > 0) {
+                        toastr.success((response.message || 'Availability updated for ' + updated.length + ' month(s)'));
+                    }
+
+                    if (skipped.length > 0) {
+                        toastr.warning((skipped.length) + ' month(s) were skipped because availability already exists: ' + skipped.join(', '));
+                        console.warn('Skipped months:', skipped);
+                    }
+
+                    if (errors.length > 0) {
+                        toastr.error((errors.length) + ' month(s) failed to update. See console for details');
+                        console.error('Availability update errors:', errors);
+                    }
+
+                    // Reset form and UI only if at least one month was created/updated
+                    if (updated.length > 0) {
+                        form.reset();
+                        document.querySelectorAll('#editAvailabilityModal input[name="months[]"]').forEach(cb => cb.checked = false);
+                        const editSelectAll = document.getElementById('editSelectAllMonths');
+                        if (editSelectAll) { editSelectAll.checked = false; editSelectAll.indeterminate = false; }
+                        $('#editAvailabilityModal').modal('hide');
+                        setTimeout(() => { window.location.reload(); }, 1200);
+                    }
+                } catch (e) {
+                    console.error('Unexpected response format', response, e);
+                    toastr.error(response.message || 'Unexpected response from server');
                 }
             },
             error: function(xhr) {
@@ -1329,14 +1369,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Edit availability function
-    window.editAvailability = function(availabilityId) {
+    // Edit specific month only
+    window.editSpecificMonth = function(monthValue, availabilityId) {
         const availabilities = @json($availabilities);
         const availability = availabilities.find(a => a.id === availabilityId);
         
         if (availability) {
-            // Set form values
-            $('#edit_month').val(availability.month || '');
+            // Reset all month checkboxes first
+            document.querySelectorAll('#editAvailabilityModal input[name="months[]"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Set only the specific month checkbox
+            const monthCheckbox = document.querySelector(`#editAvailabilityModal input[name="months[]"][value="${monthValue}"]`);
+            if (monthCheckbox) {
+                monthCheckbox.checked = true;
+            }
+            
+            // Update select all checkbox state (should be false since only one is selected)
+            const editSelectAllMonths = document.getElementById('editSelectAllMonths');
+            if (editSelectAllMonths) {
+                editSelectAllMonths.checked = false;
+                editSelectAllMonths.indeterminate = false;
+            }
+            
+            // Set session duration
             $('#edit_session_duration').val(availability.session_duration || 60);
             
             // Handle weekdays
@@ -1349,143 +1406,158 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Reset edit slot generator (use new field IDs and guard nulls)
+            // Reset edit slot generator
             editGeneratedSlots = [];
-            const editSlotStartEl = document.getElementById('editSlotStartTime');
-            if (editSlotStartEl) editSlotStartEl.value = '';
-            const editNumEl = document.getElementById('editNumberOfSlots');
-            if (editNumEl) editNumEl.value = availability.slots ? availability.slots.length : '1';
+            
+            // Reset input/select for edit slot generator
+            const editHourInput = document.getElementById('editSlotHour');
+            const editMinuteInput = document.getElementById('editSlotMinute');
+            const editAmpmSelect = document.getElementById('editSlotAMPM');
+
+            if (editHourInput) editHourInput.value = '';
+            if (editMinuteInput) editMinuteInput.value = '00';
+            if (editAmpmSelect) editAmpmSelect.value = '';
+            
             const editPreviewEl = document.getElementById('editGeneratedSlotsPreview');
             if (editPreviewEl) editPreviewEl.style.display = 'none';
             
-            // Clear and populate time slots
-            const editContainer = document.getElementById('editTimeSlotsContainer');
-            if (editContainer) {
-                editContainer.innerHTML = '';
+            // Convert existing slots to generated slots format
+            if (availability.slots && availability.slots.length > 0) {
+                availability.slots.forEach(slot => {
+                    // Convert 24-hour time to 12-hour format for display
+                    let startTime24 = slot.start_time;
+                    let endTime24 = slot.end_time;
+                    
+                    // Remove seconds if present (convert H:i:s to H:i)
+                    if (startTime24.includes(':') && startTime24.split(':').length === 3) {
+                        startTime24 = startTime24.substring(0, 5); // Keep only HH:MM
+                    }
+                    if (endTime24.includes(':') && endTime24.split(':').length === 3) {
+                        endTime24 = endTime24.substring(0, 5); // Keep only HH:MM
+                    }
+                    
+                    // Parse and format times
+                    const startDate = new Date(`1/1/2023 ${startTime24}`);
+                    const endDate = new Date(`1/1/2023 ${endTime24}`);
+                    
+                    const slotData = {
+                        start: formatTime12Hour(startDate),
+                        end: formatTime12Hour(endDate),
+                        start24: startTime24,
+                        end24: endTime24
+                    };
+                    
+                    editGeneratedSlots.push(slotData);
+                });
                 
-                if (availability.slots && availability.slots.length > 0) {
-                    availability.slots.forEach(slot => {
-                        createEditTimeSlot(slot.start_time, slot.end_time);
-                    });
-                } else {
-                    createEditTimeSlot();
-                }
+                // Display the existing slots
+                displayEditGeneratedSlots();
             }
             
-            // Set form action
+            // Set form action and update modal title
             $('#editAvailabilityForm').attr('action', '{{ route('admin.professional.availability.update', ['professional' => $professional->id, 'availability' => '__AVAILABILITY_ID__']) }}'.replace('__AVAILABILITY_ID__', availabilityId));
+            $('#editAvailabilityModalLabel').text('Edit Specific Month Only');
             $('#editAvailabilityModal').modal('show');
         }
     };
 
-    // Create edit time slot
-    function createEditTimeSlot(start = '', end = '') {
-        const editContainer = document.getElementById('editTimeSlotsContainer');
-        const div = document.createElement('div');
-        div.classList.add('time-slot');
-        div.innerHTML = `
-            <label>From</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="start_time[]" value="${start}" required placeholder="Start Time">
-            </div>
-            <label>To</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="end_time[]" value="${end}" required placeholder="End Time" readonly>
-            </div>
-            <button type="button" class="remove-slot-btn" onclick="removeEditTimeSlot(this)" title="Remove slot">
-                <i class="fas fa-trash"></i>
-            </button>
-        `;
-        editContainer.appendChild(div);
-        initializeFlatpickr();
-    }
-
-    // Remove edit time slot
-    window.removeEditTimeSlot = function(button) {
-        const editContainer = document.getElementById('editTimeSlotsContainer');
-        const timeSlots = editContainer.querySelectorAll('.time-slot');
-        if (timeSlots.length > 1) {
-            button.closest('.time-slot').remove();
-        } else {
-            const inputs = button.closest('.time-slot').querySelectorAll('input');
-            inputs.forEach(input => {
-                input.value = '';
-                if (input._flatpickr) {
-                    input._flatpickr.clear();
+    // Edit availability function
+    window.editAvailability = function(availabilityId) {
+        const availabilities = @json($availabilities);
+        const availability = availabilities.find(a => a.id === availabilityId);
+        
+        if (availability) {
+            // Reset all month checkboxes first
+            document.querySelectorAll('#editAvailabilityModal input[name="months[]"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Set the month checkbox for this availability
+            const monthValue = availability.month;
+            const monthCheckbox = document.querySelector(`#editAvailabilityModal input[name="months[]"][value="${monthValue}"]`);
+            if (monthCheckbox) {
+                monthCheckbox.checked = true;
+            }
+            
+            // Update select all checkbox state
+            const editSelectAllMonths = document.getElementById('editSelectAllMonths');
+            const editMonthCheckboxes = document.querySelectorAll('#editAvailabilityModal input[name="months[]"]');
+            const checkedMonths = document.querySelectorAll('#editAvailabilityModal input[name="months[]"]:checked');
+            
+            if (editSelectAllMonths) {
+                editSelectAllMonths.checked = checkedMonths.length === editMonthCheckboxes.length;
+                editSelectAllMonths.indeterminate = checkedMonths.length > 0 && checkedMonths.length < editMonthCheckboxes.length;
+            }
+            
+            // Set session duration
+            $('#edit_session_duration').val(availability.session_duration || 60);
+            
+            // Handle weekdays
+            const weekdayCheckboxes = document.querySelectorAll('#editAvailabilityModal input[name="weekdays[]"]');
+            weekdayCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const selectedWeekdays = availability.weekdays ? JSON.parse(availability.weekdays) : [];
+                if (selectedWeekdays.includes(checkbox.value)) {
+                    checkbox.checked = true;
                 }
             });
+            
+            // Reset edit slot generator
+            editGeneratedSlots = [];
+            
+            // Reset input/select for edit slot generator
+            const editHourInput = document.getElementById('editSlotHour');
+            const editMinuteInput = document.getElementById('editSlotMinute');
+            const editAmpmSelect = document.getElementById('editSlotAMPM');
+
+            if (editHourInput) editHourInput.value = '';
+            if (editMinuteInput) editMinuteInput.value = '00';
+            if (editAmpmSelect) editAmpmSelect.value = '';
+            
+            const editPreviewEl = document.getElementById('editGeneratedSlotsPreview');
+            if (editPreviewEl) editPreviewEl.style.display = 'none';
+            
+            // Convert existing slots to generated slots format
+            if (availability.slots && availability.slots.length > 0) {
+                availability.slots.forEach(slot => {
+                    // Convert 24-hour time to 12-hour format for display
+                    let startTime24 = slot.start_time;
+                    let endTime24 = slot.end_time;
+                    
+                    // Remove seconds if present (convert H:i:s to H:i)
+                    if (startTime24.includes(':') && startTime24.split(':').length === 3) {
+                        startTime24 = startTime24.substring(0, 5); // Keep only HH:MM
+                    }
+                    if (endTime24.includes(':') && endTime24.split(':').length === 3) {
+                        endTime24 = endTime24.substring(0, 5); // Keep only HH:MM
+                    }
+                    
+                    // Parse and format times
+                    const startDate = new Date(`1/1/2023 ${startTime24}`);
+                    const endDate = new Date(`1/1/2023 ${endTime24}`);
+                    
+                    const slotData = {
+                        start: formatTime12Hour(startDate),
+                        end: formatTime12Hour(endDate),
+                        start24: startTime24,
+                        end24: endTime24
+                    };
+                    
+                    editGeneratedSlots.push(slotData);
+                });
+                
+                // Display the existing slots
+                displayEditGeneratedSlots();
+            }
+            
+            // Set form action and reset modal title
+            $('#editAvailabilityForm').attr('action', '{{ route('admin.professional.availability.update', ['professional' => $professional->id, 'availability' => '__AVAILABILITY_ID__']) }}'.replace('__AVAILABILITY_ID__', availabilityId));
+            $('#editAvailabilityModalLabel').text('Edit Availability');
+            $('#editAvailabilityModal').modal('show');
         }
     };
 
-
-
-    // Toggle between generated and manual modes
-    document.getElementById('toggleManualMode')?.addEventListener('click', function() {
-        const slotConfig = document.querySelector('.slot-config');
-        const generatedPreview = document.getElementById('generatedSlotsPreview');
-        const manualContainer = document.getElementById('timeSlotsContainer');
-        const addBtn = document.getElementById('addSlotBtn');
-        const toggleBtn = this;
-        
-        if (manualContainer.style.display === 'none') {
-            // Switch to manual mode
-            slotConfig.style.display = 'none';
-            generatedPreview.style.display = 'none';
-            manualContainer.style.display = 'block';
-            addBtn.style.display = 'inline-block';
-            toggleBtn.innerHTML = '<i class="fas fa-magic"></i> Switch to Auto Mode';
-            
-            // Clear generated slots and add one manual slot
-            generatedSlots = [];
-            if (manualContainer.children.length === 0) {
-                createTimeSlot();
-            }
-        } else {
-            // Switch to auto mode
-            slotConfig.style.display = 'grid';
-            manualContainer.style.display = 'none';
-            addBtn.style.display = 'none';
-            toggleBtn.innerHTML = '<i class="fas fa-cog"></i> Switch to Manual Mode';
-            
-            // Clear manual slots
-            manualContainer.innerHTML = '';
-        }
-    });
-    
-    document.getElementById('toggleEditManualMode')?.addEventListener('click', function() {
-        const slotConfig = document.querySelector('#editAvailabilityModal .slot-config');
-        const generatedPreview = document.getElementById('editGeneratedSlotsPreview');
-        const manualContainer = document.getElementById('editTimeSlotsContainer');
-        const addBtn = document.getElementById('addEditSlotBtn');
-        const toggleBtn = this;
-        
-        if (manualContainer.style.display === 'none') {
-            // Switch to manual mode
-            slotConfig.style.display = 'none';
-            generatedPreview.style.display = 'none';
-            manualContainer.style.display = 'block';
-            addBtn.style.display = 'inline-block';
-            toggleBtn.innerHTML = '<i class="fas fa-magic"></i> Switch to Auto Mode';
-            
-            // Clear generated slots and add one manual slot
-            editGeneratedSlots = [];
-            if (manualContainer.children.length === 0) {
-                createEditTimeSlot();
-            }
-        } else {
-            // Switch to auto mode
-            slotConfig.style.display = 'grid';
-            manualContainer.style.display = 'none';
-            addBtn.style.display = 'none';
-            toggleBtn.innerHTML = '<i class="fas fa-cog"></i> Switch to Manual Mode';
-            
-            // Clear manual slots
-            manualContainer.innerHTML = '';
-        }
-    });
-
-    // Add edit slot button
-    document.getElementById('addEditSlotBtn')?.addEventListener('click', () => createEditTimeSlot());
+    // (second showAddAvailabilityModal removed - single definition earlier in the file is used)
 
     // Add individual slot buttons
     document.getElementById('addGeneratedSlotBtn')?.addEventListener('click', () => addIndividualSlot(false));
@@ -1494,21 +1566,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear all slots buttons
     document.getElementById('clearAllSlotsBtn')?.addEventListener('click', () => clearAllSlots(false));
     document.getElementById('editClearAllSlotsBtn')?.addEventListener('click', () => clearAllSlots(true));
-    
-    // Handle Enter key in slot input fields
-    document.getElementById('slotStartTime')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addIndividualSlot(false);
-        }
-    });
-    
-    document.getElementById('editSlotStartTime')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addIndividualSlot(true);
-        }
-    });
 
     // Delete availability
     window.deleteAvailability = function(availabilityId) {
@@ -1545,30 +1602,59 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.find('input[type="checkbox"]').prop('checked', false);
         modal.find('select').prop('selectedIndex', 0);
         
-        // Clear time slots and reset containers
+        // Reset modal title to default
+        if (modal.attr('id') === 'editAvailabilityModal') {
+            $('#editAvailabilityModalLabel').text('Edit Availability');
+        }
+        
+        // Reset month checkboxes specifically
+        if (modal.attr('id') === 'addAvailabilityModal') {
+            document.querySelectorAll('input[name="months[]"]').forEach(cb => cb.checked = false);
+            const selectAllMonths = document.getElementById('selectAllMonths');
+            if (selectAllMonths) {
+                selectAllMonths.checked = false;
+                selectAllMonths.indeterminate = false;
+            }
+        } else if (modal.attr('id') === 'editAvailabilityModal') {
+            document.querySelectorAll('#editAvailabilityModal input[name="months[]"]').forEach(cb => cb.checked = false);
+            const editSelectAllMonths = document.getElementById('editSelectAllMonths');
+            if (editSelectAllMonths) {
+                editSelectAllMonths.checked = false;
+                editSelectAllMonths.indeterminate = false;
+            }
+        }
+        
+        // Clear generated slots
         if (modal.attr('id') === 'addAvailabilityModal') {
             // Reset slot generator
             generatedSlots = [];
-            const slotStartTime = document.getElementById('slotStartTime');
-            if (slotStartTime) slotStartTime.value = '';
+
+            // Reset inputs
+            const hourInput = document.getElementById('slotHour');
+            const minuteInput = document.getElementById('slotMinute');
+            const ampmSelect = document.getElementById('slotAMPM');
+
+            if (hourInput) hourInput.value = '';
+            if (minuteInput) minuteInput.value = '00';
+            if (ampmSelect) ampmSelect.value = '';
+
             const generatedPreviewEl = document.getElementById('generatedSlotsPreview');
             if (generatedPreviewEl) generatedPreviewEl.style.display = 'none';
-            
-            if (timeSlotsContainer) {
-                timeSlotsContainer.innerHTML = '';
-            }
         } else if (modal.attr('id') === 'editAvailabilityModal') {
             // Reset edit slot generator
             editGeneratedSlots = [];
-            const editSlotStartTime = document.getElementById('editSlotStartTime');
-            if (editSlotStartTime) editSlotStartTime.value = '';
+
+            // Reset edit inputs
+            const editHourInput = document.getElementById('editSlotHour');
+            const editMinuteInput = document.getElementById('editSlotMinute');
+            const editAmpmSelect = document.getElementById('editSlotAMPM');
+
+            if (editHourInput) editHourInput.value = '';
+            if (editMinuteInput) editMinuteInput.value = '00';
+            if (editAmpmSelect) editAmpmSelect.value = '';
+
             const editGeneratedPreviewEl = document.getElementById('editGeneratedSlotsPreview');
             if (editGeneratedPreviewEl) editGeneratedPreviewEl.style.display = 'none';
-            
-            const editContainer = document.getElementById('editTimeSlotsContainer');
-            if (editContainer) {
-                editContainer.innerHTML = '';
-            }
         }
         
         // Clear any validation errors

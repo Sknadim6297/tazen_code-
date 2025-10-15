@@ -47,6 +47,47 @@
 }
 
    </style>
+
+<style>
+.sub-service-container {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    min-height: 60px;
+}
+
+.sub-service-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.sub-service-item:last-child {
+    margin-bottom: 0;
+}
+
+.sub-service-item input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.sub-service-item label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.sub-service-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+</style>
 @endsection
 
 @section('content')
@@ -73,22 +114,37 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary" style="font-size: 11px; padding: 3px 6px;">Fixed</span></label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required disabled style="background-color: #f8f9fa;">
+                        <label for="serviceCategory">Service Category * <span class="badge bg-primary" style="font-size: 11px; padding: 3px 6px;">Based on Your Registration</span></label>
+                        <select name="serviceId" id="serviceCategory" class="form-control" required>
                             <option value="">Select Category</option>
-                            @foreach($services as $service)
+                            @forelse($services as $service)
                                 <option value="{{ $service->id }}" {{ 
                                     (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' 
                                 }}>{{ $service->name }}</option>
-                            @endforeach
+                            @empty
+                                <option value="" disabled>No service categories available for your specialization</option>
+                            @endforelse
                         </select>
-                        <!-- Add a hidden input to ensure the value is submitted even when disabled -->
-                        <input type="hidden" name="serviceId" value="{{ $matchingServiceId ?? '' }}">
+                        <!-- Keep the hidden input as backup -->
+                        <input type="hidden" name="serviceIdBackup" value="{{ $matchingServiceId ?? '' }}">
                         <small class="text-muted">
-                            <strong>Note:</strong> This is based on your registration information and cannot be changed now.
-                            <br>You can change your service category later when editing this service.
+                            <strong>Note:</strong> You can only offer services in your registered specialization: {{ $specialization ?? 'Not specified' }}.
+                            If you need to change your specialization, please contact support.
                         </small>
                     </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sub-Service Selection -->
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="subServices">Sub-Services (Optional)</label>
+                        <div id="subServiceContainer" class="sub-service-container">
+                            <p class="text-muted">Please select a service category first to see available sub-services.</p>
+                        </div>
+                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
                     </div>
                 </div>
             </div>
@@ -131,6 +187,70 @@
 @endsection
 @section('scripts')
 <script>
+$(document).ready(function() {
+    // Load sub-services when service category changes
+    $('#serviceCategory').change(function() {
+        loadSubServices($(this).val());
+    });
+    
+    // Load sub-services on page load if a service is pre-selected
+    var serviceId = $('#serviceCategory').val();
+    console.log('Initial service ID:', serviceId);
+    if (serviceId) {
+        loadSubServices(serviceId);
+    }
+});
+
+function loadSubServices(serviceId) {
+    const container = $('#subServiceContainer');
+    
+    console.log('loadSubServices called with serviceId:', serviceId);
+    
+    if (!serviceId) {
+        container.html('<p class="text-muted">Please select a service category first to see available sub-services.</p>');
+        return;
+    }
+    
+    container.html('<div class="sub-service-loading">Loading sub-services...</div>');
+    
+    $.ajax({
+        url: "{{ route('professional.service.getSubServices') }}",
+        type: "GET",
+        data: { service_id: serviceId },
+        success: function(response) {
+            console.log('AJAX response:', response);
+            if (response.success && response.subServices.length > 0) {
+                let html = '';
+                response.subServices.forEach(function(subService) {
+                    html += `
+                        <div class="sub-service-item">
+                            <input type="checkbox" name="subServices[]" value="${subService.id}" id="subService${subService.id}">
+                            <label for="subService${subService.id}">${subService.name}</label>
+                        </div>
+                    `;
+                });
+                container.html(html);
+                // Attach limit handler after rendering
+                enforceSubServiceLimit(container);
+            } else {
+                container.html('<p class="text-muted">No sub-services available for this category.</p>');
+            }
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr);
+            container.html('<p class="text-danger">Error loading sub-services. Please try again.</p>');
+        }
+    });
+}
+
+// No limit on sub-service selection: allow professionals to choose any number of sub-services
+function enforceSubServiceLimit(container) {
+    // Intentionally left blank so checkboxes remain independent and unlimited selection is allowed.
+    container.find('input[type="checkbox"]').off('change').on('change', function() {
+        // no-op: selection not limited
+    });
+}
+
 $('#serviceForm').submit(function(e) {
     e.preventDefault();
     let form = this;

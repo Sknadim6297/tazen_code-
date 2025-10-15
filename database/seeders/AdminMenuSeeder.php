@@ -110,13 +110,29 @@ class AdminMenuSeeder extends Seeder
                     ]
                 ]
             ],
+            // Admin Booking section
+            [
+                'name' => 'admin_booking',
+                'display_name' => 'Admin Booking',
+                'route_name' => 'admin.admin-booking.index',
+                'icon' => 'ri-home-3-line',
+                'order' => 5
+            ],
+            // Additional Services section
+            [
+                'name' => 'additional_services',
+                'display_name' => 'Additional Services',
+                'route_name' => 'admin.additional-services.index',
+                'icon' => 'ri-add-box-line',
+                'order' => 6
+            ],
             // Website Content section
             [
                 'name' => 'manage_website',
                 'display_name' => 'Manage Website',
                 'route_name' => null,
                 'icon' => 'ri-layout-line',
-                'order' => 5,
+                'order' => 7,
                 'children' => [
                     [
                         'name' => 'content.logo',
@@ -138,13 +154,29 @@ class AdminMenuSeeder extends Seeder
                     ]
                 ]
             ],
+            // Reports section
+            [
+                'name' => 'reports',
+                'display_name' => 'Download Reports',
+                'route_name' => null,
+                'icon' => 'ri-download-line',
+                'order' => 6,
+                'children' => [
+                    [
+                        'name' => 'reports.booking_summary',
+                        'display_name' => 'Booking Summary Report',
+                        'route_name' => 'admin.reports.booking-summary',
+                        'order' => 1
+                    ]
+                ]
+            ],
             // Events section
             [
                 'name' => 'events',
                 'display_name' => 'Events',
                 'route_name' => 'admin.eventpage.index',
                 'icon' => 'ri-calendar-event-line',
-                'order' => 6
+                'order' => 8
             ],
             // MCQ section
             [
@@ -152,7 +184,7 @@ class AdminMenuSeeder extends Seeder
                 'display_name' => 'MCQ',
                 'route_name' => null,
                 'icon' => 'ri-questionnaire-line',
-                'order' => 7,
+                'order' => 9,
                 'children' => [
                     [
                         'name' => 'mcq.answers',
@@ -168,7 +200,7 @@ class AdminMenuSeeder extends Seeder
                 'display_name' => 'Contacts',
                 'route_name' => 'admin.contact-forms.index',
                 'icon' => 'ri-contacts-book-line',
-                'order' => 8
+                'order' => 10
             ],
             // Blog Comments section
             [
@@ -176,7 +208,7 @@ class AdminMenuSeeder extends Seeder
                 'display_name' => 'Blog Comments',
                 'route_name' => 'admin.comments.index',
                 'icon' => 'ri-chat-3-line',
-                'order' => 9
+                'order' => 11
             ],
             // Reviews section
             [
@@ -184,7 +216,7 @@ class AdminMenuSeeder extends Seeder
                 'display_name' => 'Reviews',
                 'route_name' => null,
                 'icon' => 'ri-star-line',
-                'order' => 10,
+                'order' => 12,
                 'children' => [
                     [
                         'name' => 'reviews.manage',
@@ -200,7 +232,7 @@ class AdminMenuSeeder extends Seeder
                 'display_name' => 'Manage Control',
                 'route_name' => null,
                 'icon' => 'ri-settings-line',
-                'order' => 11,
+                'order' => 13,
                 'children' => [
                     [
                         'name' => 'admin.users',

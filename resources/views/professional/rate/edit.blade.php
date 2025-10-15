@@ -1,83 +1,148 @@
 @extends('professional.layout.layout')
 
-@section('style')
-<!-- Add custom styles here if needed -->
-@endsection
-
 @section('content')
 <div class="content-wrapper">
     <div class="page-header">
-        <div class="page-title">
-            <h3>Edit Rate</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Edit Rate</li>
-        </ul>
+        <h3>Edit Rate</h3>
     </div>
 
-    <div class="form-container">
-        <form id="rateForm" method="POST" action="{{ route('professional.rate.update', $rates->id) }}">
-            @csrf
-            @method('PUT')
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Session Type</th>
-                            <th>No. of Sessions</th>
-                            <th>Rate Per Session (₹)</th>
-                            <th>Final Rate (₹)</th>
-                            <th>Features</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <select class="form-control session-type" name="session_type" disabled>
-                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
-                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
-                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
-                            </td>
-                            <td>
-                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
-                            </td>
-                            <td>
-                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
-                            </td>
-                            <td>
-                                <div class="features-container">
-                                    @php
-                                        $existingFeatures = $rates->features ?? [];
-                                        if (empty($existingFeatures)) {
-                                            $existingFeatures = [''];
-                                        }
-                                    @endphp
-                                    @foreach($existingFeatures as $index => $feature)
-                                        <div class="feature-item d-flex align-items-center mb-2">
-                                            <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" value="{{ $feature }}" style="margin-right: 8px;">
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 32px;">×</button>
-                                        </div>
-                                    @endforeach
-                                    <button type="button" class="btn btn-sm btn-outline-primary add-feature" onclick="addFeature(this)">+ Add Feature</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <div class="card">
+        <div class="card-header">
+            <h4>Update Rate Information</h4>
+        </div>
+        <div class="card-body">
+            @php
+                $professional = Auth::guard('professional')->user();
+                $professionalService = $professional->professionalServices->first();
+                $hasSubServices = $professionalService && $professionalService->subServices->count() > 0;
+                $isServiceRate = !$rates->sub_service_id;
+                $isSubServiceRate = $rates->sub_service_id;
+            @endphp
 
-            <div class="form-actions mt-3 d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Update Rate
-                </button>
-            </div>
-        </form>
+            <form id="rateForm" action="{{ route('professional.rate.update', $rates->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <!-- Hidden fields for auto-detected service -->
+                <input type="hidden" name="professional_service_id" value="{{ $professionalService->id }}">
+                @if($isSubServiceRate)
+                    <input type="hidden" name="sub_service_id" value="{{ $rates->sub_service_id }}">
+                @endif
+
+                @if($professionalService)
+                    @if($isServiceRate)
+                        <!-- Service Rate Section -->
+                        <div class="service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
+                                @endif
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Session Type</th>
+                                            <th>No. of Sessions</th>
+                                            <th>Rate Per Session (₹)</th>
+                                            <th>Final Rate (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control session-type" name="session_type">
+                                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
+                                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
+                                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Sub-Service Rate Section -->
+                        @php
+                            $subService = $professionalService->subServices->where('id', $rates->sub_service_id)->first();
+                        @endphp
+                        <div class="sub-service-section mb-4">
+                            <div class="service-header mb-3 p-3" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                                <h5 class="mb-1">{{ $professionalService->service_name }}</h5>
+                                @if($professionalService->service_type)
+                                    <small class="text-muted">({{ $professionalService->service_type }})</small>
+                                @endif
+                            </div>
+
+                            <div class="sub-service-header mb-3 p-2" style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px;">
+                                <h6 class="mb-0">{{ $subService->name ?? 'Sub-Service' }}</h6>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Session Type</th>
+                                            <th>No. of Sessions</th>
+                                            <th>Rate Per Session (₹)</th>
+                                            <th>Final Rate (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-control session-type" name="session_type">
+                                                    <option value="One Time" {{ $rates->session_type == 'One Time' ? 'selected' : '' }}>One Time</option>
+                                                    <option value="Monthly" {{ $rates->session_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                                                    <option value="Quarterly" {{ $rates->session_type == 'Quarterly' ? 'selected' : '' }}>Quarterly</option>
+                                                    <option value="Free Hand" {{ $rates->session_type == 'Free Hand' ? 'selected' : '' }}>Free Hand</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control num-sessions" name="num_sessions" value="{{ $rates->num_sessions }}" min="1">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control rate-per-session" name="rate_per_session" value="{{ $rates->rate_per_session }}" min="0" step="100">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control final-rate" name="final_rate" value="{{ $rates->final_rate }}" readonly>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <a href="{{ route('professional.rate.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Rates
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Update Rate
+                        </button>
+                    </div>
+                @else
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        You don't have any services set up yet. Please set up your services first.
+                    </div>
+                @endif
+            </form>
+        </div>
     </div>
 </div>
 
@@ -209,32 +274,6 @@
                 }
             });
         });
-        
-        // Feature management functions
-        window.addFeature = function(button) {
-            const container = button.closest('.features-container');
-            const newFeature = document.createElement('div');
-            newFeature.className = 'feature-item d-flex align-items-center mb-2';
-            newFeature.innerHTML = `
-                <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" style="margin-right: 8px;">
-                <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 32px;">×</button>
-            `;
-            container.insertBefore(newFeature, button);
-        };
-
-        window.removeFeature = function(button) {
-            const featureItem = button.closest('.feature-item');
-            const container = featureItem.closest('.features-container');
-            const featureItems = container.querySelectorAll('.feature-item');
-            
-            // Don't allow removing the last feature input
-            if (featureItems.length > 1) {
-                featureItem.remove();
-            } else {
-                // Just clear the input instead of removing it
-                featureItem.querySelector('.feature-input').value = '';
-            }
-        };
     });
 </script>
 @endsection

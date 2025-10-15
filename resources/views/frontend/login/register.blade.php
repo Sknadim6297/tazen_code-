@@ -187,9 +187,64 @@
             animation: checkmark 0.5s ease-in-out;
         }
         
-        /* Password form section */
-        #passwordSection {
+        /* Step sections */
+        #verifyPasswordSection {
             display: none;
+        }
+        
+        #passwordInputSection {
+            display: none;
+        }
+        
+        /* Inline OTP styling */
+        #otpVerificationSection {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        #passwordInputSection {
+            background: #f0f8ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .step-section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        /* Loading button styles */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn-loading .btn-text {
+            opacity: 0;
+        }
+        
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
         
         .email-badge {
@@ -229,7 +284,7 @@
             position: relative;
             z-index: 1;
             text-align: center;
-            width: 33.333%;
+            width: 50%;
         }
         
         .step-number {
@@ -293,52 +348,82 @@
                     <div class="step-number">1</div>
                     <span class="step-title">Personal Info</span>
                 </div>
-                <div class="progress-step" id="stepVerify">
+                <div class="progress-step" id="stepVerifyPassword">
                     <div class="step-number">2</div>
-                    <span class="step-title">Verify Email</span>
-                </div>
-                <div class="progress-step" id="stepPassword">
-                    <div class="step-number">3</div>
-                    <span class="step-title">Set Password</span>
+                    <span class="step-title">Verify & Password</span>
                 </div>
             </div>
             
-            <form id="registerForm">
+            <form id="registerForm" novalidate>
                 @csrf
                 
                 <!-- Step 1: Personal Information -->
                 <div id="personalInfoSection">
                     <div class="form-group">
-                        <input class="form-control" type="text" name="first_name" placeholder="First Name" required>
+                        <input class="form-control" type="text" name="first_name" placeholder="First Name">
                         <i class="icon_pencil-edit"></i>
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="text" name="last_name" placeholder="Last Name" required>
+                        <input class="form-control" type="text" name="last_name" placeholder="Last Name">
                         <i class="icon_pencil-edit"></i>
                     </div>
-                    <div class="form-group send-otp-wrapper">
-                        <input class="form-control" type="email" name="email" id="email" placeholder="Email" required>
-                        <i class="icon_mail_alt"></i>
-                        <button type="button" class="send-otp-btn" id="sendOtpBtn">Send Code</button>
+                    <div class="form-group">
+                        <input class="form-control" type="tel" name="phone" placeholder="Phone Number" pattern="[0-9]{10}">
+                        <i class="icon_phone"></i>
                     </div>
-                    <button type="button" class="btn_1 rounded full-width" id="continueBtn">Continue</button>
+                    <div class="form-group send-otp-wrapper">
+                        <input class="form-control" type="email" name="email" id="email" placeholder="Email">
+
+                    </div>
+                    <button type="button" class="btn_1 rounded full-width" id="continueBtn">
+                        <span class="btn-text">Continue</span>
+                    </button>
                 </div>
                 
-                <!-- Step 3: Password Section (will be shown after OTP verification) -->
-                <div id="passwordSection">
+                <!-- Step 2: Email Verification + Password Section -->
+                <div id="verifyPasswordSection" style="display: none;">
                     <div class="email-badge">
                         <i class="icon-ok-circled"></i> <span id="verifiedEmail">email@example.com</span>
                     </div>
-                    <div class="form-group">
-                        <input class="form-control" type="password" name="password" id="password1" placeholder="Create Password" required>
-                        <i class="icon_lock_alt"></i>
+                    
+                    <!-- OTP Verification Section -->
+                    <div id="otpVerificationSection">
+                        <h6 class="text-center step-section-title">📧 Email Verification</h6>
+                        <p class="text-center mb-3">We've sent a 6-digit code to your email</p>
+                        
+                        <!-- OTP Input -->
+                        <div class="otp-input" style="margin: 15px auto;">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="6" inputmode="numeric" pattern="[0-9]">
+                        </div>
+                        
+                        <div class="otp-timer text-center mb-3" id="otpTimer">Expires in: 10:00</div>
+                        
+                        <button type="button" class="btn_1 rounded full-width mb-3" id="verifyOtpBtn">Verify Email</button>
+                        
+                        <p class="text-center">
+                            <small>Didn't receive the code? <a href="#" id="resendOtp">Resend</a></small>
+                        </p>
                     </div>
-                    <div class="form-group">
-                        <input class="form-control" type="password" name="password_confirmation" id="password2" placeholder="Confirm Password" required>
-                        <i class="icon_lock_alt"></i>
+                    
+                    <!-- Password Section (shown after email verification) -->
+                    <div id="passwordInputSection" style="display: none;">
+                        <h6 class="text-center step-section-title">🔒 Create Your Password</h6>
+                        <div class="form-group">
+                            <input class="form-control" type="password" name="password" id="password1" placeholder="Create Password">
+                            <i class="icon_lock_alt"></i>
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="password" name="password_confirmation" id="password2" placeholder="Confirm Password">
+                            <i class="icon_lock_alt"></i>
+                        </div>
+                        <div id="pass-info" class="clearfix"></div>
+                        <button type="submit" class="btn_1 rounded full-width" id="registerButton">Complete Registration</button>
                     </div>
-                    <div id="pass-info" class="clearfix"></div>
-                    <button type="submit" class="btn_1 rounded full-width" id="registerButton">Complete Registration</button>
                 </div>
                 
                 <div class="text-center add_top_10">
@@ -351,54 +436,6 @@
             
             <div class="copy">© Tazen</div>
         </aside>
-    </div>
-    
-    <!-- OTP Verification Modal -->
-    <div class="modal fade" id="otpModal" tabindex="-1" role="dialog" aria-labelledby="otpModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-otp" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="otpModalLabel">Email Verification</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>We've sent a verification code to <strong id="emailDisplay"></strong></p>
-                    
-                    <!-- OTP Input -->
-                    <div class="otp-input">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]">
-                        <input type="text" class="otp-digit" maxlength="1" data-index="6" inputmode="numeric" pattern="[0-9]">
-                    </div>
-                    
-                    <div class="otp-timer" id="otpTimer">Expires in: 10:00</div>
-                    
-                    <button type="button" class="verify-otp-btn" id="verifyOtpBtn">Verify Code</button>
-                    
-                    <div class="email-verification-status" id="emailVerificationStatus"></div>
-                    
-                    <p class="otp-instructions">
-                        Didn't receive the code? <a href="#" id="resendOtp">Resend</a>
-                    </p>
-                </div>
-                
-                <!-- Success state (initially hidden) -->
-                <div class="modal-body verification-success" style="display: none;">
-                    <div class="checkmark-circle">
-                        <div class="checkmark-circle-bg"></div>
-                        <i class="icon-ok-circled checkmark"></i>
-                    </div>
-                    <h4 class="text-center">Email Verified Successfully</h4>
-                    <p class="text-center">Your email has been verified. Please create a password to complete registration.</p>
-                    <button type="button" class="btn_1 rounded full-width" id="proceedToPassword" data-dismiss="modal">Continue</button>
-                </div>
-            </div>
-        </div>
     </div>
     
     <!-- COMMON SCRIPTS -->
@@ -430,6 +467,7 @@
         $('#continueBtn').on('click', function() {
             const firstName = $('input[name="first_name"]').val();
             const lastName = $('input[name="last_name"]').val();
+            const phone = $('input[name="phone"]').val();
             const email = $('#email').val();
             
             // Validate fields
@@ -443,6 +481,11 @@
                 return;
             }
             
+            if (!phone) {
+                toastr.error('Please enter your phone number.');
+                return;
+            }
+            
             if (!email) {
                 toastr.error('Please enter your email address.');
                 return;
@@ -453,8 +496,13 @@
                 return;
             }
             
-            // Trigger send OTP
-            $('#sendOtpBtn').click();
+            // Show loading state
+            const $btn = $(this);
+            $btn.addClass('btn-loading').find('.btn-text').text('Sending OTP...');
+            $btn.prop('disabled', true);
+            
+            // Send OTP and transition automatically
+            sendOtpAndTransition(email);
         });
 
         // OTP digit input handling
@@ -495,8 +543,106 @@
             $('#fullOtp').val(otp);
         }
 
-        // Send OTP button click handler
-        $('#sendOtpBtn, #resendOtp').on('click', function() {
+        // Function to send OTP and auto-transition to step 2
+        function sendOtpAndTransition(email) {
+            var firstName = $('input[name="first_name"]').val();
+            var lastName = $('input[name="last_name"]').val();
+            var phone = $('input[name="phone"]').val();
+            
+            // First save customer lead
+            $.ajax({
+                url: "{{ route('register.save-lead') }}",
+                type: "POST",
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phone,
+                    email: email,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Now send OTP and transition
+                        sendOtpCodeAndTransition();
+                    } else {
+                        resetContinueButton();
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    resetContinueButton();
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        toastr.error(xhr.responseJSON.message);
+                    } else {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                }
+            });
+        }
+        
+        // Function to reset continue button state
+        function resetContinueButton() {
+            const $btn = $('#continueBtn');
+            $btn.removeClass('btn-loading').find('.btn-text').text('Continue');
+            $btn.prop('disabled', false);
+        }
+
+        // Function to send OTP code and transition to step 2
+        function sendOtpCodeAndTransition() {
+            var email = $('#email').val();
+            
+            $.ajax({
+                url: "{{ route('register.send-otp') }}",
+                type: "POST",
+                data: {
+                    email: email,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Success! Transition to step 2
+                        setTimeout(function() {
+                            // Update progress steps
+                            $('#stepInfo').removeClass('step-active').addClass('step-completed');
+                            $('#stepVerifyPassword').addClass('step-active');
+                            
+                            // Hide step 1 and show step 2
+                            $('#personalInfoSection').slideUp(300, function() {
+                                $('#verifyPasswordSection').slideDown(300);
+                                $('#verifiedEmail').text(email);
+                                
+                                // Reset OTP input fields and focus
+                                $('.otp-digit').val('');
+                                updateFullOtp();
+                                $('.otp-digit[data-index="1"]').focus();
+                                
+                                // Start countdown timer
+                                startOtpTimer();
+                            });
+                            
+                            toastr.success(response.message);
+                        }, 500); // Small delay to show the loading state
+                    } else {
+                        // Reset button state on error
+                        resetContinueButton();
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    // Reset button state on error
+                    resetContinueButton();
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        toastr.error(xhr.responseJSON.message);
+                    } else {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                }
+            });
+        }
+
+        // Function to send OTP code
+        function sendOtpCode() {
             const email = $('#email').val();
             
             if (!email) {
@@ -518,27 +664,14 @@
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 beforeSend: function() {
-                    $('#sendOtpBtn').prop('disabled', true).text('Sending...');
-                    $('#resendOtp').addClass('disabled');
+                    $('#resendOtp').addClass('disabled').text('Sending...');
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        // Show OTP modal
-                        $('#otpModal').modal('show');
-                        $('#emailDisplay').text(email);
-                        
-                        // Update the progress steps
-                        $('#stepInfo').removeClass('step-active').addClass('step-completed');
-                        $('#stepVerify').addClass('step-active');
-                        
                         // Reset OTP input fields
                         $('.otp-digit').val('');
                         updateFullOtp();
                         $('.otp-digit[data-index="1"]').focus();
-                        
-                        // Make sure we show the verification form, not the success message
-                        $('.modal-body:not(.verification-success)').show();
-                        $('.verification-success').hide();
                         
                         // Start countdown timer
                         startOtpTimer();
@@ -556,10 +689,15 @@
                     }
                 },
                 complete: function() {
-                    $('#sendOtpBtn').prop('disabled', false).text('Send Code');
-                    $('#resendOtp').removeClass('disabled');
+                    $('#resendOtp').removeClass('disabled').text('Resend');
                 }
             });
+        }
+
+        // Send OTP and Resend OTP button click handlers
+        $('#sendOtpBtn, #resendOtp').on('click', function(e) {
+            e.preventDefault();
+            sendOtpCode();
         });
 
         // Start OTP countdown timer
@@ -611,33 +749,8 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        otpVerified = true;
-                        clearInterval(otpTimer);
-                        
-                        // Show success state in modal
-                        $('.modal-body:not(.verification-success)').hide();
-                        $('.verification-success').show();
-                        
-                        // Update progress steps
-                        $('#stepVerify').removeClass('step-active').addClass('step-completed');
-                        $('#stepPassword').addClass('step-active');
-                        
-                        // Disable editing the email
-                        $('#email').prop('readonly', true);
-                        $('#sendOtpBtn').prop('disabled', true).hide();
-                        
-                        // Display verified email
-                        $('#verifiedEmail').text(email);
-                        
-                        toastr.success(response.message);
-                        
-                        // Automatically close modal after 1.5 seconds
-                        setTimeout(function() {
-                            $('#otpModal').modal('hide');
-                            $('#personalInfoSection').hide();
-                            $('#passwordSection').show();
-                            $('#password1').focus();
-                        }, 1500);
+                        // Create incomplete user with verified email
+                        createIncompleteUser();
                     } else {
                         toastr.error(response.message);
                     }
@@ -674,28 +787,109 @@
                 }
             });
         });
-        
-        // Procced to password button handler (in case modal doesn't auto-close)
-        $('#proceedToPassword').on('click', function() {
-            $('#otpModal').modal('hide');
-            $('#personalInfoSection').hide();
-            $('#passwordSection').show();
-            $('#password1').focus();
-        });
 
-        // Registration form submission
+        
+        // Function to create incomplete user after email verification
+        function createIncompleteUser() {
+            var firstName = $('input[name="first_name"]').val();
+            var lastName = $('input[name="last_name"]').val();
+            var phone = $('input[name="phone"]').val();
+            var email = $('#email').val();
+            var otp = $('#fullOtp').val();
+            
+            $.ajax({
+                url: "{{ route('register.create-incomplete') }}",
+                type: "POST",
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phone,
+                    email: email,
+                    otp: otp,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Store user ID for password completion
+                        window.currentUserId = response.user_id;
+                        
+                        otpVerified = true;
+                        clearInterval(otpTimer);
+                        
+                        // Hide OTP section and show password section
+                        $('#otpVerificationSection').hide();
+                        $('#passwordInputSection').show();
+                        
+                        // Focus on password field
+                        $('#password1').focus();
+                        
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = xhr.responseJSON.errors;
+                        for (var key in errors) {
+                            toastr.error(errors[key][0]);
+                        }
+                    } else {
+                        toastr.error('Failed to verify email. Please try again.');
+                    }
+                }
+            });
+        }
+
+        // Registration form submission (Complete registration with password)
         $('#registerForm').submit(function(e) {
             e.preventDefault();
 
-            if (!otpVerified) {
-                toastr.error('Please verify your email address with OTP first.');
+            if (!window.currentUserId) {
+                toastr.error('Please verify your email address first.');
                 return;
             }
 
+            var password = $('#password1').val();
+            var confirmPassword = $('#password2').val();
+            
+            // Validate password fields
+            if (!password) {
+                toastr.error('Please enter a password.');
+                $('#password1').focus();
+                return;
+            }
+            
+            if (password.length < 6) {
+                toastr.error('Password must be at least 6 characters long.');
+                $('#password1').focus();
+                return;
+            }
+            
+            if (!confirmPassword) {
+                toastr.error('Please confirm your password.');
+                $('#password2').focus();
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                toastr.error('Passwords do not match.');
+                $('#password2').focus();
+                return;
+            }
+
+            // Disable submit button to prevent multiple submissions
+            $('#registerButton').prop('disabled', true).text('Creating Account...');
+
             $.ajax({
-                url: "{{ route('register') }}",
+                url: "{{ route('register.complete') }}",
                 type: "POST",
-                data: $(this).serialize(),
+                data: {
+                    user_id: window.currentUserId,
+                    password: password,
+                    password_confirmation: confirmPassword,
+                    _token: $("meta[name='csrf-token']").attr("content")
+                },
                 headers: {
                     "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
                 },
@@ -709,7 +903,7 @@
                         // Show success message
                         Swal.fire({
                             icon: 'success',
-                            title: 'Registration Successful!',
+                            title: 'Registration Completed!',
                             text: response.message,
                             confirmButtonColor: '#152a70',
                             confirmButtonText: 'Login Now'
@@ -722,9 +916,12 @@
                         });
                     } else {
                         toastr.error(response.message);
+                        $('#registerButton').prop('disabled', false).text('Complete Registration');
                     }
                 },
                 error: function(xhr) {
+                    $('#registerButton').prop('disabled', false).text('Complete Registration');
+                    
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
                         var errors = xhr.responseJSON.errors;
                         for (var key in errors) {
@@ -742,28 +939,6 @@
             const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test(email);
         }
-
-        // Email input change handler - reset OTP verification if email changes
-        $('#email').on('input', function() {
-            if (otpVerified) {
-                otpVerified = false;
-                $('#emailVerificationStatus').html('');
-                $('#registerButton').prop('disabled', true);
-                $('#sendOtpBtn').prop('disabled', false).text('Send Code').show();
-            }
-        });
-        
-        // If modal is closed, reset verification unless successfully verified
-        $('#otpModal').on('hidden.bs.modal', function () {
-            if (!otpVerified) {
-                clearInterval(otpTimer);
-                $('.otp-digit').val('');
-                updateFullOtp();
-                $('#emailVerificationStatus').html('');
-                $('.modal-body:not(.verification-success)').show();
-                $('.verification-success').hide();
-            }
-        });
     });
     </script>
     <script>

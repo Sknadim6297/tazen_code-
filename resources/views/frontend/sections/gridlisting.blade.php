@@ -252,6 +252,259 @@
     .experience-icon {
         margin-right: 5px;
     }
+
+    /* Professional Image Optimization for Grid */
+    .strip figure {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 0;
+        height: 250px; /* Fixed height for consistent card sizing */
+        background: #f8f9fa;
+    }
+
+    .strip figure img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center !important;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+        display: block;
+    }
+
+    .strip figure img:hover {
+        transform: scale(1.02);
+    }
+
+    /* Remove the problematic ::before pseudo-element */
+    .strip figure::before {
+        display: none;
+    }
+
+    /* Fix for lazy loading */
+    .strip figure img.lazy {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Professional card improvements */
+    .strip {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+
+    .strip:hover {
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+
+    /* Strip info styling */
+    .strip_info {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .strip_info:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Item title improvements */
+    .item_title {
+        padding: 15px;
+        background: white;
+    }
+
+    .item_title h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+    }
+
+    .item_title .about {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .item_title small {
+        color: #007bff;
+        font-weight: 500;
+    }
+
+    /* Experience badge improvements */
+    .experience-badge {
+        position: absolute; 
+        top: 15px; 
+        right: 15px; 
+        background: linear-gradient(135deg, #ff6f61, #ff8a80); 
+        color: white; 
+        padding: 6px 12px; 
+        border-radius: 20px; 
+        font-size: 12px; 
+        font-weight: 600;
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Wishlist button improvements */
+    .wish_bt {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255,255,255,0.9);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .wish_bt:hover {
+        background: #ff4757;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Modern Pagination Styling */
+    .results-info {
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 20px;
+    }
+
+    .showing-results {
+        color: #6c757d;
+        font-size: 14px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+
+    .pagination .page-item {
+        margin: 0;
+        border-right: 1px solid #e9ecef;
+    }
+
+    .pagination .page-item:last-child {
+        border-right: none;
+    }
+
+    .pagination .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 42px;
+        padding: 8px 12px;
+        color: #495057;
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        transition: all 0.25s ease;
+        font-weight: 500;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #152a70;
+        color: white;
+        font-weight: 600;
+    }
+
+    .pagination .page-link:hover:not(.page-item.disabled .page-link) {
+        background: #f8f9fa;
+        color: #152a70;
+    }
+
+    .pagination .page-item.active .page-link:hover {
+        background: #1e3a8a;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #adb5bd;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .pagination .page-item.disabled .page-link:hover {
+        background: transparent;
+        color: #adb5bd;
+    }
+
+    /* Arrow icons styling - Clean and simple */
+    .pagination .page-link span[aria-hidden="true"] {
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    /* Dots styling */
+    .pagination .page-item .page-link[aria-disabled="true"] {
+        font-weight: bold;
+        color: #6c757d;
+    }
+
+    /* Responsive pagination */
+    @media (max-width: 576px) {
+        .pagination .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 6px 8px;
+            font-size: 13px;
+        }
+        
+        .pagination .page-item:first-child .page-link::before,
+        .pagination .page-item:last-child .page-link::before {
+            font-size: 14px;
+        }
+        
+        .showing-results {
+            font-size: 13px;
+        }
+    }
+
+    /* Clean separation between page numbers */
+    .pagination .page-item + .page-item .page-link {
+        margin-left: 0;
+    }
 </style>
 @endsection
 @section('content')
@@ -351,7 +604,13 @@
     @endif
 
     {{-- Professional Image --}}
-    <img src="{{ $professional->profile && $professional->profile->photo ? asset('storage/' . $professional->profile->photo) : asset('img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" style="z-index: 1;">
+    @php
+        $profileImage = $professional->profile && $professional->profile->photo ? $professional->profile->photo : null;
+        $imageUrl = $profileImage && file_exists(public_path('storage/' . $profileImage)) 
+            ? asset('storage/' . $profileImage) 
+            : asset('frontend/assets/img/lazy-placeholder.png');
+    @endphp
+    <img src="{{ $imageUrl }}" class="img-fluid lazy" alt="{{ $professional->first_name }}">
 
     {{-- Professional Details Link --}}
        @php
@@ -374,38 +633,29 @@
          <small>
     {{ $professional->professionalServices->pluck('tags')->filter()->implode(', ') ?: 'No tags available' }}
 </small>
-
-
         </div>
     </a>
 </figure>
 
-
-                        <ul>
-                            <li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Available Appointment"><i class="icon-users"></i></a></li>
-                            <li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Available Chat"><i class="icon-chat"></i></a></li>
-                            <li><a href="#0" class="tooltip-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Available Video Call"><i class="icon-videocam"></i></a></li>
-                            <li>
-                                <div class="score"><span>Superb<em>350 Reviews</em></span><strong>8.9</strong></div>
-                            </li>
-                        </ul>
-                    </a>
                     </div>
-                
                 </div>
             @endforeach
         </div>
         
         
     <!-- /row -->
-    <div class="pagination_fg">
-        <a href="#">&laquo;</a>
-        <a href="#" class="active">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        <a href="#">4</a>
-        <a href="#">5</a>
-        <a href="#">&raquo;</a>
-    </div>
+    
+    <!-- Results Info and Pagination Section -->
+    @if($professionals->hasPages())
+        <div class="results-info">
+            <p class="showing-results">
+                Showing {{ $professionals->firstItem() }} to {{ $professionals->lastItem() }} of {{ $professionals->total() }} professionals
+            </p>
+        </div>
+        
+        <div class="pagination-wrapper">
+            {{ $professionals->links('pagination.custom-pagination') }}
+        </div>
+    @endif
 </div>
 @endsection

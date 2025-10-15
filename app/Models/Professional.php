@@ -18,6 +18,8 @@ class Professional extends Authenticatable
         'status',
         'active', // Add this
         'margin', 
+        'service_request_margin',
+        'service_request_offset',
     ];
 
     protected $hidden = [
@@ -50,6 +52,12 @@ class Professional extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+    
+    public function additionalServices()
+    {
+        return $this->hasMany(AdditionalService::class);
+    }
+    
     public function isActive()
     {
         return (bool) $this->active;

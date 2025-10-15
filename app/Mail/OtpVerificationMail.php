@@ -12,15 +12,17 @@ class OtpVerificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public $otp;
+    public $customerName;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($otp)
+    public function __construct($otp, $customerName = null)
     {
         $this->otp = $otp;
+        $this->customerName = $customerName;
     }
 
     /**

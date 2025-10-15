@@ -163,7 +163,7 @@
                 <h4>Service List</h4>
                 <div class="card-actions">
                     @if(count($services) == 0)
-                        <a href="{{ route('professional.service.create') }}" style="background-color: #0d67c7;color:white;padding:7px;border-radius:10px">Add Service</a>
+                        <a href="{{ route('professional.service.create') }}" class="btn btn-success">Add Service</a>
                     @endif
                 </div>
             </div>
@@ -172,6 +172,7 @@
                     <thead>
                         <tr>
                             <th>Service Category</th>
+                            <th>Sub-Services</th>
                             <th>Session Type</th>
                             <th>Tags</th>
                             <th>Client Requirements</th>
@@ -181,51 +182,39 @@
                     <tbody>
                         @foreach($services as $service)
                             <tr>
-                                <td>{{ $service->service->name }}</td> 
-                                <td>
-                                    <span class="badge" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
+                                <td data-label="Service Category">{{ $service->service->name }}</td>
+                                <td data-label="Sub-Services">
+                                    @if($service->subServices->count() > 0)
+                                        @foreach($service->subServices as $subService)
+                                            <span class="badge badge-info" style="background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; margin: 2px;">
+                                                {{ $subService->name }}
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted" style="font-style: italic;">No specific sub-services</span>
+                                    @endif
+                                </td>
+                                <td data-label="Session Type">
+                                    <span class="badge badge-success" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
                                         Online Session
                                     </span>
                                 </td>
-                                <td>{{ $service->tags }}</td>
-                                <td>{{ $service->requirements }}</td>
-                                <td>
+                                <td data-label="Tags">{{ $service->tags }}</td>
+                                <td data-label="Client Requirements">{{ $service->requirements }}</td>
+                                <td data-label="Actions">
                                     <div style="display: flex; gap: 10px;">
-                                
+
                                         <a href="{{ route('professional.service.edit', $service->id) }}" 
-                                           style="background-color: #28a745; 
-                                                  color: white; 
-                                                  padding: 8px 16px; 
-                                                  font-size: 14px; 
-                                                  font-weight: 500;
-                                                  border: none; 
-                                                  border-radius: 8px; 
-                                                  text-decoration: none; 
-                                                  display: inline-flex; 
-                                                  align-items: center; 
-                                                  justify-content: center;
-                                                  transition: background-color 0.3s ease;">
+                                           class="btn btn-outline-success rate-button">
                                             <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
                                         </a>
-                                
+
                                         <a href="javascript:void(0)" 
-                                           class="delete-item" 
-                                           data-url="{{ route('professional.service.destroy', $service->id) }}"
-                                           style="background-color: #dc3545; 
-                                                  color: white; 
-                                                  padding: 8px 16px; 
-                                                  font-size: 14px; 
-                                                  font-weight: 500;
-                                                  border: none; 
-                                                  border-radius: 8px; 
-                                                  text-decoration: none; 
-                                                  display: inline-flex; 
-                                                  align-items: center; 
-                                                  justify-content: center;
-                                                  transition: background-color 0.3s ease;">
+                                           class="btn btn-outline-danger delete-item"
+                                           data-url="{{ route('professional.service.destroy', $service->id) }}">
                                             <i class="far fa-trash-alt" style="margin-right: 6px;"></i> Delete
                                         </a>
-                                
+
                                     </div>
                                 </td>
                             </tr>
@@ -381,6 +370,33 @@
         white-space: nowrap;
     }
 }
+</style>
+<style>
+    /* Scoped overrides to ensure outline buttons are visible despite any global .btn background */
+    .btn-outline-success, .btn-outline-danger, .rate-button, .delete-item {
+        background: transparent !important;
+        color: inherit !important;
+        border: 1px solid rgba(0,0,0,0.08) !important;
+        padding: 8px 14px !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        text-decoration: none !important;
+    }
+
+    .btn-outline-success:hover { background-color: rgba(40,167,69,0.08) !important; }
+    .btn-outline-danger:hover { background-color: rgba(220,53,69,0.08) !important; }
+
+    /* Stacked-card responsive table for small screens */
+    @media screen and (max-width: 767px) {
+        .data-table thead { display: none; }
+        .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+        .data-table tr { margin-bottom: 12px; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .data-table td { text-align: left; padding: 6px 10px; border: none; }
+        .data-table td:before { content: attr(data-label); display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+        .card-actions { margin-top: 8px; }
+    }
 </style>
 @endsection
 

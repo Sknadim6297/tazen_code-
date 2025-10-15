@@ -51,6 +51,7 @@
                             <li class="slide has-sub">
                                 <a href="{{ route('admin.professional.requests') }}" class="side-menu__item">Manage Professional</a>
                                 <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professional</a>
+                                <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">Bank Accounts</a>
                                 <a href="{{ route('admin.professional.billing') }}" class="side-menu__item">Professional Billing</a>
                             </li>
                         </ul>
@@ -75,10 +76,10 @@
                     </li>
 
                     @php
-    $onetimeCount = \App\Models\Booking::where('plan_type', 'one_time')->count();
-    $monthlyCount = \App\Models\Booking::where('plan_type', 'monthly')->count();
-    $freehandCount = \App\Models\Booking::where('plan_type', 'free_hand')->count();
-    $quarterlyCount = \App\Models\Booking::where('plan_type', 'quarterly')->count();
+    $onetimeCount = \App\Models\Booking::whereIn('plan_type', ['one_time', 'One Time'])->count();
+    $monthlyCount = \App\Models\Booking::whereIn('plan_type', ['monthly', 'Monthly'])->count();
+    $freehandCount = \App\Models\Booking::whereIn('plan_type', ['free_hand', 'Free Hand'])->count();
+    $quarterlyCount = \App\Models\Booking::whereIn('plan_type', ['quarterly', 'Quarterly'])->count();
 @endphp
 
                     @if($isMenuAccessible('booking'))
@@ -108,6 +109,74 @@
                                 </a>
                             </li>
                         </ul>
+                    </li>
+                    @endif
+
+
+
+                    @if($isMenuAccessible('bank_accounts'))
+                    <li class="slide">
+                        <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                    <path d="M3 21h18"/>
+                                    <path d="M3 10h18"/>
+                                    <path d="M5 6l7-3l7 3"/>
+                                    <path d="M4 10v11"/>
+                                    <path d="M20 10v11"/>
+                                    <path d="M8 14v3"/>
+                                    <path d="M12 14v3"/>
+                                    <path d="M16 14v3"/>
+                                </g>
+                            </svg>
+                            <span class="side-menu__label">Bank Accounts</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($isMenuAccessible('admin_booking'))
+                    <li class="slide">
+                        <a href="{{ route('admin.admin-booking.index') }}" class="side-menu__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                    <polyline points="9,22 9,12 15,12 15,22"/>
+                                    <path d="M8 6h8v2H8z"/>
+                                    <path d="M10 8h4v2h-4z"/>
+                                </g>
+                            </svg>
+                            <span class="side-menu__label">Admin Booking</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($isMenuAccessible('additional_services'))
+                    <li class="slide">
+                        <a href="{{ route('admin.additional-services.index') }}" class="side-menu__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                    <path d="M12 5v14"/>
+                                    <path d="M5 12h14"/>
+                                    <path d="M3 5h18v14H3z"/>
+                                </g>
+                            </svg>
+                            <span class="side-menu__label">Additional Services</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if($isMenuAccessible('user_management'))
+                    <li class="slide">
+                        <a href="{{ route('admin.user-management.index') }}" class="side-menu__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="m22 21-3-3m0 0a2 2 0 1 0-3-3 2 2 0 0 0 3 3"/>
+                                </g>
+                            </svg>
+                            <span class="side-menu__label">User Management</span>
+                        </a>
                     </li>
                     @endif
   
@@ -221,6 +290,9 @@
                                     <li class="slide">
                                         <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
                                     </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.sub-service.index') }}" class="side-menu__item">Sub-Services </a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -266,7 +338,30 @@
                         </ul>
                     </li>
                     @endif
-                    
+                                    <!-- Professional Events Menu -->
+                    @if($isMenuAccessible('professional_events'))
+                        <li class="slide has-sub">
+                            <a href="javascript:void(0);" class="side-menu__item">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M8 21v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="10" r="1"/></g></svg>
+                                <span class="side-menu__label">Professional Events</span>
+                                <i class="fe fe-chevron-right side-menu__angle"></i>
+                            </a>
+                            <ul class="slide-menu child1">
+                                <li class="slide">
+                                    <a href="{{ route('admin.professional-events.index') }}" class="side-menu__item">All Professional Events</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="{{ route('admin.professional-events.index', ['status' => 'pending']) }}" class="side-menu__item">Pending Review</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="{{ route('admin.professional-events.index', ['status' => 'approved']) }}" class="side-menu__item">Approved Events</a>
+                                </li>
+                                <li class="slide">
+                                    <a href="{{ route('admin.professional-events.index', ['status' => 'rejected']) }}" class="side-menu__item">Rejected Events</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif                
                     @if($isMenuAccessible('mcq'))
                     <li class="slide has-sub">
                         <a href="#" class="side-menu__item">

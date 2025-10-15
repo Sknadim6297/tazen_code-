@@ -1,5 +1,6 @@
 @extends('professional.layout.layout')
 @section('styles')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <style>
     :root {
         --primary-color: #3498db;
@@ -497,6 +498,301 @@
     }
 
     /* New image preview styling */
+    
+    /* Photo Cropping Styles */
+    .photo-crop-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+    }
+    
+    .crop-modal-content {
+        background-color: white;
+        margin: 2% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .crop-modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .crop-modal-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .crop-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .crop-close:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+    
+    .crop-modal-body {
+        padding: 1.5rem;
+        flex: 1;
+        overflow: auto;
+    }
+    
+    .crop-container {
+        width: 100%;
+        max-height: 400px;
+        margin-bottom: 1rem;
+    }
+    
+    .crop-container img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .crop-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .aspect-ratio-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .aspect-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--border-color);
+        background: white;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .aspect-btn.active,
+    .aspect-btn:hover {
+        border-color: var(--primary-color);
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .crop-preview {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .preview-box {
+        text-align: center;
+    }
+    
+    .preview-box h6 {
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--light-text);
+        font-weight: 600;
+    }
+    
+    .preview-circle,
+    .preview-square {
+        border: 2px solid var(--border-color);
+        overflow: hidden;
+        background-color: #f8f9fa;
+        margin: 0 auto;
+    }
+    
+    .preview-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+    }
+    
+    .preview-square {
+        width: 100px;
+        height: 80px;
+        border-radius: 8px;
+    }
+    
+    .crop-modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .crop-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-crop {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-crop-cancel {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-crop-cancel:hover {
+        background-color: #5a6268;
+    }
+    
+    .btn-crop-save {
+        background: linear-gradient(135deg, var(--success-color), #27ae60);
+        color: white;
+    }
+    
+    .btn-crop-save:hover {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+    }
+    
+    .crop-info {
+        font-size: 0.875rem;
+        color: var(--light-text);
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: #e8f4f8;
+        border-radius: 6px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .crop-info i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    /* Enhanced Photo Preview */
+    .photo-preview-container {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-top: 1rem;
+    }
+    
+    .current-photo {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .photo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 3px solid var(--border-color);
+        transition: var(--transition);
+    }
+    
+    .photo-preview:hover {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+    }
+    
+    .change-photo-btn {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        border: 3px solid white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .change-photo-btn:hover {
+        background: var(--primary-hover);
+        transform: scale(1.1);
+    }
+    
+    /* Responsive Design for Crop Modal */
+    @media (max-width: 768px) {
+        .crop-modal-content {
+            width: 95%;
+            margin: 5% auto;
+        }
+        
+        .crop-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .aspect-ratio-buttons {
+            justify-content: center;
+        }
+        
+        .crop-preview {
+            justify-content: center;
+        }
+        
+        .crop-modal-footer {
+            flex-direction: column;
+        }
+        
+        .crop-buttons {
+            justify-content: center;
+        }
+    }
     .new-image-preview {
         position: relative;
         display: inline-block;
@@ -526,17 +822,39 @@
                 <h4 class="form-section-title">Profile Information</h4>
                 <div class="form-group col-full">
                     <label for="photo">Profile Photo</label>
-                    <input type="file" id="photo" name="photo" accept="image/*">
-                    <div class="file-input-wrapper">
+                    <div class="crop-info">
+                        <i class="fas fa-info-circle"></i>
+                        Upload a high-quality photo that will be perfectly cropped for all your profile displays. Click the edit button after upload to crop your image.
+                    </div>
+                    <input type="file" id="photo" name="photo" accept="image/*" style="display: none;">
+                    <input type="hidden" id="cropped_photo" name="cropped_photo">
+                    
+                    <div class="photo-preview-container">
                         @if($profile->photo)
-                            <div class="image-preview">
-                                <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Current Photo" width="100">
+                            <div class="current-photo">
+                                <img src="{{ file_exists(public_path('storage/'.$profile->photo)) ? asset('storage/'.$profile->photo) : asset('img/default-avatar.jpg') }}" alt="Current Photo" class="photo-preview" id="photoPreview">
+                                <button type="button" class="change-photo-btn" id="changePhotoBtn" title="Change Photo">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                         @else
-                            <div class="image-preview">
-                                <img src="{{ asset('default.jpg') }}" alt="Default Photo" width="100">
+                            <div class="current-photo">
+                                <img src="{{ asset('images/default-avatar.png') }}" alt="Default Photo" class="photo-preview" id="photoPreview">
+                                <button type="button" class="change-photo-btn" id="changePhotoBtn" title="Add Photo">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </div>
                         @endif
+                        <div class="photo-instructions">
+                            <h6>Photo Requirements:</h6>
+                            <ul style="font-size: 0.875rem; color: var(--light-text); margin: 0; padding-left: 1rem;">
+                                <li>High resolution (minimum 400x400px)</li>
+                                <li>Clear, professional headshot</li>
+                                <li>Good lighting and focus</li>
+                                <li>JPG, PNG formats supported</li>
+                                <li>Maximum file size: 5MB</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group col-full">
@@ -788,6 +1106,73 @@
         </form>
     </div>
 </div>
+
+<!-- Photo Crop Modal -->
+<div id="photoCropModal" class="photo-crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-modal-header">
+            <h4><i class="fas fa-crop-alt"></i> Crop Your Profile Photo</h4>
+            <button type="button" class="crop-close" id="closeCropModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="crop-modal-body">
+            <div class="crop-info">
+                <i class="fas fa-info-circle"></i>
+                Crop your photo to ensure it looks perfect across all platforms. Choose an aspect ratio and adjust the crop area.
+            </div>
+            
+            <div class="crop-controls">
+                <div>
+                    <label style="margin-bottom: 0.5rem; font-weight: 600;">Aspect Ratio:</label>
+                    <div class="aspect-ratio-buttons">
+                        <button type="button" class="aspect-btn" data-ratio="1" title="Square (1:1) - Perfect for profile pictures">
+                            <i class="fas fa-square"></i> Square
+                        </button>
+                        <button type="button" class="aspect-btn" data-ratio="4/3" title="Landscape (4:3) - Good for headers">
+                            <i class="fas fa-rectangle-landscape"></i> 4:3
+                        </button>
+                        <button type="button" class="aspect-btn" data-ratio="16/9" title="Widescreen (16:9) - For banners">
+                            <i class="fas fa-rectangle-wide"></i> 16:9
+                        </button>
+                        <button type="button" class="aspect-btn active" data-ratio="NaN" title="Free crop - Any size">
+                            <i class="fas fa-crop"></i> Free
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="Image to crop">
+            </div>
+            
+            <div class="crop-preview">
+                <div class="preview-box">
+                    <h6>Circle Preview</h6>
+                    <div class="preview-circle" id="previewCircle"></div>
+                </div>
+                <div class="preview-box">
+                    <h6>Square Preview</h6>
+                    <div class="preview-square" id="previewSquare"></div>
+                </div>
+            </div>
+        </div>
+        <div class="crop-modal-footer">
+            <div class="crop-info" style="margin: 0; padding: 0.5rem 1rem; background: none; border: none; font-size: 0.8rem;">
+                <i class="fas fa-mouse"></i> Drag to move • <i class="fas fa-expand-arrows-alt"></i> Drag corners to resize
+            </div>
+            <div class="crop-buttons">
+                <button type="button" class="btn-crop btn-crop-cancel" id="cancelCrop">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn-crop btn-crop-save" id="saveCrop">
+                    <i class="fas fa-check"></i> Ok
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
     .user-profile-wrapper {
@@ -798,9 +1183,256 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script>
+// Photo Cropping Functionality
+let cropper = null;
+let currentFile = null;
+
 // Array to store deleted image paths
 const deletedImages = [];
+
+// Photo Cropping Functions
+function initializeCropper(imageFile) {
+    const modal = document.getElementById('photoCropModal');
+    const cropImage = document.getElementById('cropImage');
+    
+    // Create object URL for the selected image
+    const imageUrl = URL.createObjectURL(imageFile);
+    cropImage.src = imageUrl;
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Initialize cropper after image loads
+    cropImage.onload = function() {
+        if (cropper) {
+            cropper.destroy();
+        }
+        
+        cropper = new Cropper(cropImage, {
+            aspectRatio: NaN, // Free crop by default
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.8,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            responsive: true,
+            modal: true,
+            background: true,
+            ready: function () {
+                updatePreviews();
+            },
+            cropend: function () {
+                updatePreviews();
+            }
+        });
+    };
+}
+
+function updatePreviews() {
+    if (!cropper) return;
+    
+    const canvas = cropper.getCroppedCanvas({
+        width: 200,
+        height: 200,
+        imageSmoothingQuality: 'high'
+    });
+    
+    const circleCanvas = cropper.getCroppedCanvas({
+        width: 80,
+        height: 80,
+        imageSmoothingQuality: 'high'
+    });
+    
+    const squareCanvas = cropper.getCroppedCanvas({
+        width: 100,
+        height: 80,
+        imageSmoothingQuality: 'high'
+    });
+    
+    if (canvas && circleCanvas && squareCanvas) {
+        const previewCircle = document.getElementById('previewCircle');
+        const previewSquare = document.getElementById('previewSquare');
+        
+        // Clear previous previews
+        previewCircle.innerHTML = '';
+        previewSquare.innerHTML = '';
+        
+        // Add new previews
+        const circleImg = circleCanvas.toDataURL();
+        const squareImg = squareCanvas.toDataURL();
+        
+        previewCircle.style.backgroundImage = `url(${circleImg})`;
+        previewCircle.style.backgroundSize = 'cover';
+        previewCircle.style.backgroundPosition = 'center';
+        
+        previewSquare.style.backgroundImage = `url(${squareImg})`;
+        previewSquare.style.backgroundSize = 'cover';
+        previewSquare.style.backgroundPosition = 'center';
+    }
+}
+
+function closeCropModal() {
+    const modal = document.getElementById('photoCropModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+    // Reset file input
+    const photoInput = document.getElementById('photo');
+    photoInput.value = '';
+    currentFile = null;
+}
+
+function saveCroppedImage() {
+    if (!cropper) return;
+    
+    // Get cropped canvas with high quality
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 800,
+        imageSmoothingQuality: 'high',
+        fillColor: '#fff'
+    });
+    
+    if (canvas) {
+        // Convert to blob
+        canvas.toBlob(function(blob) {
+            // Create a new file from the blob
+            const fileName = currentFile.name.replace(/\.[^/.]+$/, '') + '_cropped.jpg';
+            const croppedFile = new File([blob], fileName, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+            });
+            
+            // Update preview
+            const photoPreview = document.getElementById('photoPreview');
+            const previewUrl = URL.createObjectURL(blob);
+            photoPreview.src = previewUrl;
+            
+            // Store the cropped image data
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('cropped_photo').value = e.target.result;
+            };
+            reader.readAsDataURL(blob);
+            
+            // Close modal
+            closeCropModal();
+            
+            // Show success message
+            showToast('Photo cropped successfully!', 'success');
+            
+        }, 'image/jpeg', 0.9);
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Change photo button
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+    const photoInput = document.getElementById('photo');
+    
+    changePhotoBtn.addEventListener('click', function() {
+        photoInput.click();
+    });
+    
+    // Photo input change
+    photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File size must be less than 5MB', 'error');
+                this.value = '';
+                return;
+            }
+            
+            currentFile = file;
+            initializeCropper(file);
+        } else if (file) {
+            showToast('Please select a valid image file', 'error');
+            this.value = '';
+        }
+    });
+    
+    // Aspect ratio buttons
+    document.querySelectorAll('.aspect-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('.aspect-btn').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update cropper aspect ratio
+            if (cropper) {
+                const ratio = parseFloat(this.dataset.ratio);
+                cropper.setAspectRatio(ratio);
+                setTimeout(updatePreviews, 100);
+            }
+        });
+    });
+    
+    // Close modal buttons
+    document.getElementById('closeCropModal').addEventListener('click', closeCropModal);
+    document.getElementById('cancelCrop').addEventListener('click', closeCropModal);
+    
+    // Save crop button
+    document.getElementById('saveCrop').addEventListener('click', saveCroppedImage);
+    
+    // Close modal when clicking outside
+    document.getElementById('photoCropModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCropModal();
+        }
+    });
+});
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
 
 // Handle delete button click
 $(document).on('click', '.delete-image-btn', function() {

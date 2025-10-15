@@ -192,6 +192,15 @@ class CustomerBookingController extends Controller
             $booking->plan_type = $bookingData['plan_type'];
             $booking->customer_phone = $phone;
             $booking->service_name = $serviceName ?? 'N/A';
+            
+            // Add sub-service data if available in request
+            if ($request->has('sub_service_id') && $request->sub_service_id) {
+                $booking->sub_service_id = $request->sub_service_id;
+            }
+            if ($request->has('sub_service_name') && $request->sub_service_name) {
+                $booking->sub_service_name = $request->sub_service_name;
+            }
+            
             $booking->session_type = 'online';
             $booking->customer_name = Auth::guard('user')->user()->name;
             $booking->customer_email = Auth::guard('user')->user()->email;
@@ -213,6 +222,22 @@ class CustomerBookingController extends Controller
             }, $bookingData['bookings']));
             $booking->time_slot = json_encode(array_column($bookingData['bookings'], 'time_slot'));
             $booking->save();
+
+            // Store booking info in session for MCQ modal
+            $professionalService = null;
+            if (isset($bookingData['professional_id'])) {
+                $professionalService = \App\Models\ProfessionalService::where('professional_id', $bookingData['professional_id'])
+                    ->with('service')
+                    ->first();
+            }
+            
+            if ($professionalService && $professionalService->service_id) {
+                session([
+                    'booking_success.service_id' => $professionalService->service_id,
+                    'booking_success.booking_id' => $booking->id,
+                    'booking_success.service_name' => $professionalService->service->name ?? $serviceName
+                ]);
+            }
 
             // Create booking time dates
             foreach ($bookingData['bookings'] as $entry) {
@@ -315,14 +340,18 @@ class CustomerBookingController extends Controller
                 ]
             ]);
 
+            $response = [
+                'status' => 'success',
+                'message' => 'Payment successful and booking confirmed',
+                'redirect_url' => route('user.booking.success'),
+                'professional_id' => $bookingData['professional_id'], // Add professional_id for MCQ check
+                'booking_id' => $booking->id
+            ];
+
             // Clear booking session data including GST details
             session()->forget(['booking_data', 'booking_gst_details', 'razorpay_order_id', 'customer_phone']);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Payment successful and booking confirmed',
-                'redirect_url' => route('user.booking.success')
-            ]);
+            return response()->json($response);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -338,6 +367,116 @@ class CustomerBookingController extends Controller
         }
 
         return view('customer.booking.success');
+    }
+
+    /**
+     * Get MCQ questions for a service
+     */
+    public function getMCQQuestions(Request $request)
+    {
+        try {
+            $professionalId = $request->professional_id;
+            
+            // Get the professional's service
+            $professionalService = \App\Models\ProfessionalService::with('service')
+                ->where('professional_id', $professionalId)
+                ->first();
+            
+            if (!$professionalService || !$professionalService->service_id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No service found for this professional'
+                ]);
+            }
+            
+            $serviceId = $professionalService->service_id;
+            
+            // Get MCQ questions for the service
+            $mcqQuestions = \App\Models\ServiceMCQ::getQuestionsForService($serviceId);
+            
+            // Format questions for frontend
+            $formattedQuestions = $mcqQuestions->map(function($question) {
+                return [
+                    'id' => $question->id,
+                    'question' => $question->question,
+                    'question_type' => $question->question_type,
+                    'formatted_options' => $question->formatted_options,
+                    'has_other_option' => $question->has_other_option
+                ];
+            });
+            
+            return response()->json([
+                'status' => 'success',
+                'mcq_questions' => $formattedQuestions,
+                'service_id' => $serviceId
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error fetching MCQ questions: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch questions'
+            ], 500);
+        }
+    }
+
+    /**
+     * Submit MCQ answers
+     */
+    public function submitMCQAnswers(Request $request)
+    {
+        try {
+            $request->validate([
+                'service_id' => 'required|integer',
+                'answers' => 'required|array',
+                'answers.*.mcq_id' => 'required|integer',
+                'answers.*.question' => 'required|string',
+                'answers.*.answer' => 'required|string',
+                'answers.*.other_answer' => 'nullable|string'
+            ]);
+
+            $userId = Auth::guard('user')->id();
+            $serviceId = $request->service_id;
+            $answers = $request->answers;
+
+            // Save each answer
+            foreach ($answers as $answer) {
+                $mcqId = $answer['mcq_id'];
+                $selectedAnswer = $answer['answer'];
+                $otherAnswer = $answer['other_answer'] ?? null;
+
+                // If "Other" was selected and other_answer provided, use that
+                if ($selectedAnswer === 'Other' && $otherAnswer) {
+                    $selectedAnswer = $otherAnswer;
+                }
+
+                // Create or update the answer
+                \App\Models\UserMCQAnswer::updateOrCreate(
+                    [
+                        'user_id' => $userId,
+                        'service_mcq_id' => $mcqId,
+                        'service_id' => $serviceId
+                    ],
+                    [
+                        'question' => $answer['question'],
+                        'selected_answer' => $selectedAnswer,
+                        'other_answer' => $otherAnswer
+                    ]
+                );
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Answers submitted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error submitting MCQ answers: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to submit answers'
+            ], 500);
+        }
     }
 
     /**

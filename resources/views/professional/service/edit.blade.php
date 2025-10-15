@@ -2,6 +2,47 @@
 @section('styles')
 <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
 
+<style>
+.sub-service-container {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    min-height: 60px;
+}
+
+.sub-service-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.sub-service-item:last-child {
+    margin-bottom: 0;
+}
+
+.sub-service-item input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.sub-service-item label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.sub-service-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+</style>
+
 @endsection
 
 @section('content')
@@ -25,8 +66,9 @@
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceCategory">Service Category * <span class="badge bg-success text-white" style="font-size: 11px; padding: 3px 6px;">Editable</span></label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required>
+                        <label for="serviceCategory">Service Category * <span class="badge bg-secondary text-white" style="font-size: 11px; padding: 3px 6px;">Not editable</span></label>
+                        <!-- Service category is shown but not editable on the edit page. The hidden input ensures the value is submitted. -->
+                        <select name="serviceId_disabled" id="serviceCategory" class="form-control" disabled>
                             <option value="">Select Category</option>
                             @foreach($services as $serviceItem)
                                 <option value="{{ $serviceItem->id }}" 
@@ -36,7 +78,21 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">You can now change your service category if needed.</small>
+                        <input type="hidden" name="serviceId" value="{{ $service->service_id }}">
+                        <small class="text-muted">Service category is read-only on this page and cannot be changed.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sub-Service Selection -->
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="subServices">Sub-Services (Optional)</label>
+                        <div id="subServiceContainer" class="sub-service-container">
+                            <div class="sub-service-loading">Loading sub-services...</div>
+                        </div>
+                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
                     </div>
                 </div>
             </div>
@@ -97,6 +153,14 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
+        // Load sub-services when service category changes
+        $('#serviceCategory').change(function() {
+            loadSubServices($(this).val());
+        });
+        
+        // Load sub-services on page load for current service
+        loadSubServices($('#serviceCategory').val(), @json($service->subServices->pluck('id')->toArray()));
+        
         $('#serviceForm').submit(function(e) {
             e.preventDefault();
     
@@ -144,6 +208,56 @@
             });
         });
     });
+    
+    function loadSubServices(serviceId, selectedSubServices = []) {
+        const container = $('#subServiceContainer');
+        
+        console.log('loadSubServices called with serviceId:', serviceId, 'selectedSubServices:', selectedSubServices);
+        
+        if (!serviceId) {
+            container.html('<p class="text-muted">Please select a service category first to see available sub-services.</p>');
+            return;
+        }
+        
+        container.html('<div class="sub-service-loading">Loading sub-services...</div>');
+        
+        $.ajax({
+            url: "{{ route('professional.service.getSubServices') }}",
+            type: "GET",
+            data: { service_id: serviceId },
+            success: function(response) {
+                console.log('AJAX response:', response);
+                if (response.success && response.subServices.length > 0) {
+                    let html = '';
+                    response.subServices.forEach(function(subService) {
+                        const isSelected = selectedSubServices.includes(subService.id);
+                        html += `
+                            <div class="sub-service-item">
+                                <input type="checkbox" name="subServices[]" value="${subService.id}" id="subService${subService.id}" ${isSelected ? 'checked' : ''}>
+                                <label for="subService${subService.id}">${subService.name}</label>
+                            </div>
+                        `;
+                    });
+                    container.html(html);
+                    enforceSubServiceLimit(container);
+                } else {
+                    container.html('<p class="text-muted">No sub-services available for this category.</p>');
+                }
+            },
+            error: function(xhr) {
+                console.error('AJAX error:', xhr);
+                container.html('<p class="text-danger">Error loading sub-services. Please try again.</p>');
+            }
+        });
+    }
+
+    // No limit on sub-service selection: allow professionals to choose any number of sub-services
+    function enforceSubServiceLimit(container) {
+        // Intentionally left blank so checkboxes remain independent and unlimited selection is allowed.
+        container.find('input[type="checkbox"]').off('change').on('change', function() {
+            // no-op: selection not limited
+        });
+    }
     </script>
     
 @endsection

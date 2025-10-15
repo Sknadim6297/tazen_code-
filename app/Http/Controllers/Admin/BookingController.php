@@ -14,7 +14,7 @@ class BookingController extends Controller
 {
     public function oneTimeBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'one_time')->with(['professional', 'timedates']);
+        $query = Booking::whereIn('plan_type', ['one_time', 'One Time'])->with(['professional', 'timedates']);
 
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -45,7 +45,7 @@ class BookingController extends Controller
         $statuses = ['pending', 'completed', 'cancelled'];
 
         // Get all unique services for the dropdown
-        $services = Booking::where('plan_type', 'one_time')
+        $services = Booking::whereIn('plan_type', ['one_time', 'One Time'])
             ->distinct()
             ->pluck('service_name')
             ->filter()
@@ -57,7 +57,7 @@ class BookingController extends Controller
 
     public function freeHandBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'free_hand')
+        $query = Booking::whereIn('plan_type', ['free_hand', 'Free Hand'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         if ($request->filled('search')) {
@@ -90,7 +90,7 @@ class BookingController extends Controller
         $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
-        $services = Booking::where('plan_type', 'free_hand')
+        $services = Booking::whereIn('plan_type', ['free_hand', 'Free Hand'])
             ->distinct()
             ->pluck('service_name')
             ->filter()
@@ -143,7 +143,7 @@ class BookingController extends Controller
 
     public function monthlyBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'monthly')->with(['professional', 'timedates', 'customerProfile']);
+        $query = Booking::whereIn('plan_type', ['monthly', 'Monthly'])->with(['professional', 'timedates', 'customerProfile']);
 
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -176,7 +176,7 @@ class BookingController extends Controller
         $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
-        $services = Booking::where('plan_type', 'monthly')
+        $services = Booking::whereIn('plan_type', ['monthly', 'Monthly'])
             ->distinct()
             ->pluck('service_name')
             ->filter()
@@ -222,7 +222,7 @@ class BookingController extends Controller
 
     public function quaterlyBooking(Request $request)
     {
-        $query = Booking::where('plan_type', 'quarterly')
+        $query = Booking::whereIn('plan_type', ['quarterly', 'Quarterly'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         if ($request->filled('search')) {
@@ -256,7 +256,7 @@ class BookingController extends Controller
         $bookings = $query->latest()->paginate(10)->withQueryString();
 
         // Get all unique services for the dropdown
-        $services = Booking::where('plan_type', 'quarterly')
+        $services = Booking::whereIn('plan_type', ['quarterly', 'Quarterly'])
             ->distinct()
             ->pluck('service_name')
             ->filter()
@@ -398,7 +398,7 @@ class BookingController extends Controller
      */
     public function exportFreeHandBookingsToPdf(Request $request)
     {
-        $query = Booking::where('plan_type', 'free_hand')
+        $query = Booking::whereIn('plan_type', ['free_hand', 'Free Hand'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         // Apply filters
@@ -503,7 +503,7 @@ class BookingController extends Controller
      */
     public function exportMonthlyBookingsToPdf(Request $request)
     {
-        $query = Booking::where('plan_type', 'monthly')
+        $query = Booking::whereIn('plan_type', ['monthly', 'Monthly'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         // Apply filters
@@ -608,7 +608,7 @@ class BookingController extends Controller
      */
     public function exportOneTimeBookingsToPdf(Request $request)
     {
-        $query = Booking::where('plan_type', 'one_time')
+        $query = Booking::whereIn('plan_type', ['one_time', 'One Time'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         // Apply filters
@@ -704,7 +704,7 @@ class BookingController extends Controller
      */
     public function exportQuarterlyBookingsToPdf(Request $request)
     {
-        $query = Booking::where('plan_type', 'quarterly')
+        $query = Booking::whereIn('plan_type', ['quarterly', 'Quarterly'])
             ->with(['professional', 'timedates', 'customerProfile']);
 
         // Apply filters
@@ -834,7 +834,7 @@ class BookingController extends Controller
 
             // Build query with the same filters as the main view
             $query = Booking::with(['professional', 'user', 'timedates'])
-                ->where('plan_type', 'quarterly')
+                ->whereIn('plan_type', ['quarterly', 'Quarterly'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where(function ($q) use ($request) {
                         $q->where('customer_name', 'like', "%{$request->search}%")
@@ -1002,7 +1002,7 @@ class BookingController extends Controller
 
             // Build query with the same filters as the main view
             $query = Booking::with(['professional', 'user', 'timedates'])
-                ->where('plan_type', 'free_hand')
+                ->whereIn('plan_type', ['free_hand', 'Free Hand'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where(function ($q) use ($request) {
                         $q->where('customer_name', 'like', "%{$request->search}%")
@@ -1156,7 +1156,7 @@ class BookingController extends Controller
 
             // Build query with the same filters as the main view
             $query = Booking::with(['professional', 'user', 'timedates'])
-                ->where('plan_type', 'one_time')
+                ->whereIn('plan_type', ['one_time', 'One Time'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where(function ($q) use ($request) {
                         $q->where('customer_name', 'like', "%{$request->search}%")
@@ -1298,7 +1298,7 @@ class BookingController extends Controller
 
             // Build query with the same filters as the main view
             $query = Booking::with(['professional', 'user', 'timedates'])
-                ->where('plan_type', 'monthly')
+                ->whereIn('plan_type', ['monthly', 'Monthly'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where(function ($q) use ($request) {
                         $q->where('customer_name', 'like', "%{$request->search}%")

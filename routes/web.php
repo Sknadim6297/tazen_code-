@@ -65,6 +65,7 @@ use App\Http\Controllers\Customer\BookingController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
@@ -72,9 +73,9 @@ Route::get('/csrf-token', function () {
 // Route to check login status (no authentication required)
 Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
 
-Route::get('/run-migrations', function() {
-        Artisan::call('migrate', ['--force' => true]);
-        return "Migrations ran successfully!";
+Route::get('/run-migrations', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return "Migrations ran successfully!";
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -102,9 +103,10 @@ Route::get('/eventlist', function (Request $request) {
     $city = $request->query('city');
     $event_mode = $request->query('event_mode');
 
-    $events = EventDetail::with('event'); // Eager load event relation
+    // Get admin events
+    $adminEvents = EventDetail::with('event'); // Eager load event relation
 
-    $events = $events->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+    $adminEvents = $adminEvents->whereHas('event', function ($query) use ($filter, $category, $price_range) {
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
@@ -140,21 +142,80 @@ Route::get('/eventlist', function (Request $request) {
         }
     });
 
-    // Add city filter
+    // Add city filter for admin events
     if ($city) {
-        $events = $events->where('city', $city);
+        $adminEvents = $adminEvents->where('city', $city);
     }
 
-    // Add event mode filter
+    // Add event mode filter for admin events
     if ($event_mode) {
-        $events = $events->where('event_mode', $event_mode);
+        $adminEvents = $adminEvents->where('event_mode', $event_mode);
     }
 
-    $events = $events->latest()->paginate(12); // Change from get() to paginate() with 12 items per page
+    $adminEvents = $adminEvents->latest()->get();
+
+    // Get approved professional events from AllEvent model
+    $professionalEvents = AllEvent::with('professional')
+        ->where('created_by_type', 'professional')
+        ->where('status', 'approved');
+
+    // Apply filters to professional events
+    if ($filter == 'today') {
+        $professionalEvents = $professionalEvents->whereDate('date', Carbon::today()->toDateString());
+    } elseif ($filter == 'tomorrow') {
+        $professionalEvents = $professionalEvents->whereDate('date', Carbon::tomorrow()->toDateString());
+    } elseif ($filter == 'weekend') {
+        $startOfWeekend = Carbon::now()->next(Carbon::SATURDAY)->startOfDay();
+        $endOfWeekend = Carbon::now()->next(Carbon::SUNDAY)->endOfDay();
+        $professionalEvents = $professionalEvents->whereBetween('date', [$startOfWeekend, $endOfWeekend]);
+    }
+
+    if ($category) {
+        $professionalEvents = $professionalEvents->where('mini_heading', $category);
+    }
+
+    if ($price_range) {
+        switch ($price_range) {
+            case '100-200':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [100, 200]);
+                break;
+            case '200-300':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [200, 300]);
+                break;
+            case '300-400':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [300, 400]);
+                break;
+            case '400-500':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [400, 500]);
+                break;
+            case '500-1000':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [500, 1000]);
+                break;
+        }
+    }
+
+    $professionalEvents = $professionalEvents->latest()->get();
+
+    Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
+
+    // Transform professional events to match admin event structure
+    $professionalEvents = $professionalEvents->map(function ($event) {
+        // Create a pseudo EventDetail structure for consistency with admin events
+        $pseudoEventDetail = new stdClass();
+        $pseudoEventDetail->id = $event->id;
+        $pseudoEventDetail->event = $event;
+        return $pseudoEventDetail;
+    });
+
+    // Combine both types of events
+    $events = collect($adminEvents)->merge($professionalEvents)->sortByDesc('created_at');
+
     $services = Service::latest()->get();
 
-    // Get unique categories for the filter
-    $categories = AllEvent::distinct()->pluck('mini_heading');
+    // Get unique categories for the filter (from both admin and professional events)
+    $adminCategories = AllEvent::where('created_by_type', 'admin')->distinct()->pluck('mini_heading');
+    $professionalCategories = AllEvent::where('created_by_type', 'professional')->where('status', 'approved')->distinct()->pluck('mini_heading');
+    $categories = $adminCategories->merge($professionalCategories)->unique();
 
     // Get unique cities for the filter
     $cities = EventDetail::distinct()->pluck('city')->filter();
@@ -165,11 +226,23 @@ Route::get('/eventlist', function (Request $request) {
     return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range', 'cities', 'city', 'event_modes', 'event_mode'));
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
-    $event = Event::with('eventDetails')->findOrFail($id);
-    $services = Service::all();
-    $eventfaqs = EventFAQ::latest()->get();
+    // First try to find in AllEvent (for professional events)
+    $allEvent = AllEvent::find($id);
 
-    return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
+    if ($allEvent && $allEvent->created_by_type === 'professional') {
+        // This is a professional event from AllEvent
+        $services = Service::all();
+        $eventfaqs = EventFAQ::latest()->get();
+
+        return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs'));
+    } else {
+        // This is an admin event from Event model
+        $event = Event::with('eventDetails')->findOrFail($id);
+        $services = Service::all();
+        $eventfaqs = EventFAQ::latest()->get();
+
+        return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
+    }
 })->name('event.details');
 Route::get('allevent', function ($id) {
     $eventdetails = Eventdetail::with('event')->latest()->get();
@@ -314,7 +387,10 @@ Route::get('register', [LoginController::class, 'showRegisterForm'])->name('regi
 Route::post('login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('register', [LoginController::class, 'register'])->name('register.submit');
 Route::post('/register/send-otp', [App\Http\Controllers\Frontend\LoginController::class, 'sendOtp'])->name('register.send-otp');
+Route::post('/register/save-lead', [App\Http\Controllers\Frontend\LoginController::class, 'saveCustomerLead'])->name('register.save-lead');
 Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
+Route::post('/register/create-incomplete', [App\Http\Controllers\Frontend\LoginController::class, 'createIncompleteUser'])->name('register.create-incomplete');
+Route::post('/register/complete', [App\Http\Controllers\Frontend\LoginController::class, 'completeRegistration'])->name('register.complete');
 
 
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
@@ -354,6 +430,9 @@ Route::middleware(['auth:user'])->group(function () {
     // New routes for paymentFailed and retryBooking
     Route::post('customer/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.customer.booking.payment.failed');
     Route::get('customer/booking/retry/{booking_id}', [CustomerBookingController::class, 'retryBooking'])->name('user.customer.booking.retry');
+
+    Route::post('/get-mcq-questions', [CustomerBookingController::class, 'getMCQQuestions'])->name('get.mcq.questions');
+    Route::post('/submit-mcq-answers', [CustomerBookingController::class, 'submitMCQAnswers'])->name('user.mcq.submit');
 });
 
 Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banner.index');

@@ -66,10 +66,12 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         // Custom guards for admin and user
+        'admin.auth' => \App\Http\Middleware\Authenticate::class . ':admin',
         'auth:admin' => \App\Http\Middleware\Authenticate::class,
         'auth:user' => \App\Http\Middleware\Authenticate::class,
         'professional.status' => \App\Http\Middleware\ProfessionalStatusMiddleware::class,
         'auth:professional' => \App\Http\Middleware\Authenticate::class,
+        'admin.menu' => \App\Http\Middleware\AdminMenuAccess::class,
     ];
 
     /**
@@ -93,6 +95,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         // Add role middleware
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'admin.auth' => \App\Http\Middleware\Authenticate::class . ':admin',
         'admin.menu' => \App\Http\Middleware\AdminMenuAccess::class,
     ];
 }

@@ -158,6 +158,7 @@ class ProfileController extends Controller
             'gst_address' => 'nullable|string|max:1000',
             'gst_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
             'photo' => 'nullable|image',
+            'cropped_photo' => 'nullable|string', // Base64 cropped photo data
             'gallery.*' => 'nullable|image',
             'deleted_images' => 'nullable|string', // Changed from delete_gallery array to deleted_images string
             'qualificationDocument' => 'nullable|file',
@@ -188,6 +189,17 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($profile->photo);
             }
             $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
+        } elseif ($request->filled('cropped_photo')) {
+            // Handle cropped photo as base64 data
+            try {
+                $croppedPhotoData = $request->cropped_photo;
+                
+                // Process base64 image data and handle old photo deletion
+                $profile->photo = $this->uploadBase64Image($croppedPhotoData, 'uploads/profiles/photo', $profile->photo);
+            } catch (\Exception $e) {
+                Log::error('Base64 image upload failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Photo upload failed. Please try again.'], 500);
+            }
         }
 
         // Enhanced gallery handling - preserve existing images and handle deletions

@@ -2,16 +2,10 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/booking-sign_up.css') }}" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 @endsection
 
 @section('content')
 <main class="bg_gray pattern">
-    <!-- Loading overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-    
     <div class="container margin_60_40">
         <div class="row justify-content-center">
             <div class="col-lg-5">
@@ -97,11 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!payBtn) return;
 
     payBtn.addEventListener('click', function () {
-        // Show loading state on button
-        const originalText = payBtn.innerHTML;
-        payBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
-        payBtn.disabled = true;
-        
         fetch("{{ route('user.booking.payment.init') }}", {
             method: 'POST',
             headers: {
@@ -116,10 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data || !data.order_id) {
                 console.error('Payment initialization failed:', data);
                 
-                // Reset button before showing error
-                payBtn.innerHTML = originalText;
-                payBtn.disabled = false;
-                
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         title: 'Payment Setup Failed',
@@ -133,10 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Reset button before showing Razorpay
-            payBtn.innerHTML = originalText;
-            payBtn.disabled = false;
-
             const options = {
                 key: data.key,
                 amount: data.amount,
@@ -148,21 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 handler: function (response) {
                     console.log('Payment successful, verifying...', response);
                     
-                    // Show immediate loader when payment succeeds
-                    Swal.fire({
-                        title: 'Payment Successful!',
-                        text: 'Processing your booking...',
-                        icon: 'success',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        showConfirmButton: false,
-                        showClass: {
-                            popup: 'animate__animated animate__fadeInDown animate__faster'
-                        },
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    // Show loading state
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Verifying Payment...',
+                            text: 'Please wait while we confirm your payment.',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    }
                     
                     fetch("{{ route('user.booking.payment.success') }}", {
                         method: 'POST',
@@ -185,29 +164,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('Payment verification response:', data);
                         
                         if (data.status === 'success') {
-                            // Show success message with auto-redirect
-                            Swal.fire({
-                                title: 'Booking Confirmed!',
-                                text: 'Your event booking has been confirmed successfully.',
-                                icon: 'success',
-                                timer: 3000,
-                                timerProgressBar: true,
-                                allowOutsideClick: false,
-                                showConfirmButton: false,
-                                showClass: {
-                                    popup: 'animate__animated animate__bounceIn animate__faster'
-                                },
-                                hideClass: {
-                                    popup: 'animate__animated animate__fadeOutUp animate__faster'
-                                }
-                            }).then(() => {
+                            // Show success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    title: 'Booking Confirmed!',
+                                    text: 'Your event booking has been confirmed successfully.',
+                                    icon: 'success',
+                                    confirmButtonText: 'View Booking',
+                                    allowOutsideClick: false
+                                }).then(() => {
+                                    window.location.href = "{{ route('user.event.booking.success') }}";
+                                });
+                            } else {
+                                alert('Booking confirmed successfully!');
                                 window.location.href = "{{ route('user.event.booking.success') }}";
-                            });
+                            }
                         } else {
                             console.error('Payment verification failed:', data);
-                            
-                            // Close the loader before showing error
-                            Swal.close();
                             
                             // Show appropriate error message
                             const message = data.message || 'Payment verification failed.';
@@ -232,9 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                     .catch(error => {
                         console.error('Network error during payment verification:', error);
-                        
-                        // Close the loader before showing error
-                        Swal.close();
                         
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
@@ -261,17 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const rzp = new Razorpay(options);
-            
-            // Show loading state when opening Razorpay
-            rzp.on('payment.created', function(response) {
-                console.log('Payment created:', response);
-            });
-            
-            // Show brief loading when opening payment modal
-            setTimeout(() => {
-                rzp.open();
-            }, 300); // Small delay to show button feedback
-            
             rzp.on('payment.failed', function (response) {
                 // First log the failure and send notifications
                 fetch("{{ route('user.customer.booking.payment.failed') }}", {
@@ -303,15 +262,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // Note: rzp.open() is called in setTimeout above with 300ms delay
+            // Handle general payment errors (network issues, etc.)
+            rzp.on('payment.error', function (response) {
+                console.error('Payment Error:', response);
+                showGenericPaymentError();
+            });
+
+            rzp.open();
         })
         .catch(err => {
             console.error(err);
-            
-            // Reset button before showing error
-            payBtn.innerHTML = originalText;
-            payBtn.disabled = false;
-            
             showGenericPaymentError();
         });
     });
@@ -534,60 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
 .swal2-icon.swal2-warning {
     border-color: #ffc107 !important;
     color: #ffc107 !important;
-}
-
-/* Button loading animation */
-.btn_1[disabled] {
-    opacity: 0.7;
-    cursor: not-allowed;
-    position: relative;
-}
-
-.btn_1 .fa-spinner {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Smooth transitions for buttons */
-.btn_1 {
-    transition: all 0.3s ease;
-}
-
-.btn_1:not([disabled]):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-/* Loading overlay for better UX */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    display: none;
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(2px);
-}
-
-.loading-overlay.show {
-    display: flex;
-}
-
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #0a58ca;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
 }
 </style>
 

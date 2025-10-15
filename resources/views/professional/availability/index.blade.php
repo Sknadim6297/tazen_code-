@@ -218,7 +218,31 @@
                     <tbody>
                         @forelse($availability as $item)
                             <tr>
-                                <td>{{ $item->month }}</td>
+                                <td>
+                                    @php
+                                        // Handle both old format (jan, feb, etc.), new format (2025-10)
+                                        $monthValue = $item->month;
+
+                                        if (strpos($monthValue, '-') !== false) {
+                                            // New format: 2025-10
+                                            try {
+                                                $fullMonth = \Carbon\Carbon::createFromFormat('Y-m', $monthValue)->format('F Y');
+                                            } catch (\Exception $e) {
+                                                $fullMonth = $monthValue;
+                                            }
+                                        } else {
+                                            // Old format: jan, feb, etc.
+                                            $monthNames = [
+                                                'jan' => 'January', 'feb' => 'February', 'mar' => 'March', 
+                                                'apr' => 'April', 'may' => 'May', 'jun' => 'June',
+                                                'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
+                                                'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
+                                            ];
+                                            $fullMonth = $monthNames[$monthValue] ?? ucfirst($monthValue);
+                                        }
+                                    @endphp
+                                    {{ $fullMonth }}
+                                </td>
                                 <td>{{ $item->session_duration }}</td>
                                 <td>
                                     @foreach(json_decode($item->weekdays) as $day)

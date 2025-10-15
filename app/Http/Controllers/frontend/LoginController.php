@@ -46,6 +46,23 @@ class LoginController extends Controller
             // Get user
             $user = User::where('email', $request->email)->first();
             
+            // Check if user has completed registration
+            // If user has password but registration_completed is false, auto-fix it
+            if (!$user->registration_completed && $user->password) {
+                $user->update([
+                    'registration_completed' => true,
+                    'password_set_at' => $user->password_set_at ?? now()
+                ]);
+            }
+            
+            // If still no password after auto-fix attempt, then registration is truly incomplete
+            if (!$user->password) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please complete your registration by setting a password first.',
+                ], 401);
+            }
+            
             // Check if user is already logged in on another device
             $activeSessions = ActiveSession::where('user_id', $user->id)->count();
             if ($activeSessions > 0 && !$request->has('force_login')) {
@@ -138,11 +155,9 @@ class LoginController extends Controller
             'ip_address' => $request->ip(),
             'last_active_at' => now(),
         ]);
+        return $session;
     }
 
-    /**
-     * Invalidate all other sessions for a user EXCEPT the current session
-     */
     private function invalidateOtherSessions($userId, $currentSessionId)
     {
         // Use a transaction for consistency
@@ -184,6 +199,82 @@ class LoginController extends Controller
     }
 
     /**
+     * Save customer lead immediately when they click "Continue"
+     * This captures all potential customers even if they don't complete registration
+     */
+    public function saveCustomerLead(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',  
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+        ]);
+
+        try {
+            // Check if email already exists with completed registration
+            $existingUser = User::where('email', $request->email)->first();
+            if ($existingUser && $existingUser->registration_completed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This email address is already registered.'
+                ], 422);
+            }
+            
+            // If user exists but registration is incomplete, update the existing record
+            if ($existingUser && !$existingUser->registration_completed) {
+                $existingUser->update([
+                    'name' => $request->first_name . ' ' . $request->last_name,
+                    'phone' => $request->phone,
+                    'registration_status' => 'started',
+                    'updated_at' => now(),
+                ]);
+                
+                $user = $existingUser;
+            } else {
+                // Create new user record with "started" status
+                $user = User::create([
+                    'name' => $request->first_name . ' ' . $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'password' => null, // No password yet
+                    'email_verified' => false,
+                    'registration_completed' => false,
+                    'registration_status' => 'started',
+                ]);
+            }
+
+            // Log this lead capture for admin tracking
+            Log::info('Customer lead captured', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'phone' => $user->phone,
+                'status' => 'started'
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Information saved. Proceeding to verification.',
+                'user_id' => $user->id
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to save customer lead: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'phone' => $request->phone
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save information. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
      * Send OTP verification code
      */
     public function sendOtp(Request $request)
@@ -192,8 +283,17 @@ class LoginController extends Controller
             'email' => 'required|email',
         ]);
 
-        // Check if email already exists
-        if (User::where('email', $request->email)->exists()) {
+        // Find the user that should have been created in saveCustomerLead
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User record not found. Please try again.'
+            ], 422);
+        }
+
+        // Check if email already exists with completed registration
+        if ($user->registration_completed) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'This email address is already registered.'
@@ -201,6 +301,9 @@ class LoginController extends Controller
         }
 
         try {
+            // Update status to pending_otp
+            $user->update(['registration_status' => 'pending_otp']);
+            
             // Generate and send OTP
             $otp = $this->otpService->generate($request->email);
             
@@ -233,6 +336,15 @@ class LoginController extends Controller
         $result = $this->otpService->verify($request->email, $request->otp);
 
         if ($result['success']) {
+            // Update user status to otp_verified
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                $user->update([
+                    'email_verified' => true,
+                    'registration_status' => 'otp_verified'
+                ]);
+            }
+            
             return response()->json([
                 'status' => 'success',
                 'message' => $result['message']
@@ -251,14 +363,24 @@ class LoginController extends Controller
      */
     public function register(Request $request)
     {
-        // Validation
+        // Validation - allow email to exist if registration is incomplete
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email',
+            'phone'      => 'required|string|min:10|max:15',
+            'email'      => 'required|email',
             'password'   => 'required|min:6|confirmed',
             'otp'        => 'required|string|size:6', // Changed to string|size:6
         ]);
+        
+        // Check if email already exists with completed registration
+        $existingUser = User::where('email', $request->email)->first();
+        if ($existingUser && $existingUser->registration_completed) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This email address is already registered.'
+            ], 422);
+        }
 
         // Verify OTP code
         $verification = $this->otpService->verify($request->email, $request->otp);
@@ -271,17 +393,27 @@ class LoginController extends Controller
         }
 
         try {
+            // If incomplete user exists, delete it first
+            if ($existingUser && !$existingUser->registration_completed) {
+                $existingUser->delete();
+            }
+            
             // Create user
             $user = User::create([
-                'name'     => $request->first_name . ' ' . $request->last_name,
-                'email'    => $request->email,
-                'password' => Hash::make($request->password),
+                'name'                   => $request->first_name . ' ' . $request->last_name,
+                'email'                  => $request->email,
+                'phone'                  => $request->phone,
+                'password'               => $request->password, // Will be hashed by the mutator
+                'email_verified'         => true,
+                'registration_completed' => true,
+                'password_set_at'        => now(),
+                'email_verified_at'      => now(),
             ]);
 
             // Return success response with redirect to login
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Your account has been created. Please login.',
+                'message' => 'Your account has been created successfully. Please login.',
                 'redirect_url' => route('login'),
                 'registered_email' => $request->email
             ]);
@@ -313,5 +445,118 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home');
+    }
+    
+    /**
+     * Create user after email verification but before password setup
+     */
+    public function createIncompleteUser(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'phone'      => 'required|string|min:10|max:15',
+            'email'      => 'required|email',
+            'otp'        => 'required|string|size:6',
+        ]);
+        
+        // Check if email already exists with completed registration
+        $existingUser = User::where('email', $request->email)->first();
+        if ($existingUser && $existingUser->registration_completed) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This email address is already registered.'
+            ], 422);
+        }
+
+        // Verify OTP code
+        $verification = $this->otpService->verify($request->email, $request->otp);
+        if (!$verification['success']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $verification['message'],
+                'error_type' => $verification['error_type'] ?? 'unknown'
+            ], 422);
+        }
+
+        try {
+            // If user already exists, update their status instead of creating new one
+            if ($existingUser) {
+                $existingUser->update([
+                    'name'                   => $request->first_name . ' ' . $request->last_name,
+                    'phone'                  => $request->phone,
+                    'email_verified'         => true,
+                    'registration_status'    => 'otp_verified',
+                    'registration_completed' => false,
+                    'email_verified_at'      => now(),
+                ]);
+                $user = $existingUser;
+            } else {
+                // Create new user (should not happen with new flow, but keeping as fallback)
+                $user = User::create([
+                    'name'                   => $request->first_name . ' ' . $request->last_name,
+                    'email'                  => $request->email,
+                    'phone'                  => $request->phone,
+                    'email_verified'         => true,
+                    'registration_status'    => 'otp_verified',
+                    'registration_completed' => false,
+                    'email_verified_at'      => now(),
+                ]);
+            }
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Email verified successfully. Please set your password.',
+                'user_id' => $user->id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create incomplete user: ' . $e->getMessage(), [
+                'email' => $request->email
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to verify email. Please try again later.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Complete registration by setting password
+     */
+    public function completeRegistration(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        try {
+            $user = User::findOrFail($request->user_id);
+            
+            // Update user with password
+            $user->update([
+                'password'               => $request->password, // Will be hashed by the mutator
+                'registration_status'    => 'completed',
+                'registration_completed' => true,
+                'password_set_at'        => now(),
+            ]);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Registration completed successfully. Please login.',
+                'redirect_url' => route('login'),
+                'registered_email' => $user->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to complete registration: ' . $e->getMessage(), [
+                'user_id' => $request->user_id
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to complete registration. Please try again later.'
+            ], 500);
+        }
     }
 }

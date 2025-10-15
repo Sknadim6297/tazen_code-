@@ -40,6 +40,46 @@
     align-items: center;
     gap: 5px;
 }
+
+/* Month selection styling */
+.month-selection-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.month-checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.month-checkbox-label:hover {
+    background: #f3f4f6;
+    border-color: #4f46e5;
+}
+
+.month-checkbox-label input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+.months-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+#selectAllMonths:checked ~ .months-grid .month-checkbox-label {
+    background: #f0f9ff;
+    border-color: #4f46e5;
+}
 </style>
 @endsection
 
@@ -58,28 +98,49 @@
                 @csrf
                 @method('PUT')
 
-                <div class="form-row mb-3" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label>Select Month</label>
-                        <select id="avail-month" class="form-control" name="month" required>
-                            <option value="">Select Month</option>
-                            @foreach($months as $num => $name)
-                                @if($num >= $currentMonth)
-                                    <option value="{{ strtolower(substr($name, 0, 3)) }}" {{ strtolower(substr($name, 0, 3)) == $availability->month ? 'selected' : '' }}>{{ $name }}</option>
-                                @endif
-                            @endforeach
-                        </select>
+                <div class="form-group mb-3">
+                    <label>Select Months</label>
+                    <div class="month-selection-container" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                        <div class="d-flex align-items-center mb-3">
+                            <label class="d-flex align-items-center mb-0" style="cursor: pointer;">
+                                <input type="checkbox" id="selectAllMonths" class="mr-2">
+                                <strong>Select All Next 6 Months</strong>
+                            </label>
+                        </div>
+                        <div class="months-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            @php
+                                $currentDate = now();
+                                for ($i = 0; $i < 6; $i++) {
+                                    $monthDate = $currentDate->copy()->addMonths($i);
+                                    $monthKey = $monthDate->format('Y-m'); // e.g., 2025-10
+                                    $monthDisplay = $monthDate->format('F Y'); // e.g., October 2025
+                                    
+                                    // Check if this month matches the availability month
+                                    $isChecked = $availability->month === $monthKey;
+                            @endphp
+                                    <label class="month-checkbox-label" style="display: flex; align-items: center; padding: 8px 12px; background: white; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                        <input type="checkbox" name="months[]" value="{{ $monthKey }}" class="month-checkbox mr-2" {{ $isChecked ? 'checked' : '' }}>
+                                        <span>{{ $monthDisplay }}</span>
+                                    </label>
+                            @php
+                                }
+                            @endphp
+                        </div>
+                        <div class="text-muted mt-2" style="font-size: 0.875rem;">
+                            <i class="fas fa-info-circle"></i>
+                            Select one or multiple months to create/update availability schedules.
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Session Duration</label>
-                        <select class="form-control" name="session_duration" required>
-                            @foreach([30, 45, 60, 90, 120] as $duration)
-                                <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
-                                    {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Session Duration</label>
+                    <select class="form-control" name="session_duration" required>
+                        @foreach([30, 45, 60, 90, 120] as $duration)
+                            <option value="{{ $duration }}" {{ $availability->session_duration == $duration ? 'selected' : '' }}>
+                                {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -143,6 +204,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const addSlotBtn = document.getElementById('addSlotBtn');
     const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
+
+    // Handle select all months functionality
+    function setupMonthCheckboxes() {
+        const selectAllMonths = document.getElementById('selectAllMonths');
+        const monthCheckboxes = document.querySelectorAll('.month-checkbox');
+        
+        if (selectAllMonths) {
+            selectAllMonths.addEventListener('change', function() {
+                monthCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+        
+        monthCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(monthCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(monthCheckboxes).some(cb => cb.checked);
+                
+                if (selectAllMonths) {
+                    selectAllMonths.checked = allChecked;
+                    selectAllMonths.indeterminate = anyChecked && !allChecked;
+                }
+            });
+        });
+        
+        // Initialize select all state
+        const checkedMonths = document.querySelectorAll('.month-checkbox:checked');
+        if (selectAllMonths) {
+            selectAllMonths.checked = checkedMonths.length === monthCheckboxes.length;
+            selectAllMonths.indeterminate = checkedMonths.length > 0 && checkedMonths.length < monthCheckboxes.length;
+        }
+    }
+
+    // Initialize month checkboxes
+    setupMonthCheckboxes();
 
     // Get the selected session duration in minutes
     function getSessionDuration() {
@@ -270,7 +367,13 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#availabilityForm').submit(function(e) {
         e.preventDefault();
         const form = this;
-        const formData = new FormData(form);
+        
+        // Validation: Check if at least one month is selected
+        const selectedMonths = document.querySelectorAll('input[name="months[]"]:checked');
+        if (selectedMonths.length === 0) {
+            toastr.error("Please select at least one month");
+            return false;
+        }
         
         // Validation: Check if at least one weekday is selected
         const selectedWeekdays = document.querySelectorAll('input[name="weekdays[]"]:checked');
@@ -314,6 +417,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        // Create custom FormData to handle multiple months
+        const formData = new FormData();
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        formData.append('_method', 'PUT');
+        
+        // Add selected months
+        selectedMonths.forEach(checkbox => {
+            formData.append('months[]', checkbox.value);
+        });
+        
+        // Add session duration
+        formData.append('session_duration', sessionDurationSelect.value);
+        
+        // Add weekdays
+        selectedWeekdays.forEach(checkbox => {
+            formData.append('weekdays[]', checkbox.value);
+        });
+        
+        // Add time slots
+        timeSlots.forEach((slot, index) => {
+            const startTime = slot.querySelector('input[name="start_time[]"]').value;
+            const endTime = slot.querySelector('input[name="end_time[]"]').value;
+            formData.append(`start_time[${index}]`, startTime);
+            formData.append(`end_time[${index}]`, endTime);
+        });
+
+        // Show loading message for multiple months
+        if (selectedMonths.length > 1) {
+            toastr.info(`Updating availability for ${selectedMonths.length} months... This may take a moment.`);
+        }
+
         $.ajax({
             url: "{{ route('professional.availability.update', $availability->id) }}",
             method: "POST",
@@ -325,15 +459,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    setTimeout(() => {
-                        window.location.href = "{{ route('professional.availability.index') }}";
-                    }, 1500);
-                } else {
-                    $.each(response.errors, function(index, error) {
-                        toastr.error(error);  
-                    });
+                try {
+                    const details = response.details || { successful: [], skipped: [], errors: [] };
+                    const updated = details.successful || [];
+                    const skipped = details.skipped || [];
+                    const errors = details.errors || [];
+
+                    if (updated.length > 0) {
+                        toastr.success((response.message || ('Availability updated for ' + updated.length + ' month(s)')));
+                    }
+
+                    if (skipped.length > 0) {
+                        toastr.warning((skipped.length) + ' month(s) were skipped because availability already exists: ' + skipped.join(', '));
+                        console.warn('Skipped months:', skipped);
+                    }
+
+                    if (errors.length > 0) {
+                        toastr.error((errors.length) + ' month(s) failed to update. See console for details');
+                        console.error('Availability update errors:', errors);
+                    }
+
+                    if (updated.length > 0) {
+                        setTimeout(() => { window.location.href = "{{ route('professional.availability.index') }}"; }, 1200);
+                    }
+                } catch (e) {
+                    console.error('Unexpected response format', response, e);
+                    toastr.error(response.message || 'Unexpected response from server');
                 }
             },
             error: function(xhr) {

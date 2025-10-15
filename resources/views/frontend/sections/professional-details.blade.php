@@ -1753,6 +1753,30 @@
             border-color: #6c757d;
             color: white;
         }
+
+        /* Professional Image Optimization */
+        .profile-main-image,
+        .professional-image-optimized {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: optimizeQuality;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* Ensure consistent image dimensions and cropping */
+        .profile-main-image {
+            width: 320px !important;
+            height: 320px !important;
+        }
+
+        /* Grid listing image consistency */
+        .strip figure img {
+            object-fit: cover !important;
+            object-position: center !important;
+            width: 100% !important;
+            height: 200px !important;
+        }
     </style>
 @endsection
 
@@ -1762,7 +1786,13 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="box_general">
                     <div class="profile-header-flex">
-                        <img src="{{ $profile && $profile->photo ? asset('storage/' . $profile->photo) : asset('img/lazy-placeholder.png') }}" alt="" class="profile-main-image">
+                        @php
+                            $profileImage = $profile && $profile->photo ? $profile->photo : null;
+                            $imageUrl = $profileImage && file_exists(public_path('storage/' . $profileImage)) 
+                                ? asset('storage/' . $profileImage) 
+                                : asset('frontend/assets/img/lazy-placeholder.png');
+                        @endphp
+                        <img src="{{ $imageUrl }}" alt="" class="profile-main-image">
                         <div class="profile-header-details">
                                                     @php
                                     $fullName = trim($profile->name ?? '');
@@ -2289,8 +2319,14 @@
                                             <div class="row">
                                                 @foreach($galleryImages as $image)
                                                     <div class="col-md-4 col-sm-6 mb-4">
-                                                        <a href="{{ Str::startsWith($image, 'storage/') ? asset($image) : asset('storage/' . $image) }}" class="gallery-item" data-fancybox="gallery">
-                                                            <img src="{{ Str::startsWith($image, 'storage/') ? asset($image) : asset('storage/' . $image) }}" class="img-fluid rounded" alt="Clinic Photo">
+                                                        @php
+                                                            $imagePath = Str::startsWith($image, 'storage/') ? $image : 'storage/' . $image;
+                                                            $fullImagePath = str_replace('storage/', 'storage/', $imagePath);
+                                                            $imageExists = file_exists(public_path($fullImagePath));
+                                                            $finalImageUrl = $imageExists ? asset($imagePath) : asset('frontend/assets/img/lazy-placeholder.png');
+                                                        @endphp
+                                                        <a href="{{ $finalImageUrl }}" class="gallery-item" data-fancybox="gallery">
+                                                            <img src="{{ $finalImageUrl }}" class="img-fluid rounded" alt="Clinic Photo">
                                                         </a>
                                                     </div>
                                                 @endforeach

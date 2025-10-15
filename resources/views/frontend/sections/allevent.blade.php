@@ -269,28 +269,36 @@
   <!-- Improved Banner Section -->
   <div class="hero_single event-slide">
     <div class="owl-carousel owl-theme">
-        @php
-            $banners = $event->banner_image;
-            if (is_string($banners)) {
-                $banners = json_decode($banners, true);
+        @if(isset($allEvent))
+            {{-- Professional Event - use card_image as banner --}}
+            <div class="item">
+                <img src="{{ asset('storage/' . $allEvent->card_image) }}" alt="{{ $allEvent->heading }}" />
+            </div>
+        @else
+            {{-- Admin Event - use banner_image array --}}
+            @php
+                $banners = $event->banner_image;
                 if (is_string($banners)) {
                     $banners = json_decode($banners, true);
+                    if (is_string($banners)) {
+                        $banners = json_decode($banners, true);
+                    }
                 }
-            }
-            if (!is_array($banners)) {
-                $banners = [];
-            }
-        @endphp
-        @if (is_array($banners) && count($banners))
-            @foreach ($banners as $banner)
+                if (!is_array($banners)) {
+                    $banners = [];
+                }
+            @endphp
+            @if (is_array($banners) && count($banners))
+                @foreach ($banners as $banner)
+                    <div class="item">
+                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $event->eventDetails->heading }}" />
+                    </div>
+                @endforeach
+            @else
                 <div class="item">
-                    <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $event->eventDetails->heading }}" />
+                    <p>No banner images available.</p>
                 </div>
-            @endforeach
-        @else
-            <div class="item">
-                <p>No banner images available.</p>
-            </div>
+            @endif
         @endif
     </div>
  </div>
@@ -300,18 +308,18 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="details-event">
-                    <h3>{{ $event->eventDetails->heading }}</h3>
-                    <p>{{ $event->event_type }}</p>
+                    <h3>{{ isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading }}</h3>
+                    <p>{{ isset($allEvent) ? $allEvent->mini_heading : ($event->event_type ?? 'Event') }}</p>
                 </div>
             </div>
             <div class="col-lg-4 text-end">
                 <button class="btn unique-btn" id="bookNowBtn"
-                    data-event-id="{{ $event->event_id ?? $event->id }}"
-                    data-event-name="{{ $event->eventDetails->heading ?? $event->name ?? 'Event' }}"
-                    data-location="{{ $event->city ?? 'Kolkata' }}"
-                    data-type="{{ $event->event_mode ?? 'offline' }}"
-                    data-event-date="{{ \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }}"
-                    data-amount="{{ $event->starting_fees }}">
+                    data-event-id="{{ isset($allEvent) ? $allEvent->id : ($event->event_id ?? $event->id) }}"
+                    data-event-name="{{ isset($allEvent) ? $allEvent->heading : ($event->eventDetails->heading ?? $event->name ?? 'Event') }}"
+                    data-location="{{ isset($allEvent) ? 'Online/Offline' : ($event->city ?? 'Kolkata') }}"
+                    data-type="{{ isset($allEvent) ? 'TBD' : ($event->event_mode ?? 'offline') }}"
+                    data-event-date="{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }}"
+                    data-amount="{{ isset($allEvent) ? $allEvent->starting_fees : $event->starting_fees }}">
                     Book Now
                 </button>
             </div>
@@ -321,9 +329,9 @@
 <hr>
 <div class="col-lg-12">
     <div class="event-date" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 30px;">
-        <p>{{ \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }} onwards</p>
-        <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->event_mode }}</p>
-        <p><span>Rs.{{ $event->starting_fees }}</span> onwards</p>
+        <p>{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }} onwards</p>
+        <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ isset($allEvent) ? 'To be announced' : $event->event_mode }}</p>
+        <p><span>₹{{ isset($allEvent) ? $allEvent->starting_fees : $event->starting_fees }}</span> onwards</p>
     </div>
 </div>
 
@@ -339,12 +347,12 @@
                            class="share-link facebook">
                             <i class="fa-brands fa-square-facebook"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?text={{ urlencode($event->eventDetails->heading) }}&url={{ urlencode(Request::url()) }}" 
+                        <a href="https://twitter.com/intent/tweet?text={{ urlencode(isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading) }}&url={{ urlencode(Request::url()) }}" 
                            target="_blank" 
                            class="share-link twitter">
                             <i class="fa-brands fa-square-x-twitter"></i>
                         </a>
-                        <a href="https://api.whatsapp.com/send?text={{ urlencode($event->eventDetails->heading . ' - ' . Request::url()) }}" 
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode((isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading) . ' - ' . Request::url()) }}" 
                            target="_blank" 
                            class="share-link whatsapp">
                             <i class="fa-brands fa-square-whatsapp"></i>
@@ -380,10 +388,12 @@
                <div class="third-portion my-3">
                 <div class="about-content">
                     <h3>About Event Details</h3>
-                    <p>{{ $event->event_details }}</p>
+                    <p>{{ isset($allEvent) ? $allEvent->short_description : $event->event_details }}</p>
                 </div>
             </div>
             
+            @if(!isset($allEvent))
+            {{-- Gallery section only for admin events --}}
             <div class="forth-portion my-3">
                 <div class="gallery-sliding">
                     <h2>Gallery</h2>
@@ -407,6 +417,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             <div class="fifth-portion">
                 <div class="col-lg-12 col-md-12 mt-md-0 mt-sm-4 mt-4">
@@ -467,11 +478,16 @@
             </div>
             <div class="col-lg-3 pl-0">
                 <div class="share-option">
-                    <h6>{{ $event->city }}</h6>
-                    <p>Venue to be announced {{ $event->city }}</p>
+                    <h6>{{ isset($allEvent) ? 'Location TBD' : ($event->city ?? 'Location TBD') }}</h6>
+                    <p>Venue to be announced {{ isset($allEvent) ? '' : ($event->city ?? '') }}</p>
                     <div style="position: relative; width: 100%; max-width: 600px; height: 300px; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                        @php
+                            $mapLink = isset($allEvent) ? ($allEvent->map_link ?? null) : ($event->map_link ?? null);
+                        @endphp
+
+                        @if($mapLink)
                         <iframe 
-                            src="{{ $event->map_link }}" 
+                            src="{{ $mapLink }}" 
                             width="100%" 
                             height="100%" 
                             style="border:0; pointer-events: none;" 
@@ -480,11 +496,16 @@
                             referrerpolicy="no-referrer-when-downgrade">
                         </iframe>
 
-                        <a href="{{ $event->map_link }}" 
+                        <a href="{{ $mapLink }}" 
                         target="_blank" 
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-indent: -9999px;">
                         Open Map
                         </a>
+                        @else
+                            <div style="display:flex;align-items:center;justify-content:center;height:100%;">
+                                <p style="color:#666;">Map not available for this event.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -973,10 +994,15 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function copyToClipboard() {
-    const eventDetails = `Check out this event: {{ $event->eventDetails->heading }}\n\n` +
-                        `Date: {{ $event->starting_date }}\n` +
-                        `Location: {{ $event->event_mode }}\n` +
-                        `Price: ₹{{ $event->starting_fees }}\n\n` +
+    const eventTitle = `{{ isset($allEvent) ? addslashes($allEvent->heading) : (isset($event) && isset($event->eventDetails) ? addslashes($event->eventDetails->heading) : 'Event') }}`;
+    const eventDate = `{{ isset($allEvent) ? ($allEvent->date ?? '') : ($event->starting_date ?? '') }}`;
+    const eventLocation = `{{ isset($allEvent) ? ($allEvent->mini_heading ?? '') : ($event->event_mode ?? '') }}`;
+    const eventPrice = `{{ isset($allEvent) ? ($allEvent->starting_fees ?? '') : ($event->starting_fees ?? '') }}`;
+
+    const eventDetails = `Check out this event: ${eventTitle}\n\n` +
+                        `Date: ${eventDate}\n` +
+                        `Location: ${eventLocation}\n` +
+                        `Price: ₹${eventPrice}\n\n` +
                         `More details: {{ Request::url() }}`;
 
     navigator.clipboard.writeText(eventDetails).then(() => {

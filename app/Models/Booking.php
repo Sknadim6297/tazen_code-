@@ -21,6 +21,7 @@ class Booking extends Model
         'customer_email',
         'month',
         'booking_date',
+        'booking_time',
         'days',
         'time_slot',
         'amount',
@@ -30,6 +31,11 @@ class Booking extends Model
         'igst_amount',
         'payment_id',
         'payment_status',
+        'paid_status', // Add paid_status field
+        'status',
+        'created_by',
+        'razorpay_payment_id',
+        'razorpay_order_id',
         'remarks',
         'remarks_for_professional',
         'customer_document',
@@ -72,5 +78,10 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    public function additionalServices()
+    {
+        return $this->hasMany(AdditionalService::class);
     }
 }

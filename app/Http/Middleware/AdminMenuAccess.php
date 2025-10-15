@@ -16,8 +16,13 @@ class AdminMenuAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Get the authenticated admin
-        $admin = auth('admin')->user();
+        // Get the authenticated admin using a more explicit approach
+        try {
+            $admin = auth()->guard('admin')->user();
+        } catch (\Exception $e) {
+            // If there's an issue with the guard, redirect to login
+            return redirect()->route('admin.login');
+        }
 
         // If no admin is authenticated, redirect to login
         if (!$admin) {

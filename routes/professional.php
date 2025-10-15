@@ -6,6 +6,7 @@ use App\Http\Controllers\Professional\AvailabilityController;
 use App\Http\Controllers\Professional\BillingController;
 use App\Http\Controllers\Professional\BookingController;
 use App\Http\Controllers\Professional\ProfessionalController;
+use App\Http\Controllers\Professional\ProfessionalEventController;
 use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\RequestedServiceController;
@@ -20,7 +21,7 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::get('rejected', [ProfessionalController::class, 'rejectedPage'])->name('rejected.view');
     Route::post('/re-submit', [ProfessionalController::class, 'reSubmit'])->name('register.re-submit');
     Route::get('/pending', [ProfessionalController::class, 'pendingPage'])->name('pending.view');
-    
+
     // Debug route to test authentication
     Route::get('/debug-auth', function () {
         return response()->json([
@@ -29,7 +30,7 @@ Route::middleware(['auth:professional'])->group(function () {
             'user_name' => Auth::guard('professional')->user()->name ?? 'No user'
         ]);
     });
-    
+
     // Chat Routes for Professional - Available regardless of status
     Route::post('/chat/initialize', [App\Http\Controllers\ChatController::class, 'initializeChat'])->name('professional.chat.initialize');
     Route::get('/chat/{chatId}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('professional.chat.messages');
@@ -43,7 +44,7 @@ Route::middleware(['auth:professional'])->group(function () {
 Route::middleware(['auth:professional', 'professional.status'])->group(function () {
     Route::get('dashboard', function () {
         $professional = Auth::guard('professional')->user();
-        
+
         // Clean up notifications older than 30 days
         $thirtyDaysAgo = \Carbon\Carbon::now()->subDays(30);
         DB::table('notifications')
@@ -51,14 +52,15 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
             ->where('notifiable_id', $professional->id)
             ->where('created_at', '<', $thirtyDaysAgo)
             ->delete();
-        
+
         // For professional dashboard, we don't show reschedule notifications (they're only in notification icon)
         // Only get unread notifications for notification icon count, but don't pass reschedule notifications to view
-        
+
         return view('professional.index');
     })->name('dashboard');
 
     Route::resource('profile', ProfileController::class);
+    Route::get('service/get-sub-services', [ServiceController::class, 'getSubServices'])->name('service.getSubServices');
     Route::resource('service', ServiceController::class);
     Route::resource('rate', RateController::class);
     Route::resource('availability', AvailabilityController::class);
@@ -79,11 +81,27 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
 
     // Add route for getting questionnaire answers
     Route::get('/bookings/{booking}/questionnaire', [App\Http\Controllers\Professional\BookingController::class, 'getQuestionnaireAnswers'])->name('booking.questionnaire');
-    
+
+    // Additional Services routes
+    Route::prefix('additional-services')->name('additional-services.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'create'])->name('create');
+        Route::post('/store', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'show'])->name('show');
+        Route::post('/{id}/mark-completed', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'markConsultationCompleted'])->name('mark-completed');
+        Route::post('/{id}/set-delivery-date', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'setDeliveryDate'])->name('set-delivery-date');
+        Route::post('/{id}/update-delivery-date', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'updateDeliveryDate'])->name('update-delivery-date');
+        Route::post('/{id}/complete-consultation', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'completeConsultation'])->name('complete-consultation');
+        Route::get('/get-bookings/ajax', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'getBookings'])->name('get-bookings');
+        // Professional negotiation routes
+        Route::post('/{id}/respond-negotiation', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'respondToNegotiation'])->name('respond-negotiation');
+        Route::post('/{id}/update-price', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'updatePrice'])->name('update-price');
+    });
+
     // Notification routes
     Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
         $professional = Auth::guard('professional')->user();
-        
+
         // Use DB query to find and update notification
         $updated = DB::table('notifications')
             ->where('id', $notificationId)
@@ -91,12 +109,14 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
             ->where('notifiable_id', $professional->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
-        
+
         if ($updated) {
             return response()->json(['success' => true]);
         }
-        
+
         return response()->json(['success' => false], 404);
     })->name('notifications.mark-as-read');
 
+    // Professional Events routes
+    Route::resource('events', ProfessionalEventController::class);
 });

@@ -72,6 +72,16 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
 
+    // Additional Services routes for customers
+    Route::prefix('additional-services')->name('additional-services.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'show'])->name('show');
+        Route::post('/{id}/negotiate', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'negotiate'])->name('negotiate');
+        Route::post('/{id}/confirm-consultation', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'confirmConsultation'])->name('confirm-consultation');
+        Route::post('/{id}/create-payment-order', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'createPaymentOrder'])->name('create-payment-order');
+        Route::post('/{id}/payment-success', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'handlePaymentSuccess'])->name('payment-success');
+    });
+
     Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
         ->name('billing.export-all');
 
