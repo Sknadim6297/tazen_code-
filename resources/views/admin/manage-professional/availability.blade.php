@@ -529,26 +529,76 @@
 
                                 @if($availability->slots && $availability->slots->count() > 0)
                                     <div class="mt-3">
-                                        <strong class="text-muted d-block mb-2"><i class="fe fe-clock me-1"></i>Time Slots:</strong>
-                                        <div class="availability-slots">
-                                            @foreach($availability->slots as $slot)
-                                                <span class="slot-badge">
-                                                    @php
-                                                        try {
-                                                            $startTime = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
-                                                        } catch (\Exception $e) {
-                                                            $startTime = $slot->start_time;
-                                                        }
-                                                        try {
-                                                            $endTime = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
-                                                        } catch (\Exception $e) {
-                                                            $endTime = $slot->end_time;
-                                                        }
-                                                    @endphp
-                                                    {{ $startTime }} - {{ $endTime }}
-                                                </span>
+                                        <strong class="text-muted d-block mb-2"><i class="fe fe-clock me-1"></i>Time Slots by Weekday:</strong>
+                                        @php
+                                            $dayNames = [
+                                                'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 
+                                                'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'
+                                            ];
+                                            $dayOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                                            
+                                            // Check if slots have weekday field
+                                            $firstSlot = $availability->slots->first();
+                                            $hasWeekdayField = $firstSlot && isset($firstSlot->weekday);
+                                            
+                                            if ($hasWeekdayField) {
+                                                // Group slots by their individual weekday field
+                                                $slotsByDay = $availability->slots->groupBy('weekday');
+                                            } else {
+                                                // Fallback: Show all slots under "All Days" if no weekday field exists
+                                                $slotsByDay = collect(['general' => $availability->slots]);
+                                            }
+                                            
+                                            // Sort by weekday order (if we have weekday-specific slots)
+                                            $sortedSlotsByDay = collect();
+                                            if ($hasWeekdayField) {
+                                                foreach ($dayOrder as $day) {
+                                                    if ($slotsByDay->has($day)) {
+                                                        $sortedSlotsByDay->put($day, $slotsByDay->get($day));
+                                                    }
+                                                }
+                                            } else {
+                                                $sortedSlotsByDay = $slotsByDay;
+                                            }
+                                        @endphp
+                                        
+                                        @if($sortedSlotsByDay->count() > 0)
+                                            @foreach($sortedSlotsByDay as $weekday => $daySlots)
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        @if($weekday === 'general')
+                                                            <span class="weekday-chip me-2">All Days</span>
+                                                        @else
+                                                            <span class="weekday-chip me-2">{{ $dayNames[$weekday] ?? ucfirst($weekday) }}</span>
+                                                        @endif
+                                                        <span class="text-muted" style="font-size: 0.85rem;">({{ $daySlots->count() }} slot{{ $daySlots->count() > 1 ? 's' : '' }})</span>
+                                                    </div>
+                                                    <div class="availability-slots">
+                                                        @foreach($daySlots as $slot)
+                                                            <span class="slot-badge">
+                                                                @php
+                                                                    try {
+                                                                        $startTime = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
+                                                                    } catch (\Exception $e) {
+                                                                        $startTime = $slot->start_time;
+                                                                    }
+                                                                    try {
+                                                                        $endTime = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
+                                                                    } catch (\Exception $e) {
+                                                                        $endTime = $slot->end_time;
+                                                                    }
+                                                                @endphp
+                                                                <i class="fe fe-clock" style="font-size: 0.75rem;"></i> {{ $startTime }} - {{ $endTime }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                             @endforeach
-                                        </div>
+                                        @else
+                                            <div class="text-muted" style="font-size: 0.9rem;">
+                                                <i class="fe fe-info"></i> No slots could be displayed. Please check the availability configuration.
+                                            </div>
+                                        @endif
                                     </div>
                                 @else
                                     <div class="alert alert-warning mb-0 mt-2">
@@ -713,6 +763,33 @@
     </div>
 </div>
 
+<!-- Edit Add for All Days Modal -->
+<div class="modal fade" id="editAddForAllModal" tabindex="-1" role="dialog" aria-labelledby="editAddForAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddForAllModalLabel"><i class="fe fe-layers me-2"></i>Add Time Slot for All Days</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" id="editAllDaysTime" class="form-control" placeholder="Select time">
+                </div>
+                <div class="alert alert-info" style="font-size: 0.875rem; margin-top: 10px;">
+                    <i class="fe fe-info"></i> This will add the same time slot to all 7 weekdays
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fe fe-x me-1"></i>Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="editApplyToAllDays()">
+                    <i class="fe fe-check me-1"></i> Add to All Days
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Edit Availability Modal -->
 <div class="modal fade" id="editAvailabilityModal" tabindex="-1" role="dialog" aria-labelledby="editAvailabilityModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -767,32 +844,41 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Time Slots Configuration</label>
+                        <label style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px;">
+                            <i class="fe fe-calendar"></i> Weekly Time Slots Configuration
+                        </label>
                         
-                        <!-- Individual Slot Generator -->
-                        <div class="slot-config">
-                            <div>
-                                <label>Slot Start Time</label>
-                                <input type="time" id="editSlotTime" class="form-control" placeholder="Select time">
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-success" id="editAddGeneratedSlotBtn">
-                                    <i class="fe fe-plus"></i> Add This Slot
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="text-muted mb-3" style="font-size: 0.9em;">
+                        <div class="alert alert-info" style="font-size: 0.9rem;">
                             <i class="fe fe-info"></i> 
-                            Add individual time slots. End time will be calculated automatically based on session duration.
+                            Use the time pickers below to add slots for each weekday. You can add multiple slots per day and use different times for different days.
                         </div>
 
-                        <!-- Generated Slots Preview -->
-                        <div id="editGeneratedSlotsPreview" class="generated-slots" style="display: none;">
-                            <h6>Added Time Slots:</h6>
-                            <div id="editSlotsPreviewContainer"></div>
-                            <button type="button" class="btn btn-danger btn-sm" id="editClearAllSlotsBtn" style="margin-top: 10px;">
-                                <i class="fe fe-trash-2"></i> Clear All Slots
+                        <!-- Weekly Scheduler Grid -->
+                        <div class="weekly-scheduler" id="editWeeklyScheduler">
+                            @php $days = ['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday']; @endphp
+                            @foreach($days as $dayKey => $dayName)
+                            <div class="weekday-column">
+                                <div class="weekday-header">{{ $dayName }}</div>
+                                <div class="slot-time-inputs">
+                                    <div class="time-input-wrapper">
+                                        <label>Add Time Slot</label>
+                                        <input type="time" class="form-control slot-time-picker" data-day="{{ $dayKey }}" placeholder="Select time">
+                                    </div>
+                                </div>
+                                <button type="button" class="add-slot-btn" onclick="addSlotToEditDay('{{ $dayKey }}')">
+                                    <i class="fe fe-plus"></i> Add Slot
+                                </button>
+                                <div id="edit_slots_{{ $dayKey }}" class="mt-3">
+                                    <!-- Slots will be rendered here -->
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Add for All Days Button -->
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="button" class="btn btn-primary add-for-all-btn" onclick="showEditAddForAllModal()">
+                                <i class="fe fe-layers"></i> Add Same Slot to All Days
                             </button>
                         </div>
                     </div>
@@ -1239,6 +1325,183 @@ document.addEventListener('DOMContentLoaded', function() {
     const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     days.forEach(day => renderDaySlots(day));
 
+    // ====== EDIT WEEKLY SCHEDULER FUNCTIONS ======
+    
+    // Weekly scheduler data structure for edit modal
+    let editWeeklySlots = {
+        mon: [],
+        tue: [],
+        wed: [],
+        thu: [],
+        fri: [],
+        sat: [],
+        sun: []
+    };
+    
+    let editSlotIdCounter = 0;
+    
+    // Add slot to specific day in edit modal
+    window.addSlotToEditDay = function(day) {
+        const timeInput = document.querySelector(`#editWeeklyScheduler .slot-time-picker[data-day="${day}"]`);
+        const timeValue = timeInput?.value;
+        
+        if (!timeValue) {
+            toastr.error('Please select a time');
+            return;
+        }
+        
+        // Parse 24-hour format time (HH:mm)
+        const [hours, minutes] = timeValue.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        const sessionDuration = parseInt(document.getElementById('edit_session_duration')?.value || 60);
+        const endDate = new Date(startDate.getTime() + (sessionDuration * 60 * 1000));
+        
+        const newSlot = {
+            id: editSlotIdCounter++,
+            day: day,
+            start: formatTime12Hour(startDate),
+            end: formatTime12Hour(endDate),
+            start24: formatTime24Hour(startDate),
+            end24: formatTime24Hour(endDate)
+        };
+        
+        // Check for overlaps
+        const daySlots = editWeeklySlots[day];
+        const hasOverlap = daySlots.some(slot => {
+            const existingStart = new Date(`1/1/2023 ${slot.start24}`);
+            const existingEnd = new Date(`1/1/2023 ${slot.end24}`);
+            const newStart = new Date(`1/1/2023 ${newSlot.start24}`);
+            const newEnd = new Date(`1/1/2023 ${newSlot.end24}`);
+            
+            return (newStart < existingEnd && newEnd > existingStart);
+        });
+        
+        if (hasOverlap) {
+            toastr.error('This time slot overlaps with an existing slot');
+            return;
+        }
+        
+        editWeeklySlots[day].push(newSlot);
+        editWeeklySlots[day].sort((a, b) => {
+            return new Date(`1/1/2023 ${a.start24}`) - new Date(`1/1/2023 ${b.start24}`);
+        });
+        
+        renderEditDaySlots(day);
+        
+        // Clear input
+        if (timeInput) timeInput.value = '';
+        
+        toastr.success('Slot added successfully');
+    };
+    
+    // Render slots for a specific day in edit modal
+    function renderEditDaySlots(day) {
+        const container = document.getElementById(`edit_slots_${day}`);
+        const slots = editWeeklySlots[day];
+        
+        if (slots.length === 0) {
+            container.innerHTML = '<div class="empty-slots-message">No slots added yet</div>';
+            return;
+        }
+        
+        container.innerHTML = slots.map(slot => `
+            <div class="time-slot-card" data-slot-id="${slot.id}">
+                <div class="time-slot-header">
+                    <div class="time-display">${slot.start} - ${slot.end}</div>
+                    <div class="slot-actions">
+                        <button type="button" class="btn-icon btn-delete" onclick="deleteEditSlot('${day}', ${slot.id})" title="Delete">
+                            <i class="fe fe-trash-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Delete slot in edit modal
+    window.deleteEditSlot = function(day, slotId) {
+        if (confirm('Are you sure you want to delete this time slot?')) {
+            editWeeklySlots[day] = editWeeklySlots[day].filter(s => s.id !== slotId);
+            renderEditDaySlots(day);
+            toastr.success('Slot deleted');
+        }
+    };
+    
+    // Show "Add for All" modal for edit
+    window.showEditAddForAllModal = function() {
+        document.getElementById('editAllDaysTime').value = '';
+        $('#editAddForAllModal').modal('show');
+    };
+    
+    // Apply slot to all days in edit modal
+    window.editApplyToAllDays = function() {
+        const timeValue = document.getElementById('editAllDaysTime').value.trim();
+        
+        if (!timeValue) {
+            toastr.error('Please select a time');
+            return;
+        }
+        
+        // Parse 24-hour format time (HH:mm)
+        const [hours, minutes] = timeValue.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        const sessionDuration = parseInt(document.getElementById('edit_session_duration')?.value || 60);
+        const endDate = new Date(startDate.getTime() + (sessionDuration * 60 * 1000));
+        
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        let addedCount = 0;
+        let skippedCount = 0;
+        
+        days.forEach(day => {
+            const newSlot = {
+                id: editSlotIdCounter++,
+                day: day,
+                start: formatTime12Hour(startDate),
+                end: formatTime12Hour(endDate),
+                start24: formatTime24Hour(startDate),
+                end24: formatTime24Hour(endDate)
+            };
+            
+            // Check for overlaps
+            const daySlots = editWeeklySlots[day];
+            const hasOverlap = daySlots.some(slot => {
+                const existingStart = new Date(`1/1/2023 ${slot.start24}`);
+                const existingEnd = new Date(`1/1/2023 ${slot.end24}`);
+                const newStart = new Date(`1/1/2023 ${newSlot.start24}`);
+                const newEnd = new Date(`1/1/2023 ${newSlot.end24}`);
+                
+                return (newStart < existingEnd && newEnd > existingStart);
+            });
+            
+            if (!hasOverlap) {
+                editWeeklySlots[day].push(newSlot);
+                editWeeklySlots[day].sort((a, b) => {
+                    return new Date(`1/1/2023 ${a.start24}`) - new Date(`1/1/2023 ${b.start24}`);
+                });
+                renderEditDaySlots(day);
+                addedCount++;
+            } else {
+                skippedCount++;
+            }
+        });
+        
+        $('#editAddForAllModal').modal('hide');
+        
+        if (addedCount > 0) {
+            toastr.success(`Added to ${addedCount} day(s)`);
+        }
+        if (skippedCount > 0) {
+            toastr.warning(`Skipped ${skippedCount} day(s) due to overlapping times`);
+        }
+    };
+
+    // Render all edit days on initial load
+    days.forEach(day => renderEditDaySlots(day));
+
     // Show add modal
     window.showAddAvailabilityModal = function() {
         // Reset form
@@ -1372,6 +1635,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const sessionDurationEl = document.getElementById('session_duration');
         formData.append('session_duration', sessionDurationEl ? sessionDurationEl.value : '60');
         
+        // Add weekdays array for backend validation
+        daysWithSlots.forEach(day => {
+            formData.append('weekdays[]', day);
+        });
+        
         // Add all slots with their weekday and start/end times
         let slotIndex = 0;
         daysWithSlots.forEach(day => {
@@ -1462,11 +1730,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Weekday selection removed; weekdays are determined per-slot in the scheduler
+        // Validation: Check if at least one time slot is added to any day
+        const totalEditSlots = Object.values(editWeeklySlots).reduce((sum, daySlots) => sum + daySlots.length, 0);
+        if (totalEditSlots === 0) {
+            toastr.error("Please add at least one time slot to any weekday");
+            return false;
+        }
         
-        // Validation: Check if time slots are generated
-        if (editGeneratedSlots.length === 0) {
-            toastr.error("Please add at least one time slot using AM/PM format");
+        // Get days that have slots
+        const editDaysWithSlots = Object.keys(editWeeklySlots).filter(day => editWeeklySlots[day].length > 0);
+        if (editDaysWithSlots.length === 0) {
+            toastr.error("Please add time slots to at least one weekday");
             return false;
         }
         
@@ -1483,12 +1757,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const editSessionDurationEl = document.getElementById('edit_session_duration');
         formData.append('session_duration', editSessionDurationEl ? editSessionDurationEl.value : '60');
         
-        // Weekdays are included per-slot; no top-level weekdays[] required
+        // Add weekdays array for backend validation
+        editDaysWithSlots.forEach(day => {
+            formData.append('weekdays[]', day);
+        });
         
-        // Add generated slots
-        editGeneratedSlots.forEach((slot, index) => {
-            formData.append(`slots[${index}][start_time]`, slot.start24);
-            formData.append(`slots[${index}][end_time]`, slot.end24);
+        // Add all slots with their weekday and start/end times
+        let slotIndex = 0;
+        editDaysWithSlots.forEach(day => {
+            editWeeklySlots[day].forEach(slot => {
+                formData.append(`slots[${slotIndex}][weekday]`, day);
+                formData.append(`slots[${slotIndex}][start_time]`, slot.start24);
+                formData.append(`slots[${slotIndex}][end_time]`, slot.end24);
+                slotIndex++;
+            });
         });
 
         $.ajax({
@@ -1578,24 +1860,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set session duration
             $('#edit_session_duration').val(availability.session_duration || 60);
             
-            // Weekday checkboxes removed; weekdays will be handled per-slot
+            // Reset edit weekly slots
+            editWeeklySlots = {
+                mon: [],
+                tue: [],
+                wed: [],
+                thu: [],
+                fri: [],
+                sat: [],
+                sun: []
+            };
+            editSlotIdCounter = 0;
             
-            // Reset edit slot generator
-            editGeneratedSlots = [];
+            // Clear all time inputs in edit modal
+            document.querySelectorAll('#editWeeklyScheduler .slot-time-picker').forEach(input => input.value = '');
             
-            // Reset input/select for edit slot generator
-            const editHourInput = document.getElementById('editSlotHour');
-            const editMinuteInput = document.getElementById('editSlotMinute');
-            const editAmpmSelect = document.getElementById('editSlotAMPM');
-
-            if (editHourInput) editHourInput.value = '';
-            if (editMinuteInput) editMinuteInput.value = '00';
-            if (editAmpmSelect) editAmpmSelect.value = '';
-            
-            const editPreviewEl = document.getElementById('editGeneratedSlotsPreview');
-            if (editPreviewEl) editPreviewEl.style.display = 'none';
-            
-            // Convert existing slots to generated slots format
+            // Convert existing slots to edit weekly slots format
             if (availability.slots && availability.slots.length > 0) {
                 availability.slots.forEach(slot => {
                     // Convert 24-hour time to 12-hour format for display
@@ -1615,17 +1895,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     const endDate = new Date(`1/1/2023 ${endTime24}`);
                     
                     const slotData = {
+                        id: editSlotIdCounter++,
+                        day: slot.weekday || 'mon', // Default to Monday if no weekday specified
                         start: formatTime12Hour(startDate),
                         end: formatTime12Hour(endDate),
                         start24: startTime24,
                         end24: endTime24
                     };
                     
-                    editGeneratedSlots.push(slotData);
+                    // Add to appropriate weekday
+                    const weekday = slot.weekday || 'mon';
+                    editWeeklySlots[weekday].push(slotData);
                 });
                 
-                // Display the existing slots
-                displayEditGeneratedSlots();
+                // Sort slots by time and render
+                days.forEach(day => {
+                    editWeeklySlots[day].sort((a, b) => {
+                        return new Date(`1/1/2023 ${a.start24}`) - new Date(`1/1/2023 ${b.start24}`);
+                    });
+                    renderEditDaySlots(day);
+                });
+            } else {
+                // No existing slots, render empty days
+                days.forEach(day => renderEditDaySlots(day));
             }
             
             // Set form action and update modal title
@@ -1666,24 +1958,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set session duration
             $('#edit_session_duration').val(availability.session_duration || 60);
             
-            // Weekday checkboxes removed; existing availability's weekdays will be represented by its slots
+            // Reset edit weekly slots
+            editWeeklySlots = {
+                mon: [],
+                tue: [],
+                wed: [],
+                thu: [],
+                fri: [],
+                sat: [],
+                sun: []
+            };
+            editSlotIdCounter = 0;
             
-            // Reset edit slot generator
-            editGeneratedSlots = [];
+            // Clear all time inputs in edit modal
+            document.querySelectorAll('#editWeeklyScheduler .slot-time-picker').forEach(input => input.value = '');
             
-            // Reset input/select for edit slot generator
-            const editHourInput = document.getElementById('editSlotHour');
-            const editMinuteInput = document.getElementById('editSlotMinute');
-            const editAmpmSelect = document.getElementById('editSlotAMPM');
-
-            if (editHourInput) editHourInput.value = '';
-            if (editMinuteInput) editMinuteInput.value = '00';
-            if (editAmpmSelect) editAmpmSelect.value = '';
-            
-            const editPreviewEl = document.getElementById('editGeneratedSlotsPreview');
-            if (editPreviewEl) editPreviewEl.style.display = 'none';
-            
-            // Convert existing slots to generated slots format
+            // Convert existing slots to edit weekly slots format
             if (availability.slots && availability.slots.length > 0) {
                 availability.slots.forEach(slot => {
                     // Convert 24-hour time to 12-hour format for display
@@ -1703,17 +1993,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     const endDate = new Date(`1/1/2023 ${endTime24}`);
                     
                     const slotData = {
+                        id: editSlotIdCounter++,
+                        day: slot.weekday || 'mon', // Default to Monday if no weekday specified
                         start: formatTime12Hour(startDate),
                         end: formatTime12Hour(endDate),
                         start24: startTime24,
                         end24: endTime24
                     };
                     
-                    editGeneratedSlots.push(slotData);
+                    // Add to appropriate weekday
+                    const weekday = slot.weekday || 'mon';
+                    editWeeklySlots[weekday].push(slotData);
                 });
                 
-                // Display the existing slots
-                displayEditGeneratedSlots();
+                // Sort slots by time and render
+                days.forEach(day => {
+                    editWeeklySlots[day].sort((a, b) => {
+                        return new Date(`1/1/2023 ${a.start24}`) - new Date(`1/1/2023 ${b.start24}`);
+                    });
+                    renderEditDaySlots(day);
+                });
+            } else {
+                // No existing slots, render empty days
+                days.forEach(day => renderEditDaySlots(day));
             }
             
             // Set form action and reset modal title
@@ -1801,16 +2103,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const generatedPreviewEl = document.getElementById('generatedSlotsPreview');
             if (generatedPreviewEl) generatedPreviewEl.style.display = 'none';
+            
+            // Reset weekly slots
+            weeklySlots = {
+                mon: [],
+                tue: [],
+                wed: [],
+                thu: [],
+                fri: [],
+                sat: [],
+                sun: []
+            };
+            slotIdCounter = 0;
+            
+            // Clear all time inputs
+            document.querySelectorAll('.slot-time-picker').forEach(input => input.value = '');
+            
+            // Re-render all days
+            days.forEach(day => renderDaySlots(day));
         } else if (modal.attr('id') === 'editAvailabilityModal') {
-            // Reset edit slot generator
-            editGeneratedSlots = [];
-
-            // Reset edit inputs
-            const editTimeInput = document.getElementById('editSlotTime');
-            if (editTimeInput) editTimeInput.value = '';
-
-            const editGeneratedPreviewEl = document.getElementById('editGeneratedSlotsPreview');
-            if (editGeneratedPreviewEl) editGeneratedPreviewEl.style.display = 'none';
+            // Reset edit weekly slots
+            editWeeklySlots = {
+                mon: [],
+                tue: [],
+                wed: [],
+                thu: [],
+                fri: [],
+                sat: [],
+                sun: []
+            };
+            editSlotIdCounter = 0;
+            
+            // Clear all time inputs in edit modal
+            document.querySelectorAll('#editWeeklyScheduler .slot-time-picker').forEach(input => input.value = '');
+            
+            // Re-render all edit days
+            days.forEach(day => renderEditDaySlots(day));
         }
         
         // Clear any validation errors

@@ -104,27 +104,32 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* Calendar date styling */
-        .flatpickr-day.has-slots {
-            background: #d4edda !important;
-            border-color: #28a745 !important;
+        /* Calendar date styling - Only highlight available dates in green */
+        .flatpickr-day.has-available-slots {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+            border: 2px solid #28a745 !important;
             color: #155724 !important;
+            font-weight: bold;
+            position: relative;
         }
 
-        .flatpickr-day.has-slots:hover {
-            background: #28a745 !important;
+        .flatpickr-day.has-available-slots:hover {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
             color: white !important;
+            transform: scale(1.05);
+            transition: all 0.2s ease;
         }
 
-        .flatpickr-day.no-slots {
-            background: #f8d7da !important;
-            border-color: #dc3545 !important;
-            color: #721c24 !important;
-        }
-
-        .flatpickr-day.no-slots:hover {
-            background: #dc3545 !important;
-            color: white !important;
+        /* Green dot indicator for dates with available slots */
+        .flatpickr-day.has-available-slots::before {
+            content: '●';
+            position: absolute;
+            top: 1px;
+            right: 2px;
+            color: #28a745;
+            font-size: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 2px white;
         }
     </style>
     </style>
@@ -216,16 +221,24 @@
                                 
                                 <!-- Calendar Legend -->
                                 <div class="mt-3">
-                                    <small class="text-muted d-block mb-2"><strong>Legend:</strong></small>
+                                    <small class="text-muted d-block mb-2"><strong>Calendar Legend:</strong></small>
                                     <div class="d-flex flex-wrap gap-3">
                                         <div class="d-flex align-items-center">
-                                            <div style="width: 15px; height: 15px; background: #d4edda; border: 1px solid #28a745; border-radius: 3px; margin-right: 5px;"></div>
-                                            <small class="text-muted">Available slots</small>
+                                            <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 3px; margin-right: 8px; position: relative;">
+                                                <div style="position: absolute; top: 1px; right: 2px; color: #28a745; font-size: 8px; font-weight: bold;">●</div>
+                                            </div>
+                                            <small class="text-muted">Dates with available slots</small>
                                         </div>
                                         <div class="d-flex align-items-center">
-                                            <div style="width: 15px; height: 15px; background: #f8d7da; border: 1px solid #dc3545; border-radius: 3px; margin-right: 5px;"></div>
-                                            <small class="text-muted">No available slots</small>
+                                            <div style="width: 20px; height: 20px; background: #ffffff; border: 1px solid #dee2e6; border-radius: 3px; margin-right: 8px;"></div>
+                                            <small class="text-muted">No availability</small>
                                         </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-info">
+                                            <i class="ri-information-line me-1"></i>
+                                            Calendar shows all dates from today to 2050. Only dates with available booking slots are highlighted in green.
+                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -313,19 +326,19 @@
             // Normalize enabled dates to YYYY-MM-DD format
             const normalizedEnabledDates = Array.isArray(enabledDates) ? enabledDates.filter(date => date && typeof date === 'string') : [];
             
-            // Create safe date boundaries
+            console.log('Enabled dates for calendar:', normalizedEnabledDates);
+            
+            // Create date boundaries - today to 2050
             const today = new Date();
-            const maxDate = new Date();
-            maxDate.setDate(today.getDate() + 90); // 90 days from today
+            today.setHours(0, 0, 0, 0);
+            const maxDate = new Date(2050, 11, 31); // December 31, 2050
 
-            // Flatpickr config with proper date filtering
+            // Flatpickr config with extended date range
             const fp = flatpickr("#calendar", {
                 inline: true,
                 minDate: today,
                 maxDate: maxDate,
                 dateFormat: "Y-m-d",
-                // Only enable dates that are in the professional's availability
-                enable: normalizedEnabledDates.length > 0 ? normalizedEnabledDates.map(date => new Date(date)) : undefined,
                 onChange: function(selectedDates, dateStr) {
                     console.log('Date selected:', dateStr);
                     if (dateStr) {
@@ -333,31 +346,44 @@
                     }
                 },
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
-                    const dateStr = dayElem.dateObj.toISOString().split('T')[0];
+                    // Use local date without timezone conversion to avoid day shift
+                    const dayDate = new Date(dayElem.dateObj);
+                    const year = dayDate.getFullYear();
+                    const month = String(dayDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(dayDate.getDate()).padStart(2, '0');
+                    const dateStr = `${year}-${month}-${day}`;
                     
-                    // Only check slots for enabled dates
-                    if (normalizedEnabledDates.includes(dateStr) && dayElem.dateObj >= today) {
-                        // Mark as available initially, will be updated by slot check
-                        dayElem.classList.add('has-slots');
-                        dayElem.title = 'Available for booking';
+                    dayDate.setHours(0, 0, 0, 0);
+                    
+                    // Skip past dates
+                    if (dayDate < today) {
+                        return;
+                    }
+                    
+                    // Check if this date has available slots
+                    if (normalizedEnabledDates.includes(dateStr)) {
+                        // Highlight dates that have availability
+                        dayElem.classList.add('has-available-slots');
+                        dayElem.title = `Available slots on ${dateStr}`;
+                    } else {
+                        // No availability for this date
+                        dayElem.title = `No availability on ${dateStr}`;
                     }
                 }
             });
 
-            console.log('Flatpickr initialized successfully');
+            console.log('Flatpickr initialized successfully with date range:', today.toDateString(), 'to', maxDate.toDateString());
+            console.log('Total enabled dates:', normalizedEnabledDates.length);
             
         } catch (error) {
             console.error('Flatpickr initialization failed:', error);
             
-            // Fallback: Use a simple HTML date input
+            // Fallback: Use a simple HTML date input with extended range
             const calendarElement = document.getElementById('calendar');
             if (calendarElement) {
                 calendarElement.type = 'date';
                 calendarElement.min = new Date().toISOString().split('T')[0];
-                
-                const maxDate = new Date();
-                maxDate.setDate(maxDate.getDate() + 90);
-                calendarElement.max = maxDate.toISOString().split('T')[0];
+                calendarElement.max = '2050-12-31'; // Extended to 2050
                 
                 calendarElement.addEventListener('change', function() {
                     if (this.value) {
@@ -365,7 +391,7 @@
                     }
                 });
                 
-                console.log('Fallback date input initialized');
+                console.log('Fallback date input initialized with extended range');
             }
         }
 
@@ -373,6 +399,20 @@
         function loadAvailableSlots(date) {
             console.log('Loading slots for date:', date);
             const slotsContainer = document.getElementById('slots-container');
+            
+            // Check if we have cached data for this date
+            if (dateSlotAvailability[date]) {
+                console.log('Using cached slot data for', date);
+                const cachedData = {
+                    available_slots: dateSlotAvailability[date].available,
+                    booked_slots: dateSlotAvailability[date].booked,
+                    all_slots: dateSlotAvailability[date].all
+                };
+                displaySlots(cachedData, date);
+                return;
+            }
+            
+            // Show loading state
             slotsContainer.innerHTML = '<div class="text-center"><i class="ri-loader-line fa-spin"></i> Loading slots...</div>';
 
             fetch(`{{ route('admin.admin-booking.get-available-slots') }}?date=${date}&professional_id=${professionalId}`)
@@ -383,7 +423,17 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Slots data:', data);
+                    console.log('Slots data for', date, ':', data);
+                    
+                    // Cache the data for quick access
+                    if (data.available_slots || data.all_slots) {
+                        dateSlotAvailability[date] = {
+                            available: data.available_slots || [],
+                            booked: data.booked_slots || [],
+                            all: data.all_slots || []
+                        };
+                    }
+                    
                     displaySlots(data, date);
                 })
                 .catch(error => {

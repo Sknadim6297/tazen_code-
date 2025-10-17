@@ -467,9 +467,14 @@ class ManageProfessionalController extends Controller
     public function manageRates($professionalId)
     {
         $professional = Professional::findOrFail($professionalId);
-        $rates = Rate::where('professional_id', $professionalId)->get();
+        $rates = Rate::where('professional_id', $professionalId)->with('subService')->get();
         
-        return view('admin.manage-professional.rates', compact('professional', 'rates'));
+        // Get professional's services and their sub-services
+        $professionalServices = \App\Models\ProfessionalService::where('professional_id', $professionalId)
+            ->with(['service', 'subServices'])
+            ->get();
+        
+        return view('admin.manage-professional.rates', compact('professional', 'rates', 'professionalServices'));
     }
 
     /**
@@ -594,11 +599,23 @@ class ManageProfessionalController extends Controller
             'num_sessions' => 'required|integer|min:1',
             'rate_per_session' => 'required|numeric|min:0',
             'final_rate' => 'required|numeric|min:0',
+            'sub_service_id' => 'nullable|exists:sub_services,id',
             'features' => 'nullable|array',
             'features.*' => 'nullable|string'
         ]);
 
         $professional = Professional::findOrFail($professionalId);
+
+        // Check for duplicate session type for this professional and sub-service combination
+        $existingRate = Rate::where('professional_id', $professionalId)
+            ->where('session_type', $request->session_type)
+            ->where('sub_service_id', $request->sub_service_id)
+            ->exists();
+
+        if ($existingRate) {
+            return back()->with('error', 'A rate with this session type already exists for this professional' . 
+                ($request->sub_service_id ? ' and sub-service' : '') . '. Please choose a different session type.');
+        }
 
         // Filter out empty features
         $features = array_filter($request->features ?? [], function($feature) {
@@ -611,6 +628,7 @@ class ManageProfessionalController extends Controller
             'num_sessions' => $request->num_sessions,
             'rate_per_session' => $request->rate_per_session,
             'final_rate' => $request->final_rate,
+            'sub_service_id' => $request->sub_service_id,
             'features' => $features
         ]);
 
@@ -627,6 +645,7 @@ class ManageProfessionalController extends Controller
             'num_sessions' => 'required|integer|min:1',
             'rate_per_session' => 'required|numeric|min:0',
             'final_rate' => 'required|numeric|min:0',
+            'sub_service_id' => 'nullable|exists:sub_services,id',
             'features' => 'nullable|array',
             'features.*' => 'nullable|string'
         ]);
@@ -634,6 +653,18 @@ class ManageProfessionalController extends Controller
         $rate = Rate::where('professional_id', $professionalId)
                     ->where('id', $rateId)
                     ->firstOrFail();
+
+        // Check for duplicate session type (excluding current rate)
+        $existingRate = Rate::where('professional_id', $professionalId)
+            ->where('session_type', $request->session_type)
+            ->where('sub_service_id', $request->sub_service_id)
+            ->where('id', '!=', $rateId)
+            ->exists();
+
+        if ($existingRate) {
+            return back()->with('error', 'A rate with this session type already exists for this professional' . 
+                ($request->sub_service_id ? ' and sub-service' : '') . '. Please choose a different session type.');
+        }
 
         // Filter out empty features
         $features = array_filter($request->features ?? [], function($feature) {
@@ -645,6 +676,7 @@ class ManageProfessionalController extends Controller
             'num_sessions' => $request->num_sessions,
             'rate_per_session' => $request->rate_per_session,
             'final_rate' => $request->final_rate,
+            'sub_service_id' => $request->sub_service_id,
             'features' => $features
         ]);
 
@@ -680,7 +712,8 @@ class ManageProfessionalController extends Controller
             'weekdays.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
             'slots' => 'required|array',
             'slots.*.start_time' => 'required|date_format:H:i',
-            'slots.*.end_time' => 'required|date_format:H:i|after:slots.*.start_time'
+            'slots.*.end_time' => 'required|date_format:H:i|after:slots.*.start_time',
+            'slots.*.weekday' => 'required|in:mon,tue,wed,thu,fri,sat,sun'
         ]);
 
         $professional = Professional::findOrFail($professionalId);
@@ -714,7 +747,8 @@ class ManageProfessionalController extends Controller
                     foreach ($request->slots as $slot) {
                         $availability->slots()->create([
                             'start_time' => $slot['start_time'],
-                            'end_time' => $slot['end_time']
+                            'end_time' => $slot['end_time'],
+                            'weekday' => $slot['weekday']
                         ]);
                     }
                     
@@ -789,7 +823,8 @@ class ManageProfessionalController extends Controller
             'weekdays.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
             'slots' => 'required|array',
             'slots.*.start_time' => 'required|date_format:H:i',
-            'slots.*.end_time' => 'required|date_format:H:i|after:slots.*.start_time'
+            'slots.*.end_time' => 'required|date_format:H:i|after:slots.*.start_time',
+            'slots.*.weekday' => 'nullable|in:mon,tue,wed,thu,fri,sat,sun'
         ]);
 
         $availability = Availability::where('professional_id', $professionalId)
@@ -831,7 +866,8 @@ class ManageProfessionalController extends Controller
                 foreach ($request->slots as $slot) {
                     $availability->slots()->create([
                         'start_time' => $slot['start_time'],
-                        'end_time' => $slot['end_time']
+                        'end_time' => $slot['end_time'],
+                        'weekday' => $slot['weekday'] ?? null
                     ]);
                 }
                 
@@ -861,7 +897,8 @@ class ManageProfessionalController extends Controller
                     foreach ($request->slots as $slot) {
                         $newAvailability->slots()->create([
                             'start_time' => $slot['start_time'],
-                            'end_time' => $slot['end_time']
+                            'end_time' => $slot['end_time'],
+                            'weekday' => $slot['weekday'] ?? null
                         ]);
                     }
                     

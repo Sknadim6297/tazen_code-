@@ -196,6 +196,11 @@
                             <div class="rate-header">
                                 <div>
                                     <h3 class="rate-type">{{ $rate->session_type }}</h3>
+                                    @if($rate->sub_service_id && $rate->subService)
+                                    <div class="mb-2">
+                                        <span class="badge bg-info text-white">Sub-Service: {{ $rate->subService->name }}</span>
+                                    </div>
+                                    @endif
                                     <div class="rate-details">
                                         <span class="rate-badge">{{ $rate->num_sessions }} sessions</span>
                                         <span class="rate-badge">₹{{ number_format($rate->rate_per_session) }}/session</span>
@@ -271,6 +276,27 @@
             <form action="{{ route('admin.professional.rates.store', $professional->id) }}" method="POST">
                 @csrf
                 <div class="modal-body">
+                    <!-- Sub-Service Selection (Optional) -->
+                    @if($professionalServices && $professionalServices->count() > 0)
+                        @php
+                            $allSubServices = $professionalServices->flatMap(function($service) {
+                                return $service->subServices;
+                            })->unique('id');
+                        @endphp
+                        @if($allSubServices->count() > 0)
+                            <div class="form-group">
+                                <label for="sub_service_id">Sub-Service (Optional)</label>
+                                <select class="form-control" id="sub_service_id" name="sub_service_id">
+                                    <option value="">General Rate (No specific sub-service)</option>
+                                    @foreach($allSubServices as $subService)
+                                        <option value="{{ $subService->id }}">{{ $subService->name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Leave empty for a general rate applicable to all services.</small>
+                            </div>
+                        @endif
+                    @endif
+
                     <div class="form-group">
                         <label for="session_type">Session Type</label>
                         <select class="form-control" id="session_type" name="session_type" required>
@@ -329,6 +355,27 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
+                    <!-- Sub-Service Selection (Optional) -->
+                    @if($professionalServices && $professionalServices->count() > 0)
+                        @php
+                            $allSubServices = $professionalServices->flatMap(function($service) {
+                                return $service->subServices;
+                            })->unique('id');
+                        @endphp
+                        @if($allSubServices->count() > 0)
+                            <div class="form-group">
+                                <label for="edit_sub_service_id">Sub-Service (Optional)</label>
+                                <select class="form-control" id="edit_sub_service_id" name="sub_service_id">
+                                    <option value="">General Rate (No specific sub-service)</option>
+                                    @foreach($allSubServices as $subService)
+                                        <option value="{{ $subService->id }}">{{ $subService->name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Leave empty for a general rate applicable to all services.</small>
+                            </div>
+                        @endif
+                    @endif
+
                     <div class="form-group">
                         <label for="edit_session_type">Session Type</label>
                         <select class="form-control" id="edit_session_type" name="session_type" required>
@@ -447,6 +494,7 @@ function editRate(rateId) {
     
     if (rate) {
         // Set form values with correct field names
+        $('#edit_sub_service_id').val(rate.sub_service_id || '');
         $('#edit_session_type').val(rate.session_type || '');
         $('#edit_num_sessions').val(rate.num_sessions || 1);
         $('#edit_rate_per_session').val(rate.rate_per_session || '');
@@ -515,23 +563,32 @@ function deleteRate(rateId) {
 }
 
 // Prevent duplicate session types
-function sessionTypeExists(sessionType, excludingRateId = null) {
+function sessionTypeExists(sessionType, subServiceId = null, excludingRateId = null) {
     if (!sessionType) return false;
     const rates = @json($rates);
     return rates.some(r => {
         if (!r.session_type) return false;
         if (excludingRateId && r.id === excludingRateId) return false;
-        return r.session_type.toString().toLowerCase() === sessionType.toString().toLowerCase();
+        
+        // Check if session type matches
+        const sessionTypeMatch = r.session_type.toString().toLowerCase() === sessionType.toString().toLowerCase();
+        
+        // Check if sub_service_id matches (both null or same value)
+        const subServiceIdMatch = (r.sub_service_id || null) === (subServiceId || null);
+        
+        return sessionTypeMatch && subServiceIdMatch;
     });
 }
 
 function validateAddSessionType() {
     const sel = document.getElementById('session_type');
+    const subServiceSel = document.getElementById('sub_service_id');
     const warning = document.getElementById('sessionWarning');
     const submitBtn = document.getElementById('addRateSubmitBtn');
     if (!sel || !warning || !submitBtn) return;
     const val = sel.value;
-    if (sessionTypeExists(val)) {
+    const subServiceId = subServiceSel ? (subServiceSel.value || null) : null;
+    if (sessionTypeExists(val, subServiceId)) {
         warning.style.display = 'block';
         submitBtn.disabled = true;
     } else {
@@ -542,11 +599,13 @@ function validateAddSessionType() {
 
 function validateEditSessionType(excludingRateId) {
     const sel = document.getElementById('edit_session_type');
+    const subServiceSel = document.getElementById('edit_sub_service_id');
     const warning = document.getElementById('edit_sessionWarning');
     const submitBtn = document.getElementById('editRateSubmitBtn');
     if (!sel || !warning || !submitBtn) return;
     const val = sel.value;
-    if (sessionTypeExists(val, excludingRateId)) {
+    const subServiceId = subServiceSel ? (subServiceSel.value || null) : null;
+    if (sessionTypeExists(val, subServiceId, excludingRateId)) {
         warning.style.display = 'block';
         submitBtn.disabled = true;
     } else {
@@ -631,6 +690,12 @@ document.addEventListener('DOMContentLoaded', function() {
         addSessionSel.addEventListener('input', validateAddSessionType);
     }
 
+    // Hook validation for add modal sub-service (trigger validation when sub-service changes)
+    const addSubServiceSel = document.getElementById('sub_service_id');
+    if (addSubServiceSel) {
+        addSubServiceSel.addEventListener('change', validateAddSessionType);
+    }
+
     // Hook validation for edit modal; note edit modal calls validate in editRate()
     const editSessionSel = document.getElementById('edit_session_type');
     if (editSessionSel) {
@@ -640,6 +705,15 @@ document.addEventListener('DOMContentLoaded', function() {
             validateEditSessionType(excluding);
         });
         editSessionSel.addEventListener('input', function() {
+            const excluding = parseInt(editSessionSel.getAttribute('data-excluding-id')) || null;
+            validateEditSessionType(excluding);
+        });
+    }
+
+    // Hook validation for edit modal sub-service (trigger validation when sub-service changes)
+    const editSubServiceSel = document.getElementById('edit_sub_service_id');
+    if (editSubServiceSel) {
+        editSubServiceSel.addEventListener('change', function() {
             const excluding = parseInt(editSessionSel.getAttribute('data-excluding-id')) || null;
             validateEditSessionType(excluding);
         });

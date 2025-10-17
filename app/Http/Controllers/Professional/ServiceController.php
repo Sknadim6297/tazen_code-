@@ -100,7 +100,7 @@ class ServiceController extends Controller
         }
         
         $subServices = SubService::where('service_id', $serviceId)
-            ->where('status', 'active')
+            ->where('status', 1)
             ->select('id', 'name', 'description')
             ->get();
         

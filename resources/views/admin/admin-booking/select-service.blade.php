@@ -208,10 +208,11 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="sub_service_id" class="form-label">Sub-Service <span class="text-danger">*</span></label>
-                            <select name="sub_service_id" id="sub_service_id" class="form-select" required disabled>
+                            <label for="sub_service_id" class="form-label">Sub-Service <span class="text-muted">(Optional)</span></label>
+                            <select name="sub_service_id" id="sub_service_id" class="form-select" disabled>
                                 <option value="">Select a service first</option>
                             </select>
+                            <small class="text-muted">Leave empty to book the main service</small>
                         </div>
                     </div>
 
@@ -247,37 +248,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (serviceId) {
             subServiceSelect.disabled = false;
             subServiceSelect.innerHTML = '<option value="">Loading...</option>';
-            nextBtn.disabled = true;
             
             fetch(`{{ route('admin.admin-booking.get-sub-services') }}?service_id=${serviceId}`)
                 .then(response => response.json())
                 .then(subServices => {
                     if (subServices.length > 0) {
-                        // Sub-services exist, show dropdown
+                        // Sub-services exist, show dropdown with optional selection
                         subServiceRow.style.display = 'block';
-                        let options = '<option value="">Select a sub-service</option>';
+                        let options = '<option value="">No sub-service (book main service)</option>';
                         subServices.forEach(subService => {
                             options += `<option value="${subService.id}">${subService.name}</option>`;
                         });
                         subServiceSelect.innerHTML = options;
-                        subServiceSelect.required = true;
+                        subServiceSelect.required = false; // Make it optional
                         
-                        // Update label to show it's required
+                        // Update label to show it's optional
                         const label = subServiceSelect.previousElementSibling;
-                        if (label && !label.innerHTML.includes('*')) {
-                            label.innerHTML = 'Sub-Service <span class="text-danger">*</span>';
+                        if (label) {
+                            label.innerHTML = 'Sub-Service <span class="text-muted">(Optional)</span>';
                         }
                     } else {
-                        // No sub-services, hide dropdown and allow proceeding
+                        // No sub-services, hide dropdown
                         subServiceRow.style.display = 'none';
                         subServiceSelect.required = false;
-                        subServiceSelect.value = ''; // Clear any previous value
-                        nextBtn.disabled = false; // Enable next button
+                        subServiceSelect.value = '';
                     }
+                    
+                    // Enable next button as service is selected
+                    nextBtn.disabled = false;
                 })
                 .catch(error => {
                     console.error('Error loading sub-services:', error);
-                    // If there's an error, assume no sub-services and allow proceeding
+                    // If there's an error, hide sub-service and allow proceeding
                     subServiceRow.style.display = 'none';
                     subServiceSelect.required = false;
                     subServiceSelect.value = '';
@@ -287,16 +289,13 @@ document.addEventListener('DOMContentLoaded', function() {
             subServiceSelect.disabled = true;
             subServiceSelect.innerHTML = '<option value="">Select a service first</option>';
             subServiceRow.style.display = 'block';
-            subServiceSelect.required = true;
             nextBtn.disabled = true;
         }
     });
 
     subServiceSelect.addEventListener('change', function() {
-        // Only check sub-service if it's required (visible)
-        if (subServiceSelect.required) {
-            nextBtn.disabled = !this.value;
-        }
+        // Sub-service is now optional, so no validation needed
+        // Next button is already enabled when service is selected
     });
 });
 </script>

@@ -210,157 +210,56 @@
                     @csrf
                     
                     @if($sessions->isEmpty())
-                        <!-- Default session options when no predefined sessions exist -->
-                        <div class="row">
-                            <div class="col-md-4 mb-4">
-                                <div class="session-card" data-session-id="onetime">
-                                    <input type="radio" name="session_id" value="onetime" class="d-none session-radio">
-                                    <div class="selection-indicator">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    
-                                    <div class="session-title">One Time</div>
-                                    <div class="session-duration">1 session • 60 min per session</div>
-                                    <div class="session-price">Rs. 1,500.00</div>
-                                    <div class="session-period">one time payment</div>
-                                    
-                                    <ul class="session-features">
-                                        <li><i class="ri-check-line"></i> Single consultation</li>
-                                        <li><i class="ri-check-line"></i> 60 minutes duration</li>
-                                        <li><i class="ri-check-line"></i> Instant booking</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 mb-4">
-                                <div class="session-card" data-session-id="monthly">
-                                    <input type="radio" name="session_id" value="monthly" class="d-none session-radio">
-                                    <div class="selection-indicator">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    
-                                    <div class="session-title">Monthly</div>
-                                    <div class="session-duration">4 sessions • 60 min per session</div>
-                                    <div class="session-price">Rs. 5,000.00</div>
-                                    <div class="session-period">per month</div>
-                                    
-                                    <ul class="session-features">
-                                        <li><i class="ri-check-line"></i> 4 sessions included</li>
-                                        <li><i class="ri-check-line"></i> 60 minutes each</li>
-                                        <li><i class="ri-check-line"></i> Flexible scheduling</li>
-                                        <li><i class="ri-check-line"></i> Progress tracking</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 mb-4">
-                                <div class="session-card" data-session-id="quarterly">
-                                    <div class="popular-badge">Most Popular</div>
-                                    <input type="radio" name="session_id" value="quarterly" class="d-none session-radio">
-                                    <div class="selection-indicator">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    
-                                    <div class="session-title">Quarterly</div>
-                                    <div class="session-duration">12 sessions • 60 min per session</div>
-                                    <div class="session-price">Rs. 12,000.00</div>
-                                    <div class="session-period">per 3 months</div>
-                                    
-                                    <ul class="session-features">
-                                        <li><i class="ri-check-line"></i> 12 sessions included</li>
-                                        <li><i class="ri-check-line"></i> 60 minutes each</li>
-                                        <li><i class="ri-check-line"></i> Priority scheduling</li>
-                                        <li><i class="ri-check-line"></i> Progress reports</li>
-                                        <li><i class="ri-check-line"></i> 20% savings</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 mb-4">
-                                <div class="session-card" data-session-id="consultation">
-                                    <input type="radio" name="session_id" value="consultation" class="d-none session-radio">
-                                    <div class="selection-indicator">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    
-                                    <div class="session-title">Quarterly Consultation</div>
-                                    <div class="session-duration">3 sessions • 90 min per session</div>
-                                    <div class="session-price">Rs. 8,000.00</div>
-                                    <div class="session-period">per 3 months</div>
-                                    
-                                    <ul class="session-features">
-                                        <li><i class="ri-check-line"></i> 3 deep consultations</li>
-                                        <li><i class="ri-check-line"></i> 90 minutes each</li>
-                                        <li><i class="ri-check-line"></i> Comprehensive analysis</li>
-                                        <li><i class="ri-check-line"></i> Detailed reports</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 mb-4">
-                                <div class="session-card" data-session-id="package5">
-                                    <input type="radio" name="session_id" value="package5" class="d-none session-radio">
-                                    <div class="selection-indicator">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    
-                                    <div class="session-title">5 Sessions Package</div>
-                                    <div class="session-duration">5 sessions • 60 min per session</div>
-                                    <div class="session-price">Rs. 6,500.00</div>
-                                    <div class="session-period">flexible schedule</div>
-                                    
-                                    <ul class="session-features">
-                                        <li><i class="ri-check-line"></i> 5 sessions included</li>
-                                        <li><i class="ri-check-line"></i> 60 minutes each</li>
-                                        <li><i class="ri-check-line"></i> Valid for 6 months</li>
-                                        <li><i class="ri-check-line"></i> No scheduling pressure</li>
-                                    </ul>
-                                </div>
-                            </div>
+                        <!-- No sessions available -->
+                        <div class="alert alert-warning">
+                            <i class="ri-information-line me-2"></i>
+                            No rate packages found for this professional and service. Please go back and try another professional or contact support.
                         </div>
                     @else
-                        <!-- Dynamic sessions from database -->
+                        <!-- Display actual sessions from database -->
                         <div class="row">
-                            @foreach($sessions as $session)
+                            @foreach($sessions as $index => $session)
                                 <div class="col-md-4 mb-4">
                                     <div class="session-card" data-session-id="{{ $session->id }}">
+                                        @if($index === 1)
+                                            <div class="popular-badge">Most Popular</div>
+                                        @endif
                                         <input type="radio" name="session_id" value="{{ $session->id }}" class="d-none session-radio">
                                         <div class="selection-indicator">
                                             <i class="ri-check-line"></i>
                                         </div>
-
-                                        <div class="session-title">{{ $session->session_type ?? ($session->service_name ?? 'Session') }}</div>
-                                        <div class="session-duration">{{ ($session->num_sessions ?? 1) }} session{{ ($session->num_sessions ?? 1) > 1 ? 's' : '' }} • {{ $session->duration ?? 'Duration not specified' }}</div>
-                                        <div class="session-price">Rs. {{ number_format($session->final_rate ?? ($session->rate_per_session ?? 0), 2) }}</div>
-                                        <div class="session-period">{{ $session->session_type ? strtolower($session->session_type) : 'one time' }}</div>
-
-                                        @php
-                                            $features = [];
-                                            if (!empty($session->features)) {
-                                                if (is_array($session->features)) {
-                                                    $features = $session->features;
-                                                } elseif (is_string($session->features)) {
-                                                    $decoded = json_decode($session->features, true);
-                                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                                        $features = $decoded;
-                                                    } else {
-                                                        $features = preg_split('/\r?\n|,/', $session->features);
-                                                        $features = array_map('trim', $features);
-                                                        $features = array_filter($features);
-                                                    }
-                                                } elseif (is_object($session->features)) {
-                                                    $features = (array) $session->features;
-                                                }
-                                            }
-                                        @endphp
-
-                                        @if(!empty($features))
-                                            <ul class="session-features">
-                                                @foreach($features as $feature)
-                                                    <li><i class="ri-check-line"></i> {{ $feature }}</li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
+                                        
+                                        <div class="session-title">{{ $session->session_type }}</div>
+                                        <div class="session-duration">{{ $session->num_sessions }} {{ $session->num_sessions > 1 ? 'sessions' : 'session' }}</div>
+                                        <div class="session-price">₹{{ number_format($session->final_rate, 2) }}</div>
+                                        <div class="session-period">
+                                            @if($session->session_type == 'One Time')
+                                                one time payment
+                                            @elseif($session->session_type == 'Monthly')
+                                                per month
+                                            @elseif($session->session_type == 'Quarterly')
+                                                per 3 months
+                                            @else
+                                                {{ strtolower($session->session_type) }}
+                                            @endif
+                                        </div>
+                                        
+                                        <ul class="session-features">
+                                            <li><i class="ri-check-line"></i> {{ $session->num_sessions }} {{ $session->num_sessions > 1 ? 'sessions' : 'session' }} included</li>
+                                            <li><i class="ri-check-line"></i> ₹{{ number_format($session->rate_per_session, 2) }} per session</li>
+                                            @if($session->session_type == 'One Time')
+                                                <li><i class="ri-check-line"></i> Single consultation</li>
+                                                <li><i class="ri-check-line"></i> Instant booking</li>
+                                            @elseif($session->session_type == 'Monthly')
+                                                <li><i class="ri-check-line"></i> Flexible scheduling</li>
+                                                <li><i class="ri-check-line"></i> Progress tracking</li>
+                                            @elseif($session->session_type == 'Quarterly')
+                                                <li><i class="ri-check-line"></i> Priority scheduling</li>
+                                                <li><i class="ri-check-line"></i> Progress reports</li>
+                                            @else
+                                                <li><i class="ri-check-line"></i> Flexible terms</li>
+                                            @endif
+                                        </ul>
                                     </div>
                                 </div>
                             @endforeach

@@ -129,14 +129,37 @@
 
         <!-- Booking Summary -->
         <div class="booking-summary">
-            <div class="row align-items-center">
-                <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-7">
                     <h3 class="mb-2">Booking Summary</h3>
                     <p class="mb-0 opacity-90">Please review the booking details before confirming</p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <div class="total-amount">Rs. {{ number_format($selectedRate->final_rate ?? 0, 2) }}</div>
-                    <p class="mb-0 opacity-90">Total Amount</p>
+                <div class="col-md-5 text-end">
+                    @php
+                        $baseAmount = $selectedRate->final_rate ?? 0;
+                        $cgst = $baseAmount * 0.09; // 9% CGST
+                        $sgst = $baseAmount * 0.09; // 9% SGST
+                        $totalAmount = $baseAmount + $cgst + $sgst;
+                    @endphp
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="opacity-90">Base Amount:</span>
+                            <span class="fw-semibold">Rs. {{ number_format($baseAmount, 2) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="opacity-90">CGST (9%):</span>
+                            <span class="fw-semibold">Rs. {{ number_format($cgst, 2) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="opacity-90">SGST (9%):</span>
+                            <span class="fw-semibold">Rs. {{ number_format($sgst, 2) }}</span>
+                        </div>
+                        <hr class="my-2 opacity-50">
+                    </div>
+                    
+                    <div class="total-amount">Rs. {{ number_format($totalAmount, 2) }}</div>
+                    <p class="mb-0 opacity-90">Total Amount (incl. taxes)</p>
                 </div>
             </div>
         </div>
@@ -207,6 +230,12 @@
                             <span class="info-label">Service:</span>
                             <span class="info-value">{{ $service->name ?? 'Service' }}</span>
                         </div>
+                        @if(isset($subService) && $subService)
+                        <div class="info-row">
+                            <span class="info-label">Sub-Service:</span>
+                            <span class="info-value">{{ $subService->name }}</span>
+                        </div>
+                        @endif
                         <div class="info-row">
                             <span class="info-label">Session Type:</span>
                             <span class="info-value">{{ $selectedRate->session_type }}</span>

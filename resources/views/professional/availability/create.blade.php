@@ -1,472 +1,587 @@
-@php
-    $currentMonth = now()->format('n');
-    $months = [
-        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
-    ];
-@endphp
-
 @extends('professional.layout.layout')
 
 @section('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-.time-slot {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.time-input-group {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.remove-slot-btn {
-    background: transparent;
-    border: none;
-    color: red;
-    cursor: pointer;
-}
-.weekday-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.weekday-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+    /* Weekly Scheduler Styles */
+    .weekly-scheduler-container {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        margin-bottom: 20px;
+    }
 
-/* Month selection styling */
-.month-selection-container {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
+    .weekly-scheduler {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 15px;
+        margin-top: 15px;
+    }
 
-.month-checkbox-label {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+    .day-column {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        min-height: 200px;
+    }
 
-.month-checkbox-label:hover {
-    background: #f3f4f6;
-    border-color: #4f46e5;
-}
+    .day-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 10px;
+        text-align: center;
+        padding: 8px;
+        background: #e9ecef;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
 
-.month-checkbox-label input[type="checkbox"]:checked + span {
-    font-weight: 600;
-    color: #4f46e5;
-}
+    .day-slots {
+        margin-top: 10px;
+    }
 
-.months-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-}
+    .slot-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #e3f2fd;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1px solid #bbdefb;
+    }
 
-#selectAllMonths:checked ~ .months-grid .month-checkbox-label {
-    background: #f0f9ff;
-    border-color: #4f46e5;
-}
+    .slot-time {
+        font-weight: 500;
+        color: #1565c0;
+    }
+
+    .delete-slot {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+
+    .delete-slot:hover {
+        background: #f8d7da;
+    }
+
+    .add-slot-form {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f1f3f4;
+        border-radius: 6px;
+        border: 1px dashed #adb5bd;
+    }
+
+    .time-inputs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 8px;
+        align-items: center;
+    }
+
+    .time-inputs input {
+        width: 70px;
+        padding: 4px 6px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .time-inputs input:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+    .add-slot-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .add-slot-btn:hover {
+        background: #218838;
+    }
+
+    .time-inputs span {
+        color: #6c757d;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Month Selection */
+    .months-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .month-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .month-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+    }
+
+    .month-card.selected {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+
+    .month-card input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 10px 12px;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+
+    /* Submit section */
+    .submit-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        border-color: #007bff;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        border-color: #6c757d;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .weekly-scheduler {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .weekly-scheduler {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .months-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .weekly-scheduler {
+            grid-template-columns: 1fr;
+        }
+        
+        .months-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .alert {
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3>Add Availability</h3>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h4>Set Your Availability</h4>
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">Add New Availability</h1>
+                <div>
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('professional.availability.index') }}">Availability</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add New</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <form id="availabilityForm">
-                @csrf
-                <div class="form-group mb-3">
-                    <label>Select Months</label>
-                    <div class="month-selection-container" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
-                        <div class="d-flex align-items-center mb-3">
-                            <label class="d-flex align-items-center mb-0" style="cursor: pointer;">
-                                <input type="checkbox" id="selectAllMonths" class="mr-2">
-                                <strong>Select All Next 6 Months</strong>
-                            </label>
-                        </div>
-                        <div class="months-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                            @php
-                                $currentDate = now();
-                                for ($i = 0; $i < 6; $i++) {
-                                    $monthDate = $currentDate->copy()->addMonths($i);
-                                    $monthKey = $monthDate->format('Y-m'); // e.g., 2025-10
-                                    $monthDisplay = $monthDate->format('F Y'); // e.g., October 2025
-                            @endphp
-                                    <label class="month-checkbox-label" style="display: flex; align-items: center; padding: 8px 12px; background: white; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
-                                        <input type="checkbox" name="months[]" value="{{ $monthKey }}" class="month-checkbox mr-2">
-                                        <span>{{ $monthDisplay }}</span>
-                                    </label>
-                            @php
-                                }
-                            @endphp
-                        </div>
-                        <div class="text-muted mt-2" style="font-size: 0.875rem;">
-                            <i class="fas fa-info-circle"></i>
-                            Select one or multiple months to create availability schedules.
+
+        <!-- Error Messages -->
+        <div id="error-messages"></div>
+
+        <!-- Availability Form -->
+        <form id="availability-form">
+            @csrf
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-settings-line me-2"></i>Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="session_duration">Session Duration (in minutes)</label>
+                                <select name="session_duration" id="session_duration" class="form-control" required>
+                                    @foreach([30, 45, 60, 90, 120] as $duration)
+                                        <option value="{{ $duration }}" {{ $duration == 30 ? 'selected' : '' }}>
+                                            {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label>Session Duration</label>
-                    <select class="form-control" name="session_duration" required>
-                        <option value="30">30 minutes</option>
-                        <option value="45">45 minutes</option>
-                        <option value="60" selected>60 minutes</option>
-                        <option value="90">90 minutes</option>
-                        <option value="120">2 hours</option>
-                    </select>
-                </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Select Week Days</label>
-                    <div class="weekday-group">
-                        @foreach(['mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'] as $dayVal => $dayName)
-                        <label class="weekday-label">
-                            <input type="checkbox" name="weekdays[]" value="{{ $dayVal }}"> {{ $dayName }}
-                        </label>
+            <!-- Month Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-calendar-line me-2"></i>Select Months</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Choose the months for which you want to set this availability schedule.</p>
+                    <div class="months-grid">
+                        @php
+                            $currentYear = date('Y');
+                            $currentMonth = date('n');
+                            $months = [
+                                1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                            ];
+                        @endphp
+                        
+                        @for($year = $currentYear; $year <= $currentYear + 1; $year++)
+                            @foreach($months as $monthNum => $monthName)
+                                @if($year == $currentYear && $monthNum < $currentMonth)
+                                    @continue
+                                @endif
+                                @php
+                                    $monthValue = sprintf('%04d-%02d', $year, $monthNum);
+                                @endphp
+                                <div class="month-card" onclick="toggleMonth('{{ $monthValue }}')">
+                                    <input type="checkbox" name="months[]" value="{{ $monthValue }}" id="month_{{ $monthValue }}">
+                                    <label for="month_{{ $monthValue }}" class="mb-0">
+                                        {{ $monthName }} {{ $year }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        @endfor
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-time-line me-2"></i>Weekly Schedule</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Set your available time slots for each day of the week. You can add multiple time slots per day.</p>
+                    
+                    <div class="weekly-scheduler">
+                        @php
+                            $days = [
+                                'mon' => 'Monday',
+                                'tue' => 'Tuesday', 
+                                'wed' => 'Wednesday',
+                                'thu' => 'Thursday',
+                                'fri' => 'Friday',
+                                'sat' => 'Saturday',
+                                'sun' => 'Sunday'
+                            ];
+                        @endphp
+                        
+                        @foreach($days as $dayCode => $dayName)
+                            <div class="day-column">
+                                <div class="day-header">{{ $dayName }}</div>
+                                <div class="day-slots" id="slots-{{ $dayCode }}">
+                                    <!-- Slots will be added dynamically -->
+                                </div>
+                                <div class="add-slot-form">
+                                    <div class="time-inputs">
+                                        <input type="time" id="start-{{ $dayCode }}" placeholder="Start" onchange="calculateEndTime('{{ $dayCode }}')">
+                                        <span>to</span>
+                                        <input type="time" id="end-{{ $dayCode }}" placeholder="End" readonly>
+                                    </div>
+                                    <button type="button" class="add-slot-btn" onclick="addSlot('{{ $dayCode }}')">
+                                        <i class="ri-add-line me-1"></i>Add Slot
+                                    </button>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Time Slots</label>
-                    <div id="time-slots-container"></div>
-                    <button type="button" class="btn btn-success" id="addSlotBtn">
-                        <i class="fas fa-plus"></i> Add more
-                    </button>
-                </div>
-
-                <div class="form-actions mt-3">
-                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Availability
-                    </button>
-                </div>
-            </form>
-        </div>
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary me-3">
+                    <i class="ri-save-line me-2"></i>Save Availability
+                </button>
+                <a href="{{ route('professional.availability.index') }}" class="btn btn-secondary">
+                    <i class="ri-arrow-left-line me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const timeSlotsContainer = document.getElementById('time-slots-container');
-    const addSlotBtn = document.getElementById('addSlotBtn');
-    const sessionDurationSelect = document.querySelector('select[name="session_duration"]');
+    // Store weekly slots data
+    let weeklySlots = {
+        mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: []
+    };
 
-    // Handle select all months functionality
-    function setupMonthCheckboxes() {
-        const selectAllMonths = document.getElementById('selectAllMonths');
-        const monthCheckboxes = document.querySelectorAll('.month-checkbox');
+    // Toggle month selection
+    window.toggleMonth = function(monthValue) {
+        const checkbox = document.getElementById('month_' + monthValue);
+        const card = checkbox.closest('.month-card');
         
-        if (selectAllMonths) {
-            selectAllMonths.addEventListener('change', function() {
-                monthCheckboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-            });
+        checkbox.checked = !checkbox.checked;
+        card.classList.toggle('selected', checkbox.checked);
+    };
+
+    // Calculate end time based on start time and session duration
+    window.calculateEndTime = function(day) {
+        const startInput = document.getElementById('start-' + day);
+        const endInput = document.getElementById('end-' + day);
+        const sessionDuration = document.getElementById('session_duration').value;
+        
+        if (!startInput.value || !sessionDuration) {
+            endInput.value = '';
+            return;
         }
         
-        monthCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const allChecked = Array.from(monthCheckboxes).every(cb => cb.checked);
-                const anyChecked = Array.from(monthCheckboxes).some(cb => cb.checked);
-                
-                if (selectAllMonths) {
-                    selectAllMonths.checked = allChecked;
-                    selectAllMonths.indeterminate = anyChecked && !allChecked;
-                }
-            });
-        });
-    }
-
-    // Initialize month checkboxes
-    setupMonthCheckboxes();
-
-    // Get the selected session duration in minutes
-    function getSessionDuration() {
-        return parseInt(sessionDurationSelect.value);
-    }
-    
-    // Initialize Flatpickr with duration-based settings
-    function initializeFlatpickr() {
-        const duration = getSessionDuration();
-        
-        // Destroy existing instances first to prevent duplicates
-        document.querySelectorAll('.timepicker').forEach(el => {
-            if (el._flatpickr) {
-                el._flatpickr.destroy();
-            }
-        });
-        
-        // Initialize start time pickers
-        document.querySelectorAll('input[name="start_time[]"]').forEach(el => {
-            flatpickr(el, {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "h:i K",
-                time_24hr: false,
-                minuteIncrement: duration,
-                disableMobile: true,
-                onChange: function(selectedDates, dateStr, instance) {
-                    // When start time changes, update end time
-                    if (dateStr) {
-                        const timeSlot = instance.element.closest('.time-slot');
-                        const endTimeInput = timeSlot.querySelector('input[name="end_time[]"]');
-                        
-                        // Calculate end time based on duration
-                        const startTime = new Date(`1/1/2023 ${dateStr}`);
-                        const endTime = new Date(startTime.getTime() + (duration * 60 * 1000));
-                        
-                        // Format end time for display
-                        const hours = endTime.getHours();
-                        const minutes = endTime.getMinutes();
-                        const ampm = hours >= 12 ? 'PM' : 'AM';
-                        const formattedHours = hours % 12 || 12;
-                        const formattedMinutes = minutes.toString().padStart(2, '0');
-                        const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-                        
-                        // Set the end time value
-                        if (endTimeInput._flatpickr) {
-                            endTimeInput._flatpickr.setDate(formattedTime);
-                        } else {
-                            endTimeInput.value = formattedTime;
-                        }
-                    }
-                }
-            });
-        });
-        
-        // Initialize end time pickers (readonly)
-        document.querySelectorAll('input[name="end_time[]"]').forEach(el => {
-            flatpickr(el, {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "h:i K",
-                time_24hr: false,
-                minuteIncrement: duration,
-                disableMobile: true,
-                allowInput: false,
-                clickOpens: false
-            });
-        });
-    }
-
-    // Create new time slot
-    function createTimeSlot() {
-        const div = document.createElement('div');
-        div.classList.add('time-slot');
-        div.innerHTML = `
-            <label>From</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="start_time[]" required placeholder="Start Time">
-            </div>
-            <label>To</label>
-            <div class="time-input-group">
-                <input type="text" class="form-control timepicker" name="end_time[]" required placeholder="End Time" readonly>
-            </div>
-            <button type="button" class="remove-slot-btn" title="Remove slot">
-                <i class="fas fa-trash"></i>
-            </button>
-        `;
-        timeSlotsContainer.appendChild(div);
-        initializeFlatpickr(); 
-    }
-
-    // Initial time slot
-    createTimeSlot();
-    
-    // Add new time slot when button is clicked
-    addSlotBtn.addEventListener('click', createTimeSlot);
-
-    // Remove time slot
-    timeSlotsContainer.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-slot-btn')) {
-            e.target.closest('.time-slot').remove();
-        }
-    });
-    
-    // Recalculate time slots when duration changes
-    sessionDurationSelect.addEventListener('change', function() {
-        // Re-initialize all pickers with new duration
-        initializeFlatpickr();
-        
-        // Reset any existing end times to match new duration
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            const startInput = slot.querySelector('input[name="start_time[]"]');
-            const endInput = slot.querySelector('input[name="end_time[]"]');
-            
-            if (startInput.value) {
-                // Trigger onChange event to recalculate end time
-                if (startInput._flatpickr) {
-                    const currentValue = startInput.value;
-                    startInput._flatpickr.setDate(currentValue);
-                }
-            }
-        });
-    });
-
-    // Form submission handler
-    $('#availabilityForm').submit(function(e) {
-        e.preventDefault();
-        const form = this;
-        
-        // Validation: Check if at least one month is selected
-        const selectedMonths = document.querySelectorAll('input[name="months[]"]:checked');
-        if (selectedMonths.length === 0) {
-            toastr.error("Please select at least one month");
-            return false;
-        }
-        
-        // Validation: Check if at least one weekday is selected
-        const selectedWeekdays = document.querySelectorAll('input[name="weekdays[]"]:checked');
-        if (selectedWeekdays.length === 0) {
-            toastr.error("Please select at least one weekday");
-            return false;
-        }
-        
-        // Validation: Check if all time slots are filled
-        const timeSlots = document.querySelectorAll('.time-slot');
-        for (const slot of timeSlots) {
-            const startTime = slot.querySelector('input[name="start_time[]"]').value;
-            const endTime = slot.querySelector('input[name="end_time[]"]').value;
-            
-            if (!startTime || !endTime) {
-                toastr.error("Please fill all time slots");
-                return false;
-            }
-        }
-        
-        // Validation: Check for overlapping time slots
-        const timeRanges = Array.from(timeSlots).map(slot => {
-            const startTime = slot.querySelector('input[name="start_time[]"]').value;
-            const endTime = slot.querySelector('input[name="end_time[]"]').value;
-            return { start: startTime, end: endTime };
-        });
-        
-        // Sort by start time for easier comparison
-        timeRanges.sort((a, b) => {
-            return new Date(`1/1/2023 ${a.start}`) - new Date(`1/1/2023 ${b.start}`);
-        });
-        
-        // Check for overlaps
-        for (let i = 0; i < timeRanges.length - 1; i++) {
-            const currentEnd = new Date(`1/1/2023 ${timeRanges[i].end}`);
-            const nextStart = new Date(`1/1/2023 ${timeRanges[i+1].start}`);
-            
-            if (currentEnd > nextStart) {
-                toastr.error("Time slots cannot overlap. Please adjust your schedule.");
-                return false;
-            }
-        }
-
-        // Create custom FormData to handle multiple months
-        const formData = new FormData();
-        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-        
-        // Add selected months
-        selectedMonths.forEach(checkbox => {
-            formData.append('months[]', checkbox.value);
-        });
+        // Parse start time
+        const [hours, minutes] = startInput.value.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(hours, minutes, 0, 0);
         
         // Add session duration
-        formData.append('session_duration', sessionDurationSelect.value);
+        const endDate = new Date(startDate.getTime() + parseInt(sessionDuration) * 60000);
         
-        // Add weekdays
-        selectedWeekdays.forEach(checkbox => {
-            formData.append('weekdays[]', checkbox.value);
-        });
-        
-        // Add time slots
-        timeSlots.forEach((slot, index) => {
-            const startTime = slot.querySelector('input[name="start_time[]"]').value;
-            const endTime = slot.querySelector('input[name="end_time[]"]').value;
-            formData.append(`start_time[${index}]`, startTime);
-            formData.append(`end_time[${index}]`, endTime);
-        });
+        // Format end time
+        const endHours = String(endDate.getHours()).padStart(2, '0');
+        const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+        endInput.value = `${endHours}:${endMinutes}`;
+    };
 
-        // Show loading message for multiple months
-        if (selectedMonths.length > 1) {
-            toastr.info(`Creating availability for ${selectedMonths.length} months... This may take a moment.`);
-        }
-
-        $.ajax({
-            url: "{{ route('professional.availability.store') }}",
-            method: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            cache: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                try {
-                    const details = response.details || { successful: [], skipped: [], errors: [] };
-                    const created = details.successful || [];
-                    const skipped = details.skipped || [];
-                    const errors = details.errors || [];
-
-                    if (created.length > 0) {
-                        toastr.success((response.message || ('Availability created for ' + created.length + ' month(s)')));
-                    }
-
-                    if (skipped.length > 0) {
-                        toastr.warning((skipped.length) + ' month(s) were skipped because availability already exists: ' + skipped.join(', '));
-                        console.warn('Skipped months:', skipped);
-                    }
-
-                    if (errors.length > 0) {
-                        toastr.error((errors.length) + ' month(s) failed to create. See console for details');
-                        console.error('Availability create errors:', errors);
-                    }
-
-                    if (created.length > 0) {
-                        form.reset();
-                        document.querySelectorAll('input[name="months[]"]').forEach(cb => cb.checked = false);
-                        const selectAll = document.getElementById('selectAllMonths');
-                        if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
-                        setTimeout(() => { window.location.href = "{{ route('professional.availability.index') }}"; }, 1200);
-                    }
-                } catch (e) {
-                    console.error('Unexpected response format', response, e);
-                    toastr.error(response.message || 'Unexpected response from server');
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    const errors = xhr.responseJSON.errors;
-                    $.each(errors, function(index, error) {
-                        toastr.error(error);
-                    });
-                } else {
-                    toastr.error(xhr.responseJSON.message || "Unexpected error occurred");
-                }
+    // Update all end times when session duration changes
+    document.getElementById('session_duration').addEventListener('change', function() {
+        // Update all start time inputs that have values
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        days.forEach(day => {
+            const startInput = document.getElementById('start-' + day);
+            if (startInput.value) {
+                calculateEndTime(day);
             }
         });
     });
+
+    // Add time slot to a specific day
+    window.addSlot = function(day) {
+        const startInput = document.getElementById('start-' + day);
+        const endInput = document.getElementById('end-' + day);
+        
+        const startTime = startInput.value;
+        const endTime = endInput.value;
+        
+        if (!startTime || !endTime) {
+            alert('Please select both start and end times');
+            return;
+        }
+        
+        if (startTime >= endTime) {
+            alert('Start time must be before end time');
+            return;
+        }
+        
+        // Add to data structure
+        weeklySlots[day].push({
+            start_time: startTime,
+            end_time: endTime
+        });
+        
+        // Update UI
+        renderDaySlots(day);
+        
+        // Clear inputs
+        startInput.value = '';
+        endInput.value = '';
+    };
+
+    // Remove slot from a specific day
+    window.deleteSlot = function(day, index) {
+        weeklySlots[day].splice(index, 1);
+        renderDaySlots(day);
+    };
+
+    // Render slots for a specific day
+    function renderDaySlots(day) {
+        const container = document.getElementById('slots-' + day);
+        container.innerHTML = '';
+        
+        weeklySlots[day].forEach((slot, index) => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'slot-item';
+            slotDiv.innerHTML = `
+                <span class="slot-time">${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}</span>
+                <button type="button" class="delete-slot" onclick="deleteSlot('${day}', ${index})">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            `;
+            container.appendChild(slotDiv);
+        });
+    }
+
+    // Format time for display
+    function formatTime(time) {
+        return new Date('2000-01-01 ' + time).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    // Form submission
+    document.getElementById('availability-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate form
+        const selectedMonths = document.querySelectorAll('input[name="months[]"]:checked');
+        if (selectedMonths.length === 0) {
+            showError('Please select at least one month');
+            return;
+        }
+        
+        // Check if any slots are added
+        const totalSlots = Object.values(weeklySlots).reduce((total, daySlots) => total + daySlots.length, 0);
+        if (totalSlots === 0) {
+            showError('Please add at least one time slot');
+            return;
+        }
+        
+        // Prepare data
+        const formData = new FormData(this);
+        
+        // Convert weeklySlots to the format expected by backend
+        const slotsArray = [];
+        Object.keys(weeklySlots).forEach(day => {
+            weeklySlots[day].forEach(slot => {
+                slotsArray.push({
+                    weekday: day,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time
+                });
+            });
+        });
+        
+        formData.append('weekly_slots', JSON.stringify(slotsArray));
+        
+        // Submit form
+        fetch('{{ route("professional.availability.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess(data.message);
+                setTimeout(() => {
+                    window.location.href = data.redirect || '{{ route("professional.availability.index") }}';
+                }, 1500);
+            } else {
+                if (data.errors) {
+                    showError(data.errors.join('<br>'));
+                } else {
+                    showError(data.message || 'An error occurred');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('An error occurred while saving availability');
+        });
+    });
+
+    function showError(message) {
+        const errorContainer = document.getElementById('error-messages');
+        errorContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        errorContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showSuccess(message) {
+        const errorContainer = document.getElementById('error-messages');
+        errorContainer.innerHTML = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        errorContainer.scrollIntoView({ behavior: 'smooth' });
+    }
 });
 </script>
 @endsection

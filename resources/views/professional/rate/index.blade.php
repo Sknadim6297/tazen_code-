@@ -86,39 +86,70 @@
             </div>
             <div class="table-responsive">
                 @php
-                    $groupedRates = $rates->groupBy('professional_service_id');
+                    $groupedRates = $rates->groupBy('service_id');
                 @endphp
                 
                 @if($groupedRates->count() > 0)
                     @foreach($groupedRates as $serviceId => $serviceRates)
                         @php
-                            $service = $serviceRates->first()->professionalService;
+                            $professionalService = $professionalServices->get($serviceId);
+                            $serviceName = $professionalService ? $professionalService->service_name : ($serviceRates->first()->service->name ?? 'N/A');
                             $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
                             $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
+                            
+                            // Get all session types for this service (both main service and sub-services)
+                            $allSessionTypes = $serviceRates->pluck('session_type')->unique()->toArray();
+                            $availableSessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand'];
                         @endphp
                         
-                        <!-- Service Level Rates -->
-                        @if($serviceOnlyRates->count() > 0)
-                            <div class="service-section mb-4">
-                                <h5 class="service-header">{{ $service->service_name ?? 'N/A' }}</h5>
-                                <table class="table table-bordered service-table">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Service</th>
-                                            <th>Session Type</th>
-                                            <th>No. of Sessions</th>
-                                            <th>Rate/Session (₹)</th>
-                                            <th>Final Rate (₹)</th>
-                                            <th>Actions</th>
+                        <div class="service-section mb-4">
+                            <h5 class="service-header">{{ $serviceName }}</h5>
+                            
+                            <!-- Combined Service and Sub-Service Rates Table -->
+                            <table class="table table-bordered service-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Session Type</th>
+                                        <th>No. of Sessions</th>
+                                        <th>Rate/Session (₹)</th>
+                                        <th>Final Rate (₹)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Service Level Rates -->
+                                    @foreach($serviceOnlyRates as $rate)
+                                        <tr class="service-rate">
+                                            <td data-label="Type">
+                                                <span class="badge bg-primary">{{ $serviceName }}</span>
+                                            </td>
+                                            <td data-label="Session Type">{{ $rate->session_type }}</td>
+                                            <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
+                                            <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
+                                            <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
+                                            <td data-label="Actions">
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item text-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($serviceOnlyRates as $rate)
-                                            <tr>
-                                                <td data-label="Service">
-                                                    <div class="service-info">
-                                                        <div class="service-name">{{ $service->service_name ?? 'N/A' }}</div>
-                                                    </div>
+                                    @endforeach
+                                    
+                                    <!-- Sub-Service Level Rates -->
+                                    @foreach($subServiceRates as $subServiceId => $subRates)
+                                        @php
+                                            $subService = $subRates->first()->subService;
+                                        @endphp
+                                        @foreach($subRates as $rate)
+                                            <tr class="sub-service-rate">
+                                                <td data-label="Type">
+                                                    <span class="badge bg-info">{{ $subService->name ?? 'Sub-Service' }}</span>
                                                 </td>
                                                 <td data-label="Session Type">{{ $rate->session_type }}</td>
                                                 <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
@@ -126,67 +157,65 @@
                                                 <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
                                                 <td data-label="Actions">
                                                     <div class="btn-group" role="group">
-                                                        <a href="{{ route('professional.rate.edit', $rate->id) }}" class="" title="Edit">
+                                                        <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
-                                                        <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item" title="Delete">
+                                                        <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item text-danger" title="Delete">
                                                             <i class="fas fa-trash"></i>
                                                         </a>
                                                     </div>
                                                 </td>
                                             </tr>
                                         @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-                        
-                        <!-- Sub-Service Level Rates -->
-                        @if($subServiceRates->count() > 0)
-                            @foreach($subServiceRates as $subServiceId => $subRates)
-                                @php
-                                    $subService = $subRates->first()->subService;
-                                @endphp
-                                <div class="sub-service-section mb-4">
-                                    <h6 class="sub-service-header">{{ $subService->name ?? 'N/A' }}</h6>
-                                    <table class="table table-bordered sub-service-table">
-                                        <thead class="table-secondary">
-                                            <tr>
-                                                <th>Sub-Service</th>
-                                                <th>Session Type</th>
-                                                <th>No. of Sessions</th>
-                                                <th>Rate/Session (₹)</th>
-                                                <th>Final Rate (₹)</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($subRates as $rate)
-                                                <tr>
-                                                    <td data-label="Sub-Service">
-                                                        <span class="subservice-name">{{ $subService->name ?? 'N/A' }}</span>
-                                                    </td>
-                                                    <td data-label="Session Type">{{ $rate->session_type }}</td>
-                                                    <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
-                                                    <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
-                                                    <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
-                                                    <td data-label="Actions">
-                                                        <div class="btn-group" role="group">
-                                                            <a href="{{ route('professional.rate.edit', $rate->id) }}" class="" title="Edit">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item" title="Delete">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @endforeach
-                        @endif
+                                    @endforeach
+                                    
+                                    <!-- Show Available Session Types -->
+                                    @php
+                                        $usedSessionTypes = $serviceRates->pluck('session_type')->toArray();
+                                        $availableToAdd = array_diff($availableSessionTypes, $usedSessionTypes);
+                                        
+                                        // Separate service-level and sub-service-level session types
+                                        $serviceSessionTypes = $serviceOnlyRates->pluck('session_type')->toArray();
+                                        $subServiceSessionTypes = $subServiceRates->flatten()->pluck('session_type')->toArray();
+                                        $availableForService = array_diff($availableSessionTypes, $serviceSessionTypes);
+                                        $availableForSubServices = array_diff($availableSessionTypes, $subServiceSessionTypes);
+                                    @endphp
+                                    
+                                    @if(count($availableToAdd) > 0)
+                                        <tr class="available-sessions-row">
+                                            <td colspan="6" class="text-center bg-light">
+                                                <div class="session-status-info">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-plus-circle"></i> 
+                                                        <strong>Available to add:</strong> {{ implode(', ', $availableToAdd) }}
+                                                    </small>
+                                                    @if(count($availableForService) > 0)
+                                                        <br><small class="text-info">
+                                                            <i class="fas fa-info-circle"></i> 
+                                                            For main service: {{ implode(', ', $availableForService) }}
+                                                        </small>
+                                                    @endif
+                                                    @if($subServiceRates->count() > 0 && count($availableForSubServices) > 0)
+                                                        <br><small class="text-secondary">
+                                                            <i class="fas fa-layer-group"></i> 
+                                                            For sub-services: {{ implode(', ', $availableForSubServices) }}
+                                                        </small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        <tr class="complete-sessions-row">
+                                            <td colspan="6" class="text-center bg-success text-white">
+                                                <small>
+                                                    <i class="fas fa-check-circle"></i> All session types configured for this service
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
                         
                         @if(!$loop->last)
                             <hr class="service-separator">
@@ -219,7 +248,8 @@
                             <div class="info-card">
                                 <h6><i class="fas fa-chart-bar"></i> Rate Summary</h6>
                                 <p><strong>Total Rate Entries:</strong> {{ $rates->count() }}</p>
-                                <p><strong>Services with Rates:</strong> {{ $rates->pluck('professional_service_id')->unique()->count() }}</p>
+                                                                <p><strong>Services with Rates:</strong> {{ $rates->pluck('service_id')->unique()->count() }}</p>
+                                <p><strong>Sub-Services with Rates:</strong> {{ $rates->whereNotNull('sub_service_id')->pluck('sub_service_id')->unique()->count() }}</p>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -317,6 +347,34 @@
 
     .empty-state h5 { margin-top: 0.5rem; }
     .empty-state p { margin-bottom: 1rem; }
+    
+    /* Rate type styling */
+    .service-rate {
+        background-color: #f8f9ff;
+    }
+    
+    .sub-service-rate {
+        background-color: #f0f8ff;
+    }
+    
+    .available-sessions-row td {
+        padding: 12px;
+        font-style: italic;
+    }
+    
+    .complete-sessions-row td {
+        padding: 8px;
+        font-weight: 500;
+    }
+    
+    .session-status-info {
+        line-height: 1.5;
+    }
+    
+    .session-status-info small {
+        display: inline-block;
+        margin: 2px 0;
+    }
     
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
     .user-profile-wrapper {

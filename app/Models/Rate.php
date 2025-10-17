@@ -11,10 +11,12 @@ class Rate extends Model
 
     protected $fillable = [
         'professional_id',
+        'service_id',
         'session_type',
         'num_sessions',
         'rate_per_session',
         'final_rate',
+        'sub_service_id',
         'features',
     ];
 
@@ -25,6 +27,16 @@ class Rate extends Model
     public function professional()
     {
         return $this->belongsTo(Professional::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function subService()
+    {
+        return $this->belongsTo(SubService::class, 'sub_service_id');
     }
 
     /**

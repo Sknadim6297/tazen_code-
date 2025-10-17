@@ -623,9 +623,9 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <p class="mb-0 fw-semibold">{{ $booking->service_name ?? 'N/A' }}</p>
-                                            @if(!empty($booking->sub_service_name))
-                                                <small class="text-muted">{{ $booking->sub_service_name }}</small>
+                                            <p class="mb-0 fw-semibold">{{ $booking->service->name ?? $booking->service_name ?? 'N/A' }}</p>
+                                            @if($booking->subService || $booking->sub_service_name)
+                                                <small class="text-muted">{{ $booking->subService->name ?? $booking->sub_service_name }}</small>
                                             @endif
                                         </div>
                                     </td>

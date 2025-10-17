@@ -276,8 +276,18 @@
                                         </div>
                                         
                                         <div class="d-flex">
-                                            <img src="{{ $prof->profile_image ? asset('storage/' . $prof->profile_image) : asset('admin/assets/images/faces/1.jpg') }}" 
-                                                 alt="" class="prof-avatar">
+                                            @php
+                                                $profilePhoto = null;
+                                                if($prof->profile && $prof->profile->photo) {
+                                                    $profilePhoto = asset('storage/' . $prof->profile->photo);
+                                                } else {
+                                                    $profilePhoto = asset('admin/assets/images/faces/1.jpg');
+                                                }
+                                            @endphp
+                                            <img src="{{ $profilePhoto }}" 
+                                                 alt="{{ $prof->name ?? 'Professional' }}" 
+                                                 class="prof-avatar"
+                                                 onerror="this.src='{{ asset('admin/assets/images/faces/1.jpg') }}'">
                                             <div class="prof-info">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="mb-0 fw-semibold">{{ $prof->name ?? ($prof->first_name . ' ' . $prof->last_name ?? 'Professional') }}</h6>

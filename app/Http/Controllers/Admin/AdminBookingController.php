@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Service;
+use App\Models\SubService;
 use App\Models\Professional;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
@@ -31,7 +32,7 @@ class AdminBookingController extends Controller
     public function index(Request $request)
     {
         // Start building the query
-        $query = Booking::with(['user', 'professional', 'timedates']);
+        $query = Booking::with(['user', 'professional', 'timedates', 'service', 'subService']);
 
         // Apply search filter
         if ($request->filled('search')) {
@@ -228,15 +229,21 @@ class AdminBookingController extends Controller
     public function getSubServices(Request $request)
     {
         try {
-            // Check if sub_services table exists by trying to query it
-            $subServices = DB::table('sub_services')
-                ->where('service_id', $request->service_id)
-                ->where('status', 'active')
+            $serviceId = $request->service_id;
+            
+            if (!$serviceId) {
+                return response()->json([]);
+            }
+
+            // Fetch active sub-services for the selected service
+            $subServices = SubService::where('service_id', $serviceId)
+                ->where('status', 1) // 1 = active
+                ->select('id', 'name', 'description')
                 ->get();
 
             return response()->json($subServices);
         } catch (\Exception $e) {
-            // If sub_services table doesn't exist, return empty array
+            Log::error('Error fetching sub-services: ' . $e->getMessage());
             return response()->json([]);
         }
     }
@@ -486,16 +493,41 @@ class AdminBookingController extends Controller
         }
 
         $customer = User::find(session('admin_booking_customer_id'));
-
         $serviceId = session('admin_booking_service_id');
+        $subServiceId = session('admin_booking_sub_service_id'); // Can be null
+
+        Log::info('Admin Booking - Select Professional', [
+            'service_id' => $serviceId,
+            'sub_service_id' => $subServiceId
+        ]);
 
         // Load professional services matching the selected service
-        $professionalServices = ProfessionalService::where('service_id', $serviceId)
-            ->with(['professional.rates'])
-            ->get();
+        $query = ProfessionalService::where('service_id', $serviceId)
+            ->with(['professional.profile', 'professional.rates', 'subServices']);
+
+        // If sub-service is selected, filter professionals who have that sub-service
+        if ($subServiceId) {
+            $query->whereHas('subServices', function($q) use ($subServiceId) {
+                $q->where('sub_services.id', $subServiceId);
+            });
+            
+            Log::info('Filtering by sub-service', ['sub_service_id' => $subServiceId]);
+        }
+
+        $professionalServices = $query->get();
+        
+        Log::info('Professional Services Found', [
+            'count' => $professionalServices->count(),
+            'professional_service_ids' => $professionalServices->pluck('id')->toArray()
+        ]);
 
         // Extract unique professionals with their rates
         $professionals = $professionalServices->pluck('professional')->unique('id')->filter();
+        
+        Log::info('Unique Professionals', [
+            'count' => $professionals->count(),
+            'professional_ids' => $professionals->pluck('id')->toArray()
+        ]);
 
         return view('admin.admin-booking.select-professional', compact('customer', 'professionals'));
     }
@@ -524,9 +556,21 @@ class AdminBookingController extends Controller
 
         $customer = User::find(session('admin_booking_customer_id'));
         $professional = Professional::find(session('admin_booking_professional_id'));
+        $serviceId = session('admin_booking_service_id');
+        $subServiceId = session('admin_booking_sub_service_id'); // Can be null
 
-        // Load available rate sessions for this professional
-        $sessions = Rate::where('professional_id', $professional->id)->get();
+        // Load available rate sessions for this professional based on service/sub-service
+        $sessionsQuery = Rate::where('professional_id', $professional->id)
+            ->where('service_id', $serviceId);
+
+        // If sub-service is selected, filter by sub-service, otherwise get service-level rates
+        if ($subServiceId) {
+            $sessionsQuery->where('sub_service_id', $subServiceId);
+        } else {
+            $sessionsQuery->whereNull('sub_service_id');
+        }
+
+        $sessions = $sessionsQuery->get();
 
         return view('admin.admin-booking.select-session', compact('customer', 'professional', 'sessions'));
     }
@@ -597,78 +641,110 @@ class AdminBookingController extends Controller
             ]);
         }
 
-        // Check if the requested day is in professional's available weekdays
-        $availableWeekdays = $availability->weekdays;
-        
-        // Handle double JSON encoding
-        if (is_string($availableWeekdays) && str_starts_with($availableWeekdays, '"') && str_ends_with($availableWeekdays, '"')) {
-            $availableWeekdays = json_decode($availableWeekdays);
+        // Get slots for the specific weekday using the new weekday-specific structure
+        $daySlots = [];
+        if ($availability->slots && $availability->slots->count() > 0) {
+            // Filter slots that match the requested weekday
+            $matchingSlots = $availability->slots->filter(function($slot) use ($dayName) {
+                return $slot->weekday === $dayName;
+            });
+            
+            if ($matchingSlots->count() > 0) {
+                // Professional has specific slots for this weekday
+                foreach ($matchingSlots as $slot) {
+                    try {
+                        $startTime = Carbon::parse($slot->start_time)->format('h:i A');
+                        $endTime = Carbon::parse($slot->end_time)->format('h:i A');
+                        $daySlots[] = "{$startTime} - {$endTime}";
+                    } catch (\Exception $e) {
+                        // Skip invalid time slots
+                        Log::warning("Invalid time slot format for slot ID {$slot->id}: start={$slot->start_time}, end={$slot->end_time}");
+                        continue;
+                    }
+                }
+            }
         }
         
-        if (is_string($availableWeekdays)) {
-            $availableWeekdays = json_decode($availableWeekdays);
+        // If no slots found for this specific weekday, check if it's a legacy availability
+        if (empty($daySlots)) {
+            // Check legacy weekdays field as fallback
+            $availableWeekdays = $availability->weekdays;
+            
+            // Handle double JSON encoding
+            if (is_string($availableWeekdays) && str_starts_with($availableWeekdays, '"') && str_ends_with($availableWeekdays, '"')) {
+                $availableWeekdays = json_decode($availableWeekdays);
+            }
+            
+            if (is_string($availableWeekdays)) {
+                $availableWeekdays = json_decode($availableWeekdays);
+            }
+            
+            if (is_string($availableWeekdays)) {
+                $availableWeekdays = json_decode($availableWeekdays);
+            }
+            
+            // Debug logging
+            Log::info('getAvailableSlots debug - using legacy weekdays', [
+                'date' => $date,
+                'dayName' => $dayName,
+                'raw_weekdays' => $availability->weekdays,
+                'processed_weekdays' => $availableWeekdays,
+                'availableWeekdaysLower' => is_array($availableWeekdays) ? array_map('strtolower', $availableWeekdays) : []
+            ]);
+            
+            if (is_array($availableWeekdays) && in_array($dayName, array_map('strtolower', $availableWeekdays))) {
+                // Use general slots for legacy availability
+                if ($availability->slots && $availability->slots->count() > 0) {
+                    foreach ($availability->slots as $slot) {
+                        try {
+                            $startTime = Carbon::parse($slot->start_time)->format('h:i A');
+                            $endTime = Carbon::parse($slot->end_time)->format('h:i A');
+                            $daySlots[] = "{$startTime} - {$endTime}";
+                        } catch (\Exception $e) {
+                            Log::warning("Invalid time slot format for slot ID {$slot->id}: start={$slot->start_time}, end={$slot->end_time}");
+                            continue;
+                        }
+                    }
+                } else {
+                    // Use default time slots as final fallback
+                    $daySlots = [
+                        '09:00 AM - 10:00 AM',
+                        '10:00 AM - 11:00 AM', 
+                        '11:00 AM - 12:00 PM',
+                        '12:00 PM - 01:00 PM',
+                        '02:00 PM - 03:00 PM',
+                        '03:00 PM - 04:00 PM',
+                        '04:00 PM - 05:00 PM',
+                        '05:00 PM - 06:00 PM',
+                        '06:00 PM - 07:00 PM',
+                        '07:00 PM - 08:00 PM',
+                    ];
+                }
+            }
         }
-        
-        if (is_string($availableWeekdays)) {
-            $availableWeekdays = json_decode($availableWeekdays);
-        }
-        
-        // Debug logging
-        Log::info('getAvailableSlots debug', [
-            'date' => $date,
-            'dayName' => $dayName,
-            'raw_weekdays' => $availability->weekdays,
-            'processed_weekdays' => $availableWeekdays,
-            'availableWeekdaysLower' => is_array($availableWeekdays) ? array_map('strtolower', $availableWeekdays) : []
-        ]);
-        
-        if (!is_array($availableWeekdays) || !in_array($dayName, array_map('strtolower', $availableWeekdays))) {
+
+        if (empty($daySlots)) {
             return response()->json([
                 'available_slots' => [],
                 'message' => 'Professional not available on this day',
                 'debug' => [
                     'dayName' => $dayName,
-                    'availableWeekdays' => $availableWeekdays,
-                    'raw_weekdays' => $availability->weekdays
+                    'slotsCount' => $availability->slots ? $availability->slots->count() : 0,
+                    'slotsWithWeekday' => $availability->slots ? $availability->slots->where('weekday', $dayName)->count() : 0
                 ]
             ]);
-        }
-
-        // Get professional's time slots for this availability
-        $timeSlots = [];
-        if ($availability->slots && $availability->slots->count() > 0) {
-            // Use professional's defined slots
-            foreach ($availability->slots as $slot) {
-                $startTime = Carbon::parse($slot->start_time)->format('h:i A');
-                $endTime = Carbon::parse($slot->end_time)->format('h:i A');
-                $timeSlots[] = "{$startTime} - {$endTime}";
-            }
-        } else {
-            // Use default time slots if no custom slots defined
-            $timeSlots = [
-                '09:00 AM - 10:00 AM',
-                '10:00 AM - 11:00 AM', 
-                '11:00 AM - 12:00 PM',
-                '12:00 PM - 01:00 PM',
-                '02:00 PM - 03:00 PM',
-                '03:00 PM - 04:00 PM',
-                '04:00 PM - 05:00 PM',
-                '05:00 PM - 06:00 PM',
-                '06:00 PM - 07:00 PM',
-                '07:00 PM - 08:00 PM',
-            ];
         }
 
         // Get booked slots for this date
         $bookedSlots = BookingTimedate::getBookedSlots($professionalId)[$date] ?? [];
 
         // Filter out booked slots
-        $availableSlots = array_diff($timeSlots, $bookedSlots);
+        $availableSlots = array_diff($daySlots, $bookedSlots);
 
         return response()->json([
             'available_slots' => array_values($availableSlots),
             'booked_slots' => $bookedSlots,
-            'all_slots' => $timeSlots
+            'all_slots' => $daySlots
         ]);
     }
 
@@ -707,9 +783,10 @@ class AdminBookingController extends Controller
         $professional = Professional::find(session('admin_booking_professional_id'));
         $selectedRate = Rate::find(session('admin_booking_session_id'));
         $service = Service::find(session('admin_booking_service_id'));
+        $subService = session('admin_booking_sub_service_id') ? SubService::find(session('admin_booking_sub_service_id')) : null;
         $datetimeSelections = session('admin_booking_datetime_selections', []);
 
-        return view('admin.admin-booking.confirm', compact('customer', 'professional', 'selectedRate', 'service', 'datetimeSelections'));
+        return view('admin.admin-booking.confirm', compact('customer', 'professional', 'selectedRate', 'service', 'subService', 'datetimeSelections'));
     }
 
     public function processBooking(Request $request)
@@ -725,6 +802,7 @@ class AdminBookingController extends Controller
             $professional = Professional::find(session('admin_booking_professional_id'));
             $selectedRate = Rate::find(session('admin_booking_session_id'));
             $service = Service::find(session('admin_booking_service_id'));
+            $subService = session('admin_booking_sub_service_id') ? SubService::find(session('admin_booking_sub_service_id')) : null;
             $datetimeSelections = session('admin_booking_datetime_selections', []);
 
             if (!$customer || !$professional || !$selectedRate || !$service || empty($datetimeSelections)) {
@@ -733,6 +811,12 @@ class AdminBookingController extends Controller
 
             // For admin bookings, default to paid status unless specified otherwise
             $paymentStatus = $request->input('payment_status', 'paid');
+            
+            // Calculate GST (9% CGST + 9% SGST = 18% total)
+            $baseAmount = $selectedRate->final_rate;
+            $cgstAmount = $baseAmount * 0.09;
+            $sgstAmount = $baseAmount * 0.09;
+            $totalAmount = $baseAmount + $cgstAmount + $sgstAmount;
 
             // Get first booking date for main booking record
             $firstBookingDate = Carbon::parse($datetimeSelections[0]['date']);
@@ -741,16 +825,19 @@ class AdminBookingController extends Controller
             $booking = Booking::create([
                 'user_id' => $customer->id, // Use user_id as per database structure
                 'professional_id' => $professional->id,
+                'service_id' => $service->id,
+                'sub_service_id' => $subService ? $subService->id : null,
                 'customer_name' => $customer->name,
                 'customer_email' => $customer->email,
                 'customer_phone' => $customer->phone ?? '',
                 'service_name' => $service->name,
+                'sub_service_name' => $subService ? $subService->name : null,
                 'session_type' => $selectedRate->session_type,
                 'plan_type' => $selectedRate->session_type, // Add plan_type field
-                'amount' => $selectedRate->final_rate,
-                'base_amount' => $selectedRate->final_rate,
-                'cgst_amount' => 0, // Set GST amounts
-                'sgst_amount' => 0,
+                'amount' => $totalAmount, // Total amount including GST
+                'base_amount' => $baseAmount,
+                'cgst_amount' => $cgstAmount, // 9% CGST
+                'sgst_amount' => $sgstAmount, // 9% SGST
                 'igst_amount' => 0,
                 'payment_status' => $paymentStatus,
                 'paid_status' => $paymentStatus === 'paid' ? 'paid' : 'unpaid', // Add paid_status field
@@ -870,54 +957,33 @@ class AdminBookingController extends Controller
                 continue;
             }
             
-            // Get weekdays from availability - handle double JSON encoding
-            $weekdays = $availability->weekdays;
-            
-            // First decode (removes outer quotes and escaping)
-            if (is_string($weekdays) && str_starts_with($weekdays, '"') && str_ends_with($weekdays, '"')) {
-                $weekdays = json_decode($weekdays);
+            // Use the new weekday-specific slot structure
+            // Get unique weekdays from slots
+            $weekdaysFromSlots = [];
+            if ($availability->slots && $availability->slots->count() > 0) {
+                foreach ($availability->slots as $slot) {
+                    if ($slot->weekday) {
+                        $weekdaysFromSlots[] = strtolower($slot->weekday);
+                    }
+                }
+                $weekdaysFromSlots = array_unique($weekdaysFromSlots);
             }
             
-            // Second decode (gets the actual array)
-            if (is_string($weekdays)) {
-                $weekdays = json_decode($weekdays);
-            }
-            
-            // If it's still a string, try one more decode
-            if (is_string($weekdays)) {
-                $weekdays = json_decode($weekdays);
-            }
-
-            // Add debug logging
-            Log::info('calculateEnabledDates debug', [
-                'month' => $availability->month,
-                'raw_weekdays' => $availability->weekdays,
-                'processed_weekdays' => $weekdays,
-                'period_start' => $start->toDateString(),
-                'period_end' => $end->toDateString()
-            ]);
-
             // Convert weekday names to ISO numbers
             $isoDays = [];
-            if (is_array($weekdays)) {
-                foreach ($weekdays as $day) {
-                    $dayLower = strtolower($day);
-                    if (isset($dayMap[$dayLower])) {
-                        $isoDays[] = $dayMap[$dayLower];
-                    }
+            foreach ($weekdaysFromSlots as $day) {
+                $dayLower = strtolower($day);
+                if (isset($dayMap[$dayLower])) {
+                    $isoDays[] = $dayMap[$dayLower];
                 }
             }
 
-            // Update debug logging
-            Log::info('calculateEnabledDates final', [
-                'month' => $availability->month,
-                'processed_weekdays' => $weekdays,
-                'isoDays' => $isoDays
-            ]);
-
-            foreach ($period as $date) {
-                if (in_array($date->dayOfWeekIso, $isoDays) && $date->gte(Carbon::today())) {
-                    $enabledDates[] = $date->toDateString();
+            // Only add dates that have slots configured
+            if (!empty($isoDays)) {
+                foreach ($period as $date) {
+                    if (in_array($date->dayOfWeekIso, $isoDays) && $date->gte(Carbon::today())) {
+                        $enabledDates[] = $date->toDateString();
+                    }
                 }
             }
         }

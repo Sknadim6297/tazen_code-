@@ -24,7 +24,8 @@ class SubServiceController extends Controller
 
         // Filter by status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $statusValue = $request->status === 'active' ? 1 : 0;
+            $query->where('status', $statusValue);
         }
 
         // Search by name
@@ -69,7 +70,8 @@ class SubServiceController extends Controller
             return redirect()->back()->withInput()->with('error', 'You have already added this sub-service for the selected service.');
         }
 
-        $data = $request->only(['service_id', 'name', 'description', 'status']);
+        $data = $request->only(['service_id', 'name', 'description']);
+        $data['status'] = $request->status === 'active' ? 1 : 0;
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('uploads/sub-services', 'public');
@@ -123,7 +125,8 @@ class SubServiceController extends Controller
             return redirect()->back()->withInput()->with('error', 'Another sub-service with this name already exists for the selected service.');
         }
 
-        $data = $request->only(['service_id', 'name', 'description', 'status']);
+        $data = $request->only(['service_id', 'name', 'description']);
+        $data['status'] = $request->status === 'active' ? 1 : 0;
 
         if ($request->hasFile('image')) {
             // Delete old image if exists

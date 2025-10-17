@@ -24,7 +24,13 @@ class Availability extends Model
     {
         return $this->belongsTo(Professional::class, 'professional_id');
     }
+    
     public function slots()
+    {
+        return $this->hasMany(AvailabilitySlot::class);
+    }
+
+    public function availabilitySlots()
     {
         return $this->hasMany(AvailabilitySlot::class);
     }
