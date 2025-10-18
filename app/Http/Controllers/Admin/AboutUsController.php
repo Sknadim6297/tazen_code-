@@ -65,15 +65,10 @@ class AboutUsController extends Controller
             'line1',
             'line2',
         ]);
-
-        // Handle image upload if present
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($aboutus->image && file_exists(public_path('storage/' . $aboutus->image))) {
                 unlink(public_path('storage/' . $aboutus->image));
             }
-
-            // Store new image
             $data['image'] = $request->file('image')->store('aboutus', 'public');
         }
 
@@ -83,8 +78,7 @@ class AboutUsController extends Controller
             ->with('success', 'About Us entry updated successfully.');
     }
 
-
-    public function destroy($id)
+public function destroy($id)
     {
         $about = AboutUs::findOrFail($id);
         if ($about->image && file_exists(public_path('storage/' . $about->image))) {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\AllEvent;
 use App\Models\EventFAQ;
 
@@ -14,7 +13,6 @@ class EventController extends Controller
      */
     public function index()
     {
-        // Get all approved events regardless of who created them
         $events = AllEvent::where('status', 'approved')
             ->with(['professional'])
             ->orderBy('date', 'asc')
@@ -28,7 +26,6 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        // Get the event by ID and ensure it's approved
         $event = AllEvent::where('id', $id)
             ->where('status', 'approved')
             ->with(['professional', 'approvedBy'])

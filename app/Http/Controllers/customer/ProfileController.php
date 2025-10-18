@@ -63,20 +63,14 @@ class ProfileController extends Controller
             'zip_code' => 'required|string|max:20',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        // Find the user
         $user = User::findOrFail($user_id);
         $profile = $user->customerProfile;
-
-        // If no profile exists (just in case), create it
         if (!$profile) {
             $profile = $user->customerProfile()->create([
                 'name' => $request->name,
                 'email' => $request->email,
             ]);
         }
-
-        // Prepare data to update
         $data = $request->only([
             'name', 'email', 'phone', 'address', 'notes',
             'city', 'state', 'zip_code',
@@ -93,8 +87,6 @@ class ProfileController extends Controller
         }
 
         $profile->update($data);
-
-        // Also update user table
         $user->update([
             'name' => $request->name,
             'email' => $request->email,

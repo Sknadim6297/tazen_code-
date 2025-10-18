@@ -12,6 +12,7 @@ use App\Models\Profile;
 use App\Models\Rate;
 use Carbon\Carbon;
 use App\Models\Service;
+use App\Models\SubService;
 use App\Models\Banner;
 use App\Models\AboutUs;
 use App\Models\Whychoose;
@@ -27,8 +28,8 @@ use App\Models\ProfessionalOtherInformation;
 use App\Models\RequestedService;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\BlogPost;
 use App\Models\EventDetail;
@@ -156,6 +157,15 @@ class HomeController extends Controller
             }
         }
 
+        // Get sub-services based on selected service
+        $subServices = collect();
+        if ($selectedServiceId) {
+            $subServices = \App\Models\SubService::where('service_id', $selectedServiceId)
+                ->where('status', 1)
+                ->orderBy('name')
+                ->get();
+        }
+
         $professionalsQuery = Professional::with('profile', 'professionalServices')
             ->where('status', 'accepted')
             ->where('active', true);
@@ -165,6 +175,14 @@ class HomeController extends Controller
         if ($selectedServiceId) {
             $professionalsQuery->whereHas('professionalServices', function ($query) use ($selectedServiceId) {
                 $query->where('service_id', $selectedServiceId);
+            });
+        }
+
+        // Filter by sub-service
+        if ($request->has('sub_service_id') && !empty($request->sub_service_id)) {
+            $subServiceId = $request->sub_service_id;
+            $professionalsQuery->whereHas('professionalServices.subServices', function ($query) use ($subServiceId) {
+                $query->where('sub_services.id', $subServiceId);
             });
         }
 
@@ -207,17 +225,20 @@ class HomeController extends Controller
         $professionals = $professionalsQuery->latest()->paginate(12);
 
         // When using filters, we need to append them to pagination links
-        if ($request->hasAny(['experience', 'price_range', 'service_id'])) {
-            $professionals->appends($request->only(['experience', 'price_range', 'service_id']));
+        if ($request->hasAny(['experience', 'price_range', 'service_id', 'sub_service_id'])) {
+            $professionals->appends($request->only(['experience', 'price_range', 'service_id', 'sub_service_id']));
         }
 
-        return view('frontend.sections.gridlisting', compact('professionals', 'services'));
+        return view('frontend.sections.gridlisting', compact('professionals', 'services', 'subServices'));
     }
 
 
 
-    public function professionalsDetails($id, $professional_name = null)
+    public function professionalsDetails(Request $request, $id, $professional_name = null)
     {
+        // Get requested sub-service ID from request or session
+        $requestedSubServiceId = $request->input('sub_service_id', session('selected_sub_service_id'));
+        
         $requestedService = ProfessionalOtherInformation::where('professional_id', $id)->first();
         $profile = Profile::with(['professional.reviews' => function ($query) {
             $query->with(['user' => function ($q) {
@@ -226,7 +247,9 @@ class HomeController extends Controller
         }])->where('professional_id', $id)->first();
 
         $availabilities = Availability::where('professional_id', $id)->with('slots')->get();
-        $services = ProfessionalService::where('professional_id', $id)->with('professional')->first();
+        $services = ProfessionalService::where('professional_id', $id)
+            ->with(['professional', 'subServices'])
+            ->first();
         
         // Process requirements to ensure they are properly formatted
         if ($services && $services->requirements) {
@@ -244,44 +267,47 @@ class HomeController extends Controller
             }
         }
         
-        $rates = Rate::where('professional_id', $id)->with('professional')->get();
-
-        $enabledDates = [];
-        $dayMap = [
-            'mon' => 1,
-            'tue' => 2,
-            'wed' => 3,
-            'thu' => 4,
-            'fri' => 5,
-            'sat' => 6,
-            'sun' => 7,
-        ];
-
-        foreach ($availabilities as $availability) {
-            try {
-                $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
-            } catch (\Exception $e) {
-                continue;
-            }
-
-            $year = Carbon::now()->year;
-            $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
-            $end = $start->copy()->endOfMonth();
-            $period = CarbonPeriod::create($start, $end);
-            $decoded = json_decode($availability->weekdays);
-            if (is_string($decoded)) {
-                $decoded = json_decode($decoded);
-            }
-
-            $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
-            $isoDays = array_filter($isoDays);
-
-            foreach ($period as $date) {
-                if (in_array($date->dayOfWeekIso, $isoDays)) {
-                    $enabledDates[] = $date->toDateString();
+        // Fetch rates based on service and optional sub-service
+        if ($services) {
+            // If sub-service is selected, ONLY show sub-service rates
+            if ($requestedSubServiceId) {
+                // Try with service_id first
+                $rates = Rate::where('professional_id', $id)
+                    ->where('service_id', $services->service_id)
+                    ->where('sub_service_id', $requestedSubServiceId)
+                    ->with('professional')
+                    ->get();
+                
+                // If no rates with service_id, try legacy rates
+                if ($rates->isEmpty()) {
+                    $rates = Rate::where('professional_id', $id)
+                        ->where('sub_service_id', $requestedSubServiceId)
+                        ->with('professional')
+                        ->get();
+                }
+            } else {
+                // No sub-service selected, show ONLY main service rates (not sub-service rates)
+                $rates = Rate::where('professional_id', $id)
+                    ->where('service_id', $services->service_id)
+                    ->whereNull('sub_service_id')
+                    ->with('professional')
+                    ->get();
+                
+                // If no rates with service_id, try legacy rates (without service_id)
+                if ($rates->isEmpty()) {
+                    $rates = Rate::where('professional_id', $id)
+                        ->whereNull('sub_service_id')
+                        ->with('professional')
+                        ->get();
                 }
             }
+        } else {
+            // Fallback: get all rates for this professional if no service found
+            $rates = Rate::where('professional_id', $id)->with('professional')->get();
         }
+
+        // Calculate enabled dates based on availability (same logic as admin booking)
+        $enabledDates = $this->calculateEnabledDates($availabilities);
 
         // Fetch all existing bookings for this professional using the new method
         $existingBookings = BookingTimedate::getBookedSlots($id);
@@ -293,8 +319,62 @@ class HomeController extends Controller
             'rates',
             'enabledDates',
             'requestedService',
-            'existingBookings'
+            'existingBookings',
+            'requestedSubServiceId'
         ), ['showFooter' => false]);
+    }
+
+    public function getProfessionalRatesBySubService(Request $request)
+    {
+        $professionalId = $request->input('professional_id');
+        $professionalServiceId = $request->input('professional_service_id');
+        $subServiceId = $request->input('sub_service_id');
+
+        // If sub-service is selected, ONLY show sub-service rates
+        if ($subServiceId) {
+            // Try with service_id first
+            $rates = Rate::where('professional_id', $professionalId)
+                ->where('service_id', $professionalServiceId)
+                ->where('sub_service_id', $subServiceId)
+                ->with('professional')
+                ->get();
+
+            // If no rates with service_id, try legacy rates
+            if ($rates->isEmpty()) {
+                $rates = Rate::where('professional_id', $professionalId)
+                    ->where('sub_service_id', $subServiceId)
+                    ->with('professional')
+                    ->get();
+            }
+        } else {
+            // No sub-service selected, show ONLY main service rates (not sub-service rates)
+            $rates = Rate::where('professional_id', $professionalId)
+                ->where('service_id', $professionalServiceId)
+                ->whereNull('sub_service_id')
+                ->with('professional')
+                ->get();
+                
+            // If no rates with service_id, try legacy rates (without service_id)
+            if ($rates->isEmpty()) {
+                $rates = Rate::where('professional_id', $professionalId)
+                    ->whereNull('sub_service_id')
+                    ->with('professional')
+                    ->get();
+            }
+        }
+
+        // Fetch availabilities and calculate enabled dates using the same method as page load
+        $availabilities = Availability::where('professional_id', $professionalId)
+            ->with('slots')
+            ->get();
+
+        $enabledDates = $this->calculateEnabledDates($availabilities);
+
+        return response()->json([
+            'success' => true,
+            'rates' => $rates,
+            'enabled_dates' => $enabledDates
+        ]);
     }
 
 
@@ -373,6 +453,8 @@ class HomeController extends Controller
                 'total_amount' => $request->total_amount,
                 'service_id' => session('selected_service_id'),
                 'service_name' => session('selected_service_name'),
+                'sub_service_id' => $request->sub_service_id ?? session('selected_sub_service_id'),
+                'sub_service_name' => $request->sub_service_name ?? session('selected_sub_service_name'),
                 'professional_name' => $request->professional_name ?? null,
                 'professional_address' => $request->professional_address ?? null,
             ]]);
@@ -590,5 +672,81 @@ class HomeController extends Controller
         return response()->json([
             'services' => $services
         ]);
+    }
+
+    /**
+     * Calculate enabled dates from professional's availability
+     * Same logic as AdminBookingController
+     */
+    private function calculateEnabledDates($availabilities)
+    {
+        $enabledDates = [];
+        
+        // Map day names to ISO day numbers (Monday = 1, Sunday = 7)
+        $dayMap = [
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
+            'sun' => 7,
+        ];
+
+        foreach ($availabilities as $availability) {
+            try {
+                // Handle both old format (jan, feb, etc.) and new format (2025-10)
+                $monthValue = $availability->month;
+                
+                if (strpos($monthValue, '-') !== false) {
+                    // New format: 2025-10
+                    $start = Carbon::createFromFormat('Y-m-d', "$monthValue-01");
+                } else {
+                    // Old format: jan, feb, etc. - assume current year
+                    $monthNumber = Carbon::parse("1 " . $monthValue)->format('m');
+                    $year = Carbon::now()->year;
+                    $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
+                }
+                
+                $end = $start->copy()->endOfMonth();
+                $period = CarbonPeriod::create($start, $end);
+                
+            } catch (\Exception $e) {
+                Log::warning("Failed to parse availability month: {$availability->month}", ['error' => $e->getMessage()]);
+                continue;
+            }
+            
+            // Use the new weekday-specific slot structure
+            // Get unique weekdays from slots
+            $weekdaysFromSlots = [];
+            if ($availability->slots && $availability->slots->count() > 0) {
+                foreach ($availability->slots as $slot) {
+                    if ($slot->weekday) {
+                        $weekdaysFromSlots[] = strtolower($slot->weekday);
+                    }
+                }
+                $weekdaysFromSlots = array_unique($weekdaysFromSlots);
+            }
+            
+            // Convert weekday names to ISO numbers
+            $isoDays = [];
+            foreach ($weekdaysFromSlots as $day) {
+                $dayLower = strtolower($day);
+                if (isset($dayMap[$dayLower])) {
+                    $isoDays[] = $dayMap[$dayLower];
+                }
+            }
+
+            // Only add dates that have slots configured
+            if (!empty($isoDays)) {
+                foreach ($period as $date) {
+                    if (in_array($date->dayOfWeekIso, $isoDays) && $date->gte(Carbon::today())) {
+                        $enabledDates[] = $date->toDateString();
+                    }
+                }
+            }
+        }
+
+        return array_unique($enabledDates);
     }
 }

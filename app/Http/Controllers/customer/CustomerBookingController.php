@@ -193,12 +193,25 @@ class CustomerBookingController extends Controller
             $booking->customer_phone = $phone;
             $booking->service_name = $serviceName ?? 'N/A';
             
-            // Add sub-service data if available in request
-            if ($request->has('sub_service_id') && $request->sub_service_id) {
+            // Add sub-service data from booking_data session or request
+            if (!empty($bookingData['sub_service_id'])) {
+                $booking->sub_service_id = $bookingData['sub_service_id'];
+            } elseif ($request->has('sub_service_id') && $request->sub_service_id) {
                 $booking->sub_service_id = $request->sub_service_id;
             }
-            if ($request->has('sub_service_name') && $request->sub_service_name) {
+            
+            if (!empty($bookingData['sub_service_name'])) {
+                $booking->sub_service_name = $bookingData['sub_service_name'];
+            } elseif ($request->has('sub_service_name') && $request->sub_service_name) {
                 $booking->sub_service_name = $request->sub_service_name;
+            }
+            
+            // If we have sub_service_id but no name, fetch it from database
+            if ($booking->sub_service_id && !$booking->sub_service_name) {
+                $subService = \App\Models\SubService::find($booking->sub_service_id);
+                if ($subService) {
+                    $booking->sub_service_name = $subService->name;
+                }
             }
             
             $booking->session_type = 'online';
@@ -330,6 +343,8 @@ class CustomerBookingController extends Controller
                     'professional_name' => $professional->name,
                     'professional_address' => $professional->profile->address ?? 'Address not available',
                     'service_name' => $serviceName ?? 'N/A',
+                    'sub_service_id' => $booking->sub_service_id ?? null,
+                    'sub_service_name' => $booking->sub_service_name ?? null,
                     'plan_type' => $bookingData['plan_type'],
                     'base_amount' => $gstDetails['base_amount'] ?? $bookingData['total_amount'],
                     'cgst' => $gstDetails['cgst'] ?? 0,

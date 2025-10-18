@@ -11,7 +11,6 @@ class CustomerBillingController extends Controller
 {
     public function index(Request $request)
     {
-        // Get all unique service names for the dropdown
         $serviceOptions = Booking::select('service_name')
             ->distinct()
             ->whereNotNull('service_name')

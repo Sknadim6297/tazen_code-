@@ -18,8 +18,6 @@ class HomeController extends Controller
                 'redirect_to' => route('login')
             ], 403);
         }
-
-        // Validation
         $request->validate([
             'q1' => 'required|string',
             'q2' => 'required|string',
@@ -28,8 +26,6 @@ class HomeController extends Controller
             'q5' => 'nullable|string',
             'service_id' => 'required|integer|exists:services,id',
         ]);
-
-        // Save answers
         $questionnaire = new McqAnswer();
         $questionnaire->user_id = Auth::guard('user')->id();
         $questionnaire->q1 = $request->input('q1');
@@ -38,8 +34,6 @@ class HomeController extends Controller
         $questionnaire->q4 = $request->input('q4');
         $questionnaire->q5 = $request->input('q5', null);
         $questionnaire->save();
-
-        // Save the selected service ID and service name in the session
         $selectedServiceId = $request->input('service_id');
         $service = Service::find($selectedServiceId);
 
@@ -56,4 +50,4 @@ class HomeController extends Controller
             'logged_in' => true
         ]);
     }
-} 
+}

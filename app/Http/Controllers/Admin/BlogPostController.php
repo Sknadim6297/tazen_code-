@@ -24,7 +24,6 @@ class BlogPostController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -64,11 +63,8 @@ class BlogPostController extends Controller
     
         return redirect()->route('admin.blogposts.index')->with('success', 'Blog post created successfully.');
     }
-    
 
-
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show($id)
@@ -88,8 +84,7 @@ class BlogPostController extends Controller
     return view('admin.blogposts.edit', compact('blogPost', 'blogTitles'));
     }
 
-
-    /**
+/**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
@@ -129,8 +124,7 @@ class BlogPostController extends Controller
     return redirect()->route('admin.blogposts.index')->with('success', 'Blog post updated successfully.');
     }
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
@@ -149,5 +143,4 @@ class BlogPostController extends Controller
 
     return redirect()->route('admin.blogposts.index')->with('success', 'Blog post deleted successfully.');
     }
-
 }

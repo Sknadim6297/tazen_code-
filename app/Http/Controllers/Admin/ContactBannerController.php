@@ -22,7 +22,6 @@ class ContactBannerController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -56,7 +55,6 @@ class ContactBannerController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -68,8 +66,7 @@ class ContactBannerController extends Controller
     return view('admin.contactbanner.edit', compact('contactbanner'));
     }
 
-
-    /**
+/**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
@@ -85,7 +82,6 @@ class ContactBannerController extends Controller
         $data = $request->only(['heading', 'sub_heading', 'status']);
     
         if ($request->hasFile('banner_image')) {
-            // Delete old image if exists
             if ($contactbanner->banner_image && file_exists(public_path($contactbanner->banner_image))) {
                 unlink(public_path($contactbanner->banner_image));
             }
@@ -100,17 +96,13 @@ class ContactBannerController extends Controller
     
         return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner updated successfully!');
     }
-    
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
 {
     $contactbanner = ContactBanner::findOrFail($id);
-
-    // Delete banner image
     if (file_exists(public_path('uploads/contactbanner/' . $contactbanner->banner_image))) {
         unlink(public_path('uploads/contactbanner/' . $contactbanner->banner_image));
     }
@@ -119,5 +111,4 @@ class ContactBannerController extends Controller
 
     return redirect()->route('admin.contactbanner.index')->with('success', 'Contact banner deleted successfully!');
 }
-
 }

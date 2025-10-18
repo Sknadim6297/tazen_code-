@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\BookingTimedate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,15 +14,12 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all distinct services for the filter dropdown
         $serviceOptions = Booking::where('user_id', Auth::guard('user')->id())
             ->select('service_name')
             ->distinct()
             ->whereNotNull('service_name')
             ->orderBy('service_name')
             ->pluck('service_name');
-            
-        // Get all distinct plan types for the filter dropdown
         $planTypeOptions = Booking::where('user_id', Auth::guard('user')->id())
             ->select('plan_type')
             ->distinct()
@@ -40,8 +36,6 @@ class AppointmentController extends Controller
             }
         ])
         ->where('user_id', Auth::guard('user')->id());
-
-        // Filter by search term
         if ($request->filled('search_name')) {
             $search = $request->search_name;
             $query->where(function ($q) use ($search) {
@@ -53,18 +47,12 @@ class AppointmentController extends Controller
                   });
             });
         }
-
-        // Filter by service
         if ($request->filled('service') && $request->service !== 'all') {
             $query->where('service_name', $request->service);
         }
-        
-        // Filter by plan type
         if ($request->filled('plan_type') && $request->plan_type !== 'all') {
             $query->where('plan_type', $request->plan_type);
         }
-
-        // Search by Date Range
         if ($request->filled('search_date_from') && $request->filled('search_date_to')) {
             $query->whereHas('timedates', function ($q) use ($request) {
                 $q->whereBetween('date', [$request->search_date_from, $request->search_date_to]);
@@ -78,8 +66,6 @@ class AppointmentController extends Controller
                 $q->where('date', '<=', $request->search_date_to);
             });
         }
-
-        // Generate PDF and Excel Export if requested
         if ($request->has('export') && $request->export == 'pdf') {
             return $this->exportToPdf($query->get());
         } elseif ($request->has('export') && $request->export == 'excel') {
@@ -96,8 +82,6 @@ class AppointmentController extends Controller
      */
     private function exportToPdf($bookings)
     {
-        // Implementation for PDF export
-        // Implement this or leave as placeholder
     }
 
     /**
@@ -105,8 +89,6 @@ class AppointmentController extends Controller
      */
     private function exportToExcel($bookings) 
     {
-        // Implementation for Excel export
-        // Implement this or leave as placeholder
     }
 
     /**
@@ -114,7 +96,6 @@ class AppointmentController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -122,7 +103,6 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -153,7 +133,6 @@ class AppointmentController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -161,7 +140,6 @@ class AppointmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -169,6 +147,5 @@ class AppointmentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }

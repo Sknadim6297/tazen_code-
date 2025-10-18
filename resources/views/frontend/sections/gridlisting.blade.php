@@ -530,6 +530,19 @@
         @endif
         
         <div class="filter-row">
+                        <div class="filter-group">
+                <label for="sub_service">Sub-Service</label>
+                <div class="select-wrapper">
+                    <select id="sub_service" name="sub_service_id">
+                        <option value="">All Sub-Services</option>
+                        @foreach($subServices as $subService)
+                            <option value="{{ $subService->id }}" {{ request('sub_service_id') == $subService->id ? 'selected' : '' }}>
+                                {{ $subService->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
             <!-- Experience Filter -->
             <div class="filter-group">
                 <label for="experience">Experience</label>
@@ -624,7 +637,14 @@
             $cardName = $parts[0] . ' ' . strtoupper(substr(end($parts), 0, 1)) . '.';
         }
     @endphp
-    <a href="{{ route('professionals.details', ['id' => $professional->id, 'professional_name' => $cardName]) }}" class="strip_info">
+    @php
+        $detailsUrl = route('professionals.details', ['id' => $professional->id, 'professional_name' => $cardName]);
+        // Add sub_service_id parameter if it's in the request
+        if(request('sub_service_id')) {
+            $detailsUrl .= '?sub_service_id=' . request('sub_service_id');
+        }
+    @endphp
+    <a href="{{ $detailsUrl }}" class="strip_info">
         <div class="item_title">
               <h3>{{ $cardName }}</h3>
             <p class="about">{{ $professional->bio }}</p>

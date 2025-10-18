@@ -45,8 +45,6 @@ class EventDetailsController extends Controller
             'city',
             'event_mode'
         ]);
-
-        // Handle multiple banner images
         if ($request->hasFile('banner_image')) {
             $bannerImages = [];
             foreach ($request->file('banner_image') as $image) {
@@ -54,8 +52,6 @@ class EventDetailsController extends Controller
             }
             $data['banner_image'] = json_encode($bannerImages);
         }
-
-        // Handle gallery images
         if ($request->hasFile('event_gallery')) {
             $galleryImages = [];
             foreach ($request->file('event_gallery') as $image) {
@@ -103,10 +99,7 @@ class EventDetailsController extends Controller
             'city',
             'event_mode'
         ]);
-
-        // Handle multiple banner images
         if ($request->hasFile('banner_image')) {
-            // Delete old banner images
             if ($eventdetail->banner_image) {
                 foreach (json_decode($eventdetail->banner_image) as $oldImage) {
                     Storage::disk('public')->delete($oldImage);
@@ -118,10 +111,7 @@ class EventDetailsController extends Controller
             }
             $data['banner_image'] = json_encode($bannerImages);
         }
-
-        // Handle gallery images
         if ($request->hasFile('event_gallery')) {
-            // Delete old gallery images
             if ($eventdetail->event_gallery) {
                 foreach (json_decode($eventdetail->event_gallery) as $oldImage) {
                     Storage::disk('public')->delete($oldImage);
@@ -142,12 +132,9 @@ class EventDetailsController extends Controller
 
     public function destroy(EventDetail $eventdetail)
     {
-        // Delete banner image
         if ($eventdetail->banner_image) {
             Storage::disk('public')->delete($eventdetail->banner_image);
         }
-
-        // Delete gallery images
         if ($eventdetail->event_gallery) {
             foreach (json_decode($eventdetail->event_gallery) as $image) {
                 Storage::disk('public')->delete($image);

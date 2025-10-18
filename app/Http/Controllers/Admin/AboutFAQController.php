@@ -21,7 +21,6 @@ class AboutFAQController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -56,13 +55,11 @@ class AboutFAQController extends Controller
     return redirect()->back()->with('success', 'FAQ Added Successfully!');
 }
 
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**

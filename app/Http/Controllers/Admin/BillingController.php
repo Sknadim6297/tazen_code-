@@ -9,13 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class BillingController extends Controller
 {
     public function professionalBilling(Request $request)
     {
-        // Get all unique service names for the dropdown
         $serviceOptions = Booking::select('service_name')
             ->distinct()
             ->whereNotNull('service_name')
@@ -41,7 +39,6 @@ class BillingController extends Controller
             })
             ->when($request->filled('plan_type'), fn($q) => $q->where('plan_type', $request->plan_type))
             ->when($request->filled('payment_status'), fn($q) => $q->where('payment_status', $request->payment_status))
-            // Add service filter
             ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
             ->latest()
             ->paginate(10);
@@ -57,7 +54,6 @@ class BillingController extends Controller
      */
     public function exportBillingToPdf(Request $request)
     {
-        // Build query with the same filters as the main view
         $query = Booking::with(['professional', 'user'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
@@ -77,14 +73,9 @@ class BillingController extends Controller
             })
             ->when($request->filled('plan_type'), fn($q) => $q->where('plan_type', $request->plan_type))
             ->when($request->filled('payment_status'), fn($q) => $q->where('payment_status', $request->payment_status))
-            // Add service filter to PDF export
             ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
             ->latest();
-
-        // Get all records without pagination for PDF
         $billings = $query->get();
-
-        // Calculate summary statistics
         $totalAmount = 0;
         $totalCommission = 0;
         $totalProfessionalPay = 0;
@@ -98,8 +89,6 @@ class BillingController extends Controller
             $totalCommission += $amountEarned;
             $totalProfessionalPay += $professionalPay;
         }
-
-        // Add filter information to pass to the view
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? Carbon::parse($request->start_date)->format('d M Y') : 'All time',
             'end_date' => $request->filled('end_date') ? Carbon::parse($request->end_date)->format('d M Y') : 'Present',
@@ -108,8 +97,6 @@ class BillingController extends Controller
             'service' => $request->filled('service') ? $request->service : 'All services', // Add service to filter info
             'generated_at' => Carbon::now()->format('d M Y H:i:s'),
         ];
-
-        // Generate PDF
         $pdf = Pdf::loadView('admin.billing.professional-billing-pdf', compact(
             'billings',
             'totalAmount',
@@ -117,14 +104,8 @@ class BillingController extends Controller
             'totalProfessionalPay',
             'filterInfo'
         ));
-
-        // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-
-        // Generate filename with date
         $filename = 'professional_billing_' . Carbon::now()->format('Y_m_d_His') . '.pdf';
-
-        // Return download response
         return $pdf->download($filename);
     }
 
@@ -136,7 +117,6 @@ class BillingController extends Controller
      */
     public function customerBilling(Request $request)
     {
-        // Get all unique service names for the dropdown
         $serviceOptions = \App\Models\Booking::select('service_name')
             ->distinct()
             ->whereNotNull('service_name')
@@ -145,8 +125,6 @@ class BillingController extends Controller
             ->pluck('service_name');
 
         $query = \App\Models\Booking::with(['professional', 'user']);
-
-        // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -155,30 +133,20 @@ class BillingController extends Controller
                     ->orWhere('customer_phone', 'like', "%{$search}%");
             });
         }
-
-        // Date range filter
         if ($request->filled(['start_date', 'end_date'])) {
             $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
             $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-
-        // Plan type filter
         if ($request->filled('plan_type')) {
             $query->where('plan_type', $request->plan_type);
         }
-
-        // SMS status filter
         if ($request->filled('sms_status')) {
             $query->where('sms_status', $request->sms_status);
         }
-
-        // Service filter
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-
-        // Get results with pagination
         $billings = $query->latest()->paginate(10);
 
         return view('admin.billing.customer-billing', compact('billings', 'serviceOptions'));
@@ -192,10 +160,7 @@ class BillingController extends Controller
      */
     public function exportCustomerBillingToPdf(Request $request)
     {
-        // Build query with the same filters
         $query = \App\Models\Booking::with(['professional', 'user']);
-
-        // Apply the same filters as above
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -218,27 +183,17 @@ class BillingController extends Controller
         if ($request->filled('sms_status')) {
             $query->where('sms_status', $request->sms_status);
         }
-
-        // Service filter for PDF export
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-
-        // Get all records without pagination for PDF
         $billings = $query->latest()->get();
-
-        // Calculate totals
         $totalAmount = $billings->sum('amount');
-        
-        // Calculate plan counts - ADD THIS
         $planCounts = [
             'one_time' => $billings->where('plan_type', 'one_time')->count(),
             'monthly' => $billings->where('plan_type', 'monthly')->count(),
             'quarterly' => $billings->where('plan_type', 'quarterly')->count(),
             'free_hand' => $billings->where('plan_type', 'free_hand')->count(),
         ];
-
-        // Add filter information
         $filterInfo = [
             'start_date' => $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->format('d M Y') : 'All time',
             'end_date' => $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->format('d M Y') : 'Present',
@@ -248,22 +203,14 @@ class BillingController extends Controller
             'generated_at' => \Carbon\Carbon::now()->format('d M Y H:i:s'),
             'total_amount' => $totalAmount
         ];
-
-        // Generate PDF
         $pdf = Pdf::loadView('admin.billing.customer-billing-pdf', compact(
             'billings', 
             'filterInfo', 
             'totalAmount', 
             'planCounts' // Add this variable
         ));
-
-        // Set PDF options
         $pdf->setPaper('a4', 'landscape');
-
-        // Generate filename with date
         $filename = 'customer_billing_' . \Carbon\Carbon::now()->format('Y_m_d_His') . '.pdf';
-
-        // Return download response
         return $pdf->download($filename);
     }
 
@@ -319,7 +266,6 @@ class BillingController extends Controller
      */
     public function updatePaymentStatus(Request $request)
     {
-        // Validate the request
         $validator = Validator::make($request->all(), [
             'billing_id' => 'required|exists:bookings,id',
             'status' => 'required|in:paid,unpaid',
@@ -380,10 +326,7 @@ class BillingController extends Controller
     public function exportBillingToExcel(Request $request)
     {
         try {
-            // Create a unique filename
             $filename = 'professional_billing_' . date('Y_m_d_His') . '.csv';
-            
-            // Set headers for CSV download
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -391,8 +334,6 @@ class BillingController extends Controller
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
                 'Expires' => '0',
             ];
-            
-            // Build query with the same filters as the main view
             $query = Booking::with(['professional', 'user'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where(function ($q) use ($request) {
@@ -414,18 +355,10 @@ class BillingController extends Controller
                 ->when($request->filled('payment_status'), fn($q) => $q->where('payment_status', $request->payment_status))
                 ->when($request->filled('service'), fn($q) => $q->where('service_name', $request->service))
                 ->latest();
-
-            // Get all records without pagination for Excel - use chunk if there are many records
             $billings = $query->get();
-
-            // Create the callback for streaming CSV data
             $callback = function() use ($billings, $request) {
                 $file = fopen('php://output', 'w');
-                
-                // Add UTF-8 BOM to fix Excel encoding issues
                 fputs($file, "\xEF\xBB\xBF");
-                
-                // Add headers
                 fputcsv($file, [
                     'Sl. No',
                     'Date',
@@ -444,8 +377,6 @@ class BillingController extends Controller
                     'Paid Date',
                     'Month'
                 ]);
-                
-                // Add data rows
                 $totalAmount = 0;
                 $totalCommission = 0;
                 $totalProfessionalPay = 0;
@@ -478,8 +409,6 @@ class BillingController extends Controller
                         $billing->created_at ? $billing->created_at->format('M Y') : 'N/A'
                     ]);
                 }
-                
-                // Add summary row
                 fputcsv($file, ['']);
                 
                 fputcsv($file, ['Summary', '', '', '', '', '', '', '', 
@@ -489,8 +418,6 @@ class BillingController extends Controller
                     '', 
                     number_format($totalCommission, 2)
                 ]);
-                
-                // Add filter information at the bottom
                 fputcsv($file, ['']);
                 fputcsv($file, ['Filter Information']);
                 
@@ -526,9 +453,7 @@ class BillingController extends Controller
             };
             
             return response()->stream($callback, 200, $headers);
-            
-        } catch (\Exception $e) {
-            // If we're in debug mode, return detailed error
+} catch (\Exception $e) {
             if (config('app.debug')) {
                 return response()->json([
                     'error' => $e->getMessage(),
@@ -537,8 +462,6 @@ class BillingController extends Controller
                     'trace' => explode("\n", $e->getTraceAsString())
                 ], 500);
             }
-            
-            // Otherwise return user-friendly error
             return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
         }
     }
@@ -551,10 +474,7 @@ class BillingController extends Controller
     public function exportCustomerBillingToExcel(Request $request)
     {
         try {
-            // Create a unique filename
             $filename = 'customer_billing_' . date('Y_m_d_His') . '.csv';
-            
-            // Set headers for CSV download
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -562,11 +482,7 @@ class BillingController extends Controller
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
                 'Expires' => '0',
             ];
-            
-            // Build query with the same filters as the main view
             $query = \App\Models\Booking::with(['professional', 'user']);
-
-        // Apply the same filters as above
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -589,23 +505,13 @@ class BillingController extends Controller
         if ($request->filled('sms_status')) {
             $query->where('sms_status', $request->sms_status);
         }
-
-        // Service filter for Excel export
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-
-        // Get all records without pagination for Excel
         $billings = $query->latest()->get();
-
-        // Create the callback for streaming CSV data
         $callback = function() use ($billings, $request) {
             $file = fopen('php://output', 'w');
-            
-            // Add UTF-8 BOM to fix Excel encoding issues
             fputs($file, "\xEF\xBB\xBF");
-            
-            // Add headers
             fputcsv($file, [
                 'Sl. No',
                 'Date',
@@ -619,8 +525,6 @@ class BillingController extends Controller
                 'SMS Status',
                 'Month'
             ]);
-            
-            // Add data rows
             $totalAmount = 0;
             
             foreach ($billings as $key => $billing) {
@@ -640,12 +544,8 @@ class BillingController extends Controller
                     $billing->created_at ? $billing->created_at->format('M Y') : 'N/A'
                 ]);
             }
-            
-            // Add summary row
             fputcsv($file, ['']);
             fputcsv($file, ['Summary', '', '', '', '', '', '', '', number_format($totalAmount, 2)]);
-            
-            // Add filter information at the bottom
             fputcsv($file, ['']);
             fputcsv($file, ['Filter Information']);
             
@@ -685,9 +585,7 @@ class BillingController extends Controller
         };
         
         return response()->stream($callback, 200, $headers);
-        
-    } catch (\Exception $e) {        
-        // If we're in debug mode, return detailed error
+} catch (\Exception $e) {        
         if (config('app.debug')) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -696,8 +594,6 @@ class BillingController extends Controller
                 'trace' => explode("\n", $e->getTraceAsString())
             ], 500);
         }
-        
-        // Otherwise return user-friendly error
         return back()->with('error', 'Failed to generate Excel file. Please try again or contact support.');
     }
     }
@@ -709,8 +605,6 @@ class BillingController extends Controller
     {
         $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
             ->findOrFail($id);
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -728,8 +622,6 @@ class BillingController extends Controller
     {
         $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
             ->findOrFail($id);
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -738,8 +630,6 @@ class BillingController extends Controller
             'invoice_no', 
             'invoice_date'
         ));
-        
-        // Generate filename with date
         $filename = 'customer_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.pdf';
         
         return $pdf->download($filename);
@@ -755,19 +645,13 @@ class BillingController extends Controller
             
         $professional = $booking->professional;
         $marginPercentage = $professional->margin ?? 10; // Default to 10% if no margin set
-        
-        // Calculate proper GST breakdown and platform fee
         $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
         $customerGST = $booking->amount - $baseAmount;
-        
-        // Platform fee calculation on base amount only
         $platformFee = ($baseAmount * $marginPercentage) / 100;
         $platformFeeCGST = $platformFee * 0.09;
         $platformFeeSGST = $platformFee * 0.09;
         $totalPlatformCut = $platformFee + $platformFeeCGST + $platformFeeSGST;
         $professionalEarning = $booking->amount - $totalPlatformCut;
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -798,19 +682,13 @@ class BillingController extends Controller
             
         $professional = $booking->professional;
         $marginPercentage = $professional->margin ?? 10; // Default to 10% if no margin set
-        
-        // Calculate proper GST breakdown and platform fee
         $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
         $customerGST = $booking->amount - $baseAmount;
-        
-        // Platform fee calculation on base amount only
         $platformFee = ($baseAmount * $marginPercentage) / 100;
         $platformFeeCGST = $platformFee * 0.09;
         $platformFeeSGST = $platformFee * 0.09;
         $totalPlatformCut = $platformFee + $platformFeeCGST + $platformFeeSGST;
         $professionalEarning = $booking->amount - $totalPlatformCut;
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -829,8 +707,6 @@ class BillingController extends Controller
             'totalPlatformCut' => $totalPlatformCut,
             'professionalEarning' => $professionalEarning
         ]);
-        
-        // Generate filename with date
         $filename = 'professional_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.pdf';
         
         return $pdf->download($filename);
@@ -843,12 +719,8 @@ class BillingController extends Controller
     {
         $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
             ->findOrFail($id);
-        
-        // Generate invoice data
         $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
-        
-        // Calculate amounts
         $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
         $cgstAmount = $booking->cgst_amount ?? ($baseAmount * 0.09);
         $sgstAmount = $booking->sgst_amount ?? ($baseAmount * 0.09);
@@ -856,10 +728,7 @@ class BillingController extends Controller
         $totalTax = $cgstAmount + $sgstAmount + $igstAmount;
         
         try {
-            // Create filename
             $filename = 'customer_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.csv';
-            
-            // Set headers for CSV download
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -867,28 +736,18 @@ class BillingController extends Controller
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
                 'Expires' => '0',
             ];
-            
-            // Create the callback for streaming CSV data
             $callback = function() use ($booking, $invoice_no, $invoice_date, $baseAmount, $cgstAmount, $sgstAmount, $totalTax) {
                 $file = fopen('php://output', 'w');
-                
-                // Add UTF-8 BOM to fix Excel encoding issues
                 fputs($file, "\xEF\xBB\xBF");
-                
-                // Invoice Header
                 fputcsv($file, ['TAZEN TECHNOLOGIES PRIVATE LIMITED']);
                 fputcsv($file, ['TAX INVOICE']);
                 fputcsv($file, ['']);
-                
-                // Invoice Details
                 fputcsv($file, ['Invoice Number', $invoice_no]);
                 fputcsv($file, ['Invoice Date', $invoice_date]);
                 fputcsv($file, ['Order Number', 'TZ-' . str_pad($booking->id, 8, '0', STR_PAD_LEFT)]);
                 fputcsv($file, ['Order Date', $booking->created_at->format('d.m.Y')]);
                 fputcsv($file, ['Service Date', \Carbon\Carbon::parse($booking->service_datetime)->format('d/m/Y H:i')]);
                 fputcsv($file, ['']);
-                
-                // Customer Details
                 fputcsv($file, ['BILLING ADDRESS']);
                 fputcsv($file, ['Customer Name', $booking->customer_name]);
                 fputcsv($file, ['Email', $booking->customer_email]);
@@ -908,8 +767,6 @@ class BillingController extends Controller
                 }
                 fputcsv($file, ['Country', 'INDIA']);
                 fputcsv($file, ['']);
-                
-                // Professional Details (Sold By)
                 fputcsv($file, ['SOLD BY']);
                 fputcsv($file, ['Professional Name', $booking->professional->name ?? 'Professional Name']);
                 if ($booking->professional && $booking->professional->profile) {
@@ -932,8 +789,6 @@ class BillingController extends Controller
                     }
                 }
                 fputcsv($file, ['']);
-                
-                // Service Details Header
                 fputcsv($file, ['SERVICE DETAILS']);
                 fputcsv($file, [
                     'Sl. No',
@@ -945,8 +800,6 @@ class BillingController extends Controller
                     'Tax Type',
                     'Total Amount (₹)'
                 ]);
-                
-                // Service Row
                 fputcsv($file, [
                     '1',
                     $booking->service_name ?? 'Professional Service',
@@ -959,8 +812,6 @@ class BillingController extends Controller
                 ]);
                 
                 fputcsv($file, ['']);
-                
-                // Tax Breakdown
                 fputcsv($file, ['TAX BREAKDOWN']);
                 fputcsv($file, ['Base Amount', '₹' . number_format($baseAmount, 2)]);
                 fputcsv($file, ['CGST (9%)', '₹' . number_format($cgstAmount, 2)]);
@@ -968,16 +819,12 @@ class BillingController extends Controller
                 fputcsv($file, ['Total Tax', '₹' . number_format($totalTax, 2)]);
                 fputcsv($file, ['TOTAL AMOUNT', '₹' . number_format($booking->amount, 2)]);
                 fputcsv($file, ['']);
-                
-                // Payment Information
                 fputcsv($file, ['PAYMENT INFORMATION']);
                 fputcsv($file, ['Transaction ID', $booking->payment_id ?? 'CASH_PAYMENT_' . $booking->id]);
                 fputcsv($file, ['Payment Method', $booking->payment_method ?? 'Online Payment']);
                 fputcsv($file, ['Payment Date', $booking->created_at->format('d/m/Y, H:i:s')]);
                 fputcsv($file, ['Invoice Value', '₹' . number_format($booking->amount, 2)]);
                 fputcsv($file, ['']);
-                
-                // Footer
                 fputcsv($file, ['Amount in Words', ucwords(\App\Helpers\NumberToWords::convert($booking->amount)) . ' Only']);
                 fputcsv($file, ['']);
                 fputcsv($file, ['Whether tax is payable under reverse charge: NO']);
@@ -990,8 +837,7 @@ class BillingController extends Controller
             };
             
             return response()->stream($callback, 200, $headers);
-            
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             return back()->with('error', 'Failed to generate Excel invoice: ' . $e->getMessage());
         }
     }
@@ -1005,26 +851,17 @@ class BillingController extends Controller
             ->findOrFail($id);
             
         $professional = $booking->professional;
-        
-        // Calculate professional's share after platform margin
         $marginPercentage = $professional->margin ?? 10;
         $platformFee = $booking->amount * ($marginPercentage / 100);
         $professionalShare = $booking->amount - $platformFee;
-        
-        // Generate invoice data
         $invoice_no = 'TZPRO-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
-        
-        // Calculate commission amounts
         $baseCommission = $platformFee / 1.18;
         $cgstAmount = $baseCommission * 0.09;
         $sgstAmount = $baseCommission * 0.09;
         
         try {
-            // Create filename
             $filename = 'professional_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.csv';
-            
-            // Set headers for CSV download
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -1032,28 +869,18 @@ class BillingController extends Controller
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
                 'Expires' => '0',
             ];
-            
-            // Create the callback for streaming CSV data
             $callback = function() use ($booking, $professional, $invoice_no, $invoice_date, $platformFee, $marginPercentage, $baseCommission, $cgstAmount, $sgstAmount) {
                 $file = fopen('php://output', 'w');
-                
-                // Add UTF-8 BOM to fix Excel encoding issues
                 fputs($file, "\xEF\xBB\xBF");
-                
-                // Invoice Header
                 fputcsv($file, ['TAZEN TECHNOLOGIES PRIVATE LIMITED']);
                 fputcsv($file, ['TAX INVOICE - PLATFORM COMMISSION']);
                 fputcsv($file, ['']);
-                
-                // Invoice Details
                 fputcsv($file, ['Invoice Number', $invoice_no]);
                 fputcsv($file, ['Invoice Date', $invoice_date]);
                 fputcsv($file, ['Order Number', 'TZ-' . str_pad($booking->id, 8, '0', STR_PAD_LEFT)]);
                 fputcsv($file, ['Order Date', $booking->created_at->format('d.m.Y')]);
                 fputcsv($file, ['Service Date', \Carbon\Carbon::parse($booking->service_datetime)->format('d/m/Y H:i')]);
                 fputcsv($file, ['']);
-                
-                // Company Details (Sold By)
                 fputcsv($file, ['SOLD BY']);
                 fputcsv($file, ['Company', 'TAZEN TECHNOLOGIES PRIVATE LIMITED']);
                 fputcsv($file, ['Address', '110, Acharya Sisir Kumar Ghosh Street']);
@@ -1063,8 +890,6 @@ class BillingController extends Controller
                 fputcsv($file, ['GST Registration No', '19AAFCT8462R1Z5']);
                 fputcsv($file, ['State/UT Code', '19']);
                 fputcsv($file, ['']);
-                
-                // Professional Details (Billing Address)
                 fputcsv($file, ['BILLING ADDRESS']);
                 fputcsv($file, ['Professional Name', strtoupper($professional->name)]);
                 
@@ -1092,8 +917,6 @@ class BillingController extends Controller
                     fputcsv($file, ['State', 'INDIA']);
                 }
                 fputcsv($file, ['']);
-                
-                // Service Details Header
                 fputcsv($file, ['SERVICE DETAILS']);
                 fputcsv($file, [
                     'Sl. No',
@@ -1105,8 +928,6 @@ class BillingController extends Controller
                     'Tax Type',
                     'Total Amount (₹)'
                 ]);
-                
-                // Service Row
                 fputcsv($file, [
                     '1',
                     'Platform Commission - Service Facilitation Fee (' . $marginPercentage . '%)',
@@ -1119,8 +940,6 @@ class BillingController extends Controller
                 ]);
                 
                 fputcsv($file, ['']);
-                
-                // Tax Breakdown
                 fputcsv($file, ['TAX BREAKDOWN']);
                 fputcsv($file, ['Base Commission', '₹' . number_format($baseCommission, 2)]);
                 fputcsv($file, ['CGST (9%)', '₹' . number_format($cgstAmount, 2)]);
@@ -1128,16 +947,12 @@ class BillingController extends Controller
                 fputcsv($file, ['Total Tax', '₹' . number_format($cgstAmount + $sgstAmount, 2)]);
                 fputcsv($file, ['TOTAL COMMISSION', '₹' . number_format($platformFee, 2)]);
                 fputcsv($file, ['']);
-                
-                // Payment Information
                 fputcsv($file, ['PAYMENT INFORMATION']);
                 fputcsv($file, ['Transaction ID', $booking->payment_id ?? 'CASH_PAYMENT_' . $booking->id]);
                 fputcsv($file, ['Payment Method', $booking->payment_method ?? 'Online Payment']);
                 fputcsv($file, ['Payment Date', $booking->created_at->format('d/m/Y, H:i:s')]);
                 fputcsv($file, ['Commission Value', '₹' . number_format($platformFee, 2)]);
                 fputcsv($file, ['']);
-                
-                // Footer
                 fputcsv($file, ['Amount in Words', ucwords(\App\Helpers\NumberToWords::convert($platformFee)) . ' Only']);
                 fputcsv($file, ['']);
                 fputcsv($file, ['Whether tax is payable under reverse charge: NO']);
@@ -1150,8 +965,7 @@ class BillingController extends Controller
             };
             
             return response()->stream($callback, 200, $headers);
-            
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             return back()->with('error', 'Failed to generate Excel invoice: ' . $e->getMessage());
         }
     }

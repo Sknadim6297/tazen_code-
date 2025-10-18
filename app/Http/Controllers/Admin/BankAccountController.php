@@ -7,7 +7,6 @@ use App\Models\Profile;
 use App\Models\Professional;
 use App\Exports\BankAccountsExport;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -24,8 +23,6 @@ class BankAccountController extends Controller
             ->whereNotNull('bank_name')
             ->whereNotNull('account_number')
             ->whereNotNull('ifsc_code');
-
-        // Apply filters
         if ($request->filled('professional_status')) {
             $query->whereHas('professional', function ($q) use ($request) {
                 $q->where('status', $request->professional_status);
@@ -37,8 +34,6 @@ class BankAccountController extends Controller
         }
 
         if ($request->filled('verification_status')) {
-            // For now, we'll use a simple verification status
-            // You may want to add a verification_status column to profiles table
             if ($request->verification_status === 'verified') {
                 $query->whereNotNull('bank_document');
             } elseif ($request->verification_status === 'pending') {
@@ -62,15 +57,10 @@ class BankAccountController extends Controller
         }
 
         $bankAccounts = $query->orderBy('created_at', 'desc')->paginate(25);
-
-        // Add computed properties
         $bankAccounts->getCollection()->transform(function ($profile) {
-            // Set default account type if not set
             if (!$profile->account_type) {
                 $profile->account_type = 'savings';
             }
-            
-            // Set verification status based on bank document
             $profile->verification_status = $profile->bank_document ? 'verified' : 'pending';
             
             return $profile;
@@ -91,8 +81,6 @@ class BankAccountController extends Controller
         if (!$account) {
             return response()->json(['error' => 'Bank account not found'], 404);
         }
-
-        // Set default values
         if (!$account->account_type) {
             $account->account_type = 'savings';
         }
@@ -115,24 +103,17 @@ class BankAccountController extends Controller
             if (!$account) {
                 return response()->json(['success' => false, 'message' => 'Bank account not found'], 404);
             }
-
-            // For now, we'll just mark it as verified by ensuring all required fields are present
-            // You may want to add a verification_status column and verified_at timestamp
             if (!$account->bank_document) {
                 return response()->json([
                     'success' => false, 
                     'message' => 'Cannot verify account without bank document'
                 ], 400);
             }
-
-            // In a real application, you might want to add verification fields
-            // For now, we'll consider accounts with documents as verified
             return response()->json([
                 'success' => true,
                 'message' => 'Bank account verified successfully'
             ]);
-
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to verify account: ' . $e->getMessage()
@@ -147,8 +128,6 @@ class BankAccountController extends Controller
                 ->whereNotNull('bank_name')
                 ->whereNotNull('account_number')
                 ->whereNotNull('ifsc_code');
-
-            // Apply same filters as index
             if ($request->filled('professional_status')) {
                 $query->whereHas('professional', function ($q) use ($request) {
                     $q->where('status', $request->professional_status);
@@ -183,8 +162,6 @@ class BankAccountController extends Controller
             }
 
             $bankAccounts = $query->orderBy('created_at', 'desc')->get();
-
-            // Transform data for PDF
             $bankAccounts = $bankAccounts->map(function ($profile) {
                 if (!$profile->account_type) {
                     $profile->account_type = 'savings';
@@ -197,8 +174,7 @@ class BankAccountController extends Controller
             $pdf->setPaper('A4', 'landscape');
             
             return $pdf->download('professional-bank-accounts-' . now()->format('Y-m-d') . '.pdf');
-            
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to generate PDF: ' . $e->getMessage());
         }
     }
@@ -212,8 +188,7 @@ class BankAccountController extends Controller
                 new BankAccountsExport($filters), 
                 'professional-bank-accounts-' . now()->format('Y-m-d') . '.xlsx'
             );
-            
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to generate Excel: ' . $e->getMessage());
         }
     }

@@ -17,7 +17,7 @@ class RequestedServiceController extends Controller
     public function index()
     {
         $requestedServices = ProfessionalOtherInformation::where('professional_id', Auth::guard('professional')->id())->get();
-        // dd($requestedServices);
+        
         $serviceCount = ProfessionalOtherInformation::where('professional_id', Auth::guard('professional')->id())->count();
         return view('professional.requested_services.index', compact('requestedServices', 'serviceCount'));
     }
@@ -35,7 +35,6 @@ class RequestedServiceController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the incoming request
         $validated = $request->validate([
             'sub_heading' => 'required|string',
             'requested_service' => 'required|array',
@@ -44,8 +43,6 @@ class RequestedServiceController extends Controller
             'college_name' => 'nullable|array',
             'degree' => 'nullable|array',
         ]);
-
-        // Store the data
         $professionalOtherInfo = new ProfessionalOtherInformation();
         $professionalOtherInfo->professional_id = Auth::guard('professional')->id();
         $professionalOtherInfo->sub_heading = $validated['sub_heading'];
@@ -72,7 +69,7 @@ class RequestedServiceController extends Controller
     public function edit($id)
     {
         $info = ProfessionalOtherInformation::findOrFail($id);
-        // dd($info);
+        
         return view('professional.requested_services.edit', compact('info'));
     }
     public function update(Request $request, $id)
@@ -103,8 +100,7 @@ class RequestedServiceController extends Controller
         ]);
     }
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)

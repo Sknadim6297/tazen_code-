@@ -16,20 +16,14 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = EventBooking::with('event')->where('user_id', auth()->guard('user')->id());
-        
-        // Search by event name
         if ($request->filled('search_name')) {
             $query->whereHas('event', function ($q) use ($request) {
                 $q->where('heading', 'like', '%' . $request->search_name . '%');
             });
         }
-        
-        // Filter by event type (online/offline)
         if ($request->filled('search_type')) {
             $query->where('type', $request->search_type);
         }
-        
-        // Filter by date range
         if ($request->filled('search_date_from')) {
             $query->whereDate('event_date', '>=', $request->search_date_from);
         }
@@ -48,7 +42,6 @@ class EventController extends Controller
      */
     public function bookingSuccess(Request $request)
     {
-        // Get the latest booking if no session data is available
         if (!session()->has('event_booking_data')) {
             $booking = EventBooking::where('user_id', auth()->guard('user')->id())
                 ->latest()
@@ -60,13 +53,9 @@ class EventController extends Controller
                 
                 return view('customer.booking.event_success', compact('booking', 'event', 'user'));
             }
-            
-            // No booking found, redirect to bookings page with message
             return redirect()->route('user.customer-event.index')
                 ->with('error', 'No booking information found. Please check your bookings list.');
         }
-        
-        // Get booking data from session
         $bookingData = session('event_booking_data');
         $event = AllEvent::find($bookingData['event_id'] ?? null);
         $user = auth()->guard('user')->user();
@@ -79,7 +68,6 @@ class EventController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -87,7 +75,6 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -95,7 +82,6 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -103,7 +89,6 @@ class EventController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -111,7 +96,6 @@ class EventController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -119,6 +103,5 @@ class EventController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }

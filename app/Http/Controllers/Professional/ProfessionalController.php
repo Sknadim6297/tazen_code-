@@ -8,7 +8,6 @@ use App\Models\Professional;
 use App\Models\ProfessionalRejection;
 use App\Models\Profile;
 use App\Models\Service; 
-use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,8 +18,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfessionalController extends Controller
 {
-    use ImageUploadTraits;
-    // Show login form
     public function showLoginForm()
     {
         return view('professional.login.login');
@@ -34,7 +31,6 @@ class ProfessionalController extends Controller
 
     public function store(Request $request)
     {
-        // Custom validation with better error messages
         $validator = Validator::make($request->all(), [
             'email'    => 'required|email',
             'password' => 'required|min:6',
@@ -60,8 +56,6 @@ class ProfessionalController extends Controller
             $professional = Auth::guard('professional')->user();
 
             $request->session()->regenerate();
-            
-            // Check if the account is active
             if (!$professional->active) {
                 Auth::guard('professional')->logout();
                 return response()->json([
@@ -97,27 +91,20 @@ class ProfessionalController extends Controller
         ], 401);
     }
 
-
-
-    public function register(Request $request)
+public function register(Request $request)
     {
-        // Check if email has been verified
         if (!Session::get('email_verified')) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Please verify your email address before proceeding.',
             ], 403);
         }
-
-        // Verify the email used for registration is the same as the verified one
         if (Session::get('registration_email') !== $request->email) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Email address does not match the verified email.',
             ], 403);
         }
-        
-        // Base validation rules - GST fields are optional
         $validationRules = [
             'first_name'            => 'required|string|max:255',
             'last_name'             => 'required|string|max:255',
@@ -136,8 +123,6 @@ class ProfessionalController extends Controller
             'profile_photo'         => 'nullable|file|mimes:jpg,jpeg,png,bmp,gif,tiff,webp|max:5120',
             'gallery.*'             => 'nullable|file|mimes:jpg,jpeg,png,bmp,gif,tiff,webp|max:5120',
         ];
-
-        // Custom error messages for better user experience
         $customMessages = [
             'id_proof_document.required' => 'ID proof document (Aadhaar Card or PAN Card) is required.',
             'id_proof_document.max' => 'ID proof document file size should not exceed 10MB.',
@@ -145,8 +130,6 @@ class ProfessionalController extends Controller
             'qualification_document.required' => 'Qualification document is required.',
             'qualification_document.max' => 'Qualification document file size should not exceed 10MB.',
         ];
-
-        // If GST number is provided, make all GST fields mandatory
         if ($request->filled('gst_number')) {
             $validationRules['gst_number'] = 'required|string|max:15';
             $validationRules['gst_address'] = 'required|string|max:1000';
@@ -154,7 +137,6 @@ class ProfessionalController extends Controller
             $validationRules['state_name'] = 'required|string|max:100';
             $validationRules['gst_certificate'] = 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx,txt,bmp,gif,tiff,webp|max:10240';
         } else {
-            // If no GST number, make all GST fields optional
             $validationRules['gst_number'] = 'nullable|string|max:15';
             $validationRules['gst_address'] = 'nullable|string|max:1000';
             $validationRules['state_code'] = 'nullable|string|max:10';
@@ -174,21 +156,15 @@ class ProfessionalController extends Controller
             ]);
 
         $qualificationPath = $this->uploadImage($request, 'qualification_document', 'uploads/professionals/documents');
-        
-        // Handle single ID proof document upload
         $idProofPath = $request->hasFile('id_proof_document') 
             ? $this->uploadImage($request, 'id_proof_document', 'uploads/professionals/identity')
             : null;            // Profile photo is optional
             $photoPath = $request->hasFile('profile_photo') 
                 ? $this->uploadImage($request, 'profile_photo', 'uploads/professionals/photo')
                 : null;
-                
-            // Gallery is optional
             $galleryPath = $request->hasFile('gallery') 
                 ? $this->uploadMultipleImage($request, 'gallery', 'uploads/professionals/gallery')
                 : null;
-            
-            // GST certificate is only uploaded if GST details are provided
             $gstCertificatePath = $request->hasFile('gst_certificate') 
                 ? $this->uploadImage($request, 'gst_certificate', 'uploads/professionals/documents')
                 : null;
@@ -215,8 +191,6 @@ class ProfessionalController extends Controller
                 'photo'                 => $photoPath,
                 'gallery'               => $galleryPath ? json_encode($galleryPath) : null,
             ]);
-
-            // Clear OTP session data after successful registration
             Session::forget(['registration_otp', 'otp_expiry', 'email_verified', 'registration_email']);
 
             Auth::guard('professional')->login($professional);
@@ -226,8 +200,7 @@ class ProfessionalController extends Controller
                 'message' => 'Registration successful! Your application is now under admin review. You will be notified once approved.',
                 'redirect_url' => route('professional.pending.view'),
             ]);
-
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             Log::error('Professional registration error: ' . $e->getMessage(), [
                 'email' => $request->email,
                 'trace' => $e->getTraceAsString()
@@ -240,20 +213,14 @@ class ProfessionalController extends Controller
         }
     }
 
-
-    public function rejectedPage()
+public function rejectedPage()
     {
-        // Fetch the latest rejection record for the logged-in professional
         $RejectedUser = ProfessionalRejection::with('professional', 'profile')
             ->where('professional_id', Auth::guard('professional')->id())
             ->latest('created_at')
             ->first();
         $reason = $RejectedUser ? $RejectedUser->reason : null;
-        
-        // Get active services for the dropdown
         $services = Service::where('status', 'active')->get();
-        
-        // Add experience and city options
         $experiences = ['0-2', '2-4', '4-6', '6-8', '8-10', '10+'];
         $cities = ['Mumbai', 'Kolkata', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Ahmedabad', 'Surat', 'Jaipur'];
         
@@ -264,7 +231,6 @@ class ProfessionalController extends Controller
         $professional = Professional::with('profile')->where('id', Auth::guard('professional')->id())->first();
         return view('professional.login.pending', compact('professional'));
     }
-    // Handle logout
     public function logout(Request $request)
     {
         Auth::guard('professional')->logout();
@@ -276,10 +242,8 @@ class ProfessionalController extends Controller
     }
     public function reSubmit(Request $request)
     {
-        // For rejected users, validation is more flexible - only validate what they're updating
         $validationRules = [
             'name'                   => 'nullable|string|max:255',
-            // Email is read-only and not included in validation
             'phone'                  => 'nullable|string|min:6|max:15|regex:/^\d+$/',
             'specialization'         => 'nullable|string|max:255',
             'experience'             => 'nullable|string|max:255',
@@ -303,8 +267,6 @@ class ProfessionalController extends Controller
             'profile_photo.max' => 'Profile photo file size should not exceed 5MB.',
             'gallery.*.max' => 'Gallery images should not exceed 5MB each.',
         ];
-
-        // If GST number is provided, make GST fields required
         if ($request->filled('gst_number')) {
             $validationRules['gst_number'] = 'required|string|min:10|max:15';
             $validationRules['gst_address'] = 'required|string|max:1000';
@@ -320,7 +282,6 @@ class ProfessionalController extends Controller
             $customMessages['state_name.required'] = 'GST state name is required when providing GST details.';
             $customMessages['gst_certificate.max'] = 'GST certificate file size should not exceed 10MB.';
         } else {
-            // If no GST number, make all GST fields optional
             $validationRules['gst_number'] = 'nullable|string|min:10|max:15';
             $validationRules['gst_address'] = 'nullable|string|max:1000';
             $validationRules['state_code'] = 'nullable|string|max:10';
@@ -344,8 +305,6 @@ class ProfessionalController extends Controller
 
         $professional = Professional::findOrFail(Auth::guard('professional')->id());
         $profile = Profile::where('professional_id', $professional->id)->first();
-
-        // If no profile exists, create a new one
         if (!$profile) {
             $profile = new Profile();
             $profile->professional_id = $professional->id;
@@ -354,8 +313,6 @@ class ProfessionalController extends Controller
             $profile->phone = $professional->phone;
             $profile->save();
         }
-
-        // Update professional data only if provided
         $professionalUpdates = [];
         if ($request->filled('name')) {
             $professionalUpdates['name'] = $request->name;
@@ -363,13 +320,9 @@ class ProfessionalController extends Controller
         if ($request->filled('phone')) {
             $professionalUpdates['phone'] = $request->phone;
         }
-        
-        // Always update status to pending when resubmitting
         $professionalUpdates['status'] = 'pending';
         
         $professional->update($professionalUpdates);
-
-        // Handle file uploads - only update if new files are uploaded
         $qualificationPath = $request->hasFile('qualification_document')
             ? $this->uploadImage($request, 'qualification_document', 'uploads/professionals/documents')
             : ($profile->qualification_document ?? null);
@@ -385,13 +338,9 @@ class ProfessionalController extends Controller
         $galleryPath = $request->hasFile('gallery')
             ? json_encode($this->uploadMultipleImage($request, 'gallery', 'uploads/professionals/gallery'))
             : ($profile->gallery ?? null);
-            
-        // Handle GST certificate
         $gstCertificatePath = $request->hasFile('gst_certificate')
             ? $this->uploadImage($request, 'gst_certificate', 'uploads/professionals/documents')
             : ($profile->gst_certificate ?? null);
-
-        // Prepare profile updates - only update fields that have values
         $profileUpdates = [
             'qualification_document' => $qualificationPath,
             'id_proof_document'      => $idProofPath,
@@ -399,8 +348,6 @@ class ProfessionalController extends Controller
             'gallery'                => $galleryPath,
             'gst_certificate'        => $gstCertificatePath,
         ];
-
-        // Add text fields only if they have values (bio removed)
         $textFields = ['name', 'specialization', 'experience', 'starting_price', 'address', 'education', 'education2', 'gst_number', 'gst_address', 'state_code', 'state_name'];
         
         foreach ($textFields as $field) {
@@ -435,13 +382,9 @@ class ProfessionalController extends Controller
         ]);
 
         $otp = $this->generateOTP();
-        
-        // Store OTP in session
         Session::put('registration_otp', $otp);
         Session::put('registration_email', $request->email);
         Session::put('otp_expiry', now()->addMinutes(10));
-        
-        // Send OTP email
         try {
             Mail::to($request->email)->send(new OtpVerificationMail($otp));
             return response()->json([
@@ -476,7 +419,6 @@ class ProfessionalController extends Controller
         }
 
         if (now()->isAfter($otpExpiry)) {
-            // Clear expired OTP data
             Session::forget(['registration_otp', 'otp_expiry']);
             
             return response()->json([

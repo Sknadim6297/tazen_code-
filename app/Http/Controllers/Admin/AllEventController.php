@@ -12,10 +12,7 @@ class AllEventController extends Controller
 {
     public function index(Request $request)
     {
-        // Start with base query
         $query = AllEvent::with(['professional', 'approvedBy']);
-        
-        // Apply filters
         $filter = $request->get('filter', 'all');
         
         switch ($filter) {
@@ -30,11 +27,8 @@ class AllEventController extends Controller
                 break;
             case 'all':
             default:
-                // No additional filter
                 break;
         }
-        
-        // Fetch events with pagination
         $allevents = $query->orderBy('created_at', 'desc')->paginate(15);
             
         return view('admin.allevents.index', compact('allevents'));
@@ -57,13 +51,9 @@ class AllEventController extends Controller
         ]);
 
         $data = $request->all();
-        
-        // Handle file upload
         if ($request->hasFile('card_image')) {
             $data['card_image'] = $request->file('card_image')->store('events', 'public');
         }
-
-        // Admin events are automatically approved
         $data['status'] = 'approved';
         $data['created_by_type'] = 'admin';
         $data['approved_by'] = Auth::guard('admin')->id();
@@ -99,7 +89,6 @@ class AllEventController extends Controller
         $data = $request->except(['card_image']);
 
         if ($request->hasFile('card_image')) {
-            // Delete old image
             if ($allevent->card_image && Storage::disk('public')->exists($allevent->card_image)) {
                 Storage::disk('public')->delete($allevent->card_image);
             }
@@ -114,7 +103,6 @@ class AllEventController extends Controller
 
     public function destroy(AllEvent $allevent)
     {
-        // Delete image file
         if ($allevent->card_image && Storage::disk('public')->exists($allevent->card_image)) {
             Storage::disk('public')->delete($allevent->card_image);
         }

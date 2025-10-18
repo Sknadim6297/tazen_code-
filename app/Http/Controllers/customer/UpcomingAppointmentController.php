@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
 use App\Models\Availability;
-use App\Models\AvailabilitySlot;
 use App\Models\Professional;
 use App\Models\Admin;
 use App\Notifications\AppointmentRescheduled;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 
 class UpcomingAppointmentController extends Controller
 {
@@ -44,8 +42,6 @@ class UpcomingAppointmentController extends Controller
                     $q->select('id', 'name');
                 }
             ])->where('user_id', Auth::guard('user')->id());
-
-            // Apply search filters if provided
             if ($request->filled('search_name')) {
                 $search = $request->search_name;
                 $query->where(function($q) use ($search) {
@@ -56,45 +52,27 @@ class UpcomingAppointmentController extends Controller
                       });
                 });
             }
-            
-            // Apply service filter if provided
             if ($request->filled('service') && $request->service !== 'all') {
                 $query->where('service_name', $request->service);
             }
-            
-            // Apply plan type filter if provided
             if ($request->filled('plan_type') && $request->plan_type !== 'all') {
                 $query->where('plan_type', $request->plan_type);
             }
-
-            // Get the bookings
             $allBookings = $query->get();
-            
-            // Get current date
             $today = Carbon::today();
             $processedBookings = collect();
             
             foreach ($allBookings as $booking) {
                 try {
-                    // CHANGED: Get all pending/confirmed future timedates (removed 3-day limit)
                     $upcomingTimedates = BookingTimedate::where('booking_id', $booking->id)
                         ->whereIn('status', ['pending', 'confirmed'])
                         ->where('date', '>=', $today->format('Y-m-d')) // Only future dates
                         ->orderBy('date', 'asc')
                         ->get();
-                    
-                    // Only add this booking if it has any future timedates
                     if ($upcomingTimedates->isNotEmpty()) {
-                        // Get the first upcoming timedate
                         $nextTimedate = $upcomingTimedates->first();
-                        
-                        // Replace the timedates collection with just this single upcoming timedate
                         $booking->setRelation('timedates', collect([$nextTimedate]));
-                        
-                        // Get all timedates to calculate sessions
                         $allTimedates = BookingTimedate::where('booking_id', $booking->id)->get();
-                        
-                        // Add calculated session information
                         $booking->sessions_taken = $allTimedates->where('status', 'completed')->count();
                         $booking->total_sessions = $allTimedates->count();
                         $booking->sessions_remaining = $booking->total_sessions - $booking->sessions_taken;
@@ -102,13 +80,10 @@ class UpcomingAppointmentController extends Controller
                         $processedBookings->push($booking);
                     }
                 } catch (\Exception $e) {
-                    // Continue with next booking even if this one fails
                     Log::error('Error processing booking ID ' . $booking->id . ': ' . $e->getMessage());
                     continue;
                 }
             }
-            
-            // Apply date filtering if requested
             if ($request->filled('search_date_from') || $request->filled('search_date_to')) {
                 $processedBookings = $processedBookings->filter(function ($booking) use ($request) {
                     $timedate = $booking->timedates->first();
@@ -129,31 +104,22 @@ class UpcomingAppointmentController extends Controller
                     return true;
                 });
             }
-            
-            // Sort by the nearest upcoming date
             $sortedBookings = $processedBookings->sortBy(function ($booking) {
                 $timedate = $booking->timedates->first();
                 return $timedate ? Carbon::parse($timedate->date)->timestamp : PHP_INT_MAX;
             })->values();
-            
-            // Format plan types for display
             $formattedPlanTypes = [];
             foreach ($planTypeOptions as $planType) {
                 $formattedPlanTypes[$planType] = $this->formatPlanType($planType);
             }
-            
-            // Format bookings with plan type display names
             $formattedBookings = $sortedBookings->map(function ($booking) {
                 $booking->formatted_plan_type = $this->formatPlanType($booking->plan_type);
                 return $booking;
             });
-            
-            // Pass to view
             $bookings = $formattedBookings;
             
             return view('customer.upcoming-appointment.index', compact('bookings', 'serviceOptions', 'planTypeOptions', 'formattedPlanTypes'));
         } catch (\Exception $e) {
-            // Provide a friendly error message to the user
             Log::error('Error in upcoming appointments: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while loading your appointments. Please try again later.');
         }
@@ -165,13 +131,9 @@ class UpcomingAppointmentController extends Controller
     private function formatPlanType($planType) 
     {
         if (empty($planType)) return null;
-        
-        // Handle special case for "one_time"
         if (strtolower($planType) == 'one_time') {
             return 'One Time';
         }
-        
-        // Replace underscores with spaces and capitalize each word
         return ucwords(str_replace('_', ' ', $planType));
     }
 
@@ -180,7 +142,6 @@ class UpcomingAppointmentController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -188,7 +149,6 @@ class UpcomingAppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -196,7 +156,6 @@ class UpcomingAppointmentController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -204,7 +163,6 @@ class UpcomingAppointmentController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -212,7 +170,6 @@ class UpcomingAppointmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -220,19 +177,15 @@ class UpcomingAppointmentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 
     public function uploadDocument(Request $request)
     {
         try {
-            // Validate the request
             $request->validate([
                 'document' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
                 'booking_id' => 'required|exists:bookings,id'
             ]);
-
-            // Log the request data for debugging
             Log::info('Upload document request:', [
                 'booking_id' => $request->booking_id,
                 'has_file' => $request->hasFile('document'),
@@ -362,8 +315,6 @@ class UpcomingAppointmentController extends Controller
                 'professional_id' => $professionalId,
                 'user_id' => Auth::guard('user')->id()
             ]);
-            
-            // Get professional availability
             $availabilities = Availability::where('professional_id', $professionalId)
                 ->with('slots')
                 ->get();
@@ -372,8 +323,6 @@ class UpcomingAppointmentController extends Controller
                 'count' => $availabilities->count(),
                 'data' => $availabilities->toArray()
             ]);
-
-            // Format availability data with improved month handling
             $availabilityData = [];
             $monthMap = [
                 'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4,
@@ -383,13 +332,9 @@ class UpcomingAppointmentController extends Controller
             
             foreach ($availabilities as $availability) {
                 $weekdays = $availability->weekdays;
-                
-                // Handle different weekdays format
                 if (is_string($weekdays)) {
                     $weekdays = json_decode($weekdays, true);
                 }
-                
-                // Normalize weekdays to 3-letter format
                 $normalizedWeekdays = array_map(function($day) {
                     $dayMap = [
                         'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 
@@ -398,8 +343,6 @@ class UpcomingAppointmentController extends Controller
                     $lowerDay = strtolower($day);
                     return $dayMap[$lowerDay] ?? $lowerDay;
                 }, $weekdays ?: []);
-                
-                // Convert month name to number for easier handling
                 $monthNum = $monthMap[strtolower($availability->month)] ?? null;
                 
                 if ($monthNum && $availability->slots->count() > 0) {
@@ -409,7 +352,6 @@ class UpcomingAppointmentController extends Controller
                         'weekdays' => $normalizedWeekdays,
                         'original_weekdays' => $weekdays,
                         'slots' => $availability->slots->map(function ($slot) {
-                            // Format time to match the booking time_slot format
                             $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A');
                             $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
                             $formattedTimeSlot = $startTime . ' - ' . $endTime;
@@ -424,8 +366,6 @@ class UpcomingAppointmentController extends Controller
                     ];
                 }
             }
-
-            // Get booked time slots for the next 12 months
             $bookedTimeSlots = BookingTimedate::whereHas('booking', function ($query) use ($professionalId) {
                 $query->where('professional_id', $professionalId)
                     ->whereIn('status', ['pending', 'confirmed']);
@@ -439,10 +379,7 @@ class UpcomingAppointmentController extends Controller
                 if (!isset($bookedSlots[$date])) {
                     $bookedSlots[$date] = [];
                 }
-                
-                // Normalize time slot format to match availability slots
                 $timeSlot = $slot->time_slot;
-                // Convert "06:00 PM to 06:30 PM" to "06:00 PM - 06:30 PM"
                 $normalizedTimeSlot = str_replace(' to ', ' - ', $timeSlot);
                 
                 $bookedSlots[$date][] = $normalizedTimeSlot;
@@ -494,8 +431,6 @@ class UpcomingAppointmentController extends Controller
             ]);
 
             $booking = Booking::findOrFail($request->booking_id);
-            
-            // Verify the booking belongs to the authenticated user
             if ($booking->user_id !== Auth::guard('user')->id()) {
                 return response()->json([
                     'success' => false,
@@ -512,24 +447,18 @@ class UpcomingAppointmentController extends Controller
                 'requested_date' => $request->new_date,
                 'requested_time_slot' => $request->new_time_slot
             ]);
-            
-            // Verify the timedate belongs to the booking
             if ($timedate->booking_id !== $booking->id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid timedate for this booking'
                 ], 400);
             }
-            
-            // Check if trying to reschedule to the same date and time
             if ($timedate->date === $request->new_date && $timedate->time_slot === $request->new_time_slot) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Please select a different date or time for rescheduling'
                 ], 400);
             }
-            
-            // Check if the new time slot is available using the new method
             $isSlotTaken = BookingTimedate::isSlotBooked($request->professional_id, $request->new_date, $request->new_time_slot);
 
             if ($isSlotTaken) {
@@ -538,8 +467,6 @@ class UpcomingAppointmentController extends Controller
                     'message' => 'The selected time slot is no longer available'
                 ], 400);
             }
-
-            // Check if professional has availability for the selected date and time
             $newDate = Carbon::parse($request->new_date);
             $dayName = strtolower($newDate->format('D')); // mon, tue, etc.
             $monthName = strtolower($newDate->format('M')); // jan, feb, etc.
@@ -556,13 +483,11 @@ class UpcomingAppointmentController extends Controller
             $availability = Availability::where('professional_id', $request->professional_id)
                 ->where('month', $monthName)
                 ->whereHas('slots', function ($query) use ($request) {
-                    // Extract start time from the formatted time slot "06:00 PM - 06:45 PM"
                     $timeParts = explode(' - ', $request->new_time_slot);
                     if (count($timeParts) === 2) {
                         $startTime = \Carbon\Carbon::createFromFormat('h:i A', trim($timeParts[0]))->format('H:i:s');
                         $query->where('start_time', $startTime);
                     } else {
-                        // Fallback: treat as start time directly
                         $query->where('start_time', $request->new_time_slot);
                     }
                 })
@@ -579,14 +504,10 @@ class UpcomingAppointmentController extends Controller
                     'message' => 'Professional is not available at the selected time'
                 ], 400);
             }
-
-            // Check if the day is available
             $weekdays = $availability->weekdays;
             if (is_string($weekdays)) {
                 $weekdays = json_decode($weekdays, true);
             }
-            
-            // Normalize weekdays for comparison
             $normalizedWeekdays = array_map(function($day) {
                 $dayMap = [
                     'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 
@@ -608,16 +529,12 @@ class UpcomingAppointmentController extends Controller
                     'message' => 'Professional is not available on the selected day'
                 ], 400);
             }
-
-            // Update the booking timedate
             $oldDate = $timedate->date;
             $oldTimeSlot = $timedate->time_slot;
             
             $timedate->date = $request->new_date;
             $timedate->time_slot = $request->new_time_slot;
             $saved = $timedate->save();
-
-            // Verify the update
             $timedate->refresh();
             
             Log::info('Appointment rescheduled successfully', [
@@ -630,14 +547,10 @@ class UpcomingAppointmentController extends Controller
                 'save_result' => $saved,
                 'user_id' => Auth::guard('user')->id()
             ]);
-
-            // Send notifications to professional and admins
             try {
                 $customer = Auth::guard('user')->user();
                 $professional = Professional::find($request->professional_id);
                 $admins = Admin::all();
-
-                // Notify the professional
                 if ($professional) {
                     $professional->notify(new AppointmentRescheduled(
                         $booking, 
@@ -650,8 +563,6 @@ class UpcomingAppointmentController extends Controller
                     ));
                     Log::info('Notification sent to professional', ['professional_id' => $professional->id]);
                 }
-
-                // Notify all admins
                 foreach ($admins as $admin) {
                     $admin->notify(new AppointmentRescheduled(
                         $booking, 
@@ -664,13 +575,11 @@ class UpcomingAppointmentController extends Controller
                     ));
                 }
                 Log::info('Notifications sent to admins', ['admin_count' => $admins->count()]);
-
-            } catch (\Exception $e) {
+} catch (\Exception $e) {
                 Log::error('Error sending reschedule notifications: ' . $e->getMessage(), [
                     'booking_id' => $booking->id,
                     'professional_id' => $request->professional_id
                 ]);
-                // Don't fail the reschedule if notifications fail
             }
 
             return response()->json([
@@ -683,8 +592,7 @@ class UpcomingAppointmentController extends Controller
                     'new_time' => $timedate->time_slot
                 ]
             ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
+} catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
@@ -702,14 +610,11 @@ class UpcomingAppointmentController extends Controller
     public function cancelAppointment(Request $request)
     {
         try {
-            // Validate the request
             $request->validate([
                 'booking_id' => 'required|exists:bookings,id',
             ]);
 
             $booking = Booking::findOrFail($request->booking_id);
-
-            // Find the associated timedate
             $timedate = $booking->timedates()->where('date', '>=', Carbon::today())->first();
             if (!$timedate) {
                 return response()->json([
@@ -717,8 +622,6 @@ class UpcomingAppointmentController extends Controller
                     'message' => 'No upcoming timedate found for this booking'
                 ], 404);
             }
-
-            // Update the timedate status to 'canceled'
             $timedate->status = 'canceled';
             $timedate->save();
 

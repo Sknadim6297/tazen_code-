@@ -17,7 +17,6 @@ class ManageAdminController extends Controller
      */
     public function index()
     {
-        // Get all admins except the current admin
         $admins = Admin::where('id', '!=', auth()->guard('admin')->user()->id)->get();
         return view('admin.manage_admins.index', compact('admins'));
     }
@@ -82,8 +81,6 @@ class ManageAdminController extends Controller
             'role' => 'required|in:admin,super_admin',
             'is_active' => 'boolean'
         ];
-
-        // Only validate password if it's provided
         if ($request->filled('password')) {
             $rules['password'] = 'string|min:8|confirmed';
         }
@@ -141,8 +138,6 @@ class ManageAdminController extends Controller
     public function updatePermissions(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
-
-        // Validate menu_ids array
         $validator = Validator::make($request->all(), [
             'menu_ids' => 'array',
             'menu_ids.*' => 'exists:admin_menus,id',
@@ -153,11 +148,7 @@ class ManageAdminController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        // Delete existing permissions
         AdminMenuPermission::where('admin_id', $admin->id)->delete();
-
-        // Assign new permissions
         if ($request->has('menu_ids')) {
             foreach ($request->menu_ids as $menuId) {
                 AdminMenuPermission::create([

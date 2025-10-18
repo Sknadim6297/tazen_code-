@@ -443,6 +443,7 @@
                     <th>Booking date</th>
                     <th>Professional Name</th>
                     <th>Service Category</th>
+                    <th>Sub-Service</th>
                     <th>Plan Type</th>
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
@@ -487,6 +488,13 @@
                                 <strong>{{ $booking->service_name }}</strong>
                             @else
                                 {{ $booking->service_name }}
+                            @endif
+                        </td>
+                        <td>
+                            @if($booking->sub_service_name)
+                                <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                            @else
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
                       <!-- Change this part in the table row -->

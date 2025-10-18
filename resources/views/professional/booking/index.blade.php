@@ -497,6 +497,7 @@
                                     <th>Customer Name</th>
                                     <th>Plan Type</th>
                                     <th>Service Name</th>
+                                    <th>Sub-Service</th>
                                     <th>Time Slot</th>
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
@@ -532,6 +533,13 @@
                                 </td>
                                 <td>{{ $booking->plan_type }}</td>
                                 <td>{{ $booking->service_name }}</td>
+                                <td>
+                                    @if($booking->sub_service_name)
+                                        <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
                           <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
 
@@ -999,6 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let html = `<div class="questionnaire-details">
                         <h5>Customer: ${data.booking_details.customer_name}</h5>
                         <h6>Service: ${data.booking_details.service_name}</h6>
+                        ${data.booking_details.sub_service_name ? '<h6>Sub-Service: <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></h6>' : ''}
                         <div class="answers-list">`;
                     
                     data.answers.forEach(item => {
@@ -1056,6 +1065,7 @@ function fetchQuestionnaireAnswers(bookingId) {
                 let html = `<div class="questionnaire-details">
                     <h5>Customer: ${data.booking_details.customer_name}</h5>
                     <h6>Service: ${data.booking_details.service_name}</h6>
+                    ${data.booking_details.sub_service_name ? '<h6>Sub-Service: <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></h6>' : ''}
                     <div class="answers-list">`;
                 
                 data.answers.forEach(item => {

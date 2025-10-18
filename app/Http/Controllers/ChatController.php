@@ -10,7 +10,6 @@ use App\Models\Professional;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -19,37 +18,27 @@ class ChatController extends Controller
      */
     public function initializeChat(Request $request)
     {
-        // Debug logging
-        // Validate request
         $validated = $request->validate([
             'participant_type' => 'required|in:admin,professional,user',
             'participant_id' => 'required|integer'
         ]);
-
-        // Get current user info
         $currentUserType = $this->getCurrentUserType();
         $currentUserId = $this->getCurrentUserId();
         
         if (!$currentUserType || !$currentUserId) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-        // Create or find chat
         $chat = Chat::findOrCreateChat(
             $currentUserType,
             $currentUserId,
             $request->participant_type,
             $request->participant_id
         );
-
-        // Get participant details
         $participant = $this->getParticipantDetails($request->participant_type, $request->participant_id);
         
         if (!$participant) {
             return response()->json(['error' => 'Participant not found'], 404);
         }
-
-        // Get online status
         $isOnline = UserActivity::isUserOnline($request->participant_type, $request->participant_id);
         $lastSeen = UserActivity::where('user_type', $request->participant_type)
                                 ->where('user_id', $request->participant_id)
@@ -76,15 +65,11 @@ class ChatController extends Controller
         $currentUserId = $this->getCurrentUserId();
 
         $chat = Chat::findOrFail($chatId);
-
-        // Verify user is part of this chat
         if (!$this->isUserInChat($chat, $currentUserType, $currentUserId)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $messages = $chat->messages()->with('sender')->get();
-
-        // Mark messages as read that are not from current user
         ChatMessage::where('chat_id', $chatId)
                    ->where(function($query) use ($currentUserType, $currentUserId) {
                        $query->where('sender_type', '!=', $currentUserType)
@@ -126,23 +111,17 @@ class ChatController extends Controller
         $currentUserId = $this->getCurrentUserId();
 
         $chat = Chat::findOrFail($chatId);
-
-        // Verify user is part of this chat
         if (!$this->isUserInChat($chat, $currentUserType, $currentUserId)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $messageType = $request->message_type ?? 'text';
         $filePath = null;
-
-        // Handle file upload
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filePath = $file->store('chat-files', 'public');
             $messageType = in_array($file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif']) ? 'image' : 'file';
         }
-
-        // Create message
         $message = ChatMessage::create([
             'chat_id' => $chatId,
             'sender_type' => $currentUserType,
@@ -151,15 +130,11 @@ class ChatController extends Controller
             'message_type' => $messageType,
             'file_path' => $filePath
         ]);
-
-        // Update chat's last message info
         $chat->update([
             'last_message_at' => now(),
             'last_message_by' => $currentUserId,
             'last_message_by_type' => $currentUserType
         ]);
-
-        // Update sender's activity
         UserActivity::updateUserActivity($currentUserType, $currentUserId, true);
 
         return response()->json([
@@ -266,8 +241,6 @@ class ChatController extends Controller
 
         return response()->json(['unread_count' => $unreadCount]);
     }
-
-    // Helper methods
     private function getCurrentUserType()
     {
         if (Auth::guard('admin')->check()) {

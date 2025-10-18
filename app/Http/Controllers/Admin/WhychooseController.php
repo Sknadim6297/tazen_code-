@@ -22,7 +22,6 @@ class WhychooseController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -30,7 +29,6 @@ class WhychooseController extends Controller
      */
     public function store(Request $request)
 {
-    // Validate the incoming data
     $request->validate([
         'section_heading' => 'required|string|max:255',
         'section_sub_heading' => 'required|string|max:255',
@@ -59,22 +57,16 @@ class WhychooseController extends Controller
         'card6_icon' => 'required|string|max:255',
         'card6_description' => 'required|string',
     ]);
-
-    // Create a new entry in the Whychoose table
     $data = $request->all();
     Whychoose::create($data);
-
-    // Redirect back with success message
     return redirect()->route('admin.whychoose.index')->with('success', 'Whychoose section added successfully!');
 }
 
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -85,8 +77,6 @@ class WhychooseController extends Controller
         $whychoose = WhyChoose::findOrFail($id);
         return view('admin.whychoose.edit', compact('whychoose'));
     }
-
-    // Update existing record
     public function update(Request $request, $id)
     {
         $whychoose = WhyChoose::findOrFail($id);
@@ -94,7 +84,6 @@ class WhychooseController extends Controller
         $validatedData = $request->validate([
             'section_heading' => 'required|string|max:255',
             'section_sub_heading' => 'required|string|max:255',
-            // Validate cards
             'card1_mini_heading' => 'required|string|max:255',
             'card1_heading' => 'required|string|max:255',
             'card1_icon' => 'required|string|max:255',
@@ -125,8 +114,6 @@ class WhychooseController extends Controller
 
         return redirect()->route('admin.whychoose.index')->with('success', 'Why Choose Us section updated successfully.');
     }
-
-    // Delete a record
     public function destroy($id)
     {
         $whychoose = WhyChoose::findOrFail($id);

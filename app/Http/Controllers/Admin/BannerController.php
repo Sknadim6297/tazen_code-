@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Banner;
 
-
 class BannerController extends Controller
 {
     /**
@@ -23,7 +22,6 @@ class BannerController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -38,8 +36,6 @@ class BannerController extends Controller
     ]);
 
     $data = $request->only(['heading', 'sub_heading', 'status']);
-
-    // Handle video upload
     if ($request->hasFile('banner_video')) {
         $videoPath = $request->file('banner_video')->store('banners', 'public');
         $data['banner_video'] = $videoPath; // only save 'banners/video.mp4'
@@ -50,14 +46,11 @@ class BannerController extends Controller
     return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
 }
 
-
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**

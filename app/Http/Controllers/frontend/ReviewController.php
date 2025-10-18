@@ -15,14 +15,11 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request data
         $validated = $request->validate([
             'professional_id' => 'required|exists:professionals,id',
             'rating' => 'required|integer|min:1|max:5',
             'review_text' => 'required|string|max:1000',
         ]);
-
-        // Check if user is logged in
         if (!Auth::guard('user')->check()) {
             return response()->json([
                 'success' => false, 
@@ -31,8 +28,6 @@ class ReviewController extends Controller
         }
 
         $user = Auth::guard('user')->user();
-        
-        // Check if the user has already reviewed this professional
         $existingReview = Review::where('user_id', $user->id)
             ->where('professional_id', $request->professional_id)
             ->first();
@@ -43,8 +38,6 @@ class ReviewController extends Controller
                 'message' => 'You have already reviewed this professional'
             ], 422);
         }
-
-        // Create the review
         try {
             $review = Review::create([
                 'user_id' => $user->id,

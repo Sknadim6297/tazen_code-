@@ -23,7 +23,6 @@ class AboutBannerController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -36,11 +35,7 @@ class AboutBannerController extends Controller
             'sub_heading' => 'nullable|string|max:255', // corrected field name
             'banner_image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
-    
-        // Handle image upload
         $imagePath = $request->file('banner_image')->store('banner_images', 'public');
-    
-        // Store the banner details in the database
         AboutBanner::create([
             'heading' => $request->input('heading'),
             'subheading' => $request->input('sub_heading'), // map form field to DB column
@@ -49,14 +44,12 @@ class AboutBannerController extends Controller
     
         return redirect()->route('admin.about-banner.index')->with('success', 'Banner added successfully');
     }
-    
 
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -68,8 +61,7 @@ class AboutBannerController extends Controller
     return view('admin.about-banner.edit', compact('banner'));
     }
 
-
-    /**
+/**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
@@ -81,19 +73,12 @@ class AboutBannerController extends Controller
         'sub_heading' => 'nullable|string|max:255',
         'banner_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
     ]);
-
-    // Map form field 'sub_heading' to DB field 'subheading'
     $data['subheading'] = $request->input('sub_heading');
     unset($data['sub_heading']); // optional cleanup
-
-    // Handle image upload like the store method
     if ($request->hasFile('banner_image')) {
-        // Delete the old image if it exists
         if ($banner->banner_image && Storage::disk('public')->exists($banner->banner_image)) {
             Storage::disk('public')->delete($banner->banner_image);
         }
-
-        // Store new image
         $imagePath = $request->file('banner_image')->store('banner_images', 'public');
         $data['banner_image'] = $imagePath;
     }
@@ -103,8 +88,7 @@ class AboutBannerController extends Controller
     return redirect()->route('admin.about-banner.index')->with('success', 'Banner updated successfully.');
 }
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy($id)

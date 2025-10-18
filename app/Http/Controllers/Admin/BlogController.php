@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Blog;
 use App\Models\BlogPost;
 
-
 class BlogController extends Controller
 {
     /**
@@ -25,7 +24,6 @@ class BlogController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -33,7 +31,6 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-    // Validate input data
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'short_description' => 'required|string', // Ensure validation for short_description
@@ -41,13 +38,9 @@ class BlogController extends Controller
         'created_by' => 'required|string',
         'status' => 'required|in:active,inactive',
     ]);
-
-    // Handle image upload if any
     if ($request->hasFile('image')) {
         $imagePath = $request->file('image')->store('blogs', 'public');
     }
-
-    // Create new blog entry
     Blog::create([
         'title' => $validated['title'],
         'description_short' => $validated['short_description'], // Pass the short description
@@ -59,9 +52,7 @@ class BlogController extends Controller
     return redirect()->route('admin.blogs.index')->with('success', 'Blog added successfully');
     }
 
-
-
-    /**
+/**
      * Show the form for editing the specified blog.
      */
     public function edit(Blog $blog)
@@ -105,11 +96,7 @@ class BlogController extends Controller
 
     public function show($id)
 {
-    // Fetch the blog post by its ID
     $blogPost = BlogPost::findOrFail($id);
-
-    // Pass the blog post to the view
     return view('frontend.sections.blog-post', compact('blogPost'));
 }
-
 }

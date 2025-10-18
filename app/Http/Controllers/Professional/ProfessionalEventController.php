@@ -16,8 +16,6 @@ class ProfessionalEventController extends Controller
     public function index()
     {
         $professional = Auth::guard('professional')->user();
-        
-        // Get events with statistics
         $events = AllEvent::where('professional_id', $professional->id)
             ->where('created_by_type', 'professional')
             ->orderBy('created_at', 'desc')
@@ -56,14 +54,10 @@ class ProfessionalEventController extends Controller
             'short_description' => 'required|string|max:1000',
             'starting_fees' => 'required|numeric|min:0',
         ]);
-
-        // Handle file upload
         $imagePath = null;
         if ($request->hasFile('card_image')) {
             $imagePath = $request->file('card_image')->store('professional-events', 'public');
         }
-
-        // Create the event with pending status
         AllEvent::create([
             'professional_id' => $professional->id,
             'card_image' => $imagePath,
@@ -86,8 +80,6 @@ class ProfessionalEventController extends Controller
     public function show(AllEvent $event)
     {
         $professional = Auth::guard('professional')->user();
-        
-        // Ensure the professional can only view their own events
         if ($event->professional_id !== $professional->id) {
             abort(403, 'Unauthorized access to this event.');
         }
@@ -101,13 +93,9 @@ class ProfessionalEventController extends Controller
     public function edit(AllEvent $event)
     {
         $professional = Auth::guard('professional')->user();
-        
-        // Ensure the professional can only edit their own events
         if ($event->professional_id !== $professional->id) {
             abort(403, 'Unauthorized access to this event.');
         }
-        
-        // Don't allow editing of approved events
         if ($event->status === 'approved') {
             return redirect()->route('professional.events.show', $event)
                 ->with('error', 'Cannot edit approved events. Please contact admin if changes are needed.');
@@ -122,13 +110,9 @@ class ProfessionalEventController extends Controller
     public function update(Request $request, AllEvent $event)
     {
         $professional = Auth::guard('professional')->user();
-        
-        // Ensure the professional can only update their own events
         if ($event->professional_id !== $professional->id) {
             abort(403, 'Unauthorized access to this event.');
         }
-        
-        // Don't allow updating of approved events
         if ($event->status === 'approved') {
             return redirect()->route('professional.events.show', $event)
                 ->with('error', 'Cannot edit approved events. Please contact admin if changes are needed.');
@@ -150,18 +134,13 @@ class ProfessionalEventController extends Controller
             'short_description' => $request->short_description,
             'starting_fees' => $request->starting_fees,
         ];
-
-        // Handle file upload if new image is provided
         if ($request->hasFile('card_image')) {
-            // Delete old image
             if ($event->card_image) {
                 Storage::disk('public')->delete($event->card_image);
             }
             
             $updateData['card_image'] = $request->file('card_image')->store('professional-events', 'public');
         }
-
-        // Reset status to pending if it was rejected
         if ($event->status === 'rejected') {
             $updateData['status'] = 'pending';
             $updateData['admin_notes'] = null;
@@ -179,19 +158,13 @@ class ProfessionalEventController extends Controller
     public function destroy(AllEvent $event)
     {
         $professional = Auth::guard('professional')->user();
-        
-        // Ensure the professional can only delete their own events
         if ($event->professional_id !== $professional->id) {
             abort(403, 'Unauthorized access to this event.');
         }
-        
-        // Don't allow deletion of approved events
         if ($event->status === 'approved') {
             return redirect()->route('professional.events.index')
                 ->with('error', 'Cannot delete approved events. Please contact admin if removal is needed.');
         }
-
-        // Delete the image file
         if ($event->card_image) {
             Storage::disk('public')->delete($event->card_image);
         }

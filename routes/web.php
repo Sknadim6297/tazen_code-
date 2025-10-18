@@ -83,6 +83,7 @@ Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridl
 
 // Professional details page - public viewing but requires auth for booking
 Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+Route::get('professionals/get-rates-by-sub-service', [HomeController::class, 'getProfessionalRatesBySubService'])->name('get.professional.rates.availability');
 
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();

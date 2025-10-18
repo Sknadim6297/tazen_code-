@@ -69,6 +69,7 @@
                             // Get the professional's service information
                             $professionalService = null;
                             $serviceName = 'N/A';
+                            $subServiceName = null;
                             
                             if ($professional) {
                                 // Try to get professional service with relationship
@@ -91,6 +92,20 @@
                             // Final fallback to session if nothing found
                             if ($serviceName === 'N/A') {
                                 $serviceName = session('selected_service_name') ?? 'N/A';
+                            }
+                            
+                            // Get sub-service name from booking_data session
+                            if (!empty($bookingData['sub_service_name'])) {
+                                $subServiceName = $bookingData['sub_service_name'];
+                            } elseif (!empty($bookingData['sub_service_id'])) {
+                                // If sub_service_id exists but not name, fetch from database
+                                $subService = \App\Models\SubService::find($bookingData['sub_service_id']);
+                                if ($subService) {
+                                    $subServiceName = $subService->name;
+                                }
+                            } else {
+                                // Fallback to session
+                                $subServiceName = session('selected_sub_service_name');
                             }
                         @endphp
 

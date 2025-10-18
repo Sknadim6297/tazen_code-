@@ -1,7 +1,5 @@
 <?php
 
-// filepath: c:\xampp\htdocs\tazen_marge_code\Tazen_multi\app\Http\Controllers\Admin\AdminUserController.php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -71,11 +69,7 @@ class AdminUserController extends Controller
     public function edit($id)
     {
         $adminUser = Admin::findOrFail($id);
-        
-        // Get all parent menus with their children
         $parentMenus = AdminMenu::whereNull('parent_id')->with('children')->orderBy('order')->get();
-        
-        // Get the IDs of the menus this admin has access to
         $adminMenuIds = $adminUser->menus->pluck('id')->toArray();
         
         return view('admin.admin_users.edit', compact('adminUser', 'parentMenus', 'adminMenuIds'));
@@ -112,23 +106,15 @@ class AdminUserController extends Controller
         $adminUser->email = $validated['email'];
         $adminUser->role = $validated['role'];
         $adminUser->is_active = $request->has('is_active') ? 1 : 0;
-
-        // Update password only if provided
         if (!empty($validated['password'])) {
             $adminUser->password = Hash::make($validated['password']);
         }
 
         $adminUser->save();
-
-        // Update menu permissions (only for non-super_admin)
         if ($validated['role'] !== 'super_admin') {
-            // Get menu IDs from request
             $menuIds = $request->input('menu_permissions', []);
-            
-            // Sync menu permissions
             $adminUser->menus()->sync($menuIds);
         } else {
-            // Super admin has access to all menus, no need to store specific permissions
             $adminUser->menus()->detach();
         }
 
@@ -144,7 +130,6 @@ class AdminUserController extends Controller
      */
     public function destroy($id)
     {
-        // Prevent deletion of self
         if (auth()->guard('admin')->id() == $id) {
             return redirect()->route('admin.admin-users.index')
                 ->with('error', 'You cannot delete your own account!');
@@ -166,17 +151,11 @@ class AdminUserController extends Controller
     public function showPermissions($id)
     {
         $adminUser = Admin::findOrFail($id);
-        
-        // Don't allow editing super_admin permissions
         if ($adminUser->role === 'super_admin') {
             return redirect()->route('admin.admin-users.index')
                 ->with('error', 'Super Admin users already have access to all menus.');
         }
-        
-        // Get all parent menus with their children
         $parentMenus = AdminMenu::whereNull('parent_id')->with('children')->orderBy('order')->get();
-        
-        // Get the IDs of the menus this admin has access to
         $adminMenuIds = $adminUser->menus->pluck('id')->toArray();
         
         return view('admin.admin_users.permissions', compact('adminUser', 'parentMenus', 'adminMenuIds'));
@@ -192,8 +171,6 @@ class AdminUserController extends Controller
     public function updatePermissions(Request $request, $id)
     {
         $adminUser = Admin::findOrFail($id);
-        
-        // Don't allow editing super_admin permissions
         if ($adminUser->role === 'super_admin') {
             return redirect()->route('admin.admin-users.index')
                 ->with('error', 'Super Admin users already have access to all menus.');
@@ -203,11 +180,7 @@ class AdminUserController extends Controller
             'menu_permissions' => 'nullable|array',
             'menu_permissions.*' => 'exists:admin_menus,id'
         ]);
-
-        // Get menu IDs from request
         $menuIds = $request->input('menu_permissions', []);
-        
-        // Sync menu permissions
         $adminUser->menus()->sync($menuIds);
 
         return redirect()->route('admin.admin-users.index')

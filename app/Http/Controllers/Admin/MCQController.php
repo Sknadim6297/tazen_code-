@@ -22,7 +22,6 @@ class MCQController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -30,7 +29,6 @@ class MCQController extends Controller
      */
     public function store(Request $request)
 {
-    // Validate the form data
     $request->validate([
         'question1' => 'required|string',
         'option1_a' => 'required|string',
@@ -58,8 +56,6 @@ class MCQController extends Controller
         'option5_c' => 'required|string',
         'option5_d' => 'required|string',
     ]);
-
-    // Create the MCQ record
     MCQ::create([
         'question1' => $request->question1,
         'option1_a' => $request->option1_a,
@@ -87,18 +83,14 @@ class MCQController extends Controller
         'option5_c' => $request->option5_c,
         'option5_d' => $request->option5_d,
     ]);
-
-    // Redirect back with a success message
     return redirect()->route('admin.mcq.index')->with('success', 'MCQ added successfully!');
 }
 
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -106,7 +98,6 @@ class MCQController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -114,7 +105,6 @@ class MCQController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -122,6 +112,5 @@ class MCQController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }

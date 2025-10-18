@@ -106,6 +106,7 @@
                 <th>Customer Details</th>
                 <th>Professional</th>
                 <th>Service</th>
+                <th>Sub-Service</th>
                 <th>Amount</th>
                 <th>Sessions (Total/Done/Pending)</th>
                 <th>Next Session</th>
@@ -120,6 +121,7 @@
                 <td>{{ $booking->customer_name }}<br>{{ $booking->customer_phone }}</td>
                 <td>{{ $booking->professional->name ?? 'N/A' }}</td>
                 <td>{{ $booking->service_name }}</td>
+                <td>{{ $booking->sub_service_name ?? '-' }}</td>
                 <td>
                     @if($booking->payment_status === 'paid')
                         &#8377;{{ number_format($booking->amount, 2) }}

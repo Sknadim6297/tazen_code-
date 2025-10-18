@@ -32,15 +32,11 @@ class ManageCustomerController extends Controller
         return view('admin.manage-customer.index', compact('users'));
     }
 
-
-
-
-    /**
+/**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -48,7 +44,6 @@ class ManageCustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -59,7 +54,7 @@ class ManageCustomerController extends Controller
         $customer_profile = CustomerProfile::with('user')
             ->where('user_id', $id)
             ->first();
-            // dd($customer_profile);
+            
         return view('admin.manage-customer.show', compact('customer_profile'));
     }
 
@@ -79,7 +74,6 @@ class ManageCustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -87,6 +81,5 @@ class ManageCustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }

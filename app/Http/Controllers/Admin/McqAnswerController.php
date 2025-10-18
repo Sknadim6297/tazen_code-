@@ -14,8 +14,6 @@ class McqAnswerController extends Controller
     public function index(Request $request)
     {
         $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
-
-        // Apply username filter - works independently
         if ($request->has('username') && !empty(trim($request->username))) {
             $username = trim($request->username);
             $query->whereHas('user', function ($q) use ($username) {
@@ -23,31 +21,21 @@ class McqAnswerController extends Controller
                   ->orWhere('email', 'like', '%' . $username . '%');
             });
         }
-
-        // Apply service filter - works independently
         if ($request->has('service') && $request->service != '') {
             $query->where('service_id', $request->service);
         }
-
-        // Apply start date filter - works independently
         if ($request->has('start_date') && !empty($request->start_date)) {
             $startDate = date('Y-m-d 00:00:00', strtotime($request->start_date));
             $query->where('created_at', '>=', $startDate);
         }
-
-        // Apply end date filter - works independently
         if ($request->has('end_date') && !empty($request->end_date)) {
             $endDate = date('Y-m-d 23:59:59', strtotime($request->end_date));
             $query->where('created_at', '<=', $endDate);
         }
-
-        // Get filtered results and group by user and service
         $mcqAnswers = $query->orderBy('user_id')
                            ->orderBy('service_id')
                            ->orderBy('created_at')
                            ->paginate(20)->appends($request->all());
-        
-        // Group the results by user and service for better display
         $groupedAnswers = [];
         foreach ($mcqAnswers as $answer) {
             $key = $answer->user_id . '_' . $answer->service_id;
@@ -62,11 +50,7 @@ class McqAnswerController extends Controller
             }
             $groupedAnswers[$key]['answers'][] = $answer;
         }
-        
-        // Get all services for dropdown
         $services = Service::orderBy('name')->get();
-
-        // Get filter counts for display
         $totalRecords = McqAnswer::count();
         $filteredRecords = $mcqAnswers->total();
 
@@ -76,8 +60,6 @@ class McqAnswerController extends Controller
     public function export(Request $request)
     {
         $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
-
-        // Apply the same filters as index method
         if ($request->has('username') && !empty(trim($request->username))) {
             $username = trim($request->username);
             $query->whereHas('user', function ($q) use ($username) {
@@ -121,10 +103,7 @@ class McqAnswerController extends Controller
      */
     public function exportMcqAnswersToExcel($mcqAnswers)
     {
-        // Generate filename with date
         $filename = 'mcq_answers_report_' . date('Y_m_d_His') . '.csv';
-
-        // CSV headers
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -132,15 +111,9 @@ class McqAnswerController extends Controller
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0',
         ];
-
-        // Create a callback for CSV streaming
         $callback = function() use ($mcqAnswers) {
             $file = fopen('php://output', 'w');
-            
-            // Add UTF-8 BOM to fix Excel encoding issues
             fputs($file, "\xEF\xBB\xBF");
-            
-            // Add headers
             fputcsv($file, [
                 'ID',
                 'User Name',
@@ -152,8 +125,6 @@ class McqAnswerController extends Controller
                 'Answer',
                 'Date'
             ]);
-            
-            // Add rows
             foreach ($mcqAnswers as $answer) {
                 fputcsv($file, [
                     $answer->id,
@@ -179,7 +150,6 @@ class McqAnswerController extends Controller
      */
     public function exportMcqAnswersToPdf($mcqAnswers)
     {
-        // Group the results by user and service for PDF
         $groupedAnswers = [];
         foreach ($mcqAnswers as $answer) {
             $key = $answer->user_id . '_' . $answer->service_id;
@@ -198,4 +168,4 @@ class McqAnswerController extends Controller
         $pdf = Pdf::loadView('admin.mcq.mcq-answers-pdf', compact('groupedAnswers'));
         return $pdf->download('mcq-answers-' . date('Y-m-d') . '.pdf');
     }
-} 
+}

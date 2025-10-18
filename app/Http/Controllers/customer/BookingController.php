@@ -21,31 +21,22 @@ class BookingController extends Controller
 
     public function checkLogin(Request $request)
     {
-        // First check if user is logged in
         if (!Auth::guard('user')->check()) {
             return response()->json([
                 'logged_in' => false,
                 'message' => 'Please login to continue.'
             ], 401);
         }
-
-        // If this is just a login check (no booking data), return success
         if ($request->has('check') && $request->input('check') === true) {
             return response()->json([
                 'logged_in' => true,
                 'message' => 'User is logged in.'
             ]);
         }
-
-        // If we have booking data, process it
         try {
             $eventId = $request->input('event_id');
             $eventName = $request->input('event_name', '');
-            // Check if the event ID exists in all_events table
             $allEvent = \App\Models\AllEvent::find($eventId);
-
-            // If not found by ID and we have a name, try to find by heading only
-            // since 'name' column doesn't exist in all_events table
             if (!$allEvent && !empty($eventName)) {
                 $allEvent = \App\Models\AllEvent::where('heading', 'LIKE', "%{$eventName}%")
                     ->first(); // Remove the query for 'name' column
@@ -54,13 +45,10 @@ class BookingController extends Controller
                     $eventId = $allEvent->id;
                 }
             }
-
-            // If still not found, check if it exists in the events table
             if (!$allEvent && $eventId) {
                 $regularEvent = \App\Models\Event::find($eventId);
 
                 if ($regularEvent) {
-                    // Create a new entry in all_events table
                     $allEvent = new \App\Models\AllEvent();
                     $allEvent->heading = $regularEvent->name ?? $eventName ?? 'Event'; // Use heading instead of name
                     $allEvent->city = $regularEvent->city ?? $request->input('location') ?? 'Kolkata';
@@ -69,8 +57,6 @@ class BookingController extends Controller
                     $eventId = $allEvent->id;
                 }
             }
-
-            // Store booking data in session with the correct event_id
             session([
                 'event_booking_data' => [
                     'event_id' => $allEvent ? $allEvent->id : null,
@@ -98,23 +84,17 @@ class BookingController extends Controller
         }
     }
 
-
-
-    public function bookingSummary()
+public function bookingSummary()
     {
         $bookingData = session('event_booking_data');
 
         if (!$bookingData) {
             return redirect()->route('home')->with('error', 'No booking information found.');
         }
-
-        // Try to find the event details
         $event = null;
         if (!empty($bookingData['event_id'])) {
             $event = \App\Models\AllEvent::find($bookingData['event_id']);
         }
-
-        // Get the authenticated user
         $user = Auth::guard('user')->user();
 
         return view('customer.booking.summary', compact('bookingData', 'event', 'user'));
@@ -156,7 +136,6 @@ class BookingController extends Controller
         }
 
         try {
-            // Verify Razorpay signature
             $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
             $attributes = [
                 'razorpay_order_id' => $request->razorpay_order_id,
@@ -178,28 +157,20 @@ class BookingController extends Controller
                     'message' => 'Payment verification failed. Please contact support if amount was deducted.'
                 ], 400);
             }
-
-            // Verify the event exists in all_events table
             $eventId = $bookingData['event_id'] ?? null;
             $event = null;
 
             if ($eventId) {
                 $event = \App\Models\AllEvent::find($eventId);
-
-                // If not found and we have an event name, try to find by heading only
                 if (!$event && !empty($bookingData['event_name'])) {
                     $event = \App\Models\AllEvent::where('heading', 'LIKE', "%{$bookingData['event_name']}%")
                         ->first();
                 }
             }
-
-            // Create booking record - with null event_id if necessary
             $booking = new \App\Models\EventBooking();
             $booking->user_id = $user->id;
             $booking->event_id = $event ? $event->id : null;
             $booking->event_name = $bookingData['event_name'] ?? '';
-            
-            // Fix date format - convert from dd-mm-yyyy to yyyy-mm-dd
             $eventDate = $bookingData['event_date'] ?? now()->format('Y-m-d');
             $originalDate = $eventDate;
             
@@ -209,7 +180,6 @@ class BookingController extends Controller
             ]);
             
             if ($eventDate && preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $eventDate, $matches)) {
-                // Convert dd-mm-yyyy to yyyy-mm-dd
                 $eventDate = $matches[3] . '-' . $matches[2] . '-' . $matches[1];
                 Log::info('Date converted using regex', [
                     'original' => $originalDate,
@@ -217,7 +187,6 @@ class BookingController extends Controller
                     'user_id' => $user->id
                 ]);
             } elseif ($eventDate && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDate)) {
-                // If it's not in proper format, try to parse and convert
                 try {
                     $eventDate = \Carbon\Carbon::createFromFormat('d-m-Y', $eventDate)->format('Y-m-d');
                     Log::info('Date converted using Carbon', [
@@ -226,7 +195,6 @@ class BookingController extends Controller
                         'user_id' => $user->id
                     ]);
                 } catch (\Exception $e) {
-                    // Fallback to current date if parsing fails
                     $eventDate = now()->format('Y-m-d');
                     Log::warning('Invalid event date format, using current date', [
                         'original_date' => $originalDate,
@@ -278,8 +246,6 @@ class BookingController extends Controller
                 'payment_id' => $request->razorpay_payment_id,
                 'amount' => $booking->total_price
             ]);
-
-            // Send event booking summary emails to all parties
             try {
                 $bookingDetails = [
                     'booking_id' => $booking->id,
@@ -295,12 +261,8 @@ class BookingController extends Controller
                     'payment_id' => $booking->razorpay_payment_id,
                     'created_at' => $booking->created_at
                 ];
-                
-                // 1. Send email to customer
                 \Illuminate\Support\Facades\Mail::to($user->email)
                     ->send(new \App\Mail\EventBookingSummaryMail($bookingDetails, $event, 'customer'));
-                
-                // 2. Send email to admin
                 $adminEmails = \App\Models\Admin::pluck('email')->filter()->toArray();
                 if (!empty($adminEmails)) {
                     foreach ($adminEmails as $adminEmail) {
@@ -314,16 +276,12 @@ class BookingController extends Controller
                     'customer_email' => $user->email,
                     'admin_emails_count' => count($adminEmails)
                 ]);
-                
-            } catch (\Exception $e) {
-                // Log email sending failure but continue with the process
+} catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send event booking summary emails: ' . $e->getMessage(), [
                     'booking_id' => $booking->id,
                     'error_details' => $e->getTraceAsString()
                 ]);
             }
-            
-            // Clear session data
             session()->forget('event_booking_data');
 
             return response()->json([
@@ -368,10 +326,7 @@ class BookingController extends Controller
         }
 
         try {
-            // Generate a unique reference ID for this failure
             $referenceId = 'EVT-FAIL-' . time() . '-' . $user->id;
-
-            // Log the payment failure
             $paymentFailureLog = \App\Models\PaymentFailureLog::create([
                 'user_id' => $user->id,
                 'professional_id' => null, // Events don't have professionals
@@ -388,8 +343,6 @@ class BookingController extends Controller
                 'reference_id' => $referenceId,
                 'booking_data' => json_encode($bookingData)
             ]);
-
-            // Create failed booking record for retry functionality
             $booking = new EventBooking();
             $booking->user_id = $user->id;
             $booking->event_id = $bookingData['event_id'];
@@ -408,8 +361,6 @@ class BookingController extends Controller
             $booking->save();
 
             $notificationsSent = false;
-
-            // Send notifications if requested
             if ($request->send_notifications) {
                 try {
                     $adminEmails = \App\Models\Admin::pluck('email')->filter()->toArray();
@@ -429,8 +380,6 @@ class BookingController extends Controller
                         'name' => $user->name,
                         'email' => $user->email
                     ];
-
-                    // 1. Send notification to customer
                     try {
                         Mail::to($user->email)->send(new PaymentFailureMail(
                             $paymentData,
@@ -440,12 +389,9 @@ class BookingController extends Controller
                     } catch (\Exception $e) {
                         Log::error('Failed to send payment failure email to customer for event: ' . $e->getMessage());
                     }
-
-                    // 2. Send notification to all admins
                     if (!empty($adminEmails)) {
                         foreach ($adminEmails as $adminEmail) {
                             try {
-                                // Send notification
                                 $admin = \App\Models\Admin::where('email', $adminEmail)->first();
                                 if ($admin) {
                                     $admin->notify(new \App\Notifications\PaymentFailureNotification(
@@ -454,8 +400,6 @@ class BookingController extends Controller
                                         $userDetails
                                     ));
                                 }
-                                
-                                // Send email
                                 Mail::to($adminEmail)->send(new PaymentFailureMail(
                                     $paymentData,
                                     $userDetails,
@@ -475,13 +419,10 @@ class BookingController extends Controller
                         'admin_emails_count' => count($adminEmails),
                         'reference_id' => $referenceId
                     ]);
-                    
-                } catch (\Exception $e) {
+} catch (\Exception $e) {
                     Log::error('Failed to send event payment failure notifications: ' . $e->getMessage());
                 }
             }
-
-            // Store failed booking data for retry (don't clear session immediately)
             session([
                 'failed_booking_data' => $bookingData,
                 'failed_booking_id' => $booking->id
@@ -513,13 +454,9 @@ class BookingController extends Controller
         if (!$user || !$failedBookingData || $failedBookingId != $bookingId) {
             return redirect()->route('home')->with('error', 'No failed booking found to retry.');
         }
-
-        // Restore the booking data to session for retry
         session([
             'event_booking_data' => $failedBookingData
         ]);
-
-        // Clear failed booking data
         session()->forget(['failed_booking_data', 'failed_booking_id']);
 
         return redirect()->route('user.booking.summary')->with('success', 'Your booking has been restored. You can now retry your payment.');
@@ -537,33 +474,21 @@ class BookingController extends Controller
 
     public function resetBooking()
     {
-        // Store previous URL before clearing session
         $previousUrl = url()->previous();
-
-        // Extract service_id and professional_id from session if they exist
         $serviceId = session()->has('booking_data') ? session('booking_data.service_id') : null;
         $professionalId = session()->has('booking_data') ? session('booking_data.professional_id') : null;
 
         session()->forget('booking_data');
 
         session()->flash('success', 'Your booking has been reset. You can start fresh now.');
-
-        // Check if the previous URL was a professional details page
         if (preg_match('/professionals\/details\/(\d+)/', $previousUrl, $matches)) {
             $professionalId = $matches[1];
-            
-            // Get professional name for SEO-friendly URL
             $professional = \App\Models\Profile::where('professional_id', $professionalId)->first();
             $professionalName = $professional ? $professional->name : 'Professional';
             $seoFriendlyName = \Illuminate\Support\Str::slug($professionalName);
-            
-            // Use the correct route name for professional details
             return redirect()->route('user.professionals.details', ['id' => $professionalId]);
         }
-
-        // If we have a professional ID in the session, redirect to that professional's page
         if ($professionalId) {
-            // Get professional name for SEO-friendly URL
             $professional = \App\Models\Profile::where('professional_id', $professionalId)->first();
             $professionalName = $professional ? $professional->name : 'Professional';
             $seoFriendlyName = \Illuminate\Support\Str::slug($professionalName);

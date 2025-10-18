@@ -12,8 +12,6 @@ class ServiceMCQController extends Controller
     public function index(Request $request)
     {
         $query = ServiceMCQ::with('service');
-
-        // Apply service filter if selected
         if ($request->has('service_filter') && $request->service_filter != '') {
             $query->where('service_id', $request->service_filter);
         }
@@ -26,13 +24,11 @@ class ServiceMCQController extends Controller
 
     public function create()
     {
-        //
     }
 
     public function store(Request $request)
     {
         try {
-            // Log the incoming request data
             Log::info('ServiceMCQ Store Request:', $request->all());
 
             $request->validate([
@@ -42,8 +38,6 @@ class ServiceMCQController extends Controller
                 'options' => 'required_if:question_type,mcq|array',
                 'include_other' => 'boolean'
             ]);
-        
-            // Check if this service already has 12 questions
             $existingCount = ServiceMCQ::where('service_id', $request->service_id)->count();
         
             if ($existingCount >= 12) {
@@ -72,16 +66,11 @@ class ServiceMCQController extends Controller
                 }
                 $data['options'] = $options;
             } else {
-                // For text questions, set options to null
                 $data['options'] = null;
             }
-
-            // Log the data being saved
             Log::info('ServiceMCQ Data to be saved:', $data);
         
             $mcq = ServiceMCQ::create($data);
-            
-            // Log the created record
             Log::info('ServiceMCQ Created:', ['id' => $mcq->id, 'data' => $mcq->toArray()]);
         
             return redirect()->back()->with('success', 'Question added successfully.');
