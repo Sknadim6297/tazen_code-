@@ -606,6 +606,20 @@ class ManageProfessionalController extends Controller
 
         $professional = Professional::findOrFail($professionalId);
 
+        // Determine service_id
+        $serviceId = null;
+        if ($request->sub_service_id) {
+            // If sub-service is selected, get its parent service_id
+            $subService = \App\Models\SubService::find($request->sub_service_id);
+            $serviceId = $subService ? $subService->service_id : null;
+        }
+        
+        // If no service_id from sub-service, get from professional's primary service
+        if (!$serviceId) {
+            $professionalService = \App\Models\ProfessionalService::where('professional_id', $professionalId)->first();
+            $serviceId = $professionalService ? $professionalService->service_id : null;
+        }
+
         // Check for duplicate session type for this professional and sub-service combination
         $existingRate = Rate::where('professional_id', $professionalId)
             ->where('session_type', $request->session_type)
@@ -624,6 +638,7 @@ class ManageProfessionalController extends Controller
 
         Rate::create([
             'professional_id' => $professionalId,
+            'service_id' => $serviceId,
             'session_type' => $request->session_type,
             'num_sessions' => $request->num_sessions,
             'rate_per_session' => $request->rate_per_session,
@@ -654,6 +669,20 @@ class ManageProfessionalController extends Controller
                     ->where('id', $rateId)
                     ->firstOrFail();
 
+        // Determine service_id
+        $serviceId = null;
+        if ($request->sub_service_id) {
+            // If sub-service is selected, get its parent service_id
+            $subService = \App\Models\SubService::find($request->sub_service_id);
+            $serviceId = $subService ? $subService->service_id : null;
+        }
+        
+        // If no service_id from sub-service, get from professional's primary service
+        if (!$serviceId) {
+            $professionalService = \App\Models\ProfessionalService::where('professional_id', $professionalId)->first();
+            $serviceId = $professionalService ? $professionalService->service_id : null;
+        }
+
         // Check for duplicate session type (excluding current rate)
         $existingRate = Rate::where('professional_id', $professionalId)
             ->where('session_type', $request->session_type)
@@ -672,6 +701,7 @@ class ManageProfessionalController extends Controller
         });
 
         $rate->update([
+            'service_id' => $serviceId,
             'session_type' => $request->session_type,
             'num_sessions' => $request->num_sessions,
             'rate_per_session' => $request->rate_per_session,

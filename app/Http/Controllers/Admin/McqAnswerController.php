@@ -35,7 +35,7 @@ class McqAnswerController extends Controller
         $mcqAnswers = $query->orderBy('user_id')
                            ->orderBy('service_id')
                            ->orderBy('created_at')
-                           ->paginate(20)->appends($request->all());
+                           ->paginate(100)->appends($request->all());
         $groupedAnswers = [];
         foreach ($mcqAnswers as $answer) {
             $key = $answer->user_id . '_' . $answer->service_id;
@@ -60,6 +60,13 @@ class McqAnswerController extends Controller
     public function export(Request $request)
     {
         $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
+        
+        // Filter by specific user_id (for single group download)
+        if ($request->has('user_id') && $request->user_id != '') {
+            $query->where('user_id', $request->user_id);
+        }
+        
+        // Filter by username search (for general export)
         if ($request->has('username') && !empty(trim($request->username))) {
             $username = trim($request->username);
             $query->whereHas('user', function ($q) use ($username) {
@@ -92,7 +99,7 @@ class McqAnswerController extends Controller
         }
 
         if ($request->type === 'pdf') {
-            return $this->exportMcqAnswersToPdf($mcqAnswers);
+            return $this->exportMcqAnswersToPdf($mcqAnswers, $request);
         }
 
         return redirect()->back()->with('error', 'Invalid export type.');
@@ -148,7 +155,7 @@ class McqAnswerController extends Controller
     /**
      * Export MCQ answers data to PDF.
      */
-    public function exportMcqAnswersToPdf($mcqAnswers)
+    public function exportMcqAnswersToPdf($mcqAnswers, $request = null)
     {
         $groupedAnswers = [];
         foreach ($mcqAnswers as $answer) {
@@ -165,7 +172,22 @@ class McqAnswerController extends Controller
             $groupedAnswers[$key]['answers'][] = $answer;
         }
 
-        $pdf = Pdf::loadView('admin.mcq.mcq-answers-pdf', compact('groupedAnswers'));
-        return $pdf->download('mcq-answers-' . date('Y-m-d') . '.pdf');
+        // Generate filename
+        $filename = 'mcq-answers-';
+        
+        // If downloading single group, add user name to filename
+        if ($request && $request->has('user_id') && count($groupedAnswers) == 1) {
+            $firstGroup = reset($groupedAnswers);
+            $userName = $firstGroup['user']->name ?? 'user';
+            $serviceName = $firstGroup['service']->name ?? 'service';
+            $filename .= strtolower(str_replace(' ', '-', $userName)) . '-' . strtolower(str_replace(' ', '-', $serviceName)) . '-';
+        }
+        
+        $filename .= date('Y-m-d') . '.pdf';
+
+        $pdf = Pdf::loadView('admin.mcq.mcq-answers-pdf', compact('groupedAnswers'))
+                  ->setPaper('a4', 'portrait');
+        
+        return $pdf->download($filename);
     }
 }

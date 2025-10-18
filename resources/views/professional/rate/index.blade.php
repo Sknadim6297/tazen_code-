@@ -92,8 +92,20 @@
                 @if($groupedRates->count() > 0)
                     @foreach($groupedRates as $serviceId => $serviceRates)
                         @php
-                            $professionalService = $professionalServices->get($serviceId);
-                            $serviceName = $professionalService ? $professionalService->service_name : ($serviceRates->first()->service->name ?? 'N/A');
+                            // Ensure serviceId is properly typed
+                            $serviceId = $serviceId ? (int)$serviceId : null;
+                            $professionalService = $serviceId ? $professionalServices->get($serviceId) : null;
+                            
+                            // Get service name from multiple sources in order of preference
+                            if ($professionalService && $professionalService->service) {
+                                $serviceName = $professionalService->service->name;
+                            } elseif ($professionalService && isset($professionalService->service_name)) {
+                                $serviceName = $professionalService->service_name;
+                            } elseif ($serviceRates->first() && $serviceRates->first()->service) {
+                                $serviceName = $serviceRates->first()->service->name;
+                            } else {
+                                $serviceName = 'N/A';
+                            }
                             $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
                             $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
                             

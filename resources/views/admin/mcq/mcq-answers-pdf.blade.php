@@ -4,208 +4,293 @@
     <meta charset="utf-8">
     <title>MCQ Answers Report</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 20px;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 10px;
             color: #333;
+            line-height: 1.4;
+        }
+        
+        .page {
+            padding: 15px;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 12px;
         }
         
         .header h1 {
             color: #667eea;
-            margin: 0;
-            font-size: 24px;
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
         
-        .header p {
-            margin: 5px 0;
+        .header .meta {
+            font-size: 9px;
             color: #666;
+            margin-top: 5px;
         }
         
         .answer-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 5px;
             overflow: hidden;
         }
         
         .group-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 2px solid #667eea;
         }
         
-        .user-info {
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+        
+        .info-label {
+            display: table-cell;
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
+            color: #555;
+            width: 80px;
+            font-size: 9px;
         }
         
-        .service-info {
-            color: #666;
-            margin-bottom: 5px;
+        .info-value {
+            display: table-cell;
+            color: #333;
+            font-size: 9px;
         }
         
-        .professional-info {
-            color: #28a745;
-            margin-bottom: 5px;
-        }
-        
-        .date-info {
-            color: #999;
+        .user-name {
             font-size: 11px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .service-badge {
+            background: #17a2b8;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            display: inline-block;
+        }
+        
+        .professional-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            display: inline-block;
+        }
+        
+        .not-assigned {
+            background: #6c757d;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            display: inline-block;
         }
         
         .answers-table {
             width: 100%;
             border-collapse: collapse;
             margin: 0;
+            background: white;
+        }
+        
+        .answers-table thead {
+            background: #667eea;
         }
         
         .answers-table th {
-            background: #667eea;
             color: white;
-            padding: 10px;
+            padding: 8px 6px;
             text-align: left;
             font-weight: bold;
+            font-size: 9px;
+            border: 1px solid #5568d3;
         }
         
         .answers-table td {
-            padding: 10px;
-            border-bottom: 1px solid #f1f1f1;
+            padding: 8px 6px;
+            border: 1px solid #e9ecef;
             vertical-align: top;
+            font-size: 9px;
         }
         
-        .answers-table tr:nth-child(even) {
-            background: #f9f9f9;
+        .answers-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .answers-table tbody tr:hover {
+            background: #e9ecef;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+        
+        .question-cell {
+            line-height: 1.5;
         }
         
         .question-text {
             font-weight: bold;
-            margin-bottom: 5px;
+            color: #333;
+            margin-bottom: 4px;
+            display: block;
         }
         
         .question-options {
-            font-size: 11px;
+            font-size: 8px;
             color: #666;
             font-style: italic;
+            margin-top: 3px;
+            padding-left: 8px;
         }
         
-        .answer-badge {
-            background: #667eea;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            display: inline-block;
+        .answer-cell {
+            font-weight: 600;
+            color: #667eea;
+            word-wrap: break-word;
         }
         
         .no-data {
             text-align: center;
             padding: 40px;
             color: #999;
+            font-size: 11px;
         }
         
         .footer {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 2px solid #e9ecef;
             color: #666;
-            font-size: 11px;
+            font-size: 8px;
+        }
+        
+        .page-break {
+            page-break-after: always;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>MCQ Answers Report</h1>
-        <p>Generated on: {{ date('F d, Y H:i:s') }}</p>
-        <p>Total Groups: {{ count($groupedAnswers) }}</p>
-    </div>
-
-    @if(count($groupedAnswers) > 0)
-        @foreach($groupedAnswers as $key => $group)
-        <div class="answer-group">
-            <div class="group-header">
-                <div class="user-info">
-                    👤 {{ $group['user']->name ?? 'N/A' }}
-                    @if($group['user']->email)
-                        ({{ $group['user']->email }})
-                    @endif
-                </div>
-                <div class="service-info">
-                    🛠️ Service: {{ $group['service']->name ?? 'N/A' }}
-                </div>
-                <div class="professional-info">
-                    👩‍⚕️ Professional: 
-                    @if($group['professional'] && $group['professional']->profile)
-                        {{ $group['professional']->name }}
-                        @if($group['professional']->profile->specialization)
-                            ({{ $group['professional']->profile->specialization }})
-                        @endif
-                    @else
-                        Not Assigned
-                    @endif
-                </div>
-                <div class="date-info">
-                    📅 Answered on: {{ $group['created_at']->format('M d, Y H:i') }}
-                </div>
+    <div class="page">
+        <div class="header">
+            <h1>MCQ Answers Report</h1>
+            <div class="meta">
+                <strong>Generated:</strong> {{ date('F d, Y H:i:s') }} | 
+                <strong>Total Groups:</strong> {{ count($groupedAnswers) }} | 
+                <strong>Total Answers:</strong> {{ array_sum(array_map(function($g) { return count($g['answers']); }, $groupedAnswers)) }}
             </div>
-            
-            <table class="answers-table">
-                <thead>
-                    <tr>
-                        <th width="8%">#</th>
-                        <th width="62%">Question</th>
-                        <th width="30%">Answer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($group['answers'] as $index => $answer)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>
-                            <div class="question-text">{{ $answer->question->question ?? 'Question not found' }}</div>
-                            @if($answer->question && $answer->question->options)
-                                <div class="question-options">
-                                    Options: 
-                                    @php
-                                        $options = is_string($answer->question->options) ? json_decode($answer->question->options, true) : $answer->question->options;
-                                    @endphp
-                                    @if(is_array($options))
-                                        {{ implode(', ', $options) }}
-                                    @else
-                                        {{ $answer->question->options }}
-                                    @endif
-                                </div>
-                            @endif
-                        </td>
-                        <td>
-                            <span class="answer-badge">{{ $answer->answer }}</span>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
         </div>
-        @endforeach
-    @else
-        <div class="no-data">
-            <h3>No MCQ answers found</h3>
-            <p>There are no MCQ answers matching the selected criteria.</p>
-        </div>
-    @endif
 
-    <div class="footer">
-        <p>This report was generated automatically by the MCQ Management System</p>
-        <p>© {{ date('Y') }} Admin Panel - All rights reserved</p>
+        @if(count($groupedAnswers) > 0)
+            @foreach($groupedAnswers as $key => $group)
+            <div class="answer-group">
+                <div class="group-header">
+                    <div class="info-row">
+                        <span class="info-label">Customer:</span>
+                        <span class="info-value">
+                            <span class="user-name">{{ $group['user']->name ?? 'N/A' }}</span>
+                            @if($group['user']->email)
+                                <span style="color: #666;"> ({{ $group['user']->email }})</span>
+                            @endif
+                        </span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Service:</span>
+                        <span class="info-value">
+                            <span class="service-badge">{{ $group['service']->name ?? 'N/A' }}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Professional:</span>
+                        <span class="info-value">
+                            @if($group['professional'] && $group['professional']->profile)
+                                <span class="professional-badge">{{ $group['professional']->name }}</span>
+                                @if($group['professional']->profile->specialization)
+                                    <span style="color: #666; font-size: 8px;"> ({{ $group['professional']->profile->specialization }})</span>
+                                @endif
+                            @else
+                                <span class="not-assigned">Not Assigned</span>
+                            @endif
+                        </span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Answered on:</span>
+                        <span class="info-value" style="color: #666;">{{ $group['created_at']->format('M d, Y H:i') }}</span>
+                    </div>
+                </div>
+                
+                <table class="answers-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70%;">Question</th>
+                            <th style="width: 30%;">Answer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($group['answers'] as $index => $answer)
+                        <tr>
+                            <td class="question-cell">
+                                <span class="question-text">{{ $answer->question->question ?? 'Question not found' }}</span>
+                                @if($answer->question && $answer->question->options)
+                                    <div class="question-options">
+                                        Options: 
+                                        @php
+                                            $options = is_string($answer->question->options) ? json_decode($answer->question->options, true) : $answer->question->options;
+                                        @endphp
+                                        @if(is_array($options))
+                                            {{ implode(', ', $options) }}
+                                        @else
+                                            {{ $answer->question->options }}
+                                        @endif
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="answer-cell">{{ $answer->answer }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endforeach
+        @else
+            <div class="no-data">
+                <strong>No MCQ Answers Found</strong>
+                <p>There are no MCQ answers matching the selected criteria.</p>
+            </div>
+        @endif
+
+        <div class="footer">
+            <p><strong>MCQ Management System</strong> - Generated automatically on {{ date('F d, Y H:i:s') }}</p>
+            <p>&copy; {{ date('Y') }} Admin Panel. All rights reserved.</p>
+        </div>
     </div>
 </body>
 </html>
