@@ -2120,13 +2120,29 @@
                                             <p style="color:#555; margin-bottom:18px;">{{ $rate->professional->bio }}</p>
                                             <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
                                                 <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">{{ $rate->num_sessions }} sessions</span></li>
+                                                <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">₹{{ number_format($rate->rate_per_session, 2) }} per session</span></li>
                                                 @foreach($availabilities as $availability)
                                                     <li style="margin-bottom:7px; color:#2563eb;">
                                                         <i class="icon_check_alt2"></i>
                                                         <span style="color:#444;">{{ $availability->session_duration }} min per session</span>
                                                     </li>
                                                 @endforeach
-                                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @php
+                                                    // Filter out empty features
+                                                    $validFeatures = [];
+                                                    if($rate->features && is_array($rate->features)) {
+                                                        $validFeatures = array_filter($rate->features, function($feature) {
+                                                            return !empty(trim($feature));
+                                                        });
+                                                    }
+                                                @endphp
+                                                @if(count($validFeatures) > 0)
+                                                    @foreach($validFeatures as $feature)
+                                                        <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">{{ $feature }}</span></li>
+                                                    @endforeach
+                                                @else
+                                                    <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @endif
                                             </ul>
                                             <div class="price" style="margin-bottom:18px;">
                                                 @php

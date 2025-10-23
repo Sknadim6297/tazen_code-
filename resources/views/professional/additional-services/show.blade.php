@@ -78,103 +78,330 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(5px);
-        transition: all 0.3s ease;
+        background-color: rgba(0, 0, 0, 0.5);
+        transition: opacity 0.3s ease;
+        overflow-y: auto;
     }
 
     .custom-modal.show {
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.3s ease;
     }
 
     .modal-content {
         background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         max-width: 600px;
         width: 90%;
         max-height: 90vh;
-        overflow: auto;
-        animation: slideInUp 0.3s ease;
+        overflow-y: auto;
         position: relative;
+        z-index: 1051;
+        margin: 1rem;
     }
 
     .modal-header {
-        padding: 2rem 2rem 1rem 2rem;
-        border-bottom: none;
-        position: relative;
+        padding: 1rem 1.25rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 0.5rem 0.5rem 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .modal-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #2c3e50;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333;
         margin: 0;
     }
 
     .modal-close {
-        position: absolute;
-        top: 1.5rem;
-        right: 2rem;
-        background: none;
+        background: transparent;
         border: none;
         font-size: 1.5rem;
-        color: #666;
+        color: #6c757d;
         cursor: pointer;
-        transition: all 0.3s ease;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
+        padding: 0;
+        width: 30px;
+        height: 30px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+        flex-shrink: 0;
     }
 
     .modal-close:hover {
-        background: #f8f9fa;
+        background: #e9ecef;
         color: #333;
-        transform: rotate(90deg);
     }
 
     .modal-body {
-        padding: 1rem 2rem 2rem 2rem;
+        padding: 1.25rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal-body form {
+        position: relative;
+        z-index: 1;
     }
 
     .modal-footer {
-        padding: 1.5rem 2rem 2rem 2rem;
+        padding: 1rem 1.25rem;
         border-top: 1px solid #e9ecef;
         display: flex;
-        gap: 1rem;
+        gap: 0.5rem;
         justify-content: flex-end;
-        flex-wrap: wrap;
+        background: #fff;
+        position: relative;
+        z-index: 1;
     }
 
-    /* Form Styling */
-    .form-label {
+    /* Form Styling in Modals */
+    .modal-body .form-label {
         font-weight: 600;
-        color: #2c3e50;
+        color: #495057;
         margin-bottom: 0.5rem;
         display: block;
+        font-size: 0.875rem;
     }
 
-    .form-control {
-        border: 2px solid #e9ecef;
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
+    .modal-body .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
         width: 100%;
         background: #fff;
+        position: relative;
+        z-index: 1;
+        pointer-events: auto;
     }
 
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    .modal-body .form-control:focus {
+        border-color: #0d67c7;
+        box-shadow: 0 0 0 3px rgba(13, 103, 199, 0.1);
         outline: none;
         background: #fff;
+    }
+
+    .modal-body textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .modal-body input[type="text"],
+    .modal-body input[type="number"],
+    .modal-body input[type="date"],
+    .modal-body textarea {
+        pointer-events: auto !important;
+        cursor: text !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+    }
+
+    /* Ensure form groups are properly positioned */
+    .modal-body .form-group,
+    .modal-body .mb-3 {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Prevent any transform from affecting input interaction */
+    .modal-content.modal-ready form,
+    .modal-content.modal-ready input,
+    .modal-content.modal-ready textarea,
+    .modal-content.modal-ready select {
+        transform: none !important;
+        will-change: auto !important;
+    }
+
+    /* Ensure all interactive elements are accessible */
+    .modal-content * {
+        pointer-events: auto;
+    }
+
+    /* Disable transforms once modal is open */
+    .custom-modal.show .modal-content {
+        animation: none !important;
+    }
+
+    /* Complete animation override after modal is ready */
+    .modal-content.modal-ready,
+    .modal-content.modal-ready *,
+    .modal-content.modal-ready input,
+    .modal-content.modal-ready textarea,
+    .modal-content.modal-ready select {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+
+    /* Force disable all transforms and animations on modal */
+    .custom-modal *,
+    .custom-modal input,
+    .custom-modal textarea,
+    .custom-modal select,
+    .custom-modal button {
+        backface-visibility: visible !important;
+        perspective: none !important;
+    }
+
+    /* Ensure inputs are always accessible */
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+        pointer-events: auto !important;
+        touch-action: auto !important;
+        -webkit-user-select: text !important;
+        user-select: text !important;
+    }
+
+    /* Modal Alert Styling */
+    .modal-body .alert {
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: none;
+    }
+
+    .modal-body .alert-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #c3e6ec 100%);
+        border-left: 4px solid #17a2b8;
+        color: #0c5460;
+    }
+
+    .modal-body .alert-success {
+        background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%);
+        border-left: 4px solid #28a745;
+        color: #0f5132;
+    }
+
+    .modal-body .mb-3,
+    .modal-body .mb-4 {
+        margin-bottom: 1rem;
+    }
+
+    .modal-body .text-center {
+        text-align: center;
+    }
+
+    .modal-body .text-success {
+        color: #28a745;
+    }
+
+    .modal-body h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Modal Buttons */
+    .modal-footer .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.25);
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #218838;
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .modal-footer .btn-primary {
+        background-color: #0d67c7;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(13, 103, 199, 0.25);
+    }
+
+    .modal-footer .btn-primary:hover {
+        background-color: #0b5bb5;
+        box-shadow: 0 4px 10px rgba(13, 103, 199, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .modal-footer .btn-warning {
+        background-color: #ffc107;
+        color: #212529;
+        box-shadow: 0 2px 6px rgba(255, 193, 7, 0.25);
+    }
+
+    .modal-footer .btn-warning:hover {
+        background-color: #e0a800;
+        box-shadow: 0 4px 10px rgba(255, 193, 7, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .modal-footer .btn-info {
+        background-color: #17a2b8;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(23, 162, 184, 0.25);
+    }
+
+    .modal-footer .btn-info:hover {
+        background-color: #138496;
+        box-shadow: 0 4px 10px rgba(23, 162, 184, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .modal-footer .btn-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+
+    .modal-footer .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    /* Modal Utility Classes */
+    .modal-body .bg-success {
+        background-color: #28a745;
+    }
+
+    .modal-body .bg-opacity-10 {
+        opacity: 0.1;
+    }
+
+    .modal-body .rounded-circle {
+        border-radius: 50%;
+    }
+
+    .modal-body .d-inline-flex {
+        display: inline-flex;
+    }
+
+    .modal-body .align-items-center {
+        align-items: center;
+    }
+
+    .modal-body .justify-content-center {
+        justify-content: center;
     }
 
     /* Price Cards */
@@ -397,7 +624,7 @@
         }
     }
 
-    /* Responsive Design */
+    /* Responsive Design for Modals */
     @media (max-width: 768px) {
         .page-title h3 {
             font-size: 1.8rem;
@@ -408,28 +635,31 @@
         }
         
         .modal-content {
-            margin: 1rem;
             width: calc(100% - 2rem);
-            border-radius: 15px;
+            max-height: calc(100vh - 2rem);
         }
         
-        .modal-header, .modal-body, .modal-footer {
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+        .modal-header {
+            padding: 1rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .modal-footer .btn {
+            width: 100%;
         }
         
         .btn {
             padding: 0.7rem 1.2rem;
             font-size: 0.9rem;
-        }
-        
-        .modal-footer {
-            flex-direction: column;
-        }
-        
-        .modal-footer .btn {
-            width: 100%;
-            margin-bottom: 0.5rem;
         }
 
         .price-card, .info-card {
@@ -1104,45 +1334,54 @@ $(document).ready(function() {
 
     // Custom Modal Functions
     function openModal(modalId) {
-        $('#' + modalId).addClass('show');
+        const $modal = $('#' + modalId);
+        const $modalContent = $modal.find('.modal-content');
+        
+        // Remove any lingering styles
+        $modalContent.removeAttr('style');
+        $modalContent.addClass('modal-ready');
+        
+        // Show modal immediately without animation
+        $modal.addClass('show');
         $('body').css('overflow', 'hidden');
         
-        // Add entrance animation
-        $('#' + modalId + ' .modal-content').css({
-            'transform': 'scale(0.8) translateY(50px)',
-            'opacity': '0'
-        });
-        
+        // Focus first input after a brief delay
         setTimeout(function() {
-            $('#' + modalId + ' .modal-content').css({
-                'transform': 'scale(1) translateY(0)',
-                'opacity': '1',
-                'transition': 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            });
-        }, 50);
+            const $firstInput = $modalContent.find('input:not([type="hidden"]), textarea').first();
+            if ($firstInput.length) {
+                $firstInput.focus();
+            }
+        }, 100);
     }
 
     function closeModal(modalId) {
-        $('#' + modalId + ' .modal-content').css({
-            'transform': 'scale(0.8) translateY(30px)',
-            'opacity': '0',
-            'transition': 'all 0.25s ease-out'
-        });
+        const $modal = $('#' + modalId);
+        const $modalContent = $modal.find('.modal-content');
         
-        setTimeout(function() {
-            $('#' + modalId).removeClass('show');
-            $('body').css('overflow', 'auto');
-        }, 250);
+        // Remove modal-ready class
+        $modalContent.removeClass('modal-ready');
+        
+        // Hide modal immediately
+        $modal.removeClass('show');
+        $('body').css('overflow', 'auto');
+        
+        // Reset all styles
+        $modalContent.removeAttr('style');
     }
 
     // Make closeModal available globally
     window.closeModal = closeModal;
 
-    // Close modal when clicking outside
+    // Close modal when clicking outside (only on the overlay, not on modal content)
     $('.custom-modal').on('click', function(e) {
-        if (e.target === this) {
+        if ($(e.target).hasClass('custom-modal')) {
             closeModal(this.id);
         }
+    });
+
+    // Prevent modal from closing when clicking inside modal content
+    $('.modal-content').on('click', function(e) {
+        e.stopPropagation();
     });
 
     // Close modal with Escape key
@@ -1694,4 +1933,4 @@ $(document).ready(function() {
     console.log('Professional additional services show page initialized successfully');
 });
 </script>
-@endsection
+@endsection 

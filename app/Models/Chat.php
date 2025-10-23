@@ -15,6 +15,7 @@ class Chat extends Model
         'participant_id_1',
         'participant_type_2',
         'participant_id_2',
+        'booking_id',
         'last_message_at',
         'last_message_by',
         'last_message_by_type'
@@ -22,6 +23,9 @@ class Chat extends Model
 
     protected $casts = [
         'last_message_at' => 'datetime',
+        'participant_type_1' => 'string',
+        'participant_type_2' => 'string',
+        'last_message_by_type' => 'string',
     ];
 
     /**
@@ -38,6 +42,14 @@ class Chat extends Model
     public function participant2()
     {
         return $this->morphTo('participant2', 'participant_type_2', 'participant_id_2');
+    }
+
+    /**
+     * Get the booking associated with this chat
+     */
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 
     /**

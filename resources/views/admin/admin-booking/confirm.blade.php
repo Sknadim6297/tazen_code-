@@ -73,6 +73,130 @@
         box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
         color: white;
     }
+
+    /* Payment Popup Styles */
+    .payment-popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .payment-popup-overlay.show {
+        display: flex;
+    }
+
+    .payment-popup-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .payment-popup-header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .payment-popup-header h4 {
+        margin: 0;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .popup-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.3s;
+    }
+
+    .popup-close-btn:hover {
+        color: #333;
+    }
+
+    .payment-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .payment-form-group label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .payment-form-group input,
+    .payment-form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+    }
+
+    .payment-form-group input:focus,
+    .payment-form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .payment-form-group small {
+        display: block;
+        margin-top: 0.25rem;
+        color: #6c757d;
+    }
+
+    .popup-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .popup-actions button {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .popup-submit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .popup-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .popup-cancel-btn {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .popup-cancel-btn:hover {
+        background: #e0e0e0;
+    }
 </style>
 @endsection
 
@@ -303,10 +427,13 @@
                             <label for="payment_status" class="form-label">Payment Status</label>
                             <select name="payment_status" id="payment_status" class="form-select" required>
                                 <option value="">-- Select payment status --</option>
-                                <option value="paid">Paid (Payment Completed)</option>
-                                <option value="pending">Pending (Payment Required)</option>
+                                <option value="paid">Paid (Offline Payment - Enter Details Manually)</option>
+                                <option value="pending" selected>Pending (Online Payment - Razorpay Gateway)</option>
                             </select>
-                            <small class="text-muted">Select payment status for this booking</small>
+                            <small class="text-muted">
+                                <strong>Paid:</strong> For cash/bank transfer payments already received<br>
+                                <strong>Pending:</strong> For online payment via Razorpay
+                            </small>
                         </div>
                     </div>
                     
@@ -327,6 +454,57 @@
                 </form>
             </div>
         </div>
+
+        <!-- Payment Popup Form -->
+        <div class="payment-popup-overlay" id="paymentPopup">
+            <div class="payment-popup-content">
+                <div class="payment-popup-header" style="position: relative;">
+                    <h4><i class="ri-secure-payment-line me-2"></i>Payment Details</h4>
+                    <button type="button" class="popup-close-btn" id="closePopupBtn">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <form id="paymentDetailsForm">
+                    <div class="payment-form-group">
+                        <label for="transaction_id">Transaction ID <span class="text-danger">*</span></label>
+                        <input type="text" id="transaction_id" name="transaction_id" class="form-control" placeholder="Enter transaction ID" required>
+                        <small>Enter the unique transaction reference number</small>
+                    </div>
+
+                    <div class="payment-form-group">
+                        <label for="payment_screenshot">Payment Screenshot <span class="text-danger">*</span></label>
+                        <input type="file" id="payment_screenshot" name="payment_screenshot" class="form-control" accept="image/*" required>
+                        <small>Upload proof of payment (JPG, PNG, PDF)</small>
+                    </div>
+
+                    <div class="payment-form-group">
+                        <label for="payment_method">Payment Method</label>
+                        <select id="payment_method" name="payment_method" class="form-control">
+                            <option value="">-- Select payment method --</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="upi">UPI</option>
+                            <option value="cash">Cash</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="debit_card">Debit Card</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="payment-form-group">
+                        <label for="payment_notes">Additional Notes</label>
+                        <textarea id="payment_notes" name="payment_notes" class="form-control" rows="3" placeholder="Any additional information about the payment..."></textarea>
+                    </div>
+
+                    <div class="popup-actions">
+                        <button type="button" class="popup-cancel-btn" id="cancelPopupBtn">Cancel</button>
+                        <button type="submit" class="popup-submit-btn" id="submitPaymentBtn">
+                            <i class="ri-check-line me-1"></i>Submit Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -341,6 +519,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const paymentStatusSelect = document.getElementById('payment_status');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
                      document.querySelector('input[name="_token"]')?.value;
+
+    // Payment popup elements
+    const paymentPopup = document.getElementById('paymentPopup');
+    const paymentDetailsForm = document.getElementById('paymentDetailsForm');
+    const closePopupBtn = document.getElementById('closePopupBtn');
+    const cancelPopupBtn = document.getElementById('cancelPopupBtn');
+    const submitPaymentBtn = document.getElementById('submitPaymentBtn');
+
+    // Store payment details
+    let paymentDetails = {
+        transaction_id: '',
+        payment_screenshot: null,
+        payment_method: '',
+        payment_notes: ''
+    };
+
+    // Close popup handlers
+    closePopupBtn.addEventListener('click', closePaymentPopup);
+    cancelPopupBtn.addEventListener('click', closePaymentPopup);
+    
+    paymentPopup.addEventListener('click', function(e) {
+        if (e.target === paymentPopup) {
+            closePaymentPopup();
+        }
+    });
+
+    function closePaymentPopup() {
+        paymentPopup.classList.remove('show');
+        paymentDetailsForm.reset();
+    }
+
+    function openPaymentPopup() {
+        paymentPopup.classList.add('show');
+    }
+
+    // Payment details form submission
+    paymentDetailsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Store payment details
+        paymentDetails.transaction_id = document.getElementById('transaction_id').value;
+        paymentDetails.payment_screenshot = document.getElementById('payment_screenshot').files[0];
+        paymentDetails.payment_method = document.getElementById('payment_method').value;
+        paymentDetails.payment_notes = document.getElementById('payment_notes').value;
+
+        // Close popup
+        closePaymentPopup();
+
+        // Process direct booking with payment details
+        processDirectBookingWithPayment();
+    });
 
     confirmForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -358,21 +587,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (paymentStatus === 'paid') {
-            // Direct booking confirmation for paid status
-            processDirectBooking();
+            // Show payment details popup for offline/manual payment
+            openPaymentPopup();
+        } else if (paymentStatus === 'pending') {
+            // Process Razorpay payment for pending status
+            processPayment();
         } else {
-            // Process payment for pending status
+            // Process payment for other statuses
             processPayment();
         }
     });
     
-    function processDirectBooking() {
+    function processDirectBookingWithPayment() {
         // Show loading state
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<i class="ri-loader-line me-1"></i>Processing...';
         
-        // Submit the form directly
+        // Create FormData and append payment details
         const formData = new FormData(confirmForm);
+        
+        // Append payment details
+        if (paymentDetails.transaction_id) {
+            formData.append('transaction_id', paymentDetails.transaction_id);
+        }
+        if (paymentDetails.payment_screenshot) {
+            formData.append('payment_screenshot', paymentDetails.payment_screenshot);
+        }
+        if (paymentDetails.payment_method) {
+            formData.append('payment_method', paymentDetails.payment_method);
+        }
+        if (paymentDetails.payment_notes) {
+            formData.append('payment_notes', paymentDetails.payment_notes);
+        }
         
         fetch(confirmForm.action, {
             method: 'POST',
@@ -394,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show success message and redirect to success page
                 Swal.fire({
                     title: 'Booking Confirmed!',
-                    text: 'Booking has been created successfully.',
+                    text: 'Booking has been created successfully with payment details.',
                     icon: 'success',
                     timer: 2000,
                     showConfirmButton: false
@@ -407,14 +653,92 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             } else {
-                alert('Error: ' + (data.message || 'Failed to create booking'));
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'Failed to create booking',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error processing booking. Please try again.');
+            Swal.fire({
+                title: 'Error',
+                text: 'Error processing booking. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            // Reset button
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
+        });
+    }
+
+    function processDirectBooking() {
+        // Show loading state
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="ri-loader-line me-1"></i>Processing...';
+        
+        // Submit the form directly
+        const formData = new FormData(confirmForm);
+        
+        fetch(confirmForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Failed to create booking');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Direct booking response:', data);
+            if (data.status === 'success') {
+                // Show success message and redirect to index page
+                Swal.fire({
+                    title: 'Booking Confirmed!',
+                    text: data.message || 'Booking has been created successfully.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Use the redirect URL from backend or go to index
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.href = '{{ route("admin.admin-booking.index") }}?booking_created=' + (data.booking_id || '');
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'Failed to create booking',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'Error processing booking. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             // Reset button
             confirmBtn.disabled = false;
             confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
@@ -426,6 +750,8 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<i class="ri-loader-line me-1"></i>Initiating Payment...';
         
+        console.log('Starting payment initiation...');
+        
         // First, initiate payment
         fetch('{{ route("admin.admin-booking.initiate-payment") }}', {
             method: 'POST',
@@ -436,12 +762,18 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({})
         })
-        .then(res => res.json())
+        .then(res => {
+            console.log('Initiate payment response status:', res.status);
+            return res.json();
+        })
         .then(data => {
+            console.log('Initiate payment response data:', data);
             if (data.status === 'success') {
                 // Reset button before showing Razorpay
                 confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
                 confirmBtn.disabled = false;
+                
+                console.log('Opening Razorpay with order_id:', data.order_id);
                 
                 // Initialize Razorpay
                 const options = {
@@ -451,12 +783,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     name: "Tazen Admin",
                     description: "Admin Booking Payment",
                     order_id: data.order_id,
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Razorpay modal dismissed by user');
+                            Swal.fire({
+                                title: 'Payment Cancelled',
+                                text: 'You have cancelled the payment. Please try again.',
+                                icon: 'warning',
+                                confirmButtonText: 'OK'
+                            });
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
+                        },
+                        escape: false, // Prevent closing on ESC
+                        backdropclose: false // Prevent closing on backdrop click
+                    },
                     handler: function (response) {
+                        console.log('=== RAZORPAY HANDLER TRIGGERED ===');
+                        console.log('Razorpay payment successful, response:', response);
+                        
+                        // Prevent any default behavior
+                        if (event && event.preventDefault) {
+                            event.preventDefault();
+                        }
+                        
                         // Show payment success loading
                         confirmBtn.disabled = true;
                         confirmBtn.innerHTML = '<i class="ri-loader-line me-1"></i>Verifying Payment...';
                         
                         // Verify payment
+                        console.log('Sending verification request...');
+                        
                         fetch('{{ route("admin.admin-booking.verify-payment") }}', {
                             method: 'POST',
                             headers: {
@@ -471,12 +828,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             })
                         })
                         .then(res => {
+                            console.log('Verify payment response status:', res.status);
                             if (!res.ok) {
-                                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                                return res.text().then(text => {
+                                    console.error('Verify payment error response:', text);
+                                    throw new Error(`HTTP ${res.status}: ${text}`);
+                                });
                             }
                             return res.json();
                         })
                         .then(data => {
+                            console.log('Verify payment response data:', data);
+                            
+                            // IMPORTANT: Remove beforeunload warning FIRST before any action
+                            window.onbeforeunload = null;
+                            
                             if (data.status === 'success') {
                                 // Show success message
                                 Swal.fire({
@@ -484,8 +850,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     text: data.message || 'Payment verified and booking confirmed!',
                                     icon: 'success',
                                     timer: 2000,
-                                    showConfirmButton: false
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
                                 }).then(() => {
+                                    console.log('Redirecting to:', data.redirect);
+                                    // Final check: ensure onbeforeunload is removed
+                                    window.onbeforeunload = null;
                                     if (data.redirect) {
                                         window.location.href = data.redirect;
                                     } else {
@@ -497,9 +868,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         })
                         .catch(error => {
+                            window.onbeforeunload = null; // Remove the warning
+                            console.error('Payment verification error:', error);
                             Swal.fire({
                                 title: 'Payment Verification Error',
-                                text: 'Payment verification failed. Please contact support with your payment details.',
+                                text: error.message || 'Payment verification failed. Please contact support with your payment details.',
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });
@@ -514,28 +887,61 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     theme: {
                         color: "#667eea"
-                    }
+                    },
+                    notes: {
+                        booking_type: 'admin_booking',
+                        customer_id: '{{ session("admin_booking_customer_id") }}',
+                        professional_id: '{{ session("admin_booking_professional_id") }}'
+                    },
+                    redirect: false // Prevent automatic redirect
                 };
                 
+                console.log('Creating Razorpay instance with options:', options);
                 const rzp = new Razorpay(options);
+                
+                // Open Razorpay
+                console.log('Opening Razorpay modal...');
                 rzp.open();
+                
+                // Prevent any form submission or page navigation
+                window.onbeforeunload = function() {
+                    return "Payment is in progress. Are you sure you want to leave?";
+                };
                 
                 // Handle payment failure
                 rzp.on('payment.failed', function (response) {
-                    console.error('Payment failed:', response.error);
-                    alert('Payment failed: ' + response.error.description);
+                    console.error('=== RAZORPAY PAYMENT FAILED ===');
+                    console.error('Razorpay payment failed:', response.error);
+                    window.onbeforeunload = null; // Remove the warning
+                    Swal.fire({
+                        title: 'Payment Failed',
+                        text: response.error.description || 'Payment failed. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                     confirmBtn.disabled = false;
                     confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
                 });
             } else {
-                alert('Payment initiation failed: ' + (data.message || 'Unknown error'));
+                console.error('Payment initiation failed:', data);
+                Swal.fire({
+                    title: 'Payment Initiation Failed',
+                    text: data.message || 'Unknown error occurred',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
             }
         })
         .catch(error => {
             console.error('Payment initiation error:', error);
-            alert('Payment initiation failed. Please try again.');
+            Swal.fire({
+                title: 'Payment Initiation Failed',
+                text: error.message || 'Payment initiation failed. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             confirmBtn.disabled = false;
             confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i>Confirm Booking';
         });

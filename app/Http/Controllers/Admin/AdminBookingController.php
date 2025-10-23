@@ -793,6 +793,10 @@ class AdminBookingController extends Controller
     {
         $request->validate([
             'payment_status' => 'sometimes|in:pending,paid',
+            'transaction_id' => 'nullable|string|max:255',
+            'payment_method' => 'nullable|string|max:100',
+            'payment_screenshot' => 'nullable|image|mimes:jpeg,png,jpg,pdf|max:5120',
+            'payment_notes' => 'nullable|string|max:1000',
         ]);
 
         try {
@@ -811,6 +815,14 @@ class AdminBookingController extends Controller
 
             // For admin bookings, default to paid status unless specified otherwise
             $paymentStatus = $request->input('payment_status', 'paid');
+            
+            // Handle payment screenshot upload
+            $paymentScreenshot = null;
+            if ($request->hasFile('payment_screenshot')) {
+                $file = $request->file('payment_screenshot');
+                $fileName = 'payment_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $paymentScreenshot = $file->storeAs('payment_screenshots', $fileName, 'public');
+            }
             
             // Calculate GST (9% CGST + 9% SGST = 18% total)
             $baseAmount = $selectedRate->final_rate;
@@ -841,6 +853,10 @@ class AdminBookingController extends Controller
                 'igst_amount' => 0,
                 'payment_status' => $paymentStatus,
                 'paid_status' => $paymentStatus === 'paid' ? 'paid' : 'unpaid', // Add paid_status field
+                'transaction_id' => $request->input('transaction_id'),
+                'payment_method' => $request->input('payment_method'),
+                'payment_screenshot' => $paymentScreenshot,
+                'payment_notes' => $request->input('payment_notes'),
                 'booking_date' => $firstBookingDate->format('Y-m-d'),
                 'booking_time' => $datetimeSelections[0]['time_slot'] ?? '09:00',
                 'month' => $firstBookingDate->format('M'), // Add month field
@@ -1152,6 +1168,7 @@ class AdminBookingController extends Controller
             $professional = Professional::find(session('admin_booking_professional_id'));
             $selectedRate = Rate::find(session('admin_booking_session_id'));
             $service = Service::find(session('admin_booking_service_id'));
+            $subService = session('admin_booking_sub_service_id') ? SubService::find(session('admin_booking_sub_service_id')) : null;
             $datetimeSelections = session('admin_booking_datetime_selections', []);
             $gstDetails = session('admin_booking_gst_details', []);
 
@@ -1160,6 +1177,7 @@ class AdminBookingController extends Controller
                 'professional_found' => $professional ? 'YES (ID: '.$professional->id.')' : 'NO',
                 'selectedRate_found' => $selectedRate ? 'YES (ID: '.$selectedRate->id.')' : 'NO',
                 'service_found' => $service ? 'YES (ID: '.$service->id.')' : 'NO',
+                'sub_service_found' => $subService ? 'YES (ID: '.$subService->id.')' : 'NO (Optional)',
                 'datetime_selections_count' => count($datetimeSelections),
                 'datetime_selections' => $datetimeSelections,
                 'gst_details' => $gstDetails
@@ -1201,10 +1219,13 @@ class AdminBookingController extends Controller
             $booking = Booking::create([
                 'user_id' => $customer->id, // Use user_id as per database structure
                 'professional_id' => $professional->id,
+                'service_id' => $service->id,
+                'sub_service_id' => $subService ? $subService->id : null,
                 'customer_name' => $customer->name,
                 'customer_email' => $customer->email,
                 'customer_phone' => $customer->phone ?? '',
                 'service_name' => $service->name,
+                'sub_service_name' => $subService ? $subService->name : null,
                 'session_type' => $selectedRate->session_type,
                 'plan_type' => $selectedRate->session_type, // Add plan_type field
                 'amount' => $gstDetails['total_with_gst'] ?? $selectedRate->final_rate,
@@ -1297,6 +1318,61 @@ class AdminBookingController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Payment verification failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get booking details for modal view
+     */
+    public function getBookingDetails($id)
+    {
+        try {
+            $booking = Booking::with(['user', 'professional', 'timedates', 'service', 'subService'])
+                ->findOrFail($id);
+
+            $html = view('admin.admin-booking.partials.booking-details', compact('booking'))->render();
+
+            return response()->json([
+                'success' => true,
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load booking details: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark booking as paid
+     */
+    public function markAsPaid(Request $request, $id)
+    {
+        $request->validate([
+            'payment_method' => 'nullable|string|max:100',
+            'transaction_id' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $booking = Booking::findOrFail($id);
+
+            $booking->update([
+                'payment_status' => 'paid',
+                'paid_status' => 'paid',
+                'payment_method' => $request->payment_method,
+                'transaction_id' => $request->transaction_id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking marked as paid successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update payment status: ' . $e->getMessage()
             ], 500);
         }
     }

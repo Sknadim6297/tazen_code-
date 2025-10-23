@@ -126,6 +126,7 @@
                                         <th>No. of Sessions</th>
                                         <th>Rate/Session (₹)</th>
                                         <th>Final Rate (₹)</th>
+                                        <th>Features</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -140,6 +141,17 @@
                                             <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
                                             <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
                                             <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
+                                            <td data-label="Features">
+                                                @if($rate->features && count($rate->features) > 0)
+                                                    @foreach($rate->features as $feature)
+                                                        @if(trim($feature))
+                                                            <span class="badge bg-light text-dark" style="margin: 2px; font-size: 0.75rem;">{{ $feature }}</span>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <small class="text-muted">No features</small>
+                                                @endif
+                                            </td>
                                             <td data-label="Actions">
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">
@@ -167,6 +179,17 @@
                                                 <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
                                                 <td data-label="Rate/Session">₹{{ number_format($rate->rate_per_session, 2) }}</td>
                                                 <td data-label="Final Rate">₹{{ number_format($rate->final_rate, 2) }}</td>
+                                                <td data-label="Features">
+                                                    @if($rate->features && count($rate->features) > 0)
+                                                        @foreach($rate->features as $feature)
+                                                            @if(trim($feature))
+                                                                <span class="badge bg-light text-dark" style="margin: 2px; font-size: 0.75rem;">{{ $feature }}</span>
+                                                            @endif
+                                                        @endforeach
+                                                    @else
+                                                        <small class="text-muted">No features</small>
+                                                    @endif
+                                                </td>
                                                 <td data-label="Actions">
                                                     <div class="btn-group" role="group">
                                                         <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">

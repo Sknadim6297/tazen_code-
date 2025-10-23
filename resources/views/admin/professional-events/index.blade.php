@@ -23,9 +23,10 @@
             <div class="col-12">
                 <div class="card custom-card">
                     <div class="card-body">
-                        <form method="GET" action="{{ route('admin.professional-events.index') }}">
+                        <form method="GET" action="{{ route('admin.professional-events.index') }}" id="filterForm">
                             <div class="row g-3">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
+                                    <label class="form-label">Status</label>
                                     <select name="status" class="form-select">
                                         <option value="">All Status</option>
                                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -33,12 +34,40 @@
                                         <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-2">
+                                    <label class="form-label">From Date</label>
+                                    <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">To Date</label>
+                                    <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Search</label>
                                     <input type="text" name="search" class="form-control" placeholder="Search events or professionals..." value="{{ request('search') }}">
                                 </div>
-                                <div class="col-md-3">
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <a href="{{ route('admin.professional-events.index') }}" class="btn btn-outline-secondary">Clear</a>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="ri-filter-line me-1"></i>Filter
+                                        </button>
+                                        <a href="{{ route('admin.professional-events.index') }}" class="btn btn-outline-secondary">
+                                            <i class="ri-refresh-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-success" onclick="exportData('excel')">
+                                            <i class="ri-file-excel-2-line me-1"></i> Export to Excel
+                                        </button>
+                                        <button type="button" class="btn btn-danger" onclick="exportData('pdf')">
+                                            <i class="ri-file-pdf-line me-1"></i> Export to PDF
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -427,6 +456,19 @@ function editMeetLink(eventId, currentLink) {
             alert('An error occurred while updating the meet link.');
         });
     }
+}
+
+// Export data function
+function exportData(format) {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    
+    // Build query string from form data
+    const params = new URLSearchParams(formData);
+    params.append('export', format);
+    
+    // Redirect to export URL with filters
+    window.location.href = '{{ route("admin.professional-events.index") }}?' + params.toString();
 }
 </script>
 @endsection

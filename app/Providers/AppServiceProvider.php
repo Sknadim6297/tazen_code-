@@ -28,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
             'admin' => Admin::class,
             'professional' => Professional::class,
             'user' => User::class,
+            'customer' => User::class, // Add customer as alias for User
         ]);
     }
 }

@@ -127,6 +127,31 @@
                         </div>
                     @endif
 
+                    <!-- Features Section -->
+                    <div class="features-section mb-4">
+                        <h5 class="mb-3">Package Features</h5>
+                        <div id="featuresContainer">
+                            @if($rates->features && count($rates->features) > 0)
+                                @foreach($rates->features as $feature)
+                                    @if($feature)
+                                        <div class="feature-item d-flex align-items-center mb-2">
+                                            <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" value="{{ $feature }}" style="margin-right: 8px;">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 36px; height: 36px;">×</button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @else
+                                <div class="feature-item d-flex align-items-center mb-2">
+                                    <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" style="margin-right: 8px;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 36px; height: 36px;">×</button>
+                                </div>
+                            @endif
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary add-feature" onclick="addFeature()">
+                            <i class="fas fa-plus"></i> Add Feature
+                        </button>
+                    </div>
+
                     <div class="form-actions mt-4 d-flex justify-content-between">
                         <a href="{{ route('professional.rate.index') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Rates
@@ -212,11 +237,65 @@
     }
     
 }
+
+/* Features styling */
+.features-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.feature-item {
+    margin-bottom: 0.75rem;
+}
+
+.feature-input {
+    flex: 1;
+}
+
+.remove-feature {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-feature {
+    margin-top: 0.5rem;
+}
 </style>
 @endsection
 
 @section('scripts')
 <script>
+    // Feature management functions
+    function addFeature() {
+        const container = document.getElementById('featuresContainer');
+        const newFeature = document.createElement('div');
+        newFeature.className = 'feature-item d-flex align-items-center mb-2';
+        newFeature.innerHTML = `
+            <input type="text" name="features[]" class="form-control feature-input me-2" placeholder="Enter feature" style="margin-right: 8px;">
+            <button type="button" class="btn btn-sm btn-outline-danger remove-feature" onclick="removeFeature(this)" style="min-width: 36px; height: 36px;">×</button>
+        `;
+        container.appendChild(newFeature);
+    }
+
+    function removeFeature(button) {
+        const featureItem = button.closest('.feature-item');
+        const container = featureItem.closest('#featuresContainer');
+        const featureItems = container.querySelectorAll('.feature-item');
+        
+        // Don't allow removing the last feature input
+        if (featureItems.length > 1) {
+            featureItem.remove();
+        } else {
+            // Just clear the input instead of removing it
+            featureItem.querySelector('.feature-input').value = '';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const row = document.querySelector('tbody tr');
 

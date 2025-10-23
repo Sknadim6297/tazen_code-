@@ -592,7 +592,9 @@
                                 <th scope="col">Session Type</th>
                                 <th scope="col">Booking Date</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Payment Info</th>
                                 <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -660,6 +662,32 @@
                                         <span class="fw-semibold text-success">₹{{ number_format($booking->amount ?? $booking->base_amount ?? 0, 2) }}</span>
                                     </td>
                                     <td>
+                                        @if($booking->payment_status === 'paid')
+                                            <div class="payment-info">
+                                                <span class="badge bg-success mb-1">Paid</span>
+                                                @if($booking->payment_method)
+                                                    <br><small class="text-muted">
+                                                        <i class="ri-bank-card-line"></i> {{ ucfirst(str_replace('_', ' ', $booking->payment_method)) }}
+                                                    </small>
+                                                @endif
+                                                @if($booking->transaction_id)
+                                                    <br><small class="text-muted">
+                                                        <i class="ri-number-1"></i> {{ $booking->transaction_id }}
+                                                    </small>
+                                                @endif
+                                                @if($booking->payment_screenshot)
+                                                    <br>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary mt-1" 
+                                                            onclick="viewPaymentScreenshot('{{ asset('storage/' . $booking->payment_screenshot) }}')">
+                                                        <i class="ri-image-line"></i> View Receipt
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="badge bg-warning">{{ ucfirst($booking->payment_status ?? 'Pending') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @php
                                             $status = $booking->booking_status ?? $booking->payment_status ?? 'pending';
                                             $statusClass = match($status) {
@@ -671,15 +699,30 @@
                                             };
                                         @endphp
                                         <span class="badge {{ $statusClass }}">{{ ucfirst($status) }}</span>
-                                        @if($booking->created_by_admin)
-                                            <br><small class="text-primary">Admin Created</small>
+                                        @if($booking->created_by_admin || $booking->created_by === 'admin')
+                                            <br><small class="text-primary"><i class="ri-admin-line"></i> Admin Created</small>
                                         @endif
                                     </td>
-
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    onclick="viewBookingDetails({{ $booking->id }})"
+                                                    title="View Details">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                            @if($booking->payment_status !== 'paid')
+                                                <button type="button" class="btn btn-outline-success" 
+                                                        onclick="markAsPaid({{ $booking->id }})"
+                                                        title="Mark as Paid">
+                                                    <i class="ri-check-line"></i>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5">
+                                    <td colspan="10" class="text-center py-5">
                                         <div class="d-flex flex-column align-items-center">
                                             <div class="avatar avatar-xxl avatar-rounded bg-primary-transparent mb-3">
                                                 <i class="ri-calendar-line fs-1 text-primary"></i>
@@ -920,5 +963,169 @@ document.getElementById('filterForm').addEventListener('submit', function(e) {
         return;
     }
 });
+</script>
+@endsection
+
+<!-- Payment Screenshot Modal -->
+<div class="modal fade" id="paymentScreenshotModal" tabindex="-1" aria-labelledby="paymentScreenshotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentScreenshotModalLabel">
+                    <i class="ri-image-line me-2"></i>Payment Receipt
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="paymentScreenshotImage" src="" alt="Payment Screenshot" class="img-fluid" style="max-height: 70vh;">
+            </div>
+            <div class="modal-footer">
+                <a id="downloadScreenshot" href="" download class="btn btn-primary">
+                    <i class="ri-download-line me-1"></i>Download
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-labelledby="bookingDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="bookingDetailsModalLabel">
+                    <i class="ri-information-line me-2"></i>Booking Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bookingDetailsContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// View Payment Screenshot
+function viewPaymentScreenshot(imageUrl) {
+    const modal = new bootstrap.Modal(document.getElementById('paymentScreenshotModal'));
+    document.getElementById('paymentScreenshotImage').src = imageUrl;
+    document.getElementById('downloadScreenshot').href = imageUrl;
+    modal.show();
+}
+
+// View Booking Details
+function viewBookingDetails(bookingId) {
+    const modal = new bootstrap.Modal(document.getElementById('bookingDetailsModal'));
+    modal.show();
+    
+    fetch(`/admin/admin-booking/${bookingId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('bookingDetailsContent').innerHTML = data.html;
+            } else {
+                document.getElementById('bookingDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="ri-error-warning-line me-2"></i>
+                        ${data.message || 'Failed to load booking details'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('bookingDetailsContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="ri-error-warning-line me-2"></i>
+                    An error occurred while loading the booking details.
+                </div>
+            `;
+        });
+}
+
+// Mark as Paid
+function markAsPaid(bookingId) {
+    Swal.fire({
+        title: 'Mark as Paid',
+        html: `
+            <div class="text-start">
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <select id="payment_method" class="form-select">
+                        <option value="">Select method</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="upi">UPI</option>
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="debit_card">Debit Card</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Transaction ID</label>
+                    <input type="text" id="transaction_id" class="form-control" placeholder="Enter transaction ID">
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Mark as Paid',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#28a745',
+        preConfirm: () => {
+            return {
+                payment_method: document.getElementById('payment_method').value,
+                transaction_id: document.getElementById('transaction_id').value
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Send AJAX request to mark as paid
+            fetch(`/admin/admin-booking/${bookingId}/mark-paid`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(result.value)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Booking marked as paid successfully.',
+                        icon: 'success',
+                        confirmButtonColor: '#667eea'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update payment status.',
+                        icon: 'error',
+                        confirmButtonColor: '#667eea'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#667eea'
+                });
+            });
+        }
+    });
+}
 </script>
 @endsection

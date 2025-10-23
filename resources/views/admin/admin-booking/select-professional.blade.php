@@ -252,7 +252,32 @@
                                     <option value="5000+">₹5000+</option>
                                 </select>
                             </div>
-                            <div class="col-md-8 mb-3 d-flex align-items-end">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Session Package</label>
+                                <select id="session_package_filter" class="form-select filter-input">
+                                    <option value="">All Session Packages</option>
+                                    <option value="one time">One Time</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="free hand">Free Hand</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Available Weekday</label>
+                                <select id="weekday_filter" class="form-select filter-input">
+                                    <option value="">Any Day</option>
+                                    <option value="monday">Monday</option>
+                                    <option value="tuesday">Tuesday</option>
+                                    <option value="wednesday">Wednesday</option>
+                                    <option value="thursday">Thursday</option>
+                                    <option value="friday">Friday</option>
+                                    <option value="saturday">Saturday</option>
+                                    <option value="sunday">Sunday</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3 d-flex align-items-end">
                                 <button type="button" id="clear_filters" class="btn btn-outline-secondary">
                                     <i class="ri-refresh-line me-1"></i>Clear Filters
                                 </button>
@@ -264,11 +289,49 @@
                         @csrf
                         <div class="row" id="professionals_container">
                             @foreach($professionals as $prof)
+                                @php
+                                    // Collect session packages
+                                    $sessionPackages = [];
+                                    if($prof->rates && $prof->rates->count() > 0) {
+                                        foreach($prof->rates as $rate) {
+                                            // session_type contains the package info (One Time, Monthly, etc.)
+                                            $sessionPackages[] = strtolower($rate->session_type);
+                                        }
+                                    }
+                                    $sessionPackagesStr = implode(',', array_unique($sessionPackages));
+                                    
+                                    // Get proper location from profile or professional table
+                                    $location = '';
+                                    if($prof->profile && $prof->profile->city) {
+                                        $location = $prof->profile->city;
+                                    } elseif($prof->city) {
+                                        $location = $prof->city;
+                                    } elseif($prof->location) {
+                                        $location = $prof->location;
+                                    } else {
+                                        $location = 'online';
+                                    }
+                                    
+                                    // Get proper rating from ratings/reviews table
+                                    $rating = 4; // default
+                                    if($prof->reviews && $prof->reviews->count() > 0) {
+                                        $rating = round($prof->reviews->avg('rating'), 1);
+                                    } elseif($prof->rating) {
+                                        $rating = $prof->rating;
+                                    } elseif($prof->average_rating) {
+                                        $rating = $prof->average_rating;
+                                    }
+                                    
+                                    // Collect available weekdays
+                                    $availableWeekdays = $prof->available_days ?? 'monday,tuesday,wednesday,thursday,friday,saturday,sunday';
+                                @endphp
                                 <div class="col-md-6 mb-4 professional-item" 
                                      data-name="{{ strtolower($prof->name ?? ($prof->first_name . ' ' . $prof->last_name)) }}"
-                                     data-location="{{ strtolower($prof->location ?? 'online') }}"
-                                     data-rating="{{ $prof->rating ?? 4 }}"
-                                     data-price="{{ $prof->rate ?? 1000 }}">
+                                     data-location="{{ strtolower($location) }}"
+                                     data-rating="{{ $rating }}"
+                                     data-price="{{ $prof->rate ?? 1000 }}"
+                                     data-session-packages="{{ $sessionPackagesStr }}"
+                                     data-weekdays="{{ strtolower($availableWeekdays) }}">
                                     <div class="prof-card" data-professional-id="{{ $prof->id }}">
                                         <input type="radio" name="professional_id" value="{{ $prof->id }}" class="d-none professional-radio">
                                         <div class="selection-indicator">
@@ -316,16 +379,16 @@
                                 @endif                                                <div class="d-flex align-items-center justify-content-between">
                                                     <div class="rating-stars">
                                                         @for($i = 1; $i <= 5; $i++)
-                                                            @if($i <= ($prof->rating ?? 4))
+                                                            @if($i <= $rating)
                                                                 <i class="ri-star-fill"></i>
                                                             @else
                                                                 <i class="ri-star-line"></i>
                                                             @endif
                                                         @endfor
-                                                        <span class="ms-1 text-muted small">({{ $prof->rating ?? '4.0' }})</span>
+                                                        <span class="ms-1 text-muted small">({{ number_format($rating, 1) }})</span>
                                                     </div>
                                                     <div class="text-muted small">
-                                                        <i class="ri-map-pin-line me-1"></i>{{ $prof->location ?? 'Online' }}
+                                                        <i class="ri-map-pin-line me-1"></i>{{ ucfirst($location) }}
                                                     </div>
                                                 </div>
                                                 
@@ -377,6 +440,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationFilter = document.getElementById('location_filter');
     const ratingFilter = document.getElementById('rating_filter');
     const priceFilter = document.getElementById('price_filter');
+    const sessionPackageFilter = document.getElementById('session_package_filter');
+    const weekdayFilter = document.getElementById('weekday_filter');
     const clearFiltersBtn = document.getElementById('clear_filters');
     const professionalsContainer = document.getElementById('professionals_container');
     const noResults = document.querySelector('.no-results');
@@ -414,6 +479,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const locationValue = locationFilter.value.toLowerCase();
         const ratingValue = parseFloat(ratingFilter.value) || 0;
         const priceValue = priceFilter.value;
+        const sessionPackageValue = sessionPackageFilter.value.toLowerCase();
+        const weekdayValue = weekdayFilter.value.toLowerCase();
         
         let visibleCount = 0;
         
@@ -457,6 +524,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
+            // Session Package filter
+            if (sessionPackageValue) {
+                const itemSessionPackages = item.dataset.sessionPackages || '';
+                if (!itemSessionPackages.includes(sessionPackageValue)) {
+                    show = false;
+                }
+            }
+            
+            // Weekday filter
+            if (weekdayValue) {
+                const itemWeekdays = item.dataset.weekdays || '';
+                if (!itemWeekdays.includes(weekdayValue)) {
+                    show = false;
+                }
+            }
+            
             if (show) {
                 item.style.display = 'block';
                 visibleCount++;
@@ -480,6 +563,8 @@ document.addEventListener('DOMContentLoaded', function() {
     locationFilter.addEventListener('change', applyFilters);
     ratingFilter.addEventListener('change', applyFilters);
     priceFilter.addEventListener('change', applyFilters);
+    sessionPackageFilter.addEventListener('change', applyFilters);
+    weekdayFilter.addEventListener('change', applyFilters);
 
     // Clear filters
     clearFiltersBtn.addEventListener('click', function() {
@@ -487,6 +572,8 @@ document.addEventListener('DOMContentLoaded', function() {
         locationFilter.value = '';
         ratingFilter.value = '';
         priceFilter.value = '';
+        sessionPackageFilter.value = '';
+        weekdayFilter.value = '';
         applyFilters();
     });
 });

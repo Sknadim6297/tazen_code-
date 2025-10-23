@@ -51,6 +51,9 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
 
+    // My Bookings with Chat
+    Route::get('my-bookings', [App\Http\Controllers\Customer\MyBookingController::class, 'index'])->name('my-bookings');
+
     Route::resource('all-appointment', AppointmentController::class);
     Route::resource('upcoming-appointment', UpcomingAppointmentController::class);
     Route::post('/upcoming-appointment/reschedule', [UpcomingAppointmentController::class, 'reschedule'])->name('upcoming-appointment.reschedule');
@@ -92,4 +95,13 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('user.chat.list');
     Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('user.chat.activity');
     Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('user.chat.unread');
+
+    // Booking Chat Routes for Customer
+    Route::prefix('booking-chat')->name('booking-chat.')->group(function () {
+        Route::post('/initialize', [App\Http\Controllers\BookingChatController::class, 'initializeBookingChat'])->name('initialize');
+        Route::get('/list', [App\Http\Controllers\BookingChatController::class, 'getBookingChats'])->name('list');
+        Route::get('/{bookingId}/messages', [App\Http\Controllers\BookingChatController::class, 'getBookingMessages'])->name('messages');
+        Route::post('/{bookingId}/send', [App\Http\Controllers\BookingChatController::class, 'sendBookingMessage'])->name('send');
+        Route::get('/unread-count', [App\Http\Controllers\BookingChatController::class, 'getUnreadCount'])->name('unread');
+    });
 });

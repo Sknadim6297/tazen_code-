@@ -247,17 +247,25 @@
                                         <ul class="session-features">
                                             <li><i class="ri-check-line"></i> {{ $session->num_sessions }} {{ $session->num_sessions > 1 ? 'sessions' : 'session' }} included</li>
                                             <li><i class="ri-check-line"></i> ₹{{ number_format($session->rate_per_session, 2) }} per session</li>
-                                            @if($session->session_type == 'One Time')
-                                                <li><i class="ri-check-line"></i> Single consultation</li>
-                                                <li><i class="ri-check-line"></i> Instant booking</li>
-                                            @elseif($session->session_type == 'Monthly')
-                                                <li><i class="ri-check-line"></i> Flexible scheduling</li>
-                                                <li><i class="ri-check-line"></i> Progress tracking</li>
-                                            @elseif($session->session_type == 'Quarterly')
-                                                <li><i class="ri-check-line"></i> Priority scheduling</li>
-                                                <li><i class="ri-check-line"></i> Progress reports</li>
+                                            @if($session->features && is_array($session->features) && count($session->features) > 0)
+                                                @foreach($session->features as $feature)
+                                                    @if($feature)
+                                                        <li><i class="ri-check-line"></i> {{ $feature }}</li>
+                                                    @endif
+                                                @endforeach
                                             @else
-                                                <li><i class="ri-check-line"></i> Flexible terms</li>
+                                                @if($session->session_type == 'One Time')
+                                                    <li><i class="ri-check-line"></i> Single consultation</li>
+                                                    <li><i class="ri-check-line"></i> Instant booking</li>
+                                                @elseif($session->session_type == 'Monthly')
+                                                    <li><i class="ri-check-line"></i> Flexible scheduling</li>
+                                                    <li><i class="ri-check-line"></i> Progress tracking</li>
+                                                @elseif($session->session_type == 'Quarterly')
+                                                    <li><i class="ri-check-line"></i> Priority scheduling</li>
+                                                    <li><i class="ri-check-line"></i> Progress reports</li>
+                                                @else
+                                                    <li><i class="ri-check-line"></i> Flexible terms</li>
+                                                @endif
                                             @endif
                                         </ul>
                                     </div>

@@ -23,6 +23,15 @@ class ProfessionalEventController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Apply date range filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
+        }
+
         // Apply search filter
         if ($request->filled('search')) {
             $search = $request->search;
@@ -35,6 +44,11 @@ class ProfessionalEventController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                   });
             });
+        }
+
+        // Handle export requests
+        if ($request->filled('export')) {
+            return $this->export($query, $request->export);
         }
 
         $events = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -248,5 +262,90 @@ class ProfessionalEventController extends Controller
             'success' => true,
             'message' => 'Meet link updated successfully'
         ]);
+    }
+
+    /**
+     * Export professional events
+     */
+    private function export($query, $format)
+    {
+        $events = $query->get();
+        
+        if ($format === 'excel') {
+            return $this->exportToExcel($events);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPDF($events);
+        }
+        
+        return redirect()->back();
+    }
+
+    /**
+     * Export to Excel
+     */
+    private function exportToExcel($events)
+    {
+        $headers = [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="professional-events-' . date('Y-m-d') . '.xlsx"',
+        ];
+
+        $callback = function() use ($events) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for proper UTF-8 encoding
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // Headers
+            fputcsv($file, [
+                'ID',
+                'Professional Name',
+                'Professional Email',
+                'Event Heading',
+                'Mini Heading',
+                'Short Description',
+                'Event Date',
+                'Starting Fees',
+                'Meet Link',
+                'Status',
+                'Created At',
+                'Approved At',
+                'Admin Notes'
+            ]);
+
+            // Data
+            foreach ($events as $event) {
+                fputcsv($file, [
+                    $event->id,
+                    $event->professional->name ?? 'N/A',
+                    $event->professional->email ?? 'N/A',
+                    $event->heading,
+                    $event->mini_heading,
+                    $event->short_description,
+                    $event->date ? \Carbon\Carbon::parse($event->date)->format('Y-m-d') : 'N/A',
+                    $event->starting_fees,
+                    $event->meet_link ?? 'N/A',
+                    ucfirst($event->status),
+                    $event->created_at->format('Y-m-d H:i:s'),
+                    $event->approved_at ? $event->approved_at->format('Y-m-d H:i:s') : 'N/A',
+                    $event->admin_notes ?? 'N/A'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export to PDF
+     */
+    private function exportToPDF($events)
+    {
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('admin.professional-events.pdf-export', compact('events'));
+        
+        return $pdf->download('professional-events-' . date('Y-m-d') . '.pdf');
     }
 }

@@ -312,6 +312,8 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/process-booking', [App\Http\Controllers\Admin\AdminBookingController::class, 'processBooking'])->name('process-booking');
         Route::post('/initiate-payment', [App\Http\Controllers\Admin\AdminBookingController::class, 'initiatePayment'])->name('initiate-payment');
         Route::post('/verify-payment', [App\Http\Controllers\Admin\AdminBookingController::class, 'verifyPayment'])->name('verify-payment');
+        Route::get('/{id}/details', [App\Http\Controllers\Admin\AdminBookingController::class, 'getBookingDetails'])->name('details');
+        Route::post('/{id}/mark-paid', [App\Http\Controllers\Admin\AdminBookingController::class, 'markAsPaid'])->name('mark-paid');
         Route::get('/debug-payment', function () {
             return response()->json([
                 'route_exists' => true,

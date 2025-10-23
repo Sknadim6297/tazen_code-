@@ -449,6 +449,7 @@
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
                     <th>Details</th>
+                    <th>Chat</th>
                 </tr>
             </thead>
             <tbody>
@@ -540,10 +541,27 @@
                                 View Details
                             </button>
                         </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="openBookingChat({{ $booking->id }})">
+                                <i class="fas fa-comments"></i>
+                                @php
+                                    $unreadCount = 0;
+                                    if($booking->chat) {
+                                        $unreadCount = $booking->chat->messages()
+                                            ->where('is_read', false)
+                                            ->where('sender_type', 'professional')
+                                            ->count();
+                                    }
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="badge bg-danger">{{ $unreadCount }}</span>
+                                @endif
+                            </button>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center">No appointments found</td>
+                        <td colspan="11" class="text-center">No appointments found</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -822,5 +840,316 @@ $(window).on('click', function (e) {
         $('#customModal').hide();
     }
 });
+
+// ==================== BOOKING CHAT FUNCTIONALITY ====================
+let currentBookingChatId = null;
+let currentChatId = null;
+let messageCheckInterval = null;
+let isPolling = false; // Prevent multiple polling
+
+function openBookingChat(bookingId) {
+    // Prevent opening multiple chats
+    if(currentBookingChatId === bookingId && $('#bookingChatModal').is(':visible')) {
+        return;
+    }
+    
+    // Clear any existing interval
+    if(messageCheckInterval) {
+        clearInterval(messageCheckInterval);
+        messageCheckInterval = null;
+    }
+    
+    currentBookingChatId = bookingId;
+    isPolling = false;
+    
+    // Initialize or get existing chat
+    $.ajax({
+        url: '/user/booking-chat/initialize',
+        type: 'POST',
+        data: {
+            booking_id: bookingId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if(response.success) {
+                currentChatId = response.chat_id;
+                
+                // Update modal title with booking context
+                const title = `
+                    <div>
+                        <strong>${response.booking.service_name}</strong><br>
+                        <small style="font-weight: normal; opacity: 0.8;">
+                            Chat with ${response.participant.name} (${response.participant.type})
+                        </small>
+                    </div>
+                `;
+                $('#chatModalTitle').html(title);
+                $('#bookingChatModal').fadeIn(300);
+                
+                // Load messages
+                loadChatMessages(bookingId);
+                
+                // Attach send button click handler directly (not delegated)
+                $('#sendMessageBtn').off('click').on('click', function() {
+                    console.log('Send button clicked');
+                    sendChatMessage();
+                });
+                
+                // Attach Enter key handler directly
+                $('#chatMessageInput').off('keypress').on('keypress', function(e) {
+                    if(e.which === 13) {
+                        console.log('Enter key pressed');
+                        sendChatMessage();
+                    }
+                });
+                
+                // Start polling only if not already polling
+                if(!messageCheckInterval && !isPolling) {
+                    isPolling = true;
+                    messageCheckInterval = setInterval(() => {
+                        if($('#bookingChatModal').is(':visible')) {
+                            loadChatMessages(bookingId);
+                        }
+                    }, 3000);
+                }
+            }
+        },
+        error: function(xhr) {
+            alert('Error opening chat: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        }
+    });
+}
+
+function loadChatMessages(bookingId) {
+    $.ajax({
+        url: `/user/booking-chat/${bookingId}/messages`,
+        type: 'GET',
+        success: function(response) {
+            if(response.success) {
+                displayChatMessages(response.messages);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading messages:', xhr);
+        }
+    });
+}
+
+function displayChatMessages(messages) {
+    const chatContainer = $('#chatMessages');
+    const wasScrolledToBottom = chatContainer[0].scrollHeight - chatContainer.scrollTop() <= chatContainer.outerHeight() + 50;
+    
+    chatContainer.empty();
+    
+    if(messages.length === 0) {
+        chatContainer.append('<div style="text-align: center; color: #999; padding: 20px;">No messages yet. Start the conversation!</div>');
+    } else {
+        messages.forEach(msg => {
+            const isOwn = msg.sender_type === 'customer';
+            const messageClass = isOwn ? 'message-own' : 'message-other';
+            
+            // Get sender name - fallback to type if name not available
+            let senderName = msg.sender_name || 'Unknown';
+            if (!msg.sender_name) {
+                senderName = isOwn ? 'You' : (msg.sender_type === 'professional' ? 'Professional' : msg.sender_type);
+            } else if (isOwn) {
+                senderName = 'You';
+            }
+            
+            const time = msg.formatted_time || new Date(msg.created_at).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+            
+            let messageContent = '';
+            
+            // Handle different message types
+            if(msg.message_type === 'image' && msg.file_path) {
+                messageContent = `
+                    <img src="/storage/${msg.file_path}" alt="Image" style="max-width: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('/storage/${msg.file_path}', '_blank')">
+                    ${msg.message ? '<div>' + msg.message + '</div>' : ''}
+                `;
+            } else if(msg.message_type === 'file' && msg.file_path) {
+                const fileName = msg.file_path.split('/').pop();
+                messageContent = `
+                    <a href="/storage/${msg.file_path}" target="_blank" style="color: inherit; text-decoration: underline;">
+                        <i class="fas fa-file"></i> ${fileName}
+                    </a>
+                    ${msg.message ? '<div>' + msg.message + '</div>' : ''}
+                `;
+            } else {
+                messageContent = msg.message;
+            }
+            
+            chatContainer.append(`
+                <div class="chat-message ${messageClass}">
+                    <div class="message-sender" style="font-weight: bold; margin-bottom: 5px;">${senderName}</div>
+                    <div class="message-content">${messageContent}</div>
+                    <div class="message-time" style="font-size: 11px; opacity: 0.7; margin-top: 5px;">${time}</div>
+                </div>
+            `);
+        });
+    }
+    
+    // Auto scroll to bottom
+    if(wasScrolledToBottom) {
+        chatContainer.scrollTop(chatContainer[0].scrollHeight);
+    }
+}
+
+function sendChatMessage() {
+    const messageInput = $('#chatMessageInput');
+    const fileInput = $('#chatFileInput')[0];
+    
+    console.log('sendChatMessage called');
+    console.log('messageInput element:', messageInput);
+    console.log('messageInput length:', messageInput.length);
+    console.log('messageInput value:', messageInput.val());
+    
+    const message = messageInput.val()?.trim() || '';
+    const file = fileInput?.files[0];
+    
+    console.log('After processing - message:', message);
+    console.log('After processing - message length:', message.length);
+    console.log('After processing - file:', file);
+    
+    console.log('Sending message:', { message: message, hasFile: !!file });
+    
+    if(!message && !file) {
+        console.log('No message or file to send');
+        return;
+    }
+    
+    const formData = new FormData();
+    if(message) formData.append('message', message);
+    if(file) formData.append('file', file);
+    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+    
+    console.log('FormData contents:', {
+        hasMessage: formData.has('message'),
+        hasFile: formData.has('file'),
+        hasToken: formData.has('_token')
+    });
+    
+    // Disable send button
+    $('#sendMessageBtn').prop('disabled', true);
+    
+    $.ajax({
+        url: `/user/booking-chat/${currentBookingChatId}/send`,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            console.log('Message sent successfully:', response);
+            if(response.success) {
+                messageInput.val('');
+                if(fileInput) fileInput.value = '';
+                $('#selectedFileName').text('');
+                loadChatMessages(currentBookingChatId);
+            } else {
+                console.error('Response success was false:', response);
+                alert('Failed to send message: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function(xhr) {
+            console.error('Error sending message:', xhr);
+            const errorMsg = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Unknown error';
+            const details = xhr.responseJSON?.details ? JSON.stringify(xhr.responseJSON.details) : '';
+            alert('Error sending message: ' + errorMsg + (details ? '\n' + details : ''));
+        },
+        complete: function() {
+            $('#sendMessageBtn').prop('disabled', false);
+        }
+    });
+}
+
+// Show selected file name
+$(document).on('change', '#chatFileInput', function() {
+    const fileName = this.files[0]?.name || '';
+    $('#selectedFileName').text(fileName ? `📎 ${fileName}` : '');
+});
+
+// Close modal and stop polling - Use OFF to prevent multiple bindings
+$(document).off('click', '#closeChatModal').on('click', '#closeChatModal', function() {
+    $('#bookingChatModal').fadeOut(300);
+    if(messageCheckInterval) {
+        clearInterval(messageCheckInterval);
+        messageCheckInterval = null;
+        isPolling = false;
+    }
+    currentBookingChatId = null;
+    currentChatId = null;
+});
+
+// Close on outside click
+$(window).off('click.chatModal').on('click.chatModal', function (e) {
+    if ($(e.target).is('#bookingChatModal')) {
+        $('#closeChatModal').trigger('click');
+    }
+});
+
 </script>
+
+<!-- Booking Chat Modal -->
+<div id="bookingChatModal" class="custom-modal">
+    <div class="custom-modal-content" style="max-width: 600px;">
+        <div class="modal-header" style="border-bottom: 1px solid #ddd; padding: 15px;">
+            <div id="chatModalTitle" style="flex: 1;">Chat with Professional</div>
+            <span class="close-modal" id="closeChatModal" style="font-size: 24px; cursor: pointer;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 15px;">
+            <div id="chatMessages" style="height: 400px; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <!-- Messages will be loaded here -->
+            </div>
+            <div id="selectedFileName" style="color: #007bff; margin-bottom: 10px; min-height: 20px; font-size: 14px;"></div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
+                <button type="button" onclick="$('#chatFileInput').click()" class="btn btn-secondary" style="min-width: 45px;">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="text" id="chatMessageInput" class="form-control" placeholder="Type your message..." style="flex: 1;">
+                <button id="sendMessageBtn" class="btn btn-primary" style="min-width: 80px;">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-message {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 70%;
+}
+
+.message-own {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+    text-align: right;
+}
+
+.message-other {
+    background-color: #e9ecef;
+    color: #333;
+    margin-right: auto;
+}
+
+.message-sender {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.message-content {
+    margin-bottom: 4px;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+</style>
+
 @endsection

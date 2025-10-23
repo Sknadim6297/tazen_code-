@@ -38,6 +38,15 @@ Route::middleware(['auth:professional'])->group(function () {
     Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('professional.chat.list');
     Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('professional.chat.activity');
     Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('professional.chat.unread');
+
+    // Booking Chat Routes for Professional
+    Route::prefix('booking-chat')->name('booking-chat.')->group(function () {
+        Route::post('/initialize', [App\Http\Controllers\BookingChatController::class, 'initializeBookingChat'])->name('initialize');
+        Route::get('/list', [App\Http\Controllers\BookingChatController::class, 'getBookingChats'])->name('list');
+        Route::get('/{bookingId}/messages', [App\Http\Controllers\BookingChatController::class, 'getBookingMessages'])->name('messages');
+        Route::post('/{bookingId}/send', [App\Http\Controllers\BookingChatController::class, 'sendBookingMessage'])->name('send');
+        Route::get('/unread-count', [App\Http\Controllers\BookingChatController::class, 'getUnreadCount'])->name('unread');
+    });
 });
 
 // Routes only for accepted professionals
@@ -52,9 +61,6 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
             ->where('notifiable_id', $professional->id)
             ->where('created_at', '<', $thirtyDaysAgo)
             ->delete();
-
-        // For professional dashboard, we don't show reschedule notifications (they're only in notification icon)
-        // Only get unread notifications for notification icon count, but don't pass reschedule notifications to view
 
         return view('professional.index');
     })->name('dashboard');

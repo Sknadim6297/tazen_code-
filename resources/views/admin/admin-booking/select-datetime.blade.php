@@ -259,34 +259,34 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Selected Bookings -->
-            <div class="card custom-card" id="selected-bookings-card" style="display: none;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="ri-bookmark-line me-2"></i>Selected Bookings
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="selected-bookings"></div>
-                    
-                    <form method="POST" action="{{ route('admin.admin-booking.store-datetime-selection') }}" id="datetime-form">
-                        @csrf
-                        <input type="hidden" name="booking_dates" id="booking-dates-input">
-                        
-                        <div class="row mt-4">
-                            <div class="col-md-12">
-                                <button type="submit" class="btn btn-primary" id="next_btn" disabled>
-                                    <i class="ri-arrow-right-line me-1"></i>Next: Confirm Booking
-                                </button>
-                                <a href="{{ route('admin.admin-booking.select-session') }}" class="btn btn-secondary ms-2">
-                                    <i class="ri-arrow-left-line me-1"></i>Back
-                                </a>
+                    <!-- Selected Bookings -->
+                    <div class="card custom-card" id="selected-bookings-card" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="ri-bookmark-line me-2"></i>Selected Bookings
                             </div>
                         </div>
-                    </form>
+                        <div class="card-body">
+                            <div id="selected-bookings"></div>
+                            
+                            <form method="POST" action="{{ route('admin.admin-booking.store-datetime-selection') }}" id="datetime-form">
+                                @csrf
+                                <input type="hidden" name="booking_dates" id="booking-dates-input">
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary" id="next_btn" disabled>
+                                            <i class="ri-arrow-right-line me-1"></i>Next: Confirm Booking
+                                        </button>
+                                        <a href="{{ route('admin.admin-booking.select-session') }}" class="btn btn-secondary ms-2">
+                                            <i class="ri-arrow-left-line me-1"></i>Back
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

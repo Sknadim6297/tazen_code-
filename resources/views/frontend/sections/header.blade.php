@@ -92,8 +92,8 @@
                 </li>
             @else
                 <li class="d-flex align-items-center gap-2">
-                    <a href="{{ route('login') }}" class="btn_access">Log In</a>
-                    <a href="{{ route('professional.login') }}" class="btn_access green"><i class="fa-solid fa-user-plus"></i> Join as a Professional</a>
+                    <a href="{{ route('login') }}" class="btn_access">Customer Login</a>
+                    <a href="{{ route('professional.login') }}" class="btn_access green"><i class="fa-solid fa-user-plus"></i> Professional Login</a>
                 </li>
             @endif
         </ul>

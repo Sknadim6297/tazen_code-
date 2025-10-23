@@ -105,6 +105,16 @@ class RateController extends Controller
 
         try {
             foreach ($request->input('rateData') as $rate) {
+                // Filter out empty features
+                $features = isset($rate['features']) ? array_values(array_filter($rate['features'], function($feature) {
+                    return !empty(trim($feature));
+                })) : [];
+                
+                // Set to null if no valid features
+                if (empty($features)) {
+                    $features = null;
+                }
+                
                 Rate::create([
                     'professional_id' => $professionalId,
                     'service_id' => $serviceId,
@@ -113,7 +123,7 @@ class RateController extends Controller
                     'num_sessions' => $rate['num_sessions'],
                     'rate_per_session' => $rate['rate_per_session'],
                     'final_rate' => $rate['final_rate'],
-                    'features' => $rate['features'] ?? [],
+                    'features' => $features,
                 ]);
             }
             DB::commit();
@@ -186,6 +196,18 @@ class RateController extends Controller
             'features' => 'nullable|array',
             'features.*' => 'nullable|string|max:255',
         ]);
+
+        // Filter out empty features
+        if (isset($validated['features'])) {
+            $validated['features'] = array_values(array_filter($validated['features'], function($feature) {
+                return !empty(trim($feature));
+            }));
+            
+            // If no valid features remain, set to null
+            if (empty($validated['features'])) {
+                $validated['features'] = null;
+            }
+        }
 
         $rate = Rate::findOrFail($id);
         $rate->update($validated);
