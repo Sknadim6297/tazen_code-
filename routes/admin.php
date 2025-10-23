@@ -124,6 +124,9 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     // Additional routes for professional management
     Route::post('manage-professional/{id}/update-commission', [ManageProfessionalController::class, 'updateCommission'])->name('manage-professional.update-commission');
+    
+    // Send email to customers or professionals
+    Route::post('send-email', [ManageProfessionalController::class, 'sendEmail'])->name('send-email');
 
     // Professional bank details and payment routes
     Route::get('/professional/bank-details/export', [ManageProfessionalController::class, 'exportBankDetails'])->name('professional.bank-details.export');

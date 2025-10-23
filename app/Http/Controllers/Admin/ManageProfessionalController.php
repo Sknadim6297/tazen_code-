@@ -12,6 +12,7 @@ use App\Models\Profile;
 use App\Models\Rate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\ProfessionalDeactivated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -1066,6 +1067,47 @@ class ManageProfessionalController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update commission settings.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send email to customer or professional
+     */
+    public function sendEmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'recipient_email' => 'required|email',
+                'recipient_type' => 'required|in:customer,professional',
+                'subject' => 'required|string|max:255',
+                'message' => 'required|string',
+            ]);
+
+            $recipientEmail = $request->recipient_email;
+            $subject = $request->subject;
+            $messageContent = $request->message;
+            $recipientType = $request->recipient_type;
+
+            // Send email using Laravel's Mail facade
+            Mail::send([], [], function ($message) use ($recipientEmail, $subject, $messageContent) {
+                $message->to($recipientEmail)
+                    ->subject($subject)
+                    ->html($messageContent);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email sent successfully to ' . ucfirst($recipientType) . '!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Email sending failed: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send email. Please check your email configuration.',
                 'error' => $e->getMessage()
             ], 500);
         }
