@@ -352,30 +352,35 @@
 @php
     /**
      * Format plan type for display (e.g., "one_time" becomes "One Time")
+     *
+     * Wrapped in function_exists check to avoid redeclaration when views are
+     * compiled multiple times or included from other templates.
      */
-    function formatPlanType($planType) {
-        if (empty($planType)) return null;
-        
-        // Handle special case for "one_time"
-        if (strtolower($planType) == 'one_time') {
-            return 'One Time';
+    if (! function_exists('formatPlanType')) {
+        function formatPlanType($planType) {
+            if (empty($planType)) return null;
+
+            // Handle special case for "one_time"
+            if (strtolower($planType) == 'one_time') {
+                return 'One Time';
+            }
+            if( strtolower($planType) == 'no_plan') {
+                return 'No Plan';
+            }
+            if( strtolower($planType) == 'monthly') {
+                return 'Monthly';
+            }
+            if ( strtolower($planType) == 'quarterly') {
+                return 'Quarterly';
+            }
+            if ( strtolower($planType) == 'free_hand') {
+                return 'Free Hand';
+            }
+
+            // Replace underscores with spaces and capitalize each word
+            $planType = str_replace('_', ' ', $planType);
+            return ucwords($planType);
         }
-        if( strtolower($planType) == 'no_plan') {
-            return 'No Plan';
-        }
-        if( strtolower($planType) == 'monthly') {
-            return 'Monthly';
-        }
-        if ( strtolower($planType) == 'quarterly') {
-            return 'Quarterly';
-        }
-        if ( strtolower($planType) == 'free_hand') {
-            return 'Free Hand';
-        }
-        
-        // Replace underscores with spaces and capitalize each word
-        $planType = str_replace('_', ' ', $planType);
-        return ucwords($planType);
     }
 @endphp
             <!-- Plan Type Filter -->
@@ -449,7 +454,6 @@
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
                     <th>Details</th>
-                    <th>Chat</th>
                 </tr>
             </thead>
             <tbody>
@@ -539,23 +543,6 @@
                         <td>
                             <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
                                 View Details
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="openBookingChat({{ $booking->id }})">
-                                <i class="fas fa-comments"></i>
-                                @php
-                                    $unreadCount = 0;
-                                    if($booking->chat) {
-                                        $unreadCount = $booking->chat->messages()
-                                            ->where('is_read', false)
-                                            ->where('sender_type', 'professional')
-                                            ->count();
-                                    }
-                                @endphp
-                                @if($unreadCount > 0)
-                                    <span class="badge bg-danger">{{ $unreadCount }}</span>
-                                @endif
                             </button>
                         </td>
                     </tr>
@@ -841,11 +828,7 @@ $(window).on('click', function (e) {
     }
 });
 
-// ==================== BOOKING CHAT FUNCTIONALITY ====================
-let currentBookingChatId = null;
-let currentChatId = null;
-let messageCheckInterval = null;
-let isPolling = false; // Prevent multiple polling
+
 
 function openBookingChat(bookingId) {
     // Prevent opening multiple chats
@@ -1087,69 +1070,5 @@ $(window).off('click.chatModal').on('click.chatModal', function (e) {
 });
 
 </script>
-
-<!-- Booking Chat Modal -->
-<div id="bookingChatModal" class="custom-modal">
-    <div class="custom-modal-content" style="max-width: 600px;">
-        <div class="modal-header" style="border-bottom: 1px solid #ddd; padding: 15px;">
-            <div id="chatModalTitle" style="flex: 1;">Chat with Professional</div>
-            <span class="close-modal" id="closeChatModal" style="font-size: 24px; cursor: pointer;">&times;</span>
-        </div>
-        <div class="modal-body" style="padding: 15px;">
-            <div id="chatMessages" style="height: 400px; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <!-- Messages will be loaded here -->
-            </div>
-            <div id="selectedFileName" style="color: #007bff; margin-bottom: 10px; min-height: 20px; font-size: 14px;"></div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
-                <button type="button" onclick="$('#chatFileInput').click()" class="btn btn-secondary" style="min-width: 45px;">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <input type="text" id="chatMessageInput" class="form-control" placeholder="Type your message..." style="flex: 1;">
-                <button id="sendMessageBtn" class="btn btn-primary" style="min-width: 80px;">
-                    <i class="fas fa-paper-plane"></i> Send
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-.chat-message {
-    margin-bottom: 12px;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 70%;
-}
-
-.message-own {
-    background-color: #007bff;
-    color: white;
-    margin-left: auto;
-    text-align: right;
-}
-
-.message-other {
-    background-color: #e9ecef;
-    color: #333;
-    margin-right: auto;
-}
-
-.message-sender {
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
-}
-
-.message-content {
-    margin-bottom: 4px;
-    word-wrap: break-word;
-}
-
-.message-time {
-    font-size: 0.75rem;
-    opacity: 0.7;
-}
-</style>
 
 @endsection

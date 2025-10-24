@@ -19,7 +19,7 @@
                     </nav>
                 </div>
             </div>
-         <form action="{{ route('admin.manage-customer.index') }}" method="GET" class="d-flex gap-2">
+         <form id="customer-filter-form" action="{{ route('admin.manage-customer.index') }}" method="GET" class="d-flex gap-2">
            <div class="col-xl-6">
         <div class="card-body">
             <div class="form-group">
@@ -190,13 +190,23 @@
             const submitBtn = $('#sendEmailBtn');
             const originalBtnText = submitBtn.html();
             
+            // Get form data
+            const formData = {
+                recipient_email: $('#recipientEmail').val(),
+                recipient_type: $('#recipientType').val(),
+                subject: $('#emailSubject').val(),
+                message: $('#emailMessage').val(),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
+            
             // Disable button and show loading state
             submitBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin me-1"></i>Sending...');
             
             $.ajax({
                 url: '{{ route("admin.send-email") }}',
                 method: 'POST',
-                data: $(this).serialize(),
+                data: formData,
+                dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         toastr.success(response.message || 'Email sent successfully!');

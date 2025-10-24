@@ -82,14 +82,6 @@
             @endphp
             
             <div class="header-actions">
-                <!-- Chat Icon -->
-                <div class="header-icon chat-icon" id="chatIcon" title="Chat with Admin">
-                    <button type="button" class="chat-btn" data-participant-type="admin" data-participant-id="1">
-                        <i class="fas fa-comments"></i>
-                        <span id="chatUnreadBadge" class="notification-badge" style="display: none;">0</span>
-                    </button>
-                </div>
-                
                 <!-- Notification Icon -->
                 <div class="header-icon notification-icon" id="notificationIcon">
                     <i class="fas fa-bell"></i>
@@ -427,24 +419,6 @@
     .header-icon.notification-icon:hover {
         background: #f39c12;
         box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
-    }
-
-    .header-icon.chat-icon:hover {
-        background: #9b59b6;
-        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
-    }
-
-    .header-icon.chat-icon button {
-        background: none;
-        border: none;
-        color: inherit;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        cursor: pointer;
     }
 
     .header-icon i {

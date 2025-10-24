@@ -33,8 +33,7 @@ class AppointmentController extends Controller
             },
             'professional' => function ($q) {
                 $q->select('id', 'name');
-            },
-            'chat.messages'
+            }
         ])
         ->where('user_id', Auth::guard('user')->id());
         if ($request->filled('search_name')) {

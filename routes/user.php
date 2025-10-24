@@ -87,21 +87,4 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
         ->name('billing.export-all');
-
-    // Chat Routes for Customer/User
-    Route::post('/chat/initialize', [App\Http\Controllers\ChatController::class, 'initializeChat'])->name('user.chat.initialize');
-    Route::get('/chat/{chatId}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('user.chat.messages');
-    Route::post('/chat/{chatId}/send', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('user.chat.send');
-    Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('user.chat.list');
-    Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('user.chat.activity');
-    Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('user.chat.unread');
-
-    // Booking Chat Routes for Customer
-    Route::prefix('booking-chat')->name('booking-chat.')->group(function () {
-        Route::post('/initialize', [App\Http\Controllers\BookingChatController::class, 'initializeBookingChat'])->name('initialize');
-        Route::get('/list', [App\Http\Controllers\BookingChatController::class, 'getBookingChats'])->name('list');
-        Route::get('/{bookingId}/messages', [App\Http\Controllers\BookingChatController::class, 'getBookingMessages'])->name('messages');
-        Route::post('/{bookingId}/send', [App\Http\Controllers\BookingChatController::class, 'sendBookingMessage'])->name('send');
-        Route::get('/unread-count', [App\Http\Controllers\BookingChatController::class, 'getUnreadCount'])->name('unread');
-    });
 });

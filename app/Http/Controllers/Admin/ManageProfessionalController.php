@@ -12,7 +12,6 @@ use App\Models\Profile;
 use App\Models\Rate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use App\Mail\ProfessionalDeactivated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -1103,12 +1102,9 @@ class ManageProfessionalController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Email sending failed: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send email. Please check your email configuration.',
-                'error' => $e->getMessage()
+                'message' => 'Failed to send email. Please check your email configuration.'
             ], 500);
         }
     }

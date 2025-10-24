@@ -375,12 +375,4 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/{id}/update-service-price', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'updateServicePrice'])->name('update-service-price');
         Route::get('/{id}/price-history', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getPriceHistory'])->name('price-history');
     });
-
-    // Chat Routes for Admin
-    Route::post('/chat/initialize', [App\Http\Controllers\ChatController::class, 'initializeChat'])->name('admin.chat.initialize');
-    Route::get('/chat/{chatId}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('admin.chat.messages');
-    Route::post('/chat/{chatId}/send', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('admin.chat.send');
-    Route::get('/chat/list', [App\Http\Controllers\ChatController::class, 'getChatList'])->name('admin.chat.list');
-    Route::post('/chat/update-activity', [App\Http\Controllers\ChatController::class, 'updateActivity'])->name('admin.chat.activity');
-    Route::get('/chat/unread-count', [App\Http\Controllers\ChatController::class, 'getUnreadCount'])->name('admin.chat.unread');
 });

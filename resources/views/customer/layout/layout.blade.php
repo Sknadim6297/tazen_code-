@@ -150,9 +150,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Chat System -->
-    @include('components.chat-modal')
-    <script src="{{ asset('js/chat-system.js') }}"></script>
+    <!-- Chat System removed -->
     <script>
         // Toggle sidebar on mobile
         document.querySelector('.toggle-sidebar').addEventListener('click', function () {

@@ -88,40 +88,7 @@
         border-top: 1px solid #e9ecef;
     }
 
-    .btn-chat {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.6rem 1.5rem;
-        border-radius: 25px;
-        border: none;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .btn-chat:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-chat i {
-        font-size: 1.1rem;
-    }
-
-    .chat-badge {
-        background: #dc3545;
-        color: white;
-        border-radius: 50%;
-        padding: 0.2rem 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-left: 0.25rem;
-    }
-
-    .no-bookings {
+    .   no-bookings {
         text-align: center;
         padding: 3rem;
         background: white;
@@ -184,19 +151,6 @@
                             <span class="detail-value">₹{{ number_format($booking->amount, 2) }}</span>
                         </div>
                     </div>
-
-                    <div class="booking-actions">
-                        <button class="btn-chat" onclick="openBookingChat({{ $booking->id }})" data-booking-id="{{ $booking->id }}">
-                            <i class="ri-message-3-line"></i>
-                            Chat with Professional
-                            @php
-                                $unreadCount = $booking->chat ? $booking->chat->messages()->where('sender_type', 'professional')->where('is_read', false)->count() : 0;
-                            @endphp
-                            @if($unreadCount > 0)
-                                <span class="chat-badge">{{ $unreadCount }}</span>
-                            @endif
-                        </button>
-                    </div>
                 </div>
                 @endforeach
 
@@ -215,42 +169,17 @@
     </div>
 </div>
 
-<!-- Chat Modal -->
-<div class="modal fade" id="bookingChatModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chatModalTitle">Chat with Professional</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="height: 500px; overflow-y: auto;" id="chatMessages">
-                <!-- Messages will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="chatMessageInput" placeholder="Type your message...">
-                    <button class="btn btn-primary" type="button" id="sendMessageBtn">
-                        <i class="ri-send-plane-fill"></i> Send
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @section('scripts')
 <script>
-let currentBookingId = null;
-let currentChatId = null;
-let messageCheckInterval = null;
-
-function openBookingChat(bookingId) {
-    currentBookingId = bookingId;
-    
-    // Initialize chat
-    fetch(`/user/booking-chat/initialize`, {
-        method: 'POST',
+@section('scripts')
+<script>
+// Your other JavaScript code can go here if needed
+</script>
+@endsection
+</script>
+@endsection
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content

@@ -730,8 +730,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Add submit handler for the form
-        $('form').on('submit', function(e) {
+        // Add submit handler for the FILTER form only (not email form)
+        $('#filter-form').on('submit', function(e) {
             e.preventDefault();
             let searchTerm = $('#autoComplete').val();
             let specializationFilter = $('#specializationFilter').val();
@@ -754,26 +754,26 @@
         $('#autoComplete').on('keyup', function() {
             if($(this).val().length >= 3 || $(this).val().length === 0) {
                 setTimeout(function() {
-                    $('form').submit();
+                    $('#filter-form').submit();
                 }, 500);
             }
         });
 
         $('#specializationFilter').on('change', function() {
-            $('form').submit();
+            $('#filter-form').submit();
         });
 
         $('#start_date, #end_date').on('change', function() {
             // Only trigger if both dates have values
             if($('#start_date').val() && $('#end_date').val()) {
-                $('form').submit();
+                $('#filter-form').submit();
             }
         });
 
         // Function to fetch data based on filters
         function filterData(startDate = '', endDate = '', searchTerm = '', specializationFilter = '', page = 1) {
             // Show loading indicator
-            $('#professional-table-body').html('<tr><td colspan="11" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
+            $('#professional-table-body').html('<tr><td colspan="12" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
             
             // Format dates to ensure they're in YYYY-MM-DD format for backend
             if (startDate) {
@@ -800,7 +800,7 @@
                     let professionalsHtml = '';
                     
                     if (response.professionals.data.length === 0) {
-                        professionalsHtml = '<tr><td colspan="11" class="text-center">No professionals found matching your criteria</td></tr>';
+                        professionalsHtml = '<tr><td colspan="12" class="text-center">No professionals found matching your criteria</td></tr>';
                     } else {
                         $.each(response.professionals.data, function(index, professional) {
                             // Generate specialization HTML
@@ -857,6 +857,15 @@
                                     <td><span class="fw-medium">${index + 1}</span></td>
                                     <td><span class="fw-medium">${professional.name}</span></td>
                                     <td><span class="fw-medium">${professional.email}</span></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info send-email-btn" 
+                                            data-email="${professional.email}" 
+                                            data-name="${professional.name}"
+                                            data-type="professional"
+                                            title="Send Email">
+                                            <i class="ri-mail-send-line"></i> Email
+                                        </button>
+                                    </td>
                                     <td>${specializationHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
@@ -1091,8 +1100,6 @@
 
         // Export data function
         window.exportData = function(type) {
-            console.log('Export requested:', type); // Debug message
-            
             // Set the export type
             document.getElementById('export-type').value = type;
             
@@ -1151,13 +1158,23 @@
             const submitBtn = $('#sendEmailBtn');
             const originalBtnText = submitBtn.html();
             
+            // Get form data
+            const formData = {
+                recipient_email: $('#recipientEmail').val(),
+                recipient_type: $('#recipientType').val(),
+                subject: $('#emailSubject').val(),
+                message: $('#emailMessage').val(),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
+            
             // Disable button and show loading state
             submitBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin me-1"></i>Sending...');
             
             $.ajax({
                 url: '{{ route("admin.send-email") }}',
                 method: 'POST',
-                data: $(this).serialize(),
+                data: formData,
+                dataType: 'json',
                 success: function(response) {
                     if (response.success) {
                         toastr.success(response.message || 'Email sent successfully!');

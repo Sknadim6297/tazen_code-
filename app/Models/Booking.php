@@ -102,15 +102,6 @@ class Booking extends Model
     {
         return $this->belongsTo(SubService::class, 'sub_service_id');
     }
-
-    /**
-     * Get the chat associated with this booking
-     */
-    public function chat()
-    {
-        return $this->hasOne(Chat::class, 'booking_id');
-    }
-    
     public function additionalServices()
     {
         return $this->hasMany(AdditionalService::class);

@@ -506,7 +506,6 @@
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                     <th>Customer Document</th>
-                                    <th>Chat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -646,19 +645,6 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="openBookingChat({{ $booking->id }})" title="Chat with {{ $booking->customer_name }}">
-                                        <i class="fas fa-comments"></i>
-                                        @php
-                                            $unreadCount = $booking->chat ? $booking->chat->messages()->where('sender_type', 'customer')->where('is_read', false)->count() : 0;
-                                        @endphp
-                                        @if($unreadCount > 0)
-                                            <span class="badge bg-danger">{{ $unreadCount }}</span>
-                                        @endif
-                                    </button>
-                                </td>
-                                
-                                
                             </tr>
                             
                             @endforeach
@@ -716,33 +702,7 @@
         <div style="padding: 0 1rem 1rem 1rem;">
             <div id="selectedFileName" style="color: #007bff; margin-bottom: 10px; min-height: 20px; font-size: 14px;"></div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
-                <button type="button" onclick="document.getElementById('chatFileInput').click()" style="padding: 0.75rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; min-width: 45px;">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <input type="text" id="chatMessageInput" placeholder="Type your message..." style="flex: 1; padding: 0.75rem; border: 1px solid #dee2e6; border-radius: 4px;">
-                <button id="sendMessageBtn" onclick="sendChatMessage()" style="padding: 0.75rem 1.5rem; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    <i class="fas fa-paper-plane"></i> Send
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Upload Modal -->
-<div id="uploadModal" class="upload-modal">
-    <div class="upload-modal-content">
-        <span class="close-upload-modal">&times;</span>
-        <div class="upload-modal-header">
-            <h4>Upload Document</h4>
-        </div>
-        <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" id="booking_id" name="booking_id">
-            <div class="form-group">
-                <label for="document">Select PDF Document (Max 2MB)</label>
-                <input type="file" name="document" id="document" accept=".pdf" required>
-            </div>
             <button type="submit" class="btn-upload">Upload Document</button>
         </form>
     </div>
@@ -1200,208 +1160,6 @@ uploadForm.onsubmit = function(e) {
         toastr.error('An error occurred while uploading');
     });
 };
-
-// ===== BOOKING CHAT FUNCTIONALITY =====
-let currentBookingChatId = null;
-let currentChatId = null;
-let messageCheckInterval = null;
-let isPolling = false; // Prevent multiple polling
-
-function openBookingChat(bookingId) {
-    // Prevent opening multiple chats
-    if(currentBookingChatId === bookingId && document.getElementById('bookingChatModal').style.display === 'block') {
-        return;
-    }
-    
-    // Clear any existing interval
-    if(messageCheckInterval) {
-        clearInterval(messageCheckInterval);
-        messageCheckInterval = null;
-    }
-    
-    currentBookingChatId = bookingId;
-    isPolling = false;
-    
-    // Initialize chat
-    fetch(`/professional/booking-chat/initialize`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ booking_id: bookingId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            currentChatId = data.chat_id;
-            
-            // Enhanced title with booking context
-            document.getElementById('chatModalTitle').innerHTML = `
-                <div>
-                    <strong>${data.booking.service_name}</strong><br>
-                    <small style="font-weight: normal; opacity: 0.8;">
-                        Chat with ${data.participant.name} (${data.participant.type})
-                    </small>
-                </div>
-            `;
-            
-            // Load messages
-            loadChatMessages(bookingId);
-            
-            // Show modal
-            document.getElementById('bookingChatModal').style.display = 'block';
-            
-            // Start polling only if not already polling
-            if(!messageCheckInterval && !isPolling) {
-                isPolling = true;
-                messageCheckInterval = setInterval(() => {
-                    if(document.getElementById('bookingChatModal').style.display === 'block') {
-                        loadChatMessages(bookingId);
-                    }
-                }, 3000);
-            }
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
-
-function loadChatMessages(bookingId) {
-    fetch(`/professional/booking-chat/${bookingId}/messages`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displayChatMessages(data.messages);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-function displayChatMessages(messages) {
-    const chatContainer = document.getElementById('chatMessages');
-    let html = '';
-    
-    if(messages.length === 0) {
-        html = '<div style="text-align: center; color: #999; padding: 20px;">No messages yet. Start the conversation!</div>';
-    } else {
-        messages.forEach(msg => {
-            const isOwnMessage = msg.sender_type === 'professional';
-            const senderName = msg.sender_name || (isOwnMessage ? 'You' : 'Customer');
-            
-            let messageContent = '';
-            
-            // Handle different message types
-            if(msg.message_type === 'image' && msg.file_path) {
-                messageContent = `
-                    <img src="/storage/${msg.file_path}" alt="Image" style="max-width: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('/storage/${msg.file_path}', '_blank')">
-                    <div>${msg.message}</div>
-                `;
-            } else if(msg.message_type === 'file' && msg.file_path) {
-                const fileName = msg.file_path.split('/').pop();
-                messageContent = `
-                    <a href="/storage/${msg.file_path}" target="_blank" style="color: inherit; text-decoration: underline;">
-                        <i class="fas fa-file"></i> ${fileName}
-                    </a>
-                    <div>${msg.message}</div>
-                `;
-            } else {
-                messageContent = msg.message;
-            }
-            
-            html += `
-                <div style="margin-bottom: 1rem; ${isOwnMessage ? 'text-align: right;' : 'text-align: left;'}">
-                    <div style="display: inline-block; ${isOwnMessage ? 'background: #0d6efd; color: white;' : 'background: #f8f9fa;'} padding: 0.75rem; border-radius: 10px; max-width: 70%;">
-                        <small style="opacity: 0.8; font-weight: bold;">${senderName}</small>
-                        <div>${messageContent}</div>
-                        <small style="opacity: 0.7; font-size: 0.75rem;">${msg.formatted_time}</small>
-                    </div>
-                </div>
-            `;
-        });
-    }
-    
-    chatContainer.innerHTML = html;
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function sendChatMessage() {
-    const input = document.getElementById('chatMessageInput');
-    const fileInput = document.getElementById('chatFileInput');
-    const message = input.value.trim();
-    const file = fileInput?.files[0];
-    
-    if ((!message && !file) || !currentBookingChatId) return;
-    
-    const formData = new FormData();
-    if(message) formData.append('message', message);
-    if(file) formData.append('file', file);
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-    
-    // Disable send button
-    const sendBtn = document.getElementById('sendMessageBtn');
-    sendBtn.disabled = true;
-    
-    fetch(`/professional/booking-chat/${currentBookingChatId}/send`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            input.value = '';
-            if(fileInput) {
-                fileInput.value = '';
-                document.getElementById('selectedFileName').textContent = '';
-            }
-            loadChatMessages(currentBookingChatId);
-        }
-    })
-    .catch(error => console.error('Error:', error))
-    .finally(() => {
-        sendBtn.disabled = false;
-    });
-}
-
-// Show selected file name
-document.addEventListener('change', function(e) {
-    if(e.target.id === 'chatFileInput') {
-        const fileName = e.target.files[0]?.name || '';
-        document.getElementById('selectedFileName').textContent = fileName ? `📎 ${fileName}` : '';
-    }
-});
-
-// Close modal
-function closeChatModal() {
-    document.getElementById('bookingChatModal').style.display = 'none';
-    if (messageCheckInterval) {
-        clearInterval(messageCheckInterval);
-        messageCheckInterval = null;
-        isPolling = false;
-    }
-    currentBookingChatId = null;
-    currentChatId = null;
-}
-
-// Send message on Enter key
-document.addEventListener('keypress', function(e) {
-    if(e.target.id === 'chatMessageInput' && e.key === 'Enter') {
-        sendChatMessage();
-    }
-});
-
-// Close modal on outside click
-window.addEventListener('click', function(e) {
-    if(e.target.id === 'bookingChatModal') {
-        closeChatModal();
-    }
-});
-
-// Send message on Enter key
-document.getElementById('chatMessageInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendChatMessage();
-    }
-});
 
 </script>
 @endsection
