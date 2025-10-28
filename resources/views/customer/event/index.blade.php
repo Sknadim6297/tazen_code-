@@ -559,7 +559,11 @@
                                     @endif
                                 </div>
                                 
-                                @if($booking->gmeet_link)
+                                @if($booking->event && $booking->event->meet_link)
+                                    <a href="{{ $booking->event->meet_link }}" target="_blank" class="join-btn">
+                                        <i class="fas fa-video"></i> Join Event
+                                    </a>
+                                @elseif($booking->gmeet_link)
                                     <a href="{{ $booking->gmeet_link }}" target="_blank" class="join-btn">
                                         <i class="fas fa-video"></i> Join Event
                                     </a>
@@ -614,7 +618,11 @@
                                         <span class="price-text">₹{{ number_format($booking->total_price, 2) }}</span>
                                     </td>
                                     <td>
-                                        @if($booking->gmeet_link)
+                                        @if($booking->event && $booking->event->meet_link)
+                                            <a href="{{ $booking->event->meet_link }}" target="_blank" class="join-btn">
+                                                <i class="fas fa-video"></i> Join
+                                            </a>
+                                        @elseif($booking->gmeet_link)
                                             <a href="{{ $booking->gmeet_link }}" target="_blank" class="join-btn">
                                                 <i class="fas fa-video"></i> Join
                                             </a>

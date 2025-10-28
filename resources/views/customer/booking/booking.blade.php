@@ -294,16 +294,19 @@ document.addEventListener('DOMContentLoaded', function () {
                                 console.debug('PAYMENT: Payment verification response:', data);
                                 if (data.status === 'success') {
                                     console.debug('PAYMENT: Verification successful, checking MCQ questions...');
+                                    console.debug('PAYMENT: Response data:', JSON.stringify(data));
                                     
-                                    // EMERGENCY FALLBACK: Try direct success flow first
-                                    try {
-                                        // Check for MCQ questions after successful payment
-                                        checkAndShowMCQQuestions(data);
-                                    } catch (mcqError) {
-                                        console.error('PAYMENT: MCQ check failed, using emergency fallback:', mcqError);
-                                        // Emergency fallback - close loader and show success modal then redirect
-                                        Swal.close();
-                                        setTimeout(() => {
+                                    // Important: Close the payment processing loader first
+                                    Swal.close();
+                                    
+                                    // Wait a brief moment before starting MCQ flow to ensure clean state
+                                    setTimeout(() => {
+                                        try {
+                                            // Check for MCQ questions after successful payment
+                                            checkAndShowMCQQuestions(data);
+                                        } catch (mcqError) {
+                                            console.error('PAYMENT: MCQ check failed, using emergency fallback:', mcqError);
+                                            // Emergency fallback - show success modal then redirect
                                             Swal.fire({
                                                 title: 'Booking Confirmed!',
                                                 text: 'Your payment was successful and booking is confirmed.',
@@ -316,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 console.debug('PAYMENT: Emergency redirect to:', data.redirect_url);
                                                 window.location.href = data.redirect_url || "{{ route('user.booking.success') }}";
                                             });
-                                        }, 500);
-                                    }
+                                        }
+                                    }, 300); // Small delay for clean state transition
                                 } else {
                                     console.error('PAYMENT: Verification failed:', data);
                                     // Close the loader before showing error
@@ -627,6 +630,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // MCQ Functions
     function checkAndShowMCQQuestions(bookingData) {
         console.debug('MCQ: checkAndShowMCQQuestions called', bookingData);
+        console.debug('MCQ: bookingData keys:', Object.keys(bookingData));
+        console.debug('MCQ: professional_id:', bookingData.professional_id);
+        console.debug('MCQ: redirect_url:', bookingData.redirect_url);
+        
         // Use professional_id from the payment response instead of session
         if (!bookingData.professional_id) {
             console.debug('MCQ: No professional_id in response, proceeding to success page');
@@ -650,19 +657,24 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(res => {
             console.debug('MCQ: MCQ fetch response status:', res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
             return res.json();
         })
         .then(data => {
             console.debug('MCQ: MCQ fetch response data:', data);
             if (data.status === 'success' && data.mcq_questions && data.mcq_questions.length > 0) {
-                console.debug('MCQ: Found MCQ questions, showing modal');
-                // Close payment success modal and show MCQ modal
-                Swal.close();
+                console.debug('MCQ: Found', data.mcq_questions.length, 'MCQ questions, showing modal');
+                // Show MCQ modal
                 showMCQModal(data.mcq_questions, data.service_id, bookingData);
             } else {
                 console.debug('MCQ: No MCQ questions found, proceeding to success page');
-                // No MCQ questions, proceed to success page
-                proceedToSuccessPage(bookingData);
+                // No MCQ questions, show success modal and proceed
+                showSuccessModal('Booking confirmed successfully!');
+                setTimeout(() => {
+                    proceedToSuccessPage(bookingData);
+                }, 2000);
             }
         })
         .catch(error => {
@@ -701,12 +713,10 @@ document.addEventListener('DOMContentLoaded', function () {
         console.debug('MCQ: redirect_url:', bookingData.redirect_url);
         
         // Ensure we have a redirect URL
-        if (!bookingData.redirect_url) {
-            console.error('MCQ: No redirect_url provided, using fallback');
-            bookingData.redirect_url = "{{ route('user.booking.success') }}";
-        }
+        const redirectUrl = bookingData.redirect_url || "{{ route('user.booking.success') }}";
+        console.debug('MCQ: Final redirect URL:', redirectUrl);
         
-        // Update loader to show success message
+        // Show final success message before redirect
         Swal.fire({
             title: 'Booking Confirmed!',
             text: 'Redirecting to success page...',
@@ -722,8 +732,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 popup: 'animate__animated animate__fadeOutUp animate__faster'
             }
         }).then(() => {
-            console.debug('MCQ: Redirecting to:', bookingData.redirect_url);
-            window.location.href = bookingData.redirect_url;
+            console.debug('MCQ: Executing redirect to:', redirectUrl);
+            // Force redirect
+            window.location.href = redirectUrl;
         });
     }
 

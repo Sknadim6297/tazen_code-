@@ -20,6 +20,7 @@ class AllEvent extends Model
         'status',
         'admin_notes',
         'meet_link',
+        'show_on_homepage',
         'approved_by',
         'approved_at',
         'created_by_type',
@@ -28,6 +29,7 @@ class AllEvent extends Model
     protected $casts = [
         'approved_at' => 'datetime',
         'starting_fees' => 'decimal:2',
+        'show_on_homepage' => 'boolean',
     ];
 
     /**

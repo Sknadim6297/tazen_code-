@@ -2,221 +2,89 @@
 
 @section('styles')
 <style>
-    .form-container { background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-top:20px; }
-    .form-row { display:flex;flex-wrap:wrap;margin-bottom:20px; }
-    .form-col { flex:1;padding-right:15px; }
-    .form-col:last-child { padding-right:0; }
-    .form-group { margin-bottom:20px; }
-    .form-group label { display:block;margin-bottom:8px;font-weight:600;color:#333; }
-    .form-control { width:100%;padding:12px;border:2px solid #e1e5e9;border-radius:8px;font-size:14px; }
-    .form-control:focus { outline:none;border-color:#0d67c7;box-shadow:0 0 0 3px rgba(13,103,199,0.1); }
-    .btn-submit { background:linear-gradient(135deg,#0d67c7 0%,#1a73e8 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:600; }
-    @media (max-width:768px) { .form-col{flex:100%;padding-right:0;} }
-    #imagePreview{display:none;margin-bottom:10px;} #imagePreview img{max-width:240px;border-radius:8px}
-</style>
-@endsection
-
-@section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title"><h3>Create Event</h3></div>
-        <ul class="breadcrumb"><li>Home</li><li><a href="{{ route('professional.events.index') }}">Events</a></li><li class="active">Create Event</li></ul>
-    </div>
-
-    <div class="form-container">
-        <form id="eventForm" action="{{ route('professional.events.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="card_image">Event Image *</label>
-                        <input type="file" name="card_image" id="card_image" class="form-control" required accept="image/*">
-                        <small class="text-muted">Upload an image for your event (JPEG, PNG, JPG, GIF, max 2MB)</small>
-                    </div>
-                </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="date">Event Date *</label>
-                        <input type="date" name="date" id="date" class="form-control" required min="{{ date('Y-m-d', strtotime('+1 day')) }}" value="{{ old('date') }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="mini_heading">Event Type *</label>
-                        <input type="text" name="mini_heading" id="mini_heading" class="form-control" required maxlength="100" placeholder="e.g., Workshop, Seminar, Training" value="{{ old('mini_heading') }}">
-                    </div>
-                </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="starting_fees">Starting Fees (₹) *</label>
-                        <input type="number" name="starting_fees" id="starting_fees" class="form-control" required min="0" step="0.01" placeholder="0.00" value="{{ old('starting_fees') }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-col" style="flex:100%;">
-                    <div class="form-group">
-                        <label for="heading">Event Name *</label>
-                        <input type="text" name="heading" id="heading" class="form-control" required maxlength="150" placeholder="Enter event name" value="{{ old('heading') }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-col" style="flex:100%;">
-                    <div class="form-group">
-                        <label for="short_description">Event Description *</label>
-                        <textarea name="short_description" id="short_description" class="form-control" rows="6" required maxlength="1000" placeholder="Describe your event in detail...">{{ old('short_description') }}</textarea>
-                        <div class="form-text"><span id="charCount">0</span>/1000 characters</div>
-                        @error('short_description')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-col" style="flex:100%;text-align:center;">
-                    <button type="submit" class="btn-submit">Create Event</button>
-                    <a href="{{ route('professional.events.index') }}" style="background-color:#6c757d;color:#fff;padding:12px 30px;border-radius:8px;text-decoration:none;margin-left:15px;display:inline-block;">Cancel</a>
-                </div>
-            </div>
-        </form>
-
-        <div id="imagePreview"><img id="previewImg" src="" alt="Preview"></div>
-    </div>
-</div>
-
-@section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Submit button UX
-    document.getElementById('eventForm').addEventListener('submit', function() {
-        const submitBtn = document.querySelector('.btn-submit');
-        submitBtn.textContent = 'Creating...';
-        submitBtn.disabled = true;
-    });
-
-    // Character counter
-    const textarea = document.getElementById('short_description');
-    const charCount = document.getElementById('charCount');
-    function updateCharCount() {
-        const count = textarea.value.length; charCount.textContent = count;
-        if (count > 950) { charCount.className = 'text-danger'; }
-        else if (count > 800) { charCount.className = 'text-warning'; }
-        else { charCount.className = ''; }
-    }
-    textarea.addEventListener('input', updateCharCount); updateCharCount();
-
-    // Image preview
-    const imageInput = document.getElementById('card_image');
-    const preview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) { const reader = new FileReader(); reader.onload = function(ev){ previewImg.src = ev.target.result; preview.style.display = 'block'; }; reader.readAsDataURL(file); }
-        else { preview.style.display = 'none'; }
-    });
-
-    // Simple client-side required validation
-    const form = document.getElementById('eventForm');
-    form.addEventListener('submit', function(e) {
-        const requiredFields = form.querySelectorAll('[required]'); let isValid = true;
-        requiredFields.forEach(field => { if (!field.value || !String(field.value).trim()) { isValid = false; field.classList.add('is-invalid'); } else { field.classList.remove('is-invalid'); } });
-        if (!isValid) { e.preventDefault(); alert('Please fill in all required fields.'); }
-    });
-});
-</script>
-@endsection
-
-@ex<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Create Event</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li><a href="{{ route('professional.events.index') }}">Events</a></li>
-            <li class="active">Create Event</li>
-        </ul>
-    </div>al.layout.layout')
-
-@section('styles')
-<style>
-    .form-container {
-        background: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        margin-top: 20px;
-    }
-
-    .form-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-
-    .form-col {
-        flex: 1;
-        padding-right: 15px;
-    }
-
-    .form-col:last-child {
-        padding-right: 0;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #0d67c7;
-        box-shadow: 0 0 0 3px rgba(13, 103, 199, 0.1);
-    }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #0d67c7 0%, #1a73e8 100%);
-        color: white;
-        padding: 12px 30px;
+    .custom-card {
         border: none;
-        border-radius: 8px;
-        font-size: 16px;
+        border-radius: 15px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .custom-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+    
+    .form-control:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        outline: none;
+    }
+    
+    .form-label {
         font-weight: 600;
-        cursor: pointer;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
         transition: all 0.3s ease;
     }
-
-    .btn-submit:hover {
+    
+    .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(13, 103, 199, 0.3);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
     }
-
-    @media (max-width: 768px) {
-        .form-col {
-            flex: 100%;
-            padding-right: 0;
-        }
+    
+    .page-title {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+    
+    .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 16px 20px;
+    }
+    
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    #imagePreview {
+        display: none;
+        margin-top: 15px;
+    }
+    
+    #imagePreview img {
+        max-width: 200px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 </style>
 @endsection
@@ -241,108 +109,102 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <!-- Create Event Form -->
-        <div class="form-container">
-            <form id="eventForm" action="{{ route('professional.events.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="card_image">Event Image *</label>
-                            <input type="file" name="card_image" id="card_image" class="form-control" required accept="image/*">
-                            <small class="text-muted">Upload an image for your event (JPEG, PNG, JPG, GIF, max 2MB)</small>
+        <div class="row justify-content-center">
+            <div class="col-xl-8">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="ri-add-line me-2"></i>Create New Event
+                        </div>
+                        <div>
+                            <span class="badge bg-info-transparent">
+                                <i class="ri-draft-line me-1"></i>Draft
+                            </span>
                         </div>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="date">Event Date *</label>
-                            <input type="date" name="date" id="date" class="form-control" required min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                    <div class="card-body">
+                        <!-- Information Alert -->
+                        <div class="alert alert-info" role="alert">
+                            <h6 class="alert-heading"><i class="ri-information-line me-2"></i>Event Creation Guidelines</h6>
+                            <ul class="mb-0">
+                                <li>Your event will be reviewed by admin before going live</li>
+                                <li>Ensure all information is accurate and complete</li>
+                                <li>Event date must be today or in the future</li>
+                                <li>Upload a high-quality event image for better visibility</li>
+                            </ul>
                         </div>
-                    </div>
-                </div>
+                        <form action="{{ route('professional.events.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <div class="row gy-4">
+                                <!-- Event Image -->
+                                <div class="col-xl-12">
+                                    <label for="card_image" class="form-label">Event Image <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control @error('card_image') is-invalid @enderror" 
+                                           id="card_image" name="card_image" accept="image/*" required>
+                                    <div class="form-text">Upload a high-quality image (JPEG, PNG, JPG, GIF). Max size: 2MB</div>
+                                    @error('card_image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    
+                                    <!-- Image Preview -->
+                                    <div id="imagePreview" class="mt-3">
+                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail">
+                                    </div>
+                                </div>
 
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="mini_heading">Event Type *</label>
-                            <input type="text" name="mini_heading" id="mini_heading" class="form-control" required maxlength="100" placeholder="e.g., Workshop, Seminar, Training">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="starting_fees">Starting Fees (₹) *</label>
-                            <input type="number" name="starting_fees" id="starting_fees" class="form-control" required min="0" step="0.01" placeholder="0.00">
-                        </div>
-                    </div>
-                </div>
+                                <!-- Event Date -->
+                                <div class="col-xl-6">
+                                    <label for="date" class="form-label">Event Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('date') is-invalid @enderror" 
+                                           id="date" name="date" min="{{ date('Y-m-d') }}" 
+                                           value="{{ old('date') }}" required>
+                                    @error('date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%;">
-                        <div class="form-group">
-                            <label for="heading">Event Name *</label>
-                            <input type="text" name="heading" id="heading" class="form-control" required maxlength="150" placeholder="Enter event name">
-                        </div>
-                    </div>
-                </div>
+                                <!-- Starting Fees -->
+                                <div class="col-xl-6">
+                                    <label for="starting_fees" class="form-label">Starting Fees (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control @error('starting_fees') is-invalid @enderror" 
+                                           id="starting_fees" name="starting_fees" placeholder="Enter Starting Fees" 
+                                           min="0" step="0.01" value="{{ old('starting_fees') }}" required>
+                                    @error('starting_fees')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%;">
-                        <div class="form-group">
-                            <label for="short_description">Event Description *</label>
-                            <textarea name="short_description" id="short_description" class="form-control" rows="6" required maxlength="1000" placeholder="Describe your event in detail..."></textarea>
-                            <small class="text-muted">Maximum 1000 characters</small>
-                        </div>
-                    </div>
-                </div>
+                                <!-- Event Type -->
+                                <div class="col-xl-12">
+                                    <label for="mini_heading" class="form-label">Event Type <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('mini_heading') is-invalid @enderror" 
+                                           id="mini_heading" name="mini_heading" placeholder="e.g., Workshop, Seminar, Consultation" 
+                                           maxlength="100" value="{{ old('mini_heading') }}" required>
+                                    <div class="form-text">Brief category or type of event (max 100 characters)</div>
+                                    @error('mini_heading')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%; text-align: center;">
-                        <button type="submit" class="btn-submit">
-                            Create Event
-                        </button>
-                        <a href="{{ route('professional.events.index') }}" 
-                           style="background-color: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; margin-left: 15px; display: inline-block;">
-                            Cancel
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+                                <!-- Event Name -->
+                                <div class="col-xl-12">
+                                    <label for="heading" class="form-label">Event Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('heading') is-invalid @enderror" 
+                                           id="heading" name="heading" placeholder="Enter Main Event Title" 
+                                           maxlength="150" value="{{ old('heading') }}" required>
+                                    <div class="form-text">Main title of your event (max 150 characters)</div>
+                                    @error('heading')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-<script>
-document.getElementById('eventForm').addEventListener('submit', function(e) {
-    const submitBtn = document.querySelector('.btn-submit');
-    submitBtn.textContent = 'Creating...';
-    submitBtn.disabled = true;
-});
-
-// Character counter for description
-document.getElementById('short_description').addEventListener('input', function() {
-    const maxLength = 1000;
-    const currentLength = this.value.length;
-    const remaining = maxLength - currentLength;
-    
-    // Find or create character counter
-    let counter = document.getElementById('char-counter');
-    if (!counter) {
-        counter = document.createElement('small');
-        counter.id = 'char-counter';
-        counter.className = 'text-muted';
-        this.parentNode.appendChild(counter);
-    }
-    
-    counter.textContent = `${currentLength}/${maxLength} characters`;
-    
-    if (remaining < 50) {
-        counter.style.color = '#dc3545';
-    } else {
-        counter.style.color = '#6c757d';
-    }
-});
-</script>
-@endsection 
+                                <!-- Short Description -->
+                                <div class="col-xl-12">
+                                    <label for="short_description" class="form-label">Event Description <span class="text-danger">*</span></label>
+                                    <textarea class="form-control @error('short_description') is-invalid @enderror" 
+                                              id="short_description" name="short_description" rows="6" 
+                                              placeholder="Provide a detailed description of your event, including what participants will learn, duration, agenda, etc." 
                                               maxlength="1000" required>{{ old('short_description') }}</textarea>
                                     <div class="form-text">
                                         <span id="charCount">0</span>/1000 characters
@@ -369,7 +231,9 @@ document.getElementById('short_description').addEventListener('input', function(
         </div>
     </div>
 </div>
+@endsection
 
+@section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Image preview functionality

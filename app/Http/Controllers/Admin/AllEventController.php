@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AllEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Exports\AllEventsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -245,5 +246,73 @@ class AllEventController extends Controller
         $pdf->setPaper('A4', 'landscape');
         
         return $pdf->download('all-events-' . date('Y-m-d-His') . '.pdf');
+    }
+
+    /**
+     * Update meet link for an event
+     */
+    public function updateMeetLink(Request $request, AllEvent $allevent)
+    {
+        $request->validate([
+            'meet_link' => 'nullable|url|max:255'
+        ]);
+
+        $allevent->update([
+            'meet_link' => $request->meet_link
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Meet link updated successfully'
+        ]);
+    }
+
+    /**
+     * Toggle event homepage display
+     */
+    public function toggleHomepage(Request $request, AllEvent $allevent)
+    {
+        Log::info('Toggle homepage request received', [
+            'event_id' => $allevent->id,
+            'current_status' => $allevent->show_on_homepage,
+            'requested_status' => $request->show_on_homepage,
+            'event_approval_status' => $allevent->status
+        ]);
+
+        $request->validate([
+            'show_on_homepage' => 'required|boolean'
+        ]);
+
+        // Only approved events can be shown on homepage
+        if ($request->show_on_homepage && $allevent->status !== 'approved') {
+            Log::warning('Attempt to show non-approved event on homepage', [
+                'event_id' => $allevent->id,
+                'status' => $allevent->status
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Only approved events can be displayed on homepage'
+            ]);
+        }
+
+        $allevent->update([
+            'show_on_homepage' => $request->show_on_homepage
+        ]);
+
+        $message = $request->show_on_homepage 
+            ? 'Event will now be displayed on homepage'
+            : 'Event removed from homepage display';
+
+        Log::info('Homepage display updated successfully', [
+            'event_id' => $allevent->id,
+            'new_status' => $allevent->show_on_homepage,
+            'message' => $message
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
     }
 }

@@ -98,6 +98,8 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     // All Events Approve/Reject Routes
     Route::post('allevents/{allevent}/approve', [AllEventController::class, 'approve'])->name('allevents.approve');
     Route::post('allevents/{allevent}/reject', [AllEventController::class, 'reject'])->name('allevents.reject');
+    Route::post('allevents/{allevent}/meet-link', [AllEventController::class, 'updateMeetLink'])->name('allevents.update-meet-link');
+    Route::post('allevents/{allevent}/toggle-homepage', [AllEventController::class, 'toggleHomepage'])->name('allevents.toggle-homepage');
     
     // All Events Export Routes
     Route::get('allevents-export/excel', [AllEventController::class, 'exportExcel'])->name('allevents.export.excel');

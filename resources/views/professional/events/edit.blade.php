@@ -220,8 +220,7 @@ document.getElementById('short_description')?.addEventListener('input', function
         counter.style.color = '#6c757d';
     }
 });
-</script>
-@endsection
+
 <div class="main-content app-content">
     <div class="container-fluid">
         <!-- Page Header -->
@@ -413,7 +412,9 @@ document.getElementById('short_description')?.addEventListener('input', function
         </div>
     </div>
 </div>
+@endsection
 
+@section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Image preview functionality
@@ -454,6 +455,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     textarea.addEventListener('input', updateCharCount);
     updateCharCount(); // Initial count
+
+    // Character counter functionality from the top of file
+    const counter = document.getElementById('charCount');
+    if (counter) {
+        counter.style.fontWeight = 'bold';
+        if (textarea.value.length > 800) {
+            counter.style.color = '#ffc107';
+        } else if (textarea.value.length > 950) {
+            counter.style.color = '#dc3545';
+        } else {
+            counter.style.color = '#6c757d';
+        }
+    }
 
     // Form validation enhancement
     const form = document.querySelector('form');

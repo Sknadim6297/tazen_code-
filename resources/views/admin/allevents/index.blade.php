@@ -171,6 +171,8 @@
                                         <th scope="col">Event Name</th>
                                         <th scope="col">Short Description</th>
                                         <th scope="col">Starting Fees</th>
+                                        <th scope="col">Meet Link</th>
+                                        <th scope="col">Show on Homepage</th>
                                         <th scope="col">Created By</th>
                                         <th scope="col">Service Offered</th>
                                         <th scope="col">Status</th>
@@ -190,6 +192,41 @@
                                             <td>{{ $event->heading }}</td>
                                             <td>{{ Str::limit($event->short_description, 50) }}</td>
                                             <td>₹{{ number_format($event->starting_fees, 2) }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if($event->meet_link)
+                                                        <a href="{{ $event->meet_link }}" target="_blank" class="btn btn-sm btn-success me-2" title="Join Meeting">
+                                                            <i class="ri-video-line"></i>
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted small">Not set</span>
+                                                    @endif
+                                                    @if($event->status === 'approved')
+                                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMeetLinkModal({{ $event->id }}, '{{ $event->meet_link ?? '' }}')">
+                                                            <i class="ri-add-line"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           id="homepage_{{ $event->id }}" 
+                                                           {{ $event->show_on_homepage ? 'checked' : '' }}
+                                                           onchange="toggleHomepageDisplay({{ $event->id }}, this.checked)"
+                                                           @if($event->status !== 'approved') disabled @endif>
+                                                    <label class="form-check-label" for="homepage_{{ $event->id }}">
+                                                        @if($event->show_on_homepage)
+                                                            <span class="text-success small">Showing</span>
+                                                        @else
+                                                            <span class="text-muted small">Hidden</span>
+                                                        @endif
+                                                    </label>
+                                                </div>
+                                                @if($event->status !== 'approved')
+                                                    <small class="text-muted">Only approved events can be shown</small>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if($event->isProfessionalEvent())
                                                     <div class="d-flex flex-column">
@@ -278,7 +315,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="9" class="text-center py-4">
+                                            <td colspan="12" class="text-center py-4">
                                                 <div class="text-muted">
                                                     <i class="ri-inbox-line fs-48 mb-3"></i>
                                                     <p>No events found</p>
@@ -355,5 +392,135 @@
         const modal = new bootstrap.Modal(document.getElementById('rejectEventModal'));
         modal.show();
     };
+
+    // Open meet link modal
+    window.openMeetLinkModal = function(eventId, currentLink) {
+        document.getElementById('event_id').value = eventId;
+        document.getElementById('meet_link').value = currentLink || '';
+        const modal = new bootstrap.Modal(document.getElementById('meetLinkModal'));
+        modal.show();
+    };
+
+    // Update meet link
+    window.updateMeetLink = function() {
+        const eventId = document.getElementById('event_id').value;
+        const meetLink = document.getElementById('meet_link').value;
+        
+        fetch(`{{ url("admin/allevents") }}/${eventId}/meet-link`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                meet_link: meetLink
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Meet link updated successfully!');
+                location.reload();
+            } else {
+                alert('Error updating meet link');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating meet link');
+        });
+    };
+
+    // Toggle homepage display
+    function toggleHomepageDisplay(eventId, showOnHomepage) {
+        console.log('Toggling homepage display for event:', eventId, 'show:', showOnHomepage);
+        
+        // Show loading state
+        const checkbox = document.getElementById(`homepage_${eventId}`);
+        checkbox.disabled = true;
+        
+        fetch(`{{ url('admin/allevents') }}/${eventId}/toggle-homepage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                show_on_homepage: showOnHomepage
+            })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                // Update the label text
+                const label = document.querySelector(`label[for="homepage_${eventId}"] span`);
+                if (label) {
+                    if (showOnHomepage) {
+                        label.textContent = 'Showing';
+                        label.className = 'text-success small';
+                    } else {
+                        label.textContent = 'Hidden';
+                        label.className = 'text-muted small';
+                    }
+                }
+                
+                // Show success message
+                alert(data.message);
+            } else {
+                console.error('Server returned error:', data.message);
+                alert(data.message || 'Error updating homepage display');
+                // Revert the checkbox
+                checkbox.checked = !showOnHomepage;
+            }
+        })
+        .catch(error => {
+            console.error('Network or parsing error:', error);
+            alert('Error updating homepage display: ' + error.message);
+            // Revert the checkbox
+            checkbox.checked = !showOnHomepage;
+        })
+        .finally(() => {
+            // Re-enable checkbox
+            checkbox.disabled = false;
+        });
+    }
+</script>
+
+<!-- Meet Link Modal -->
+<div class="modal fade" id="meetLinkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Meeting Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="ri-information-line me-2"></i>
+                    Add a meeting link (Zoom, Google Meet, etc.) for this approved event. Customers who book this event will see this link.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Meeting Link</label>
+                    <input type="hidden" id="event_id">
+                    <input type="url" id="meet_link" class="form-control" placeholder="https://zoom.us/j/123456789 or https://meet.google.com/xxx-xxx-xxx">
+                    <div class="form-text">Enter the full meeting URL (optional)</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateMeetLink()">Update Link</button>
+            </div>
+        </div>
+    </div>
+</div>
 </script>
 @endsection

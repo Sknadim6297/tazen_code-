@@ -8,6 +8,7 @@ use App\Models\Professional;
 use App\Models\ProfessionalRejection;
 use App\Models\Profile;
 use App\Models\Service; 
+use App\Traits\ImageUploadTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfessionalController extends Controller
 {
+    use ImageUploadTraits;
+
     public function showLoginForm()
     {
         return view('professional.login.login');
@@ -93,22 +96,39 @@ class ProfessionalController extends Controller
 
 public function register(Request $request)
     {
+        // Check if email was verified through OTP
         if (!Session::get('email_verified')) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Please verify your email address before proceeding.',
             ], 403);
         }
-        if (Session::get('registration_email') !== $request->email) {
+        
+        // Verify that the email being registered matches the verified email from session
+        $verifiedEmail = Session::get('registration_email');
+        if ($verifiedEmail !== $request->email) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Email address does not match the verified email.',
             ], 403);
         }
+        
+        // Check if email already exists in database (this should not happen if OTP verification worked correctly)
+        $existingProfessional = Professional::where('email', $verifiedEmail)->first();
+        if ($existingProfessional) {
+            // Clear the session since this email is already registered
+            Session::forget(['registration_otp', 'otp_expiry', 'email_verified', 'registration_email']);
+            
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'This email address is already registered. Please login instead.',
+            ], 422);
+        }
+        
         $validationRules = [
             'first_name'            => 'required|string|max:255',
             'last_name'             => 'required|string|max:255',
-            'email'                 => 'required|email|unique:professionals,email',
+            'email'                 => 'required|email', // Removed unique check since we already verified it above
             'password'              => 'required|min:6|confirmed',
             'phone'                 => 'required|string|max:20',
             'specialization'        => 'required|string|max:255',
@@ -378,13 +398,23 @@ public function rejectedPage()
     public function sendOTP(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:professionals,email',
+            'email' => 'required|email',
         ]);
+        
+        // Check if email already exists in professionals table
+        $existingProfessional = Professional::where('email', $request->email)->first();
+        if ($existingProfessional) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This email address is already registered. Please login instead.'
+            ], 422);
+        }
 
         $otp = $this->generateOTP();
         Session::put('registration_otp', $otp);
         Session::put('registration_email', $request->email);
         Session::put('otp_expiry', now()->addMinutes(10));
+        
         try {
             Mail::to($request->email)->send(new OtpVerificationMail($otp));
             return response()->json([
@@ -392,6 +422,11 @@ public function rejectedPage()
                 'message' => 'Verification code sent to your email address.'
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to send OTP email: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to send verification code. Please try again.'

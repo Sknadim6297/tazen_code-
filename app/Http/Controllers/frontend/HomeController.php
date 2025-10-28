@@ -52,7 +52,14 @@ class HomeController extends Controller
         $mcqs = DB::table('service_m_c_q_s')->get();
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
-        $eventDetails = EventDetail::with('event')->latest()->take(6)->get();
+        $eventDetails = EventDetail::with('event')
+            ->whereHas('event', function($query) {
+                $query->where('status', 'approved')
+                      ->where('show_on_homepage', true);
+            })
+            ->latest()
+            ->take(6)
+            ->get();
         return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogPosts', 'eventDetails'));
     }
 
