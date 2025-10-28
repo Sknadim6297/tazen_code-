@@ -7,14 +7,18 @@ use Illuminate\Http\Request;
 use App\Models\AllEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\AllEventsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AllEventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = AllEvent::with(['professional', 'approvedBy']);
-        $filter = $request->get('filter', 'all');
+        $query = AllEvent::with(['professional.professionalServices.service', 'approvedBy']);
         
+        // Filter by creator type
+        $filter = $request->get('filter', 'all');
         switch ($filter) {
             case 'admin':
                 $query->where('created_by_type', 'admin');
@@ -22,14 +26,40 @@ class AllEventController extends Controller
             case 'professional':
                 $query->where('created_by_type', 'professional');
                 break;
-            case 'pending':
-                $query->where('status', 'pending');
-                break;
             case 'all':
             default:
+                // Show all events (both admin and professional)
                 break;
         }
-        $allevents = $query->orderBy('created_at', 'desc')->paginate(15);
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by date range
+        if ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
+        }
+        
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('heading', 'like', "%{$search}%")
+                  ->orWhere('mini_heading', 'like', "%{$search}%")
+                  ->orWhere('short_description', 'like', "%{$search}%")
+                  ->orWhereHas('professional', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $allevents = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
             
         return view('admin.allevents.index', compact('allevents'));
     }
@@ -153,5 +183,67 @@ class AllEventController extends Controller
         }
         
         return redirect()->back()->with('error', 'Only professional events can be rejected.');
+    }
+
+    /**
+     * Export events to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $filters = $request->only(['filter', 'status', 'from_date', 'to_date', 'search']);
+        
+        $fileName = 'all-events-' . date('Y-m-d-His') . '.xlsx';
+        
+        return Excel::download(new AllEventsExport($filters), $fileName);
+    }
+
+    /**
+     * Export events to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = AllEvent::with(['professional.professionalServices.service', 'approvedBy']);
+        
+        // Apply same filters as index
+        $filter = $request->get('filter', 'all');
+        switch ($filter) {
+            case 'admin':
+                $query->where('created_by_type', 'admin');
+                break;
+            case 'professional':
+                $query->where('created_by_type', 'professional');
+                break;
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
+        }
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('heading', 'like', "%{$search}%")
+                  ->orWhere('mini_heading', 'like', "%{$search}%")
+                  ->orWhere('short_description', 'like', "%{$search}%")
+                  ->orWhereHas('professional', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $events = $query->orderBy('created_at', 'desc')->get();
+        
+        $pdf = Pdf::loadView('admin.allevents.pdf-export', compact('events'));
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('all-events-' . date('Y-m-d-His') . '.pdf');
     }
 }

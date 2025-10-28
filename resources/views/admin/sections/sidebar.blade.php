@@ -114,7 +114,7 @@
 
 
 
-                    @if($isMenuAccessible('bank_accounts'))
+                    {{-- @if($isMenuAccessible('bank_accounts'))
                     <li class="slide">
                         <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
                             <span class="side-menu__label">Bank Accounts</span>
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
 
                     @if($isMenuAccessible('admin_booking'))
                     <li class="slide">
@@ -150,7 +150,8 @@
                     </li>
                     @endif
 
-                    @if($isMenuAccessible('additional_services'))
+                    {{-- TEMPORARILY DISABLED - Additional Services Functionality --}}
+                    {{-- @if($isMenuAccessible('additional_services'))
                     <li class="slide">
                         <a href="{{ route('admin.additional-services.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
@@ -163,7 +164,7 @@
                             <span class="side-menu__label">Additional Services</span>
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
 
                     @if($isMenuAccessible('user_management'))
                     <li class="slide">
@@ -338,30 +339,7 @@
                         </ul>
                     </li>
                     @endif
-                                    <!-- Professional Events Menu -->
-                    @if($isMenuAccessible('professional_events'))
-                        <li class="slide has-sub">
-                            <a href="javascript:void(0);" class="side-menu__item">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M8 21v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="10" r="1"/></g></svg>
-                                <span class="side-menu__label">Professional Events</span>
-                                <i class="fe fe-chevron-right side-menu__angle"></i>
-                            </a>
-                            <ul class="slide-menu child1">
-                                <li class="slide">
-                                    <a href="{{ route('admin.professional-events.index') }}" class="side-menu__item">All Professional Events</a>
-                                </li>
-                                <li class="slide">
-                                    <a href="{{ route('admin.professional-events.index', ['status' => 'pending']) }}" class="side-menu__item">Pending Review</a>
-                                </li>
-                                <li class="slide">
-                                    <a href="{{ route('admin.professional-events.index', ['status' => 'approved']) }}" class="side-menu__item">Approved Events</a>
-                                </li>
-                                <li class="slide">
-                                    <a href="{{ route('admin.professional-events.index', ['status' => 'rejected']) }}" class="side-menu__item">Rejected Events</a>
-                                </li>
-                            </ul>
-                        </li>
-                    @endif                
+                    <!-- MCQ Bank Section -->
                     @if($isMenuAccessible('mcq'))
                     <li class="slide has-sub">
                         <a href="#" class="side-menu__item">

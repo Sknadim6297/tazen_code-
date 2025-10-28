@@ -48,6 +48,15 @@
                     <label for="short_description" class="form-label">Short Description</label>
                     <textarea class="form-control" id="short_description" name="short_description" rows="4" required>{{ old('short_description', $allevent->short_description) }}</textarea>
                 </div>
+
+                {{-- Meet Link (Only for Approved Events - Both Admin and Professional) --}}
+                @if($allevent->isApproved())
+                <div class="col-xl-12">
+                    <label for="meet_link" class="form-label">Google Meet Link</label>
+                    <input type="url" class="form-control" id="meet_link" name="meet_link" value="{{ old('meet_link', $allevent->meet_link) }}" placeholder="https://meet.google.com/xxx-xxxx-xxx">
+                    <small class="text-muted">Provide the Google Meet link for this approved event.</small>
+                </div>
+                @endif
     
             </div>
     

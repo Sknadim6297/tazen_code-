@@ -192,7 +192,6 @@ class EventController extends Controller
                     'Phone',
                     'Price',
                     'Total Price',
-                    'Google Meet Link',
                     'Payment Status',
                     'Order ID',
                     'Payment Date'
@@ -209,7 +208,6 @@ class EventController extends Controller
                         $booking->phone ?? 'N/A',
                         $booking->price,
                         $booking->total_price,
-                        $booking->gmeet_link ?? 'N/A',
                         $booking->payment_status,
                         $booking->order_id ?? 'N/A',
                         $booking->created_at->format('d-m-Y H:i')
@@ -242,18 +240,6 @@ class EventController extends Controller
         }
     }
 
-    public function updateGmeetLink(Request $request, $id)
-    {
-        $request->validate([
-            'gmeet_link' => 'nullable|string|max:255',
-        ]);
-
-        $booking = EventBooking::findOrFail($id);
-        $booking->gmeet_link = $request->gmeet_link;
-        $booking->save();
-
-        return redirect()->back()->with('success', 'Google Meet link updated successfully.');
-    }
 
     /**
      * Handle export based on type (pdf or excel)

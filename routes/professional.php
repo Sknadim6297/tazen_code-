@@ -11,6 +11,7 @@ use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\RequestedServiceController;
 use App\Http\Controllers\Professional\ServiceController;
+use App\Http\Controllers\BookingChatController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +72,8 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
     // Add route for getting questionnaire answers
     Route::get('/bookings/{booking}/questionnaire', [App\Http\Controllers\Professional\BookingController::class, 'getQuestionnaireAnswers'])->name('booking.questionnaire');
 
-    // Additional Services routes
+    // TEMPORARILY DISABLED - Additional Services routes
+    /*
     Route::prefix('additional-services')->name('additional-services.')->group(function () {
         Route::get('/', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'index'])->name('index');
         Route::get('/create', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'create'])->name('create');
@@ -86,6 +88,7 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         Route::post('/{id}/respond-negotiation', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'respondToNegotiation'])->name('respond-negotiation');
         Route::post('/{id}/update-price', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'updatePrice'])->name('update-price');
     });
+    */
 
     // Notification routes
     Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
@@ -108,4 +111,13 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
 
     // Professional Events routes
     Route::resource('events', ProfessionalEventController::class);
+
+    // Booking Chat Routes for Professional
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/booking/{bookingId}', [BookingChatController::class, 'openChat'])->name('open');
+        Route::post('/booking/{bookingId}/send', [BookingChatController::class, 'sendMessage'])->name('send');
+        Route::get('/booking/{bookingId}/messages', [BookingChatController::class, 'getMessages'])->name('messages');
+        Route::get('/booking/{bookingId}/unread-count', [BookingChatController::class, 'getUnreadCount'])->name('unread');
+        Route::get('/total-unread-count', [BookingChatController::class, 'getTotalUnreadCount'])->name('total-unread');
+    });
 });

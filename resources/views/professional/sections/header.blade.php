@@ -73,8 +73,40 @@
                     ->whereNull('read_at')
                     ->count();
                 
-                // Count total notifications (including reschedule notifications in icon)
-                $totalNotifications = $newBookings + $rescheduleCount + $additionalServiceNotifications;
+                // Get unread booking chats with booking details
+                try {
+                    $unreadBookingChats = \App\Models\BookingChat::whereHas('booking', function($q) use ($professionalId) {
+                            $q->where('professional_id', $professionalId);
+                        })
+                        ->where('sender_type', 'customer')
+                        ->where('is_read', false)
+                        ->where('is_system_message', false)
+                        ->select('booking_id', DB::raw('COUNT(*) as unread_count'), DB::raw('MAX(created_at) as last_message_at'))
+                        ->groupBy('booking_id')
+                        ->get();
+                    
+                    // Load booking relationships separately to avoid groupBy issues
+                    if ($unreadBookingChats->isNotEmpty()) {
+                        $bookingIds = $unreadBookingChats->pluck('booking_id')->toArray();
+                        $bookings = \App\Models\Booking::with(['user', 'service'])
+                            ->whereIn('id', $bookingIds)
+                            ->get()
+                            ->keyBy('id');
+                        
+                        // Attach booking data to each chat group
+                        foreach ($unreadBookingChats as $chatGroup) {
+                            $chatGroup->booking = $bookings->get($chatGroup->booking_id);
+                        }
+                    }
+                    
+                    $unreadChatCount = $unreadBookingChats->sum('unread_count');
+                } catch (\Exception $e) {
+                    $unreadBookingChats = collect();
+                    $unreadChatCount = 0;
+                }
+                
+                // Count total notifications (including reschedule notifications and booking chats)
+                $totalNotifications = $newBookings + $rescheduleCount + $additionalServiceNotifications + $unreadChatCount;
                 if (!$hasServices) $totalNotifications++;
                 if (!$hasRates) $totalNotifications++;
                 if (!$hasAvailability) $totalNotifications++;
@@ -126,6 +158,33 @@
             <button class="notification-modal-close">&times;</button>
         </div>
         <div class="notification-modal-body">
+            @if($unreadChatCount > 0)
+                @foreach($unreadBookingChats as $chatGroup)
+                    @php
+                        $booking = $chatGroup->booking ?? null;
+                        if (!$booking) continue;
+                        
+                        $customerName = optional($booking->user)->name ?? 'Customer';
+                        $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
+                    @endphp
+                    <div class="notification-item chat-notification">
+                        <div class="notification-icon-wrapper">
+                            <i class="fas fa-message"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h5>New Message from {{ $customerName }}</h5>
+                            <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
+                            <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
+                            <div class="button-container">
+                                <a href="{{ route('professional.chat.open', $booking->id) }}" class="notification-btn view-btn">
+                                    <i class="fas fa-comments"></i> Open Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+            
             @if($newBookings > 0)
                 <div class="notification-item new">
                     <h5>New Booking Alert!</h5>
@@ -1126,6 +1185,31 @@
     .notification-item.reschedule {
         border-left-color: #e67e22;
         background: linear-gradient(135deg, #fdf2e6, #ffffff);
+    }
+
+    .notification-item.chat-notification {
+        border-left-color: #9b59b6;
+        background: linear-gradient(135deg, #f4ecf7, #ffffff);
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .notification-item.chat-notification .notification-icon-wrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+
+    .notification-item.chat-notification .notification-content {
+        flex: 1;
     }
 
     .notification-item h5 {

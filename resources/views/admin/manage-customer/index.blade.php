@@ -58,6 +58,7 @@
                                         <th>#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
+                                        <th scope="col">Phone</th>
                                         <th scope="col">Send Email</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
@@ -69,6 +70,7 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
+                                            <td>{{ $user->phone ?? 'N/A' }}</td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info send-email-btn" 
                                                     data-email="{{ $user->email }}" 
@@ -83,13 +85,14 @@
                                                 <a href="{{ route('admin.manage-customer.show', $user->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" title="View">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
+                                                {{-- TEMPORARILY DISABLED - Admin Chat with Customer --}}
+                                                {{-- <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
                                                         data-participant-type="user" 
                                                         data-participant-id="{{ $user->id }}" 
                                                         data-bs-toggle="tooltip" 
                                                         title="Chat">
                                                     <i class="ri-message-3-line"></i>
-                                                </button>
+                                                </button> --}}
                                                 <form method="POST" action="{{ route('admin.manage-customer.destroy', $user->id) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')

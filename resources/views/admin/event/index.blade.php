@@ -367,7 +367,6 @@
                                                 <th>Phone</th>
                                                 <th>Price</th>
                                                 <th>Total Price</th>
-                                                <th>Gmeet Link / Location</th>
                                                 <th>Payment Status</th>
                                                 <th>Order ID</th>
                                                 <th>Payment Failure Reason</th>
@@ -381,7 +380,15 @@
                                                     <td>{{ $booking->user->name ?? 'N/A' }}</td>
                                                     <td>{{ $booking->event->heading ?? 'N/A' }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('d-m-Y') }}</td>
-                                                    <td>{{ $booking->location ?? 'N/A' }}</td>
+                                                    <td>
+                                                        @if($booking->type == 'offline')
+                                                            <span class="badge bg-info text-white">
+                                                                <i class="ri-map-pin-line me-1"></i>{{ $booking->location ?? 'Location not specified' }}
+                                                            </span>
+                                                        @else
+                                                            {{ $booking->location ?? 'N/A' }}
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         <!-- Always highlight the type with badges -->
                                                         @if($booking->type == 'online')
@@ -397,21 +404,6 @@
                                                     <td>₹{{ number_format($booking->price, 2) }}</td>
                                                     <td>₹{{ number_format($booking->total_price, 2) }}</td>
                                                     <td>
-                                                        @if($booking->type == 'online')
-                                                        <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST" class="d-flex align-items-center gap-2">
-                                                            @csrf
-                                                            <input type="text" name="gmeet_link" class="form-control form-control-sm" value="{{ $booking->gmeet_link }}" placeholder="Enter Google Meet link" style="min-width:250px; max-width:400px;">
-                                                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                                                        </form>
-                                                        @elseif($booking->type == 'offline')
-                                                            <span class="badge bg-info text-white">
-                                                                <i class="ri-map-pin-line me-1"></i>{{ $booking->location ?? 'Location not specified' }}
-                                                            </span>
-                                                        @else
-                                                        <span class="text-muted">Not applicable</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
                                                         @if($booking->payment_status == 'success')
                                                             <span class="badge bg-success">Confirmed</span>
                                                         @elseif($booking->payment_status == 'failed')
@@ -426,7 +418,7 @@
                                                 </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="15" class="text-center py-3">No event bookings found</td>
+                                                <td colspan="14" class="text-center py-3">No event bookings found</td>
                                             </tr>
                                             @endforelse
                                         </tbody>

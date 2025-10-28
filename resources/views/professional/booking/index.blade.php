@@ -1,6 +1,7 @@
 @extends('professional.layout.layout')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     /* Core layout styles */
     .content-wrapper {
@@ -419,6 +420,31 @@
             justify-content: flex-start;
         }
     }
+
+    /* Chat notification badge */
+    .chat-badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    }
+
+    .btn.position-relative {
+        overflow: visible;
+    }
 </style>
 @endsection
 
@@ -506,6 +532,7 @@
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                     <th>Customer Document</th>
+                                    <th>Chat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -644,6 +671,19 @@
                                             No documents provided
                                         </div>
                                     @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('professional.chat.open', $booking->id) }}" 
+                                       class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
+                                       target="_blank" 
+                                       title="Chat with Customer"
+                                       data-booking-id="{{ $booking->id }}">
+                                        <i class="fas fa-comments"></i> Chat
+                                        <span class="chat-badge badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill d-none" 
+                                              id="chat-badge-{{ $booking->id }}">
+                                            0
+                                        </span>
+                                    </a>
                                 </td>
                             </tr>
                             
@@ -1160,6 +1200,38 @@ uploadForm.onsubmit = function(e) {
         toastr.error('An error occurred while uploading');
     });
 };
+
+// Load unread chat counts for all bookings
+function loadUnreadChatCounts() {
+    $('[data-booking-id]').each(function() {
+        const bookingId = $(this).data('booking-id');
+        const badgeElement = $(`#chat-badge-${bookingId}`);
+        
+        $.ajax({
+            url: `/professional/chat/booking/${bookingId}/unread-count`,
+            method: 'GET',
+            success: function(response) {
+                if(response.success && response.unread_count > 0) {
+                    badgeElement.text(response.unread_count);
+                    badgeElement.removeClass('d-none');
+                } else {
+                    badgeElement.addClass('d-none');
+                }
+            },
+            error: function() {
+                // Silently fail
+            }
+        });
+    });
+}
+
+// Load counts on page load
+$(document).ready(function() {
+    loadUnreadChatCounts();
+    
+    // Refresh counts every 30 seconds
+    setInterval(loadUnreadChatCounts, 30000);
+});
 
 </script>
 @endsection

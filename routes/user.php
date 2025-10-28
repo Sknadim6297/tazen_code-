@@ -9,6 +9,7 @@ use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\LoginController;
 use App\Http\Controllers\Frontend\ReviewController;
+use App\Http\Controllers\BookingChatController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
@@ -75,7 +76,8 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
 
-    // Additional Services routes for customers
+    // TEMPORARILY DISABLED - Additional Services routes for customers
+    /*
     Route::prefix('additional-services')->name('additional-services.')->group(function () {
         Route::get('/', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'index'])->name('index');
         Route::get('/{id}', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'show'])->name('show');
@@ -84,7 +86,17 @@ Route::middleware(['auth:user'])->group(function () {
         Route::post('/{id}/create-payment-order', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'createPaymentOrder'])->name('create-payment-order');
         Route::post('/{id}/payment-success', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'handlePaymentSuccess'])->name('payment-success');
     });
+    */
 
     Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
         ->name('billing.export-all');
+
+    // Booking Chat Routes for Customer
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/booking/{bookingId}', [BookingChatController::class, 'openChat'])->name('open');
+        Route::post('/booking/{bookingId}/send', [BookingChatController::class, 'sendMessage'])->name('send');
+        Route::get('/booking/{bookingId}/messages', [BookingChatController::class, 'getMessages'])->name('messages');
+        Route::get('/booking/{bookingId}/unread-count', [BookingChatController::class, 'getUnreadCount'])->name('unread');
+        Route::get('/total-unread-count', [BookingChatController::class, 'getTotalUnreadCount'])->name('total-unread');
+    });
 });

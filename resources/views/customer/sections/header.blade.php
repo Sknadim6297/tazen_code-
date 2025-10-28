@@ -1,5 +1,6 @@
 @php
     use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\DB;
     $user = Auth::guard('user')->user();
     $profile = $user ? $user->customerProfile : null;
 @endphp
@@ -19,15 +20,63 @@
     </div>
 
     <div class="header-right">
-        @if($user)    
+        @if($user)
+            @php
+                // Get unread booking chats with booking details
+                $userId = Auth::guard('user')->id();
+                
+                try {
+                    $unreadBookingChats = \App\Models\BookingChat::whereHas('booking', function($q) use ($userId) {
+                            $q->where('user_id', $userId);
+                        })
+                        ->where('sender_type', 'professional')
+                        ->where('is_read', false)
+                        ->where('is_system_message', false)
+                        ->select('booking_id', DB::raw('COUNT(*) as unread_count'), DB::raw('MAX(created_at) as last_message_at'))
+                        ->groupBy('booking_id')
+                        ->get();
+                    
+                    // Load booking relationships separately to avoid groupBy issues
+                    if ($unreadBookingChats->isNotEmpty()) {
+                        $bookingIds = $unreadBookingChats->pluck('booking_id')->toArray();
+                        $bookings = \App\Models\Booking::with(['professional', 'service'])
+                            ->whereIn('id', $bookingIds)
+                            ->get()
+                            ->keyBy('id');
+                        
+                        // Attach booking data to each chat group
+                        foreach ($unreadBookingChats as $chatGroup) {
+                            $chatGroup->booking = $bookings->get($chatGroup->booking_id);
+                        }
+                    }
+                    
+                    $unreadChatCount = $unreadBookingChats->sum('unread_count');
+                } catch (\Exception $e) {
+                    $unreadBookingChats = collect();
+                    $unreadChatCount = 0;
+                }
+                
+                // Total notifications (currently just booking chats, can add more later)
+                $totalNotifications = $unreadChatCount;
+            @endphp
+            
             <div class="header-actions">
-                <!-- Chat Icon -->
+                <!-- Notification Icon -->
+                <div class="header-icon notification-icon" id="notificationIcon" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    @if($totalNotifications > 0)
+                        <span class="notification-badge">{{ $totalNotifications }}</span>
+                    @endif
+                </div>
+
+                {{-- TEMPORARILY DISABLED - Admin Chat Functionality --}}
+                {{-- <!-- Chat Icon (Admin Chat) -->
                 <div class="header-icon chat-icon" id="chatIcon" title="Chat with Admin">
                     <button type="button" class="chat-btn" data-participant-type="admin" data-participant-id="1">
                         <i class="fas fa-comments"></i>
                         <span id="chatUnreadBadge" class="notification-badge" style="display: none;">0</span>
                     </button>
-                </div>
+                </div> --}}
                 
                 <!-- Logout Icon -->
                 <div class="header-icon logout">
@@ -50,6 +99,52 @@
                 </div>
             </div>
         @endif
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="notification-modal">
+    <div class="notification-modal-content">
+        <div class="notification-modal-header">
+            <h4>Notifications</h4>
+            <button class="notification-modal-close">&times;</button>
+        </div>
+        <div class="notification-modal-body">
+            @if($unreadChatCount > 0)
+                @foreach($unreadBookingChats as $chatGroup)
+                    @php
+                        $booking = $chatGroup->booking ?? null;
+                        if (!$booking) continue;
+                        
+                        $professionalName = optional($booking->professional)->name ?? 'Professional';
+                        $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
+                    @endphp
+                    <div class="notification-item chat-notification">
+                        <div class="notification-icon-wrapper">
+                            <i class="fas fa-message"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h5>New Message from {{ $professionalName }}</h5>
+                            <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
+                            <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
+                            <div class="button-container">
+                                <a href="{{ route('user.chat.open', $booking->id) }}" class="notification-btn view-btn">
+                                    <i class="fas fa-comments"></i> Open Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+            
+            @if($totalNotifications == 0)
+                <div class="notification-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No notifications available</p>
+                    <p>You're all caught up! No new notifications at this time.</p>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -609,6 +704,206 @@
         }
     }
 
+    /* Notification Modal Styles */
+    .notification-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .notification-modal-content {
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .notification-modal-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notification-modal-header h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .notification-modal-close {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .notification-modal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .notification-modal-body {
+        max-height: 540px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .notification-item {
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .notification-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-item.chat-notification {
+        border-left-color: #9b59b6;
+        background: linear-gradient(135deg, #f4ecf7, #ffffff);
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .notification-item.chat-notification .notification-icon-wrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+
+    .notification-item.chat-notification .notification-content {
+        flex: 1;
+    }
+
+    .notification-item h5 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .notification-item p {
+        margin: 0 0 10px 0;
+        color: #555;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .notification-item .button-container {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .notification-item .notification-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .notification-item .view-btn {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+
+    .notification-item .view-btn:hover {
+        background: linear-gradient(135deg, #2980b9, #21618c);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .notification-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .notification-empty i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        color: #4CAF50;
+    }
+
+    .notification-empty p:first-of-type {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    /* Pulse animation for notification badge */
+    @keyframes pulse-animation {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .notification-icon.pulse-animation {
+        animation: pulse-animation 0.5s ease-in-out;
+    }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
         .header,
@@ -626,6 +921,7 @@
     class CustomerHeaderManager {
         constructor() {
             this.init();
+            this.setupNotificationModal();
         }
 
         init() {
@@ -633,6 +929,40 @@
             this.setupScrollEffect();
             this.setupKeyboardShortcuts();
             this.setupRippleEffect();
+        }
+
+        setupNotificationModal() {
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationModal = document.getElementById('notificationModal');
+            const closeBtn = document.querySelector('.notification-modal-close');
+
+            if (notificationIcon && notificationModal) {
+                // Open notification modal
+                notificationIcon.addEventListener('click', () => {
+                    notificationModal.style.display = 'block';
+                });
+
+                // Close on close button
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        notificationModal.style.display = 'none';
+                    });
+                }
+
+                // Close on outside click
+                notificationModal.addEventListener('click', (e) => {
+                    if (e.target === notificationModal) {
+                        notificationModal.style.display = 'none';
+                    }
+                });
+
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && notificationModal.style.display === 'block') {
+                        notificationModal.style.display = 'none';
+                    }
+                });
+            }
         }
 
         setupMobileSearch() {
@@ -746,5 +1076,15 @@
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         new CustomerHeaderManager();
+        
+        // Add animation for notification badge if there are notifications
+        const notificationBadge = document.querySelector('.notification-badge');
+        if (notificationBadge) {
+            const notificationIcon = document.getElementById('notificationIcon');
+            setInterval(function() {
+                notificationIcon?.classList.toggle('pulse-animation');
+            }, 3000);
+        }
     });
+</script>
 </script>

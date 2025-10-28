@@ -94,19 +94,27 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     Route::resource('blogs', BlogController::class);
     Route::resource('allevents', AllEventController::class);
+    
+    // All Events Approve/Reject Routes
+    Route::post('allevents/{allevent}/approve', [AllEventController::class, 'approve'])->name('allevents.approve');
+    Route::post('allevents/{allevent}/reject', [AllEventController::class, 'reject'])->name('allevents.reject');
+    
+    // All Events Export Routes
+    Route::get('allevents-export/excel', [AllEventController::class, 'exportExcel'])->name('allevents.export.excel');
+    Route::get('allevents-export/pdf', [AllEventController::class, 'exportPdf'])->name('allevents.export.pdf');
 
-    // Professional Events Management Routes  
-    Route::prefix('professional-events')->name('professional-events.')->group(function () {
-        Route::get('/', [ProfessionalEventController::class, 'index'])->name('index');
-        Route::get('/{event}', [ProfessionalEventController::class, 'show'])->name('show');
-        Route::get('/{event}/edit', [ProfessionalEventController::class, 'edit'])->name('edit');
-        Route::put('/{event}', [ProfessionalEventController::class, 'update'])->name('update');
-        Route::delete('/{event}', [ProfessionalEventController::class, 'destroy'])->name('destroy');
-        Route::post('/{event}/approve', [ProfessionalEventController::class, 'approve'])->name('approve');
-        Route::post('/{event}/reject', [ProfessionalEventController::class, 'reject'])->name('reject');
-        Route::post('/{event}/meet-link', [ProfessionalEventController::class, 'updateMeetLink'])->name('update-meet-link');
-        Route::post('/bulk-action', [ProfessionalEventController::class, 'bulkAction'])->name('bulk-action');
-    });
+    // Professional Events Management Routes (MERGED INTO ALL EVENTS - Keeping routes for backward compatibility)
+    // Route::prefix('professional-events')->name('professional-events.')->group(function () {
+    //     Route::get('/', [ProfessionalEventController::class, 'index'])->name('index');
+    //     Route::get('/{event}', [ProfessionalEventController::class, 'show'])->name('show');
+    //     Route::get('/{event}/edit', [ProfessionalEventController::class, 'edit'])->name('edit');
+    //     Route::put('/{event}', [ProfessionalEventController::class, 'update'])->name('update');
+    //     Route::delete('/{event}', [ProfessionalEventController::class, 'destroy'])->name('destroy');
+    //     Route::post('/{event}/approve', [ProfessionalEventController::class, 'approve'])->name('approve');
+    //     Route::post('/{event}/reject', [ProfessionalEventController::class, 'reject'])->name('reject');
+    //     Route::post('/{event}/meet-link', [ProfessionalEventController::class, 'updateMeetLink'])->name('update-meet-link');
+    //     Route::post('/bulk-action', [ProfessionalEventController::class, 'bulkAction'])->name('bulk-action');
+    // });
 
     Route::prefix('admin')->name('')->group(function () {
         Route::get('whychoose', [WhychooseController::class, 'index'])->name('whychoose.index');
@@ -359,7 +367,8 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/set-password', [App\Http\Controllers\Admin\AdminBookingController::class, 'setPassword'])->name('set-password');
     });
 
-    // Additional Services Management Routes
+    // TEMPORARILY DISABLED - Additional Services Management Routes
+    /*
     Route::prefix('additional-services')->name('additional-services.')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'index'])->name('index');
         Route::get('/statistics/data', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getStatistics'])->name('statistics');
@@ -375,4 +384,5 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/{id}/update-service-price', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'updateServicePrice'])->name('update-service-price');
         Route::get('/{id}/price-history', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getPriceHistory'])->name('price-history');
     });
+    */
 });

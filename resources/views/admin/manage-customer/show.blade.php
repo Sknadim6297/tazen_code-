@@ -31,13 +31,13 @@
                     <!-- Profile Info Section -->
                     <div class="col-md-8 col-lg-9">
                         <div class="profile-info">
-                            <h4 class="fw-bold mb-3">{{ $customer_profile->name ?? 'N/A' }}</h4>
+                            <h4 class="fw-bold mb-3">{{ $customer_profile->name ?? $user->name ?? 'N/A' }}</h4>
                             <div class="row">
                                 <div class="col-sm-6 mb-2">
-                                    <strong>Email:</strong> {{ $customer_profile->email ?? 'N/A' }}
+                                    <strong>Email:</strong> {{ $customer_profile->email ?? $user->email ?? 'N/A' }}
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <strong>Phone:</strong> {{ $customer_profile->phone ?? 'N/A' }}
+                                    <strong>Phone:</strong> {{ $customer_profile->phone ?? $user->phone ?? 'N/A' }}
                                 </div>
                                 <div class="col-sm-6 mb-2">
                                     <strong>Address:</strong> {{ $customer_profile->address ?? 'N/A' }}

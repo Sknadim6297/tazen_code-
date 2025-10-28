@@ -650,13 +650,14 @@
                                                 <a href="{{ route('admin.manage-professional.edit', $professional->id) }}" class="btn btn-primary-light btn-icon btn-sm ms-1" data-bs-toggle="tooltip" data-bs-title="edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
+                                                {{-- TEMPORARILY DISABLED - Admin Chat with Professional --}}
+                                                {{-- <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
                                                         data-participant-type="professional" 
                                                         data-participant-id="{{ $professional->id }}" 
                                                         data-bs-toggle="tooltip" 
                                                         data-bs-title="Chat">
                                                     <i class="ri-message-3-line"></i>
-                                                </button>
+                                                </button> --}}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -878,6 +879,7 @@
                                         <a href="/admin/manage-professional/${professional.id}/edit" class="btn btn-primary-light btn-icon btn-sm ms-1">
                                             <i class="ri-edit-line"></i>
                                         </a>
+                                        <!--TEMPORARILY DISABLED - Admin Chat with Professional
                                         <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
                                                 data-participant-type="professional" 
                                                 data-participant-id="${professional.id}" 
@@ -885,6 +887,7 @@
                                                 data-bs-title="Chat">
                                             <i class="ri-message-3-line"></i>
                                         </button>
+                                        -->
                                     </td>
                                 </tr>`;
                         });

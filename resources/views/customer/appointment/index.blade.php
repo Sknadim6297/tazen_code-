@@ -2,6 +2,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/appointment.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     /* Custom Modal Styles */
@@ -311,6 +312,31 @@
         color: #e65100;
         border-color: #ffe0b2;
     }
+
+    /* Chat notification badge */
+    .chat-badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    }
+
+    .btn.position-relative {
+        overflow: visible;
+    }
 </style>
 @endsection
 
@@ -453,6 +479,7 @@
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
+                    <th>Chat</th>
                     <th>Details</th>
                 </tr>
             </thead>
@@ -541,6 +568,19 @@
                             @endif
                         </td>
                         <td>
+                            <a href="{{ route('user.chat.open', $booking->id) }}" 
+                               class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
+                               target="_blank" 
+                               title="Chat with Professional"
+                               data-booking-id="{{ $booking->id }}">
+                                <i class="fas fa-comments"></i> Chat
+                                <span class="chat-badge badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill d-none" 
+                                      id="chat-badge-{{ $booking->id }}">
+                                    0
+                                </span>
+                            </a>
+                        </td>
+                        <td>
                             <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
                                 View Details
                             </button>
@@ -548,7 +588,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="text-center">No appointments found</td>
+                        <td colspan="12" class="text-center">No appointments found</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -1067,6 +1107,38 @@ $(window).off('click.chatModal').on('click.chatModal', function (e) {
     if ($(e.target).is('#bookingChatModal')) {
         $('#closeChatModal').trigger('click');
     }
+});
+
+// Load unread chat counts for all bookings
+function loadUnreadChatCounts() {
+    $('[data-booking-id]').each(function() {
+        const bookingId = $(this).data('booking-id');
+        const badgeElement = $(`#chat-badge-${bookingId}`);
+        
+        $.ajax({
+            url: `/user/chat/booking/${bookingId}/unread-count`,
+            method: 'GET',
+            success: function(response) {
+                if(response.success && response.unread_count > 0) {
+                    badgeElement.text(response.unread_count);
+                    badgeElement.removeClass('d-none');
+                } else {
+                    badgeElement.addClass('d-none');
+                }
+            },
+            error: function() {
+                // Silently fail
+            }
+        });
+    });
+}
+
+// Load counts on page load
+$(document).ready(function() {
+    loadUnreadChatCounts();
+    
+    // Refresh counts every 30 seconds
+    setInterval(loadUnreadChatCounts, 30000);
 });
 
 </script>

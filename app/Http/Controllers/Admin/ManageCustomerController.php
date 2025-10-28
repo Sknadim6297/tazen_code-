@@ -51,11 +51,23 @@ class ManageCustomerController extends Controller
      */
     public function show(string $id)
     {
-        $customer_profile = CustomerProfile::with('user')
-            ->where('user_id', $id)
-            ->first();
+        // Get the user first
+        $user = User::findOrFail($id);
+        
+        // Try to get customer profile, create default if doesn't exist
+        $customer_profile = CustomerProfile::where('user_id', $id)->first();
+        
+        // If no customer profile exists, create a temporary one with user data
+        if (!$customer_profile) {
+            $customer_profile = new CustomerProfile([
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ]);
+        }
             
-        return view('admin.manage-customer.show', compact('customer_profile'));
+        return view('admin.manage-customer.show', compact('customer_profile', 'user'));
     }
 
     /**
