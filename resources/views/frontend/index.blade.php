@@ -1,5 +1,10 @@
 <!-- /header -->
 @extends('layouts.layout')
+
+@php
+use App\Helpers\ImageHelper;
+@endphp
+
 @section('styles')
    {{-- <link rel="stylesheet" href="{{ asset('admin/css/styles.css') }}" /> --}}
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/newslidertwo.css') }}">
@@ -696,7 +701,7 @@
 							<div class="thumb-blog-overlay bg-white hover-text-PushUpBottom mb-4">
 								<a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">
 									<div class="post-image position-relative overlay-secondary" style="height: 200px; overflow: hidden;">
-										<img src="{{ asset('storage/' . $blogPost->image) }}" alt="Blog Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+										<img src="{{ ImageHelper::getStorageImageUrl($blogPost->image, 'img/lazy-placeholder.png') }}" alt="{{ $blogPost->blog->title }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
 									</div>
 								</a>
 								<div class="post-content p-35">
@@ -988,6 +993,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     $('.right-arrow').on('click', function() {
         $carousel.trigger('next.owl.carousel');
+    });
+    
+    // Handle blog image loading errors with fallbacks
+    const blogImages = document.querySelectorAll('.thumb-blog-overlay img, .post-image img');
+    
+    blogImages.forEach(img => {
+        img.addEventListener('error', function() {
+            if (this.src.includes('storage/')) {
+                // Blog image fallback
+                this.src = '{{ asset("img/lazy-placeholder.png") }}';
+                this.style.opacity = '0.7';
+            }
+        });
+        
+        img.addEventListener('load', function() {
+            this.classList.add('loaded');
+            this.style.opacity = '1';
+        });
     });
 });
 </script>

@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/blog.css') }}">
 
 @endsection
+
+@php
+use App\Helpers\ImageHelper;
+@endphp
 @section('schema')
 <script type="application/ld+json">
 {
@@ -31,7 +35,7 @@
 <main class="bg_color">
     @foreach($blogbanners as $banner)
     <!-- blog header  -->
-    <div class="hero_single blog-head" style="background-image: url('{{ asset('storage/' . $banner->banner_image) }}');">
+    <div class="hero_single blog-head" style="background-image: url('{{ ImageHelper::getStorageImageUrl($banner->banner_image, 'img/lazy-placeholder.png') }}');">
         <!-- Content inside the div, if needed -->    
      <div class="opacity-mask" data-opacity-mask="rgba(0, 0, 0, 0.4)">
          <div class="container">
@@ -72,7 +76,7 @@
                         <li>
                             <div class="alignleft">
                                 <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($latestBlog->blog->title)) }}">
-                                    <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
+                                    <img src="{{ ImageHelper::getStorageImageUrl($latestBlog->image, 'img/lazy-placeholder.png') }}" alt="{{ $latestBlog->blog->title }}">
                                 </a>
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
@@ -121,7 +125,7 @@
                             <article class="blog" style="max-width: 100%; margin-bottom: 20px;">
                                 <figure style="height: 200px; overflow: hidden;">
                                     <a href="{{ route('blog.show', \Illuminate\Support\Str::slug($blogPost->blog->title)) }}">
-                                        <img src="{{ asset('storage/' . $blogPost->image) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ ImageHelper::getStorageImageUrl($blogPost->image, 'img/lazy-placeholder.png') }}" alt="{{ $blogPost->blog->title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                         <div class="preview"><span>Read more</span></div>
                                     </a>
                                 </figure>
@@ -132,7 +136,7 @@
                                     <ul style="margin-top: 10px;">
                                         <li>
                                             <div class="thumb" style="width: 30px; height: 30px;">
-                                                <img src="{{ asset('storage/' . $blogPost->author_avatar) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <img src="{{ ImageHelper::getStorageImageUrl($blogPost->author_avatar, 'img/default-avatar.jpg') }}" alt="{{ $blogPost->author_name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
                                             <a href="#" style="font-size: 0.9rem;">{{ $blogPost->author_name }}</a> 
                                         </li>
@@ -158,5 +162,34 @@
      <!-- /container -->
      
  </main>
+
+<script>
+// Handle image loading errors with fallbacks
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle blog images
+    const blogImages = document.querySelectorAll('article.blog img, .alignleft img, .thumb img');
+    
+    blogImages.forEach(img => {
+        img.addEventListener('error', function() {
+            if (this.src.includes('storage/')) {
+                // If it's a storage image that failed, use fallback
+                if (this.closest('.alignleft') || this.closest('.thumb')) {
+                    // Avatar fallback
+                    this.src = '{{ asset("img/default-avatar.jpg") }}';
+                } else {
+                    // Blog image fallback
+                    this.src = '{{ asset("img/lazy-placeholder.png") }}';
+                }
+                this.style.opacity = '0.7';
+            }
+        });
+        
+        img.addEventListener('load', function() {
+            this.classList.add('loaded');
+            this.style.opacity = '1';
+        });
+    });
+});
+</script>
 
 @endsection

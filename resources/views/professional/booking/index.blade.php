@@ -247,6 +247,27 @@
     
     .close-modal:hover, .close-upload-modal:hover { color: #000; }
 
+    /* Modal header and body */
+    .modal-header {
+        background: linear-gradient(to right, #2c3e50, #3498db);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
     /* Questionnaire styles */
     .questionnaire-info {
         margin-left: 0.5rem;
@@ -421,7 +442,8 @@
         }
     }
 
-    /* Chat notification badge */
+    /* Chat notification badge - TEMPORARILY DISABLED */
+    /*
     .chat-badge {
         font-size: 10px;
         min-width: 18px;
@@ -445,6 +467,7 @@
     .btn.position-relative {
         overflow: visible;
     }
+    */
 </style>
 @endsection
 
@@ -532,7 +555,7 @@
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                     <th>Customer Document</th>
-                                    <th>Chat</th>
+                                    {{-- <th>Chat</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -672,7 +695,7 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <a href="{{ route('professional.chat.open', $booking->id) }}" 
                                        class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
                                        target="_blank" 
@@ -684,7 +707,7 @@
                                             0
                                         </span>
                                     </a>
-                                </td>
+                                </td> --}}
                             </tr>
                             
                             @endforeach
@@ -729,7 +752,8 @@
     </div>
 </div>
 
-<!-- Booking Chat Modal -->
+<!-- Booking Chat Modal - TEMPORARILY DISABLED -->
+{{-- 
 <div id="bookingChatModal" class="custom-modal" style="display: none;">
     <div class="custom-modal-content" style="max-width: 700px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 15px;">
@@ -742,9 +766,37 @@
         <div style="padding: 0 1rem 1rem 1rem;">
             <div id="selectedFileName" style="color: #007bff; margin-bottom: 10px; min-height: 20px; font-size: 14px;"></div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
+            </div>
+        </div>
+    </div>
+</div>
+--}}
+
 <!-- Upload Modal -->
-            <button type="submit" class="btn-upload">Upload Document</button>
-        </form>
+<div id="uploadModal" class="upload-modal" style="display: none;">
+    <div class="upload-modal-content">
+        <div class="modal-header">
+            <h3>Upload Document</h3>
+            <span class="close-upload-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" id="booking_id" name="booking_id" value="">
+                
+                <div class="form-group">
+                    <label for="document">Select PDF Document:</label>
+                    <input type="file" id="document" name="document" accept=".pdf" required>
+                    <small class="form-text text-muted">Only PDF files are allowed. Max size: 10MB</small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn-upload">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <style>
@@ -1142,64 +1194,72 @@ window.addEventListener('click', event => {
     }
 });
 
-// Add this after your existing JavaScript
-const uploadModal = document.getElementById('uploadModal');
-const closeUploadModal = document.querySelector('.close-upload-modal');
-const uploadForm = document.getElementById('uploadForm');
-const bookingIdInput = document.getElementById('booking_id');
+// Upload Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadModal = document.getElementById('uploadModal');
+    const closeUploadModal = document.querySelector('.close-upload-modal');
+    const uploadForm = document.getElementById('uploadForm');
+    const bookingIdInput = document.getElementById('booking_id');
 
-function openUploadModal(bookingId) {
-    bookingIdInput.value = bookingId;
-    uploadModal.style.display = 'block';
-}
-
-closeUploadModal.onclick = function() {
-    uploadModal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == uploadModal) {
-        uploadModal.style.display = 'none';
-    }
-}
-
-uploadForm.onsubmit = function(e) {
-    e.preventDefault();
-    const formData = new FormData(uploadForm);
-    const bookingId = bookingIdInput.value;
-    
-    // Get the file input and check if a file is selected
-    const fileInput = document.getElementById('document');
-    if (fileInput.files.length === 0) {
-        toastr.error('Please select a file to upload');
+    // Check if elements exist before adding event listeners
+    if (!uploadModal || !closeUploadModal || !uploadForm || !bookingIdInput) {
+        console.error('Upload modal elements not found');
         return;
     }
 
-    // Add the single file to formData
-    formData.append('document', fileInput.files[0]);
+    window.openUploadModal = function(bookingId) {
+        bookingIdInput.value = bookingId;
+        uploadModal.style.display = 'block';
+    }
 
-    fetch(`/professional/bookings/${bookingId}/upload-documents`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            toastr.success(data.message);
+    closeUploadModal.onclick = function() {
+        uploadModal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == uploadModal) {
             uploadModal.style.display = 'none';
-            location.reload(); 
-        } else {
-            toastr.error(data.message || 'Upload failed');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        toastr.error('An error occurred while uploading');
-    });
-};
+    }
+
+    uploadForm.onsubmit = function(e) {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+        const bookingId = bookingIdInput.value;
+        
+        // Get the file input and check if a file is selected
+        const fileInput = document.getElementById('document');
+        if (fileInput.files.length === 0) {
+            toastr.error('Please select a file to upload');
+            return;
+        }
+
+        // Add the single file to formData
+        formData.append('document', fileInput.files[0]);
+
+        fetch(`/professional/bookings/${bookingId}/upload-documents`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success(data.message);
+                uploadModal.style.display = 'none';
+                location.reload(); 
+            } else {
+                toastr.error(data.message || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while uploading');
+        });
+    };
+});
 
 // Load unread chat counts for all bookings
 function loadUnreadChatCounts() {

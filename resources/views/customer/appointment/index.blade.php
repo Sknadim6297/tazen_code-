@@ -313,7 +313,8 @@
         border-color: #ffe0b2;
     }
 
-    /* Chat notification badge */
+    /* Chat notification badge - TEMPORARILY DISABLED */
+    /*
     .chat-badge {
         font-size: 10px;
         min-width: 18px;
@@ -337,6 +338,7 @@
     .btn.position-relative {
         overflow: visible;
     }
+    */
 </style>
 @endsection
 
@@ -479,7 +481,7 @@
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
-                    <th>Chat</th>
+                    {{-- <th>Chat</th> --}}
                     <th>Details</th>
                 </tr>
             </thead>
@@ -567,7 +569,7 @@
                                 No Documents
                             @endif
                         </td>
-                        <td>
+                        {{-- <td>
                             <a href="{{ route('user.chat.open', $booking->id) }}" 
                                class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
                                target="_blank" 
@@ -579,7 +581,7 @@
                                     0
                                 </span>
                             </a>
-                        </td>
+                        </td> --}}
                         <td>
                             <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
                                 View Details
@@ -870,6 +872,8 @@ $(window).on('click', function (e) {
 
 
 
+/*
+// CHAT FUNCTIONALITY TEMPORARILY DISABLED
 function openBookingChat(bookingId) {
     // Prevent opening multiple chats
     if(currentBookingChatId === bookingId && $('#bookingChatModal').is(':visible')) {
@@ -1140,6 +1144,7 @@ $(document).ready(function() {
     // Refresh counts every 30 seconds
     setInterval(loadUnreadChatCounts, 30000);
 });
+*/
 
 </script>
 
