@@ -5,6 +5,8 @@ use App\Models\BlogPost;
 use App\Models\Blog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class BlogPostController extends Controller
 {
@@ -112,11 +114,63 @@ class BlogPostController extends Controller
     ];
 
     if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('blog_images', 'public');
+        try {
+            // Delete old image if it exists
+            if ($blogPost->image && Storage::disk('public')->exists($blogPost->image)) {
+                Storage::disk('public')->delete($blogPost->image);
+            }
+            $imagePath = $request->file('image')->store('blog_images', 'public');
+            if ($imagePath) {
+                $data['image'] = $imagePath;
+                Log::info('BlogPost image uploaded successfully: ' . $imagePath);
+                
+                // Also copy to blogs directory for Blog model consistency
+                $sourcePath = storage_path('app/public/' . $imagePath);
+                $fileName = basename($imagePath);
+                $blogImagePath = 'blogs/' . $fileName;
+                $destinationPath = storage_path('app/public/' . $blogImagePath);
+                
+                if (copy($sourcePath, $destinationPath)) {
+                    // Update corresponding Blog image
+                    $blog = Blog::find($request->blog_id);
+                    if ($blog) {
+                        // Delete old Blog image
+                        if ($blog->image && Storage::disk('public')->exists($blog->image)) {
+                            Storage::disk('public')->delete($blog->image);
+                        }
+                        $blog->image = $blogImagePath;
+                        $blog->save();
+                        Log::info('Blog image synced: ' . $blogImagePath);
+                    }
+                }
+            } else {
+                Log::error('Failed to store BlogPost image');
+                return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+            }
+        } catch (\Exception $e) {
+            Log::error('BlogPost image upload error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Image upload failed: ' . $e->getMessage());
+        }
     }
 
     if ($request->hasFile('author_avatar')) {
-        $data['author_avatar'] = $request->file('author_avatar')->store('avatars', 'public');
+        try {
+            // Delete old avatar if it exists
+            if ($blogPost->author_avatar && Storage::disk('public')->exists($blogPost->author_avatar)) {
+                Storage::disk('public')->delete($blogPost->author_avatar);
+            }
+            $avatarPath = $request->file('author_avatar')->store('avatars', 'public');
+            if ($avatarPath) {
+                $data['author_avatar'] = $avatarPath;
+                Log::info('BlogPost avatar uploaded successfully: ' . $avatarPath);
+            } else {
+                Log::error('Failed to store BlogPost avatar');
+                return redirect()->back()->with('error', 'Failed to upload avatar. Please try again.');
+            }
+        } catch (\Exception $e) {
+            Log::error('BlogPost avatar upload error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Avatar upload failed: ' . $e->getMessage());
+        }
     }
 
     $blogPost->update($data);
@@ -132,11 +186,11 @@ class BlogPostController extends Controller
     $blogPost = BlogPost::findOrFail($id);
 
     if ($blogPost->image) {
-        \Storage::disk('public')->delete($blogPost->image);
+        Storage::disk('public')->delete($blogPost->image);
     }
 
     if ($blogPost->author_avatar) {
-        \Storage::disk('public')->delete($blogPost->author_avatar);
+        Storage::disk('public')->delete($blogPost->author_avatar);
     }
 
     $blogPost->delete();

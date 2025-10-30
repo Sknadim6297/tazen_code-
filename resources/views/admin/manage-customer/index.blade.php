@@ -2,6 +2,29 @@
 
 @section('style')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" />
+<style>
+    .export-buttons .dropdown-toggle {
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .export-buttons .dropdown-menu {
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: 1px solid #e3e6f0;
+    }
+    .export-buttons .dropdown-item {
+        padding: 10px 16px;
+        transition: all 0.3s ease;
+    }
+    .export-buttons .dropdown-item:hover {
+        background-color: #f8f9fc;
+        transform: translateX(3px);
+    }
+    .export-buttons .dropdown-item i {
+        margin-right: 8px;
+        width: 16px;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -48,6 +71,25 @@
                     <div class="card-header justify-content-between">
                         <div class="card-title">
                             Total Customers
+                        </div>
+                        <div class="export-buttons">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-download-line"></i> Export
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="exportData('excel')">
+                                            <i class="ri-file-excel-line text-success"></i> Export to Excel
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="exportData('pdf')">
+                                            <i class="ri-file-pdf-line text-danger"></i> Export to PDF
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -236,5 +278,40 @@
             });
         });
     });
+
+    // Export function
+    function exportData(format) {
+        // Get current form data (search filters)
+        const form = document.getElementById('customer-filter-form');
+        const formData = new FormData(form);
+        
+        // Convert FormData to URL parameters
+        const params = new URLSearchParams();
+        for (let [key, value] of formData) {
+            if (value) {
+                params.append(key, value);
+            }
+        }
+        
+        // Construct export URL
+        let exportUrl;
+        if (format === 'excel') {
+            exportUrl = '{{ route("admin.manage-customer.export.excel") }}';
+        } else if (format === 'pdf') {
+            exportUrl = '{{ route("admin.manage-customer.export.pdf") }}';
+        }
+        
+        // Add parameters if any
+        const queryString = params.toString();
+        if (queryString) {
+            exportUrl += '?' + queryString;
+        }
+        
+        // Show loading message
+        toastr.info('Preparing export... Please wait.');
+        
+        // Trigger download
+        window.location.href = exportUrl;
+    }
 </script>
 @endsection

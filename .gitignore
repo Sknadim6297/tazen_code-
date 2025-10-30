@@ -17,21 +17,3 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-# Ignore uploaded media and generated storage files
-/storage/app/public/
-/public/frontend/assets/video/
-/public/admin/assets/audio/
-/public/frontend/assets/img/slides/
-/public/frontend/assets/img/services-pic/
-/vendor/**/builds/
-
-# Ignore large asset directories to reduce repository size
-/public/frontend/assets/img/
-/public/admin/assets/images/
-/public/admin/assets/video/
-/public/admin/assets/icon-fonts/
-
-# Ignore user uploads and dynamic content
-/public/uploads/
-/public/storage/
-storage/app/public/

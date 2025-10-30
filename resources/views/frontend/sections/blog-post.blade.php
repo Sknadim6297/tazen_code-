@@ -1,9 +1,5 @@
 @extends('layouts.layout')
 
-@php
-use App\Helpers\ImageHelper;
-@endphp
-
 @section('meta')
 <!-- Blog-specific Meta Tags -->
 <meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
@@ -15,13 +11,13 @@ use App\Helpers\ImageHelper;
 <meta property="og:url" content="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}">
 <meta property="og:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
 <meta property="og:type" content="article">
-<meta property="og:image" content="{{ ImageHelper::getStorageImageUrl($blogPost->image, 'img/lazy-placeholder.png') }}">
+<meta property="og:image" content="{{ asset('storage/' . $blogPost->image) }}">
 
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ $relatedBlog->title }}">
 <meta name="twitter:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
-<meta name="twitter:image" content="{{ ImageHelper::getStorageImageUrl($blogPost->image, 'img/lazy-placeholder.png') }}">
+<meta name="twitter:image" content="{{ asset('storage/' . $blogPost->image) }}">
 
 <title>{{ $relatedBlog->title }} | Tazen.in Blog</title>
 @endsection
@@ -320,12 +316,12 @@ use App\Helpers\ImageHelper;
                         <li>
                             <div class="alignleft">
                                 <a href="{{ route('blog.show', $latestBlog->id) }}">
-                                    <img src="{{ ImageHelper::getStorageImageUrl($latestBlog->image, 'img/lazy-placeholder.png') }}" alt="{{ $latestBlog->blog->title }}">
+                                    <img src="{{ asset('storage/' . $latestBlog->image) }}" alt="{{ $latestBlog->blog_id }}">
                                 </a>
                             </div>
                             <small>Category - {{ $latestBlog->category }} - {{ $latestBlog->created_at->format('d M Y') }}</small>
                             <p><a href="{{ route('blog.show', $latestBlog->id) }}"><b>{{ $latestBlog->blog->title }}</b></a></p>
-                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->blog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->blog->title, 50) }}</a></h3>
+                            <h3><a href="{{ route('blog.show', $latestBlog->id) }}" title="{{ $latestBlog->title }}">{{ \Illuminate\Support\Str::limit($latestBlog->title, 50) }}</a></h3>
                         </li>
                         @endforeach
                     </ul>
@@ -363,7 +359,7 @@ use App\Helpers\ImageHelper;
 
             <div class="col-lg-9">
                 <div class="singlepost">
-                    <figure><img alt="{{ $relatedBlog->title }}" class="img-fluid" src="{{ ImageHelper::getStorageImageUrl($blogPost->image, 'img/lazy-placeholder.png') }}"></figure>
+                    <figure><img alt="" class="img-fluid" src="{{ asset('storage/' . $blogPost->image) }}"></figure>
                     <h1>{{ $relatedBlog->title }}</h1>
                     <div class="postmeta">
                         <ul>
@@ -422,7 +418,7 @@ use App\Helpers\ImageHelper;
                         @foreach($comments as $comment)
                         <li>
                             <div class="avatar">
-                                <a href="#"><img src="{{ asset('img/default-avatar.jpg') }}" alt="{{ $comment->name }}">
+                                <a href="#"><img src="{{ asset('frontend/assets/img/avatar1.jpg') }}" alt="">
                                 </a>
                             </div>
                             <div class="comment_right clearfix">
@@ -563,32 +559,5 @@ use App\Helpers\ImageHelper;
             messageEl.style.transform = 'translateX(100%)';
         }, 3000);
     }
-    
-    // Handle image loading errors with fallbacks
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle blog images
-        const blogImages = document.querySelectorAll('.singlepost img, .alignleft img, .thumb img, .avatar img');
-        
-        blogImages.forEach(img => {
-            img.addEventListener('error', function() {
-                if (this.src.includes('storage/') || this.src.includes('frontend/assets/img/')) {
-                    // If it's a storage image that failed, use fallback
-                    if (this.closest('.alignleft') || this.closest('.thumb') || this.closest('.avatar')) {
-                        // Avatar fallback
-                        this.src = '{{ asset("img/default-avatar.jpg") }}';
-                    } else {
-                        // Blog image fallback
-                        this.src = '{{ asset("img/lazy-placeholder.png") }}';
-                    }
-                    this.style.opacity = '0.7';
-                }
-            });
-            
-            img.addEventListener('load', function() {
-                this.classList.add('loaded');
-                this.style.opacity = '1';
-            });
-        });
-    });
 </script>
 @endsection

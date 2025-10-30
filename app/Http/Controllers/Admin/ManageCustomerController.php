@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerProfile;
 use App\Models\User;
+use App\Exports\CustomersExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ManageCustomerController extends Controller
 {
@@ -93,5 +96,62 @@ class ManageCustomerController extends Controller
      */
     public function destroy(string $id)
     {
+    }
+
+    /**
+     * Export customers to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $fileName = 'customers_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new CustomersExport($request), $fileName);
+    }
+
+    /**
+     * Export customers to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $users = $query->latest()->get();
+        
+        // Get customer profiles for all users
+        $userIds = $users->pluck('id')->toArray();
+        $customerProfiles = CustomerProfile::whereIn('user_id', $userIds)->get()->keyBy('user_id');
+        
+        $data = [
+            'users' => $users,
+            'customerProfiles' => $customerProfiles,
+            'exportDate' => now()->format('Y-m-d H:i:s'),
+            'totalCustomers' => $users->count(),
+            'filters' => [
+                'search' => $request->search,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+            ]
+        ];
+
+        $pdf = Pdf::loadView('admin.exports.customers_pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $fileName = 'customers_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($fileName);
     }
 }

@@ -185,6 +185,8 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::get('booking/details/{id}', [BookingController::class, 'show'])->name('booking.details');
 
     Route::resource('manage-customer', ManageCustomerController::class);
+    Route::get('manage-customer-export/excel', [ManageCustomerController::class, 'exportExcel'])->name('manage-customer.export.excel');
+    Route::get('manage-customer-export/pdf', [ManageCustomerController::class, 'exportPdf'])->name('manage-customer.export.pdf');
     Route::resource('eventpage', EventController::class);
     Route::post('booking/{id}/add-remarks', [BookingController::class, 'addRemarks'])->name('add-remarks');
     Route::post('booking/{id}/update-gmeet-link', [EventController::class, 'updateGmeetLink'])->name('event.updateGmeetLink');

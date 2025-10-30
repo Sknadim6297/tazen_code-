@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Blog;
 use App\Models\BlogPost;
 
@@ -73,11 +75,52 @@ class BlogController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        $data = $request->all();
+        // Prepare data for update - exclude image initially
+        $data = $request->only(['title', 'description_short', 'created_by', 'status']);
 
+        // Handle image upload only if a new image is provided
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('blogs', 'public');
+            try {
+                // Delete old image if it exists
+                if ($blog->image && Storage::disk('public')->exists($blog->image)) {
+                    Storage::disk('public')->delete($blog->image);
+                }
+                
+                // Store new image
+                $imagePath = $request->file('image')->store('blogs', 'public');
+                if ($imagePath) {
+                    $data['image'] = $imagePath;
+                    Log::info('Blog image uploaded successfully: ' . $imagePath);
+                    
+                    // Also copy to blog_images directory for BlogPost frontend display
+                    $sourcePath = storage_path('app/public/' . $imagePath);
+                    $fileName = basename($imagePath);
+                    $blogImagePath = 'blog_images/' . $fileName;
+                    $destinationPath = storage_path('app/public/' . $blogImagePath);
+                    
+                    if (copy($sourcePath, $destinationPath)) {
+                        // Update corresponding BlogPost image
+                        $blogPost = BlogPost::where('blog_id', $blog->id)->first();
+                        if ($blogPost) {
+                            // Delete old BlogPost image
+                            if ($blogPost->image && Storage::disk('public')->exists($blogPost->image)) {
+                                Storage::disk('public')->delete($blogPost->image);
+                            }
+                            $blogPost->image = $blogImagePath;
+                            $blogPost->save();
+                            Log::info('BlogPost image synced: ' . $blogImagePath);
+                        }
+                    }
+                } else {
+                    Log::error('Failed to store blog image');
+                    return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+                }
+            } catch (\Exception $e) {
+                Log::error('Blog image upload error: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Image upload failed: ' . $e->getMessage());
+            }
         }
+        // If no new image is uploaded, keep the existing image (don't update image field)
 
         $blog->update($data);
 
