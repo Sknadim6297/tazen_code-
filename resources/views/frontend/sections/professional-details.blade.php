@@ -2158,18 +2158,15 @@
                                                 <small style="font-size:1rem; color:#666;">{{ $perText }}</small>
                                             </div>
                                             @guest('user')
-                                                <div style="position: relative;">
-                                                    <button 
-                                                        class="select-plan-disabled" 
-                                                        style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
-                                                        disabled
-                                                    >
-                                                        Login to Select {{ ucfirst($rate->session_type) }}
-                                                    </button>
-                                                    <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
-                                                        <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
-                                                    </small>
-                                                </div>
+                                                <button 
+                                                    class="select-plan-login" 
+                                                    onclick="openLoginModal()"
+                                                    style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:pointer; width:100%; transition:background 0.2s;"
+                                                    onmouseover="this.style.background='#1741a6'" 
+                                                    onmouseout="this.style.background='#2563eb'"
+                                                >
+                                                    Login to Select {{ ucfirst($rate->session_type) }}
+                                                </button>
                                             @else
                                                 <button 
                                                     class="select-plan" 
@@ -2822,28 +2819,26 @@
             // Function to generate select button based on authentication status
             function generateSelectButton(rate, safeId) {
                 if (!isUserAuthenticated) {
+                    // For non-logged-in users, show "Login to Select" button
                     return `
-                        <div style="position: relative;">
-                            <button 
-                                class="select-plan-disabled" 
-                                style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
-                                disabled
-                            >
-                                Login to Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
-                            </button>
-                            <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
-                                <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
-                            </small>
-                        </div>
+                        <button 
+                            class="select-plan-login" 
+                            onclick="openLoginModal()"
+                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer; width:100%;"
+                            onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
+                        >
+                            Login to Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
+                        </button>
                     `;
                 } else {
+                    // For logged-in users, show normal "Select" button
                     return `
                         <button 
                             class="select-plan" 
                             data-plan="${safeId}" 
                             data-sessions="${rate.num_sessions}" 
                             data-rate="${rate.final_rate}"
-                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer;"
+                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer; width:100%;"
                             onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
                         >
                             Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
@@ -2988,18 +2983,18 @@
 
             // Function to attach select plan listeners
             function attachSelectPlanListeners() {
+                // Handle login buttons for non-authenticated users
+                document.querySelectorAll('.select-plan-login').forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Open login modal
+                        openLoginModal();
+                    });
+                });
+                
+                // Handle select plan buttons for authenticated users
                 document.querySelectorAll('.select-plan').forEach(button => {
                     button.addEventListener('click', function() {
-                        
-                        // Check authentication before plan selection
-                        if (!isUserAuthenticated) {
-                            // User not authenticated - show login modal
-                            window.checkAuthenticationBeforePlanSelection(this);
-                            return;
-                        }
-                        
-                        // User is authenticated, proceed with plan selection
-                        // User authenticated - proceed with plan selection
+                        // Allow plan selection for logged-in users
                         window.selectPlan(this);
                         
                         // Remove active class from all buttons
@@ -3517,41 +3512,23 @@
 
                 planButtons.forEach(button => {
                     button.addEventListener('click', function () {
-                        // First check if user is logged in before allowing plan selection
-                        checkAuthenticationBeforePlanSelection(this);
+                        // Check if user is authenticated
+                        if (!isUserAuthenticated) {
+                            // Show login modal
+                            openLoginModal();
+                            return;
+                        }
+                        // Allow plan selection for authenticated users
+                        selectPlan(this);
                     });
                 });
-
-                // Function to check authentication before plan selection
-                function checkAuthenticationBeforePlanSelection(planButton) {
-                    fetch('/check-login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            check: true
-                        })
-                    })
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.logged_in) {
-                            // User is logged in, proceed with plan selection
-                            selectPlan(planButton);
-                        } else {
-                            // User is not logged in, show login popup
-                            showLoginPopupForPlanSelection(planButton);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking login status:', error);
-                        // On error, show login popup (safer fallback)
-                        showLoginPopupForPlanSelection(planButton);
+                
+                // Handle login buttons for non-authenticated users on the page
+                document.querySelectorAll('.select-plan-login').forEach(button => {
+                    button.addEventListener('click', function () {
+                        openLoginModal();
                     });
-                }
+                });
 
                 // Function to show login popup for plan selection
                 function showLoginPopupForPlanSelection(planButton) {
@@ -3659,7 +3636,34 @@
                     bookingButton.addEventListener('click', function (e) {
                         e.preventDefault();
                         
-                        // Proceed directly with booking since auth check happened at plan selection
+                        // Check authentication before booking
+                        if (!isUserAuthenticated) {
+                            // Show login modal with message
+                            Swal.fire({
+                                title: 'Login Required',
+                                html: '<p>Please login to complete your booking.</p>',
+                                icon: 'info',
+                                showCancelButton: true,
+                                confirmButtonText: 'Login Now',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonColor: '#2563eb',
+                                cancelButtonColor: '#6c757d',
+                                customClass: {
+                                    popup: 'login-popup-custom',
+                                    title: 'login-popup-title',
+                                    confirmButton: 'login-popup-btn',
+                                    cancelButton: 'btn-secondary'
+                                },
+                                buttonsStyling: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    openLoginModal();
+                                }
+                            });
+                            return;
+                        }
+                        
+                        // User is authenticated, proceed with booking
                         proceedWithBooking();
                     });
                 } else {

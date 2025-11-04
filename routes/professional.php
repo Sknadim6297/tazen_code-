@@ -120,4 +120,13 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         Route::get('/booking/{bookingId}/unread-count', [BookingChatController::class, 'getUnreadCount'])->name('unread');
         Route::get('/total-unread-count', [BookingChatController::class, 'getTotalUnreadCount'])->name('total-unread');
     });
+
+    // Admin-Professional Chat Routes
+    Route::prefix('admin-chat')->name('admin-chat.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\ChatController::class, 'index'])->name('index');
+        Route::get('/messages', [App\Http\Controllers\Professional\ChatController::class, 'getChatMessages'])->name('messages');
+        Route::post('/send-message', [App\Http\Controllers\Professional\ChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/unread-count', [App\Http\Controllers\Professional\ChatController::class, 'getUnreadCount'])->name('unread-count');
+        Route::get('/attachment/{id}/download', [App\Http\Controllers\Professional\ChatController::class, 'downloadAttachment'])->name('attachment.download');
+    });
 });

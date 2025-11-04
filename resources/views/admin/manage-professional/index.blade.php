@@ -408,6 +408,89 @@
             font-size: 0.9rem;
         }
     }
+    
+    /* Chat Message Styles */
+    .message-bubble {
+        position: relative;
+        border-radius: 18px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin: 8px 0;
+        max-width: 75%;
+    }
+    
+    .message-bubble.bg-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+        margin-left: auto;
+    }
+    
+    .message-bubble.bg-light {
+        background: #f8f9fa !important;
+        border: 1px solid #e9ecef;
+        color: #495057 !important;
+        margin-right: auto;
+    }
+    
+    .justify-content-end .message-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        right: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-left-color: #4e73df;
+        border-right: 0;
+        border-bottom: 0;
+        margin-top: -4px;
+    }
+    
+    .justify-content-start .message-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-right-color: #f8f9fa;
+        border-left: 0;
+        border-bottom: 0;
+        margin-top: -4px;
+    }
+    
+    .message-sender {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .message-time {
+        font-size: 10px;
+        opacity: 0.7;
+    }
+    
+    #chatMessages {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    
+    #chatMessages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #chatMessages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    #chatMessages::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    #chatMessages::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
 </style>
 @endsection
 
@@ -650,14 +733,14 @@
                                                 <a href="{{ route('admin.manage-professional.edit', $professional->id) }}" class="btn btn-primary-light btn-icon btn-sm ms-1" data-bs-toggle="tooltip" data-bs-title="edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
-                                                {{-- TEMPORARILY DISABLED - Admin Chat with Professional --}}
-                                                {{-- <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
-                                                        data-participant-type="professional" 
-                                                        data-participant-id="{{ $professional->id }}" 
+                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 admin-chat-btn" 
+                                                        data-professional-id="{{ $professional->id }}" 
+                                                        data-professional-name="{{ $professional->name }}"
+                                                        data-professional-email="{{ $professional->email }}"
                                                         data-bs-toggle="tooltip" 
-                                                        data-bs-title="Chat">
+                                                        data-bs-title="Chat with Professional">
                                                     <i class="ri-message-3-line"></i>
-                                                </button> --}}
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -721,6 +804,57 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Admin-Professional Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="chatModalLabel">
+                    <i class="ri-message-3-line me-2"></i>Chat with <span id="chatProfessionalName">Professional</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="chatContainer" style="height: 450px; display: flex; flex-direction: column;">
+                    <!-- Chat Messages Area -->
+                    <div id="chatMessages" class="flex-fill overflow-auto p-3" style="flex: 1; max-height: 350px; border-bottom: 1px solid #dee2e6;">
+                        <div class="text-center text-muted py-4">
+                            <i class="ri-message-3-line fs-3"></i>
+                            <div>Loading chat...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input Area -->
+                    <div class="p-3 bg-light" style="border-top: 1px solid #dee2e6;">
+                        <form id="chatMessageForm" enctype="multipart/form-data">
+                            <input type="hidden" id="chatId" name="chat_id">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="chatMessageInput" name="message" 
+                                       placeholder="Type your message..." autocomplete="off">
+                                <input type="file" id="chatFileInput" name="attachment" style="display: none;" 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif">
+                                <button type="button" class="btn btn-outline-secondary" id="attachFileBtn" title="Attach File">
+                                    <i class="ri-attachment-line"></i>
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="sendMessageBtn">
+                                    <i class="ri-send-plane-fill"></i>
+                                </button>
+                            </div>
+                            <div id="selectedFile" class="mt-2" style="display: none;">
+                                <small class="text-muted">
+                                    <i class="ri-attachment-line"></i> 
+                                    <span id="fileName"></span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" id="removeFileBtn">Remove</button>
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -879,15 +1013,14 @@
                                         <a href="/admin/manage-professional/${professional.id}/edit" class="btn btn-primary-light btn-icon btn-sm ms-1">
                                             <i class="ri-edit-line"></i>
                                         </a>
-                                        <!--TEMPORARILY DISABLED - Admin Chat with Professional
-                                        <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
-                                                data-participant-type="professional" 
-                                                data-participant-id="${professional.id}" 
+                                        <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 admin-chat-btn" 
+                                                data-professional-id="${professional.id}" 
+                                                data-professional-name="${professional.name}"
+                                                data-professional-email="${professional.email}"
                                                 data-bs-toggle="tooltip" 
-                                                data-bs-title="Chat">
+                                                data-bs-title="Chat with Professional">
                                             <i class="ri-message-3-line"></i>
                                         </button>
-                                        -->
                                     </td>
                                 </tr>`;
                         });
@@ -1203,6 +1336,323 @@
                 }
             });
         });
+    });
+
+    // ============= CHAT FUNCTIONALITY =============
+    let currentChatId = null;
+    let currentProfessionalId = null;
+
+    // Open chat modal when chat button is clicked
+    $(document).on('click', '.admin-chat-btn', function() {
+        const professionalId = $(this).data('professional-id');
+        const professionalName = $(this).data('professional-name');
+        const professionalEmail = $(this).data('professional-email');
+        
+        currentProfessionalId = professionalId;
+        
+        // Update modal title
+        $('#chatProfessionalName').text(professionalName);
+        
+        // Show modal
+        $('#chatModal').modal('show');
+        
+        // Load or create chat
+        loadChat(professionalId);
+    });
+
+    // Load chat function
+    function loadChat(professionalId) {
+        $('#chatMessages').html(`
+            <div class="text-center text-muted py-4">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-2">Loading chat...</div>
+            </div>
+        `);
+
+        $.ajax({
+            url: '{{ route("admin.chat.get-or-create") }}',
+            method: 'POST',
+            data: {
+                professional_id: professionalId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    currentChatId = response.chat.id;
+                    $('#chatId').val(currentChatId);
+                    displayMessages(response.chat.messages);
+                } else {
+                    showChatError('Failed to load chat');
+                }
+            },
+            error: function() {
+                showChatError('Failed to load chat. Please try again.');
+            }
+        });
+    }
+
+    // Display messages in chat
+    function displayMessages(messages) {
+        let messagesHtml = '';
+        
+        if (messages.length === 0) {
+            messagesHtml = `
+                <div class="text-center text-muted py-4">
+                    <i class="ri-message-3-line fs-3"></i>
+                    <div class="mt-2">No messages yet. Start the conversation!</div>
+                </div>
+            `;
+        } else {
+            messages.forEach(function(message) {
+                const isAdmin = message.sender_type === 'App\\Models\\Admin';
+                const messageClass = isAdmin ? 'justify-content-end' : 'justify-content-start';
+                const bgClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+                const alignClass = isAdmin ? 'text-end' : 'text-start';
+                
+                let attachmentHtml = '';
+                if (message.attachments && message.attachments.length > 0) {
+                    message.attachments.forEach(function(attachment) {
+                        attachmentHtml += `
+                            <div class="mt-2">
+                                <a href="/admin/chat/attachment/${attachment.id}/download" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="${attachment.file_icon || 'ri-attachment-line'}"></i>
+                                    ${attachment.original_name}
+                                    <small>(${attachment.human_file_size || 'N/A'})</small>
+                                </a>
+                            </div>
+                        `;
+                    });
+                }
+
+                messagesHtml += `
+                    <div class="d-flex ${messageClass} mb-3">
+                        <div class="message-bubble ${bgClass} rounded-3 px-3 py-2">
+                            <div class="message-sender fw-bold small mb-1 ${alignClass}">
+                                ${isAdmin ? 'You (Admin)' : message.sender_name}
+                            </div>
+                            ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
+                            ${attachmentHtml}
+                            <div class="message-time small mt-1 ${alignClass}">
+                                ${formatDateTime(message.created_at)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        $('#chatMessages').html(messagesHtml);
+        scrollToBottom();
+    }
+
+    // Send message
+    $('#chatMessageForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const message = $('#chatMessageInput').val().trim();
+        const hasFile = $('#chatFileInput')[0].files.length > 0;
+        
+        if (!message && !hasFile) {
+            return;
+        }
+
+        if (!currentChatId) {
+            toastr.error('Chat not loaded properly. Please try again.');
+            return;
+        }
+
+        const formData = new FormData(this);
+        const sendBtn = $('#sendMessageBtn');
+        const originalBtnHtml = sendBtn.html();
+        
+        // Disable send button
+        sendBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin"></i>');
+
+        $.ajax({
+            url: '{{ route("admin.chat.send-message") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Clear form
+                    $('#chatMessageInput').val('');
+                    clearSelectedFile();
+                    
+                    // Add message to chat
+                    appendMessage(response.message);
+                    scrollToBottom();
+                } else {
+                    toastr.error('Failed to send message');
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Failed to send message. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    errorMsg = Object.values(errors).flat().join(', ');
+                }
+                toastr.error(errorMsg);
+            },
+            complete: function() {
+                sendBtn.prop('disabled', false).html(originalBtnHtml);
+            }
+        });
+    });
+
+    // Append single message to chat
+    function appendMessage(message) {
+        const isAdmin = message.sender_type === 'App\\Models\\Admin';
+        const messageClass = isAdmin ? 'justify-content-end' : 'justify-content-start';
+        const bgClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+        const alignClass = isAdmin ? 'text-end' : 'text-start';
+        
+        let attachmentHtml = '';
+        if (message.attachments && message.attachments.length > 0) {
+            message.attachments.forEach(function(attachment) {
+                attachmentHtml += `
+                    <div class="mt-2">
+                        <a href="/admin/chat/attachment/${attachment.id}/download" 
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="${attachment.file_icon || 'ri-attachment-line'}"></i>
+                            ${attachment.original_name}
+                            <small>(${attachment.human_file_size || 'N/A'})</small>
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        const messageHtml = `
+            <div class="d-flex ${messageClass} mb-3">
+                <div class="message-bubble ${bgClass} rounded-3 px-3 py-2">
+                    <div class="message-sender fw-bold small mb-1 ${alignClass}">
+                        ${isAdmin ? 'You (Admin)' : message.sender_name}
+                    </div>
+                    ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
+                    ${attachmentHtml}
+                    <div class="message-time small mt-1 ${alignClass}">
+                        ${formatDateTime(message.created_at)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // If no messages container exists, replace it
+        if ($('#chatMessages').find('.text-center.text-muted').length > 0) {
+            $('#chatMessages').html(messageHtml);
+        } else {
+            $('#chatMessages').append(messageHtml);
+        }
+    }
+
+    // File attachment handling
+    $('#attachFileBtn').on('click', function() {
+        $('#chatFileInput').click();
+    });
+
+    $('#chatFileInput').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            $('#fileName').text(file.name);
+            $('#selectedFile').show();
+        }
+    });
+
+    $('#removeFileBtn').on('click', function() {
+        clearSelectedFile();
+    });
+
+    function clearSelectedFile() {
+        $('#chatFileInput').val('');
+        $('#selectedFile').hide();
+        $('#fileName').text('');
+    }
+
+    // Utility functions
+    function scrollToBottom() {
+        const chatMessages = $('#chatMessages');
+        chatMessages.scrollTop(chatMessages[0].scrollHeight);
+    }
+
+    function showChatError(message) {
+        $('#chatMessages').html(`
+            <div class="text-center text-danger py-4">
+                <i class="ri-error-warning-line fs-3"></i>
+                <div class="mt-2">${message}</div>
+            </div>
+        `);
+    }
+
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Focus on message input when modal is shown
+    $('#chatModal').on('shown.bs.modal', function() {
+        $('#chatMessageInput').focus();
+    });
+
+    // Clear chat data when modal is hidden
+    $('#chatModal').on('hidden.bs.modal', function() {
+        currentChatId = null;
+        currentProfessionalId = null;
+        $('#chatMessages').html('');
+        $('#chatMessageInput').val('');
+        clearSelectedFile();
+    });
+
+    // Auto-open professional chat from notification
+    function checkForAutoOpenProfessionalChat() {
+        const chatData = sessionStorage.getItem('openProfessionalChat');
+        if (chatData) {
+            try {
+                const data = JSON.parse(chatData);
+                const professionalId = data.professionalId;
+                const chatId = data.chatId;
+                const timestamp = data.timestamp;
+                
+                // Clear the stored data
+                sessionStorage.removeItem('openProfessionalChat');
+                
+                // Check if the data is recent (within 30 seconds)
+                if (Date.now() - timestamp < 30000) {
+                    // Find the professional in the current page
+                    const professionalChatBtn = document.querySelector(`[data-professional-id="${professionalId}"]`);
+                    if (professionalChatBtn) {
+                        // Simulate clicking the chat button
+                        setTimeout(() => {
+                            professionalChatBtn.click();
+                        }, 500);
+                    } else {
+                        // Professional not on current page, might be on another page
+                        if (typeof toastr !== 'undefined') {
+                            toastr.info('Looking for professional chat...');
+                        }
+                        // We could add pagination search here if needed
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing professional chat data:', error);
+                sessionStorage.removeItem('openProfessionalChat');
+            }
+        }
+    }
+
+    // Check for auto-open chat when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkForAutoOpenProfessionalChat, 1000);
     });
 </script>
 @endsection

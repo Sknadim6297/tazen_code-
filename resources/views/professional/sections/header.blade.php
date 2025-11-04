@@ -122,6 +122,14 @@
                     @endif
                 </div>
                 
+                <!-- Admin Chat Icon -->
+                <div class="header-icon chat-icon" id="adminChatIcon">
+                    <a href="{{ route('professional.admin-chat.index') }}" target="_blank" class="btn-chat" title="Chat with Admin">
+                        <i class="fas fa-comments"></i>
+                    </a>
+                    <span class="chat-badge" id="adminChatBadge" style="display: none;">0</span>
+                </div>
+                
                 <!-- Logout Icon -->
                 <div class="header-icon logout">
                     <a href="{{ route('professional.logout') }}" class="btn-logout" title="Logout">
@@ -478,6 +486,49 @@
     .header-icon.notification-icon:hover {
         background: #f39c12;
         box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+
+    .header-icon.chat-icon:hover {
+        background: #3498db;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .header-icon .btn-chat {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 3;
+    }
+
+    .header-icon.chat-icon.has-unread {
+        background: #3498db;
+        animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.8); }
+        100% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
     }
 
     .header-icon i {
@@ -1732,9 +1783,57 @@ function markProfessionalNotificationAsRead(notificationId) {
     });
 }
 
+// Admin Chat Manager
+class AdminChatManager {
+    constructor() {
+        this.chatIcon = document.getElementById('adminChatIcon');
+        this.chatBadge = document.getElementById('adminChatBadge');
+        this.init();
+    }
+    
+    init() {
+        this.checkUnreadMessages();
+        // Check for unread messages every 30 seconds
+        setInterval(() => {
+            this.checkUnreadMessages();
+        }, 30000);
+    }
+    
+    checkUnreadMessages() {
+        fetch('{{ route("professional.admin-chat.unread-count") }}', {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.updateChatBadge(data.unread_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking unread messages:', error);
+        });
+    }
+    
+    updateChatBadge(count) {
+        if (count > 0) {
+            this.chatBadge.textContent = count > 99 ? '99+' : count;
+            this.chatBadge.style.display = 'flex';
+            this.chatIcon.classList.add('has-unread');
+        } else {
+            this.chatBadge.style.display = 'none';
+            this.chatIcon.classList.remove('has-unread');
+        }
+    }
+}
+
 // Initialize header manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     new ProfessionalHeaderManager();
+    new AdminChatManager();
     
     // Animation for notification icon if there are notifications
     const notificationBadge = document.querySelector('.notification-badge');

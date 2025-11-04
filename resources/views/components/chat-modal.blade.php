@@ -1,5 +1,3 @@
-{{-- TEMPORARILY DISABLED - Admin Chat Modal Component --}}
-{{--
 {{-- Chat Modal Component --}}
 <div id="chatModal" class="chat-modal" style="display: none;">
     <div class="chat-modal-overlay"></div>
@@ -342,4 +340,3 @@
         });
     });
 </script>
---}}

@@ -479,4 +479,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Include Onboarding Tutorial -->
+@include('components.onboarding-tutorial')
+@include('components.customer-onboarding')
 @endsection

@@ -1631,4 +1631,8 @@
         });
     });
 </script>
+
+<!-- Include Onboarding Tutorial -->
+@include('components.onboarding-tutorial')
+@include('components.professional-onboarding')
 @endsection

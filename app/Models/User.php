@@ -26,6 +26,9 @@ class User extends Authenticatable
         'registration_completed',
         'registration_status',
         'password_set_at',
+        'customer_onboarding_completed_at',
+        'professional_onboarding_completed_at',
+        'onboarding_data',
     ];
 
     /**
@@ -48,6 +51,9 @@ class User extends Authenticatable
         'password_set_at' => 'datetime',
         'email_verified' => 'boolean',
         'registration_completed' => 'boolean',
+        'customer_onboarding_completed_at' => 'datetime',
+        'professional_onboarding_completed_at' => 'datetime',
+        'onboarding_data' => 'array',
     ];
     public function customerProfile()
     {

@@ -69,14 +69,13 @@
                     @endif
                 </div>
 
-                {{-- TEMPORARILY DISABLED - Admin Chat Functionality --}}
-                {{-- <!-- Chat Icon (Admin Chat) -->
+                <!-- Chat Icon (Admin Chat) -->
                 <div class="header-icon chat-icon" id="chatIcon" title="Chat with Admin">
                     <button type="button" class="chat-btn" data-participant-type="admin" data-participant-id="1">
                         <i class="fas fa-comments"></i>
                         <span id="chatUnreadBadge" class="notification-badge" style="display: none;">0</span>
                     </button>
-                </div> --}}
+                </div>
                 
                 <!-- Logout Icon -->
                 <div class="header-icon logout">
@@ -1084,6 +1083,17 @@
             setInterval(function() {
                 notificationIcon?.classList.toggle('pulse-animation');
             }, 3000);
+        }
+
+        // Add chat button functionality
+        const chatButton = document.querySelector('.chat-btn');
+        if (chatButton) {
+            chatButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Redirect to customer chat page
+                window.location.href = '{{ route("user.admin-chat.index") }}';
+            });
         }
     });
 </script>

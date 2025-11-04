@@ -99,4 +99,15 @@ Route::middleware(['auth:user'])->group(function () {
         Route::get('/booking/{bookingId}/unread-count', [BookingChatController::class, 'getUnreadCount'])->name('unread');
         Route::get('/total-unread-count', [BookingChatController::class, 'getTotalUnreadCount'])->name('total-unread');
     });
+
+    // Admin-Customer Chat Routes
+    Route::prefix('admin-chat')->name('admin-chat.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('index');
+        Route::post('/get-or-create', [App\Http\Controllers\Customer\ChatController::class, 'getOrCreateChat'])->name('get-or-create');
+        Route::post('/send-message', [App\Http\Controllers\Customer\ChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/messages', [App\Http\Controllers\Customer\ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/mark-as-read', [App\Http\Controllers\Customer\ChatController::class, 'markAsRead'])->name('mark-as-read');
+        Route::get('/unread-count', [App\Http\Controllers\Customer\ChatController::class, 'getUnreadCount'])->name('unread-count');
+        Route::get('/attachment/{id}/download', [App\Http\Controllers\Customer\ChatController::class, 'downloadAttachment'])->name('attachment.download');
+    });
 });

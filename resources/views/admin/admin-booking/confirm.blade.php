@@ -472,9 +472,9 @@
                     </div>
 
                     <div class="payment-form-group">
-                        <label for="payment_screenshot">Payment Screenshot <span class="text-danger">*</span></label>
-                        <input type="file" id="payment_screenshot" name="payment_screenshot" class="form-control" accept="image/*" required>
-                        <small>Upload proof of payment (JPG, PNG, PDF)</small>
+                        <label for="payment_screenshot">Payment Screenshot</label>
+                        <input type="file" id="payment_screenshot" name="payment_screenshot" class="form-control" accept="image/*,application/pdf">
+                        <small>Upload proof of payment (JPG, PNG, PDF) - Optional</small>
                     </div>
 
                     <div class="payment-form-group">
@@ -558,9 +558,22 @@ document.addEventListener('DOMContentLoaded', function() {
     paymentDetailsForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Validate required fields
+        const transactionId = document.getElementById('transaction_id').value.trim();
+        
+        if (!transactionId) {
+            Swal.fire({
+                title: 'Missing Information',
+                text: 'Please enter the transaction ID.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
         // Store payment details
-        paymentDetails.transaction_id = document.getElementById('transaction_id').value;
-        paymentDetails.payment_screenshot = document.getElementById('payment_screenshot').files[0];
+        paymentDetails.transaction_id = transactionId;
+        paymentDetails.payment_screenshot = document.getElementById('payment_screenshot').files[0] || null;
         paymentDetails.payment_method = document.getElementById('payment_method').value;
         paymentDetails.payment_notes = document.getElementById('payment_notes').value;
 
@@ -610,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (paymentDetails.transaction_id) {
             formData.append('transaction_id', paymentDetails.transaction_id);
         }
-        if (paymentDetails.payment_screenshot) {
+        if (paymentDetails.payment_screenshot && paymentDetails.payment_screenshot instanceof File) {
             formData.append('payment_screenshot', paymentDetails.payment_screenshot);
         }
         if (paymentDetails.payment_method) {

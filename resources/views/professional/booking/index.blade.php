@@ -442,8 +442,7 @@
         }
     }
 
-    /* Chat notification badge - TEMPORARILY DISABLED */
-    /*
+    /* Chat notification badge */
     .chat-badge {
         font-size: 10px;
         min-width: 18px;
@@ -467,7 +466,6 @@
     .btn.position-relative {
         overflow: visible;
     }
-    */
 </style>
 @endsection
 
@@ -555,7 +553,7 @@
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                     <th>Customer Document</th>
-                                    {{-- <th>Chat</th> --}}
+                                    <th>Chat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -695,7 +693,7 @@
                                         </div>
                                     @endif
                                 </td>
-                                {{-- <td>
+                                <td>
                                     <a href="{{ route('professional.chat.open', $booking->id) }}" 
                                        class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
                                        target="_blank" 
@@ -707,7 +705,7 @@
                                             0
                                         </span>
                                     </a>
-                                </td> --}}
+                                </td>
                             </tr>
                             
                             @endforeach
@@ -752,8 +750,7 @@
     </div>
 </div>
 
-<!-- Booking Chat Modal - TEMPORARILY DISABLED -->
-{{-- 
+<!-- Booking Chat Modal -->
 <div id="bookingChatModal" class="custom-modal" style="display: none;">
     <div class="custom-modal-content" style="max-width: 700px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 15px;">
@@ -770,7 +767,6 @@
         </div>
     </div>
 </div>
---}}
 
 <!-- Upload Modal -->
 <div id="uploadModal" class="upload-modal" style="display: none;">

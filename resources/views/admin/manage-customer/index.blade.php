@@ -24,6 +24,17 @@
         margin-right: 8px;
         width: 16px;
     }
+    
+    /* Onboarding status styling */
+    .onboarding-status .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        margin: 1px;
+    }
+    
+    .onboarding-status {
+        line-height: 1.2;
+    }
 </style>
 @endsection
 
@@ -101,6 +112,7 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Phone</th>
+                                        <th scope="col">Onboarding</th>
                                         <th scope="col">Send Email</th>
                                         <th scope="col">Created At</th>
                                         <th scope="col">Action</th>
@@ -113,6 +125,29 @@
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->phone ?? 'N/A' }}</td>
+                                            <td>
+                                                <div class="onboarding-status">
+                                                    @if($user->customer_onboarding_completed_at)
+                                                        <span class="badge bg-success-transparent text-success mb-1" title="Customer tour completed">
+                                                            <i class="ri-check-line"></i> Customer
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-warning-transparent text-warning mb-1" title="Customer tour not completed">
+                                                            <i class="ri-time-line"></i> Customer
+                                                        </span>
+                                                    @endif
+                                                    <br>
+                                                    @if($user->professional_onboarding_completed_at)
+                                                        <span class="badge bg-success-transparent text-success" title="Professional tour completed">
+                                                            <i class="ri-check-line"></i> Professional
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-secondary-transparent text-secondary" title="Professional tour not completed">
+                                                            <i class="ri-time-line"></i> Professional
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info send-email-btn" 
                                                     data-email="{{ $user->email }}" 
@@ -127,14 +162,13 @@
                                                 <a href="{{ route('admin.manage-customer.show', $user->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" title="View">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
-                                                {{-- TEMPORARILY DISABLED - Admin Chat with Customer --}}
-                                                {{-- <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 chat-btn" 
-                                                        data-participant-type="user" 
-                                                        data-participant-id="{{ $user->id }}" 
+                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 customer-chat-btn" 
+                                                        data-customer-id="{{ $user->id }}" 
+                                                        data-customer-name="{{ $user->name }}"
                                                         data-bs-toggle="tooltip" 
-                                                        title="Chat">
+                                                        title="Chat with Customer">
                                                     <i class="ri-message-3-line"></i>
-                                                </button> --}}
+                                                </button>
                                                 <form method="POST" action="{{ route('admin.manage-customer.destroy', $user->id) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -203,11 +237,48 @@
     </div>
 </div>
 
+<!-- Customer Chat Modal -->
+<div class="modal fade" id="customerChatModal" tabindex="-1" aria-labelledby="customerChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customerChatModalLabel">
+                    <i class="ri-message-3-line me-2"></i>Chat with <span id="customerName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="customerChatMessages" class="chat-messages mb-3" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem;">
+                    <div class="text-center text-muted">
+                        <i class="ri-message-3-line fs-3"></i>
+                        <p>Start your conversation with this customer</p>
+                    </div>
+                </div>
+                <form id="customerChatForm" enctype="multipart/form-data">
+                    <div class="input-group">
+                        <input type="hidden" id="customerChatId" name="chat_id">
+                        <input type="text" class="form-control" id="customerChatMessage" name="message" placeholder="Type your message..." required>
+                        <input type="file" class="d-none" id="customerChatAttachment" name="attachments[]" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.zip">
+                        <button type="button" class="btn btn-outline-secondary" id="customerAttachmentBtn" title="Attach files">
+                            <i class="ri-attachment-2"></i>
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="customerSendBtn">
+                            <i class="ri-send-plane-line"></i>
+                        </button>
+                    </div>
+                    <div id="customerSelectedFiles" class="mt-2"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script>
+    let currentCustomerChatId = null;
     $(document).ready(function() {
         // Handle Send Email button click
         $(document).on('click', '.send-email-btn', function() {
@@ -277,6 +348,183 @@
                 }
             });
         });
+
+        // Customer Chat Functionality
+        $(document).on('click', '.customer-chat-btn', function() {
+            const customerId = $(this).data('customer-id');
+            const customerName = $(this).data('customer-name');
+            
+            // Set customer name in modal
+            $('#customerName').text(customerName);
+            
+            // Initialize or get chat
+            $.ajax({
+                url: '{{ route("admin.customer-chat.get-or-create") }}',
+                method: 'POST',
+                data: {
+                    customer_id: customerId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        currentCustomerChatId = response.chat.id;
+                        $('#customerChatId').val(response.chat.id);
+                        loadCustomerChatMessages();
+                        $('#customerChatModal').modal('show');
+                    } else {
+                        toastr.error('Failed to open chat');
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to open chat');
+                }
+            });
+        });
+
+        // Load customer chat messages
+        function loadCustomerChatMessages() {
+            if (!currentCustomerChatId) return;
+            
+            $.ajax({
+                url: '{{ route("admin.customer-chat.messages", ":chatId") }}'.replace(':chatId', currentCustomerChatId),
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        displayCustomerMessages(response.messages);
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to load messages');
+                }
+            });
+        }
+
+        // Display customer messages
+        function displayCustomerMessages(messages) {
+            const container = $('#customerChatMessages');
+            container.empty();
+            
+            if (messages.length === 0) {
+                container.html(`
+                    <div class="text-center text-muted">
+                        <i class="ri-message-3-line fs-3"></i>
+                        <p>Start your conversation with this customer</p>
+                    </div>
+                `);
+                return;
+            }
+            
+            messages.forEach(function(message) {
+                const isAdmin = message.sender_type === 'App\\Models\\Admin';
+                const messageClass = isAdmin ? 'text-end' : 'text-start';
+                const bubbleClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+                const alignmentClass = isAdmin ? 'ms-auto' : 'me-auto';
+                
+                let messageHtml = `
+                    <div class="mb-3 ${messageClass}">
+                        <div class="d-inline-block p-2 rounded ${bubbleClass} ${alignmentClass}" style="max-width: 70%;">
+                            <div>${escapeHtml(message.message)}</div>
+                `;
+                
+                // Add attachments if any
+                if (message.attachments && message.attachments.length > 0) {
+                    messageHtml += '<div class="mt-2">';
+                    message.attachments.forEach(function(attachment) {
+                        const downloadUrl = '{{ route("admin.customer-chat.attachment.download", ":id") }}'.replace(':id', attachment.id);
+                        messageHtml += `
+                            <a href="${downloadUrl}" class="text-decoration-none d-block">
+                                <i class="${attachment.file_icon}"></i>
+                                ${escapeHtml(attachment.filename)}
+                                <small class="text-muted">(${attachment.human_file_size})</small>
+                            </a>
+                        `;
+                    });
+                    messageHtml += '</div>';
+                }
+                
+                messageHtml += `
+                            <div class="mt-1">
+                                <small class="text-muted">${formatDateTime(message.created_at)}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.append(messageHtml);
+            });
+            
+            // Scroll to bottom
+            container.scrollTop(container[0].scrollHeight);
+        }
+
+        // Handle customer chat form submission
+        $('#customerChatForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const message = $('#customerChatMessage').val().trim();
+            if (!message) return;
+            
+            const formData = new FormData();
+            formData.append('chat_id', $('#customerChatId').val());
+            formData.append('message', message);
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            
+            // Add attachments only if files are selected
+            const fileInput = $('#customerChatAttachment')[0];
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('attachments[]', fileInput.files[i]);
+                }
+            }
+            
+            $.ajax({
+                url: '{{ route("admin.customer-chat.send-message") }}',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#customerChatMessage').val('');
+                        $('#customerChatAttachment').val('');
+                        $('#customerSelectedFiles').empty();
+                        loadCustomerChatMessages();
+                    } else {
+                        toastr.error('Failed to send message');
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to send message');
+                }
+            });
+        });
+
+        // Handle customer attachment button
+        $('#customerAttachmentBtn').on('click', function() {
+            $('#customerChatAttachment').click();
+        });
+
+        // Handle customer file selection
+        $('#customerChatAttachment').on('change', function() {
+            const files = this.files;
+            const container = $('#customerSelectedFiles');
+            container.empty();
+            
+            if (files.length > 0) {
+                container.append('<div class="small text-muted">Selected files:</div>');
+                for (let i = 0; i < files.length; i++) {
+                    container.append(`<div class="small"><i class="ri-file-line me-1"></i>${files[i].name}</div>`);
+                }
+            }
+        });
+
+        // Handle Enter key in customer chat input
+        $('#customerChatMessage').on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                $('#customerChatForm').submit();
+            }
+        });
     });
 
     // Export function
@@ -313,5 +561,67 @@
         // Trigger download
         window.location.href = exportUrl;
     }
+
+    // Utility functions for chat
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDateTime(dateTimeString) {
+        const date = new Date(dateTimeString);
+        const now = new Date();
+        const diff = now - date;
+        const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else if (diffDays === 1) {
+            return 'Yesterday ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+    }
+
+    // Auto-open customer chat from notification
+    function checkForAutoOpenChat() {
+        const chatData = sessionStorage.getItem('openCustomerChat');
+        if (chatData) {
+            try {
+                const data = JSON.parse(chatData);
+                const customerId = data.customerId;
+                const chatId = data.chatId;
+                const timestamp = data.timestamp;
+                
+                // Clear the stored data
+                sessionStorage.removeItem('openCustomerChat');
+                
+                // Check if the data is recent (within 30 seconds)
+                if (Date.now() - timestamp < 30000) {
+                    // Find the customer in the current page
+                    const customerChatBtn = document.querySelector(`[data-customer-id="${customerId}"]`);
+                    if (customerChatBtn) {
+                        // Simulate clicking the chat button
+                        setTimeout(() => {
+                            customerChatBtn.click();
+                        }, 500);
+                    } else {
+                        // Customer not on current page, might be on another page
+                        toastr.info('Looking for customer chat...');
+                        // We could add pagination search here if needed
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing chat data:', error);
+                sessionStorage.removeItem('openCustomerChat');
+            }
+        }
+    }
+
+    // Check for auto-open chat when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkForAutoOpenChat, 1000);
+    });
 </script>
 @endsection

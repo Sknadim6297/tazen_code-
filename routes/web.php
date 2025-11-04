@@ -31,6 +31,7 @@ use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\Customer\CustomerBookingController;
 use App\Http\Controllers\Professional\ProfessionalController;
 use App\Http\Controllers\Professional\BillingController;
+use App\Http\Controllers\OnboardingController;
 
 // Models
 use App\Models\AboutUs;
@@ -411,6 +412,15 @@ Route::post('/set-service-session', [HomeController::class, 'setServiceSession']
 
 // Professionals listing page (no authentication required for viewing)
 Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
+
+// Onboarding routes (require authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/onboarding/status', [OnboardingController::class, 'getOnboardingStatus'])->name('onboarding.status');
+    Route::post('/onboarding/complete-customer', [OnboardingController::class, 'completeCustomerOnboarding'])->name('onboarding.complete.customer');
+    Route::post('/onboarding/complete-professional', [OnboardingController::class, 'completeProfessionalOnboarding'])->name('onboarding.complete.professional');
+    Route::post('/onboarding/reset-customer', [OnboardingController::class, 'resetCustomerOnboarding'])->name('onboarding.reset.customer');
+    Route::post('/onboarding/reset-professional', [OnboardingController::class, 'resetProfessionalOnboarding'])->name('onboarding.reset.professional');
+});
 
 Route::middleware(['auth:user'])->group(function () {
     // Upcoming appointments routes

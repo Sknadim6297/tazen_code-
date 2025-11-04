@@ -154,4 +154,20 @@ class ManageCustomerController extends Controller
         
         return $pdf->download($fileName);
     }
+
+    /**
+     * Reset customer onboarding (Admin function)
+     */
+    public function resetOnboarding(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        $user->update([
+            'customer_onboarding_completed_at' => null,
+            'professional_onboarding_completed_at' => null,
+            'onboarding_data' => null
+        ]);
+        
+        return redirect()->back()->with('success', 'Onboarding status has been reset for this user.');
+    }
 }

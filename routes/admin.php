@@ -187,6 +187,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::resource('manage-customer', ManageCustomerController::class);
     Route::get('manage-customer-export/excel', [ManageCustomerController::class, 'exportExcel'])->name('manage-customer.export.excel');
     Route::get('manage-customer-export/pdf', [ManageCustomerController::class, 'exportPdf'])->name('manage-customer.export.pdf');
+    Route::post('manage-customer/{id}/reset-onboarding', [ManageCustomerController::class, 'resetOnboarding'])->name('manage-customer.reset-onboarding');
     Route::resource('eventpage', EventController::class);
     Route::post('booking/{id}/add-remarks', [BookingController::class, 'addRemarks'])->name('add-remarks');
     Route::post('booking/{id}/update-gmeet-link', [EventController::class, 'updateGmeetLink'])->name('event.updateGmeetLink');
@@ -389,4 +390,24 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::get('/{id}/price-history', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getPriceHistory'])->name('price-history');
     });
     */
+
+    // Chat Management - Admin to Professional Communication
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::post('/get-or-create', [App\Http\Controllers\Admin\ChatController::class, 'getOrCreateChat'])->name('get-or-create');
+        Route::post('/send-message', [App\Http\Controllers\Admin\ChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/messages', [App\Http\Controllers\Admin\ChatController::class, 'getMessages'])->name('messages');
+        Route::get('/summary', [App\Http\Controllers\Admin\ChatController::class, 'getChatSummary'])->name('summary');
+        Route::get('/attachment/{id}/download', [App\Http\Controllers\Admin\ChatController::class, 'downloadAttachment'])->name('attachment.download');
+    });
+
+    // Chat Management - Admin to Customer Communication
+    Route::prefix('customer-chat')->name('customer-chat.')->group(function () {
+        Route::post('/get-or-create', [App\Http\Controllers\Admin\CustomerChatController::class, 'getOrCreateChat'])->name('get-or-create');
+        Route::post('/send-message', [App\Http\Controllers\Admin\CustomerChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/messages/{chatId}', [App\Http\Controllers\Admin\CustomerChatController::class, 'getMessages'])->name('messages');
+        Route::get('/chats', [App\Http\Controllers\Admin\CustomerChatController::class, 'getChats'])->name('chats');
+        Route::post('/mark-as-read/{chatId}', [App\Http\Controllers\Admin\CustomerChatController::class, 'markAsRead'])->name('mark-as-read');
+        Route::get('/attachment/{id}/download', [App\Http\Controllers\Admin\CustomerChatController::class, 'downloadAttachment'])->name('attachment.download');
+    });
+
 });
