@@ -41,11 +41,11 @@
                     <div class="follow_us">
                         <h5>Follow Us</h5>
                         <ul>
-                            <li><a href="https://www.facebook.com" target="_blank"><i class="bi bi-facebook"></i></a></li>
-                            <li><a href="https://twitter.com" target="_blank"><i class="bi bi-twitter-x"></i></a></li>
-                            <li><a href="https://www.instagram.com" target="_blank"><i class="bi bi-instagram"></i></a></li>
-                            <li><a href="https://www.tiktok.com" target="_blank"><i class="bi bi-tiktok"></i></a></li>
-                            <li><a href="https://wa.me/your_whatsapp_number" target="_blank"><i class="bi bi-whatsapp"></i></a></li>
+                            <li><a href="https://www.facebook.com/share/18vaMJRLFG/" target="_blank"><i class="bi bi-facebook"></i></a></li>
+                            <li><a href="https://www.instagram.com/tazen.in?igsh=eml2bnhsMTdvaTlj" target="_blank"><i class="bi bi-instagram"></i></a></li>
+                            <li><a href="https://www.linkedin.com/company/tazen/" target="_blank"><i class="bi bi-linkedin"></i></a></li>
+                            <li><a href="https://x.com/Tazenofficial_" target="_blank"><i class="bi bi-twitter-x"></i></a></li>
+                            <li><a href="https://www.youtube.com/@Tazenofficial1" target="_blank"><i class="bi bi-youtube"></i></a></li>
                         </ul>
                     </div>
                 </div>

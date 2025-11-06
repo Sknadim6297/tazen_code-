@@ -262,7 +262,7 @@
                         
                         <!-- Action Buttons -->
                         <div class="col-lg-4 col-md-12">
-                            <label class="form-label fw-medium text-muted mb-2"><!-- spacer --></label>
+                            <label class="form-label fw-medium text-muted mb-2">&nbsp;</label>
                             <div class="d-flex gap-2 pt-2">
                                 <button type="submit" class="btn btn-primary px-4">
                                     <i class="ri-search-line me-1"></i>Search

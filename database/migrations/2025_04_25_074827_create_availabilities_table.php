@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('availabilities', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('professional_id');
+            $table->string('month');
+            $table->integer('session_duration');
+            $table->json('weekdays');
             $table->timestamps();
+
+            $table->foreign('professional_id')->references('id')->on('professionals')->onDelete('cascade');
         });
     }
 

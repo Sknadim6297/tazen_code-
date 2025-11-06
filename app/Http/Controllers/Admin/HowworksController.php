@@ -13,10 +13,7 @@ class HowworksController extends Controller
      */
     public function index()
     {
-        // Retrieve all Howworks records
         $howworks = Howworks::all();
-
-        // Pass the data to the view
         return view('admin.howworks.index', compact('howworks'));
     }
 
@@ -25,7 +22,6 @@ class HowworksController extends Controller
      */
     public function create()
     {
-        // Return the create view if you need to render a form.
     }
 
     /**
@@ -45,8 +41,6 @@ class HowworksController extends Controller
             'heading3' => 'nullable|string|max:255',
             'description3' => 'nullable|string',
         ]);
-
-        // Handle file uploads for images
         $data = $request->all();
 
         for ($i = 1; $i <= 3; $i++) {
@@ -54,8 +48,6 @@ class HowworksController extends Controller
                 $data["image$i"] = $request->file("image$i")->store("howworks", "public");
             }
         }
-
-        // Store the data in the database
         Howworks::create($data);
 
         return redirect()->route('admin.howworks.index')->with('success', 'Howworks section created successfully.');
@@ -66,10 +58,7 @@ class HowworksController extends Controller
      */
     public function edit(string $id)
     {
-        // Retrieve the specific Howworks record
         $howwork = Howworks::findOrFail($id);
-
-        // Pass the record to the edit view
         return view('admin.howworks.edit', compact('howwork'));
     }
 
@@ -90,26 +79,17 @@ class HowworksController extends Controller
             'heading3' => 'nullable|string|max:255',
             'description3' => 'nullable|string',
         ]);
-
-        // Find the existing record
         $howwork = Howworks::findOrFail($id);
-
-        // Update the data
         $data = $request->all();
 
         for ($i = 1; $i <= 3; $i++) {
             if ($request->hasFile("image$i")) {
-                // Delete old image if exists
                 if ($howwork["image$i"]) {
                     \Storage::delete("public/howworks/{$howwork["image$i"]}");
                 }
-
-                // Store the new image
                 $data["image$i"] = $request->file("image$i")->store("howworks", "public");
             }
         }
-
-        // Update the record in the database
         $howwork->update($data);
 
         return redirect()->route('admin.howworks.index')->with('success', 'Howworks section updated successfully.');
@@ -120,17 +100,12 @@ class HowworksController extends Controller
      */
     public function destroy(string $id)
     {
-        // Find the specific record
         $howwork = Howworks::findOrFail($id);
-
-        // Delete the images if they exist
         for ($i = 1; $i <= 3; $i++) {
             if ($howwork["image$i"]) {
                 \Storage::delete("public/howworks/{$howwork["image$i"]}");
             }
         }
-
-        // Delete the record from the database
         $howwork->delete();
 
         return redirect()->route('admin.howworks.index')->with('success', 'Howworks section deleted successfully.');

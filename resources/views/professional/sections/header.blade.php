@@ -7,6 +7,19 @@
     $profile = $professional ? Profile::where('professional_id', $professional->id)->first() : null;
 @endphp
 
+@php
+    // Ensure notification-related variables exist to avoid undefined variable errors
+    // when the view is rendered without an authenticated professional.
+    $newBookings = $newBookings ?? 0;
+    $rescheduleCount = $rescheduleCount ?? 0;
+    $rescheduleNotifications = $rescheduleNotifications ?? collect();
+    $hasServices = $hasServices ?? false;
+    $hasRates = $hasRates ?? false;
+    $hasAvailability = $hasAvailability ?? false;
+    $hasRequestedServices = $hasRequestedServices ?? false;
+    $totalNotifications = $totalNotifications ?? 0;
+@endphp
+
 <div class="header">
     <div class="header-left">
         <div class="toggle-sidebar">
@@ -52,8 +65,48 @@
                 // Check if professional has requested services (other information)
                 $hasRequestedServices = \App\Models\ProfessionalOtherInformation::where('professional_id', $professionalId)->exists();
                 
-                // Count total notifications (including reschedule notifications in icon)
-                $totalNotifications = $newBookings + $rescheduleCount;
+                // Check for additional service notifications
+                $additionalServiceNotifications = DB::table('notifications')
+                    ->where('notifiable_type', 'App\Models\Professional')
+                    ->where('notifiable_id', $professionalId)
+                    ->where('type', 'App\Notifications\AdditionalServiceNotification')
+                    ->whereNull('read_at')
+                    ->count();
+                
+                // Get unread booking chats with booking details
+                try {
+                    $unreadBookingChats = \App\Models\BookingChat::whereHas('booking', function($q) use ($professionalId) {
+                            $q->where('professional_id', $professionalId);
+                        })
+                        ->where('sender_type', 'customer')
+                        ->where('is_read', false)
+                        ->where('is_system_message', false)
+                        ->select('booking_id', DB::raw('COUNT(*) as unread_count'), DB::raw('MAX(created_at) as last_message_at'))
+                        ->groupBy('booking_id')
+                        ->get();
+                    
+                    // Load booking relationships separately to avoid groupBy issues
+                    if ($unreadBookingChats->isNotEmpty()) {
+                        $bookingIds = $unreadBookingChats->pluck('booking_id')->toArray();
+                        $bookings = \App\Models\Booking::with(['user', 'service'])
+                            ->whereIn('id', $bookingIds)
+                            ->get()
+                            ->keyBy('id');
+                        
+                        // Attach booking data to each chat group
+                        foreach ($unreadBookingChats as $chatGroup) {
+                            $chatGroup->booking = $bookings->get($chatGroup->booking_id);
+                        }
+                    }
+                    
+                    $unreadChatCount = $unreadBookingChats->sum('unread_count');
+                } catch (\Exception $e) {
+                    $unreadBookingChats = collect();
+                    $unreadChatCount = 0;
+                }
+                
+                // Count total notifications (including reschedule notifications and booking chats)
+                $totalNotifications = $newBookings + $rescheduleCount + $additionalServiceNotifications + $unreadChatCount;
                 if (!$hasServices) $totalNotifications++;
                 if (!$hasRates) $totalNotifications++;
                 if (!$hasAvailability) $totalNotifications++;
@@ -69,6 +122,14 @@
                     @endif
                 </div>
                 
+                <!-- Admin Chat Icon -->
+                <div class="header-icon chat-icon" id="adminChatIcon">
+                    <a href="{{ route('professional.admin-chat.index') }}" target="_blank" class="btn-chat" title="Chat with Admin">
+                        <i class="fas fa-comments"></i>
+                    </a>
+                    <span class="chat-badge" id="adminChatBadge" style="display: none;">0</span>
+                </div>
+                
                 <!-- Logout Icon -->
                 <div class="header-icon logout">
                     <a href="{{ route('professional.logout') }}" class="btn-logout" title="Logout">
@@ -79,7 +140,13 @@
 
             <div class="user-profile-wrapper">
                 <div class="user-profile">
-                    <img src="{{ $profile && $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
+                    @php
+                        $profileImage = $profile && $profile->photo ? $profile->photo : null;
+                        $imageUrl = $profileImage && file_exists(public_path('storage/' . $profileImage)) 
+                            ? asset('storage/' . $profileImage) 
+                            : asset('default.jpg');
+                    @endphp
+                    <img src="{{ $imageUrl }}" alt="Profile Photo">
                 </div>
                 
                 <div class="user-info">
@@ -99,6 +166,33 @@
             <button class="notification-modal-close">&times;</button>
         </div>
         <div class="notification-modal-body">
+            @if($unreadChatCount > 0)
+                @foreach($unreadBookingChats as $chatGroup)
+                    @php
+                        $booking = $chatGroup->booking ?? null;
+                        if (!$booking) continue;
+                        
+                        $customerName = optional($booking->user)->name ?? 'Customer';
+                        $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
+                    @endphp
+                    <div class="notification-item chat-notification">
+                        <div class="notification-icon-wrapper">
+                            <i class="fas fa-message"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h5>New Message from {{ $customerName }}</h5>
+                            <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
+                            <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
+                            <div class="button-container">
+                                <a href="{{ route('professional.chat.open', $booking->id) }}" class="notification-btn view-btn">
+                                    <i class="fas fa-comments"></i> Open Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+            
             @if($newBookings > 0)
                 <div class="notification-item new">
                     <h5>New Booking Alert!</h5>
@@ -392,6 +486,49 @@
     .header-icon.notification-icon:hover {
         background: #f39c12;
         box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+
+    .header-icon.chat-icon:hover {
+        background: #3498db;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .header-icon .btn-chat {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 3;
+    }
+
+    .header-icon.chat-icon.has-unread {
+        background: #3498db;
+        animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.8); }
+        100% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
     }
 
     .header-icon i {
@@ -1101,6 +1238,31 @@
         background: linear-gradient(135deg, #fdf2e6, #ffffff);
     }
 
+    .notification-item.chat-notification {
+        border-left-color: #9b59b6;
+        background: linear-gradient(135deg, #f4ecf7, #ffffff);
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .notification-item.chat-notification .notification-icon-wrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+
+    .notification-item.chat-notification .notification-content {
+        flex: 1;
+    }
+
     .notification-item h5 {
         margin: 0 0 10px 0;
         font-size: 16px;
@@ -1621,9 +1783,57 @@ function markProfessionalNotificationAsRead(notificationId) {
     });
 }
 
+// Admin Chat Manager
+class AdminChatManager {
+    constructor() {
+        this.chatIcon = document.getElementById('adminChatIcon');
+        this.chatBadge = document.getElementById('adminChatBadge');
+        this.init();
+    }
+    
+    init() {
+        this.checkUnreadMessages();
+        // Check for unread messages every 30 seconds
+        setInterval(() => {
+            this.checkUnreadMessages();
+        }, 30000);
+    }
+    
+    checkUnreadMessages() {
+        fetch('{{ route("professional.admin-chat.unread-count") }}', {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.updateChatBadge(data.unread_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking unread messages:', error);
+        });
+    }
+    
+    updateChatBadge(count) {
+        if (count > 0) {
+            this.chatBadge.textContent = count > 99 ? '99+' : count;
+            this.chatBadge.style.display = 'flex';
+            this.chatIcon.classList.add('has-unread');
+        } else {
+            this.chatBadge.style.display = 'none';
+            this.chatIcon.classList.remove('has-unread');
+        }
+    }
+}
+
 // Initialize header manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     new ProfessionalHeaderManager();
+    new AdminChatManager();
     
     // Animation for notification icon if there are notifications
     const notificationBadge = document.querySelector('.notification-badge');

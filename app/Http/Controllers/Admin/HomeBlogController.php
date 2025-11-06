@@ -16,14 +16,12 @@ class HomeBlogController extends Controller
         $homeblogs = HomeBlog::all(); // fetch all records
         return view('admin.homeblog.index', compact('homeblogs'));
     }
-    
 
-    /**
+/**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -32,8 +30,6 @@ class HomeBlogController extends Controller
     public function store(Request $request)
 {
     $data = $request->all();
-
-    // Handle 3 images
     for ($i = 1; $i <= 3; $i++) {
         if ($request->hasFile("image$i")) {
             $data["image$i"] = $request->file("image$i")->store('homeblogs', 'public');
@@ -45,13 +41,11 @@ class HomeBlogController extends Controller
     return redirect()->back()->with('success', 'Home Blog added successfully!');
 }
 
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -59,7 +53,6 @@ class HomeBlogController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -67,7 +60,6 @@ class HomeBlogController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -75,6 +67,5 @@ class HomeBlogController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }

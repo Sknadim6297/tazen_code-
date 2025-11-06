@@ -119,6 +119,19 @@
                                 </div>
                             @endif
 
+                            @if(isset($event) && $event->meet_link)
+                                <div class="meeting-info">
+                                    <h6>Meeting Information</h6>
+                                    <div class="alert alert-info">
+                                        <i class="icon_video"></i> <strong>Join Meeting:</strong>
+                                        <a href="{{ $event->meet_link }}" target="_blank" class="btn btn-primary btn-sm mt-2 d-block">
+                                            <i class="icon_video"></i> Click to Join Meeting
+                                        </a>
+                                        <small class="text-muted d-block mt-2">Please save this link for the event date</small>
+                                    </div>
+                                </div>
+                            @endif
+
                             <hr>
                             <a href="{{ route('user.customer-event.index') }}" class="btn_1 full-width mb_5">View All Bookings</a>
                             <a href="{{ route('event.list') }}" class="btn_1 full-width outline mb_25">Browse More Events</a>

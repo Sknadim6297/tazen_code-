@@ -36,10 +36,9 @@
                 <i class="fas fa-clock"></i>
                 <span>Events</span>
             </a>
-            
-            <a href="{{ route('user.customer.re-requested-service.index') }}" class="menu-item {{ Route::is('user.customer.re-requested-service.*') ? 'active' : '' }}">
-                <i class="fas fa-redo-alt"></i>
-                <span>Re-requested Service</span>
+            <a href="{{ route('user.additional-services.index') }}" class="menu-item {{ Route::is('user.additional-services.*') ? 'active' : '' }}">
+                <i class="fas fa-plus-square"></i>
+                <span>Additional Services</span>
             </a>
 
             <div class="menu-title">Billing</div>

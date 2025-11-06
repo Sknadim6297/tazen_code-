@@ -9,12 +9,16 @@ class McqAnswer extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_mcq_answers';
+
     protected $fillable = [
         'user_id',
         'service_id',
-        'question_id',
+        'service_mcq_id',
         'booking_id',
-        'answer'
+        'question',
+        'selected_answer',
+        'other_answer'
     ];
 
     public function user()
@@ -29,11 +33,22 @@ class McqAnswer extends Model
 
     public function question()
     {
-        return $this->belongsTo(ServiceMCQ::class, 'question_id');
+        return $this->belongsTo(ServiceMCQ::class, 'service_mcq_id');
     }
     
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    // Accessor for backward compatibility
+    public function getAnswerAttribute()
+    {
+        return $this->selected_answer;
+    }
+
+    public function getQuestionIdAttribute()
+    {
+        return $this->service_mcq_id;
     }
 }

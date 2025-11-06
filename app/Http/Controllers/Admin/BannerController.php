@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Banner;
 
-
 class BannerController extends Controller
 {
     /**
@@ -23,7 +22,6 @@ class BannerController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -57,7 +55,6 @@ class BannerController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**

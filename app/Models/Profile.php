@@ -28,6 +28,14 @@ class Profile extends Model
         'state_code',
         'state_name',
         'full_address',
+        // Bank details
+        'account_holder_name',
+        'bank_name',
+        'account_number',
+        'ifsc_code',
+        'account_type',
+        'bank_branch',
+        'bank_document',
     ];
     
     // Note: gallery is stored as JSON string, manually handled in controllers

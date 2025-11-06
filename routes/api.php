@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ProfessionalAvailabilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Professional Availability API routes for frontend booking
+Route::prefix('professional/{professionalId}')->group(function () {
+    Route::get('/availability', [ProfessionalAvailabilityController::class, 'getAvailability']);
+    Route::get('/available-dates', [ProfessionalAvailabilityController::class, 'getAvailableDates']);
+    Route::get('/available-slots', [ProfessionalAvailabilityController::class, 'getAvailableSlots']);
 });

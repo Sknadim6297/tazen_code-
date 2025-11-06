@@ -48,6 +48,42 @@
         .is-invalid ~ .invalid-feedback {
             display: block;
         }
+
+        /* Terms checkbox disabled state */
+        input[type="checkbox"]:disabled + .checkmark {
+            background-color: #e9ecef;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .container_check input:disabled ~ .checkmark {
+            background-color: #e9ecef;
+            opacity: 0.6;
+        }
+        
+        .scroll-indicator {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            z-index: 10;
+        }
+        
+        .terms-content {
+            padding: 20px 0;
+        }
+        
+        .terms-content h6 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .terms-content p, .terms-content li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 
@@ -57,7 +93,7 @@
             <a href="{{ route('home') }}"><img src="{{ asset('customer-css/assets/images/tazen_logo.png') }}" width="auto" height="100" alt="" class="logo_sticky"></a>
         </figure>
         <aside style="display:flex; flex-direction:column; gap:50px;">
-            <h2 class="text-center">Professional Login</h2>
+            <h1 class="text-center">Professional Login</h1>
             <form id="loginForm">
                 @csrf
 
@@ -87,16 +123,17 @@
 
                 <!-- Add Terms and Conditions checkbox -->
                 <div class="form-group mb-3">
-                    <label class="container_check">I accept the <a href="{{ route('professional.terms') }}" target="_blank">Terms and Conditions</a>
-                        <input type="checkbox" name="terms_accepted" id="terms_accepted">
+                    <label class="container_check">I accept the <a href="#" onclick="openTermsModal(event)">Terms and Conditions</a>
+                        <input type="checkbox" name="terms_accepted" id="terms_accepted" disabled>
                         <span class="checkmark"></span>
                     </label>
                     <div class="invalid-feedback" id="terms-error">
-                        You must accept the Terms and Conditions to continue.
+                        You must read the complete Terms and Conditions to continue.
                     </div>
+                    <small class="text-muted">Please read the complete terms and conditions to enable the checkbox.</small>
                 </div>
 
-                <button type="submit" class="btn_1 full-width">Login to Tazen</button>
+                <button type="submit" class="btn_1 full-width">Login-Experts</button>
 
                 <div class="text-center add_top_10">
                     New to Tazen? <strong><a href="{{ route('professional.register') }}">Sign up!</a></strong>
@@ -126,6 +163,25 @@
                         <i class="fas fa-envelope me-2"></i>Contact Support
                     </a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Professional Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="termsModalBody" style="max-height: 400px; overflow-y: auto;">
+                    @include('professional.terms_agreement')
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="agreeButton" disabled onclick="agreeToTerms()">I Agree</button>
                 </div>
             </div>
         </div>
@@ -171,13 +227,49 @@
             }
         });
 
+        // Terms Modal Functions
+        function openTermsModal(event) {
+            event.preventDefault();
+            $('#termsModal').modal('show');
+        }
+
+        function agreeToTerms() {
+            $('#terms_accepted').prop('disabled', false).prop('checked', true);
+            $('#terms-error').hide();
+            $('#termsModal').modal('hide');
+            toastr.success('Thank you for accepting the Terms and Conditions');
+        }
+
+        // Scroll detection for terms modal
+        $('#termsModal').on('shown.bs.modal', function() {
+            const modalBody = document.getElementById('termsModalBody');
+            const agreeButton = document.getElementById('agreeButton');
+            
+            // Reset agree button state
+            agreeButton.disabled = true;
+            agreeButton.textContent = 'Please scroll to bottom';
+            
+            modalBody.addEventListener('scroll', function() {
+                const scrollTop = modalBody.scrollTop;
+                const scrollHeight = modalBody.scrollHeight;
+                const clientHeight = modalBody.clientHeight;
+                
+                // Check if user has scrolled to bottom (with small tolerance)
+                if (scrollTop + clientHeight >= scrollHeight - 10) {
+                    agreeButton.disabled = false;
+                    agreeButton.textContent = 'I Agree';
+                    $('.scroll-indicator').html('<small class="text-success">✓ You have read the complete terms</small>');
+                }
+            });
+        });
+
         $('#loginForm').submit(function (e) {
             e.preventDefault();
 
             // Check if terms checkbox is checked
             if (!$('#terms_accepted').is(':checked')) {
                 $('#terms-error').show();
-                toastr.error('You must accept the Terms and Conditions to continue.');
+                toastr.error('You must read and accept the Terms and Conditions to continue.');
                 return false;
             }
 

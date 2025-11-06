@@ -408,6 +408,89 @@
             font-size: 0.9rem;
         }
     }
+    
+    /* Chat Message Styles */
+    .message-bubble {
+        position: relative;
+        border-radius: 18px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin: 8px 0;
+        max-width: 75%;
+    }
+    
+    .message-bubble.bg-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+        margin-left: auto;
+    }
+    
+    .message-bubble.bg-light {
+        background: #f8f9fa !important;
+        border: 1px solid #e9ecef;
+        color: #495057 !important;
+        margin-right: auto;
+    }
+    
+    .justify-content-end .message-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        right: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-left-color: #4e73df;
+        border-right: 0;
+        border-bottom: 0;
+        margin-top: -4px;
+    }
+    
+    .justify-content-start .message-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-right-color: #f8f9fa;
+        border-left: 0;
+        border-bottom: 0;
+        margin-top: -4px;
+    }
+    
+    .message-sender {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .message-time {
+        font-size: 10px;
+        opacity: 0.7;
+    }
+    
+    #chatMessages {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    
+    #chatMessages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #chatMessages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    #chatMessages::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    #chatMessages::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
 </style>
 @endsection
 
@@ -548,6 +631,7 @@
                                         <th scope="col">Sl.No</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
+                                        <th scope="col">Send Email</th>
                                         <th scope="col">Service Offered</th>
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
@@ -570,6 +654,15 @@
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $professional->email }}</span>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info send-email-btn" 
+                                                    data-email="{{ $professional->email }}" 
+                                                    data-name="{{ $professional->name }}"
+                                                    data-type="professional"
+                                                    title="Send Email">
+                                                    <i class="ri-mail-send-line"></i> Email
+                                                </button>
                                             </td>
                                             <td>
                                                 <!-- Specialization Column -->
@@ -637,6 +730,17 @@
                                                 <a href="{{ route('admin.manage-professional.show', $professional->id) }}" class="btn btn-success-light btn-icon btn-sm" data-bs-toggle="tooltip" data-bs-title="view">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
+                                                <a href="{{ route('admin.manage-professional.edit', $professional->id) }}" class="btn btn-primary-light btn-icon btn-sm ms-1" data-bs-toggle="tooltip" data-bs-title="edit">
+                                                    <i class="ri-edit-line"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 admin-chat-btn" 
+                                                        data-professional-id="{{ $professional->id }}" 
+                                                        data-professional-name="{{ $professional->name }}"
+                                                        data-professional-email="{{ $professional->email }}"
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-title="Chat with Professional">
+                                                    <i class="ri-message-3-line"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -655,14 +759,114 @@
         </div>
     </div>
 </div>
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="emailModalLabel">
+                    <i class="ri-mail-send-line me-2"></i>Send Email
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="emailForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipientName" class="form-label">Recipient Name</label>
+                        <input type="text" class="form-control" id="recipientName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipientEmail" class="form-label">Recipient Email</label>
+                        <input type="email" class="form-control" id="recipientEmail" name="recipient_email" readonly>
+                    </div>
+                    <input type="hidden" id="recipientType" name="recipient_type">
+                    <div class="mb-3">
+                        <label for="emailSubject" class="form-label">Subject <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="emailSubject" name="subject" required placeholder="Enter email subject">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailMessage" class="form-label">Message <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="emailMessage" name="message" rows="8" required placeholder="Enter your message here..."></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>Note:</strong> This email will be sent from the admin email address configured in your system.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ri-close-line me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="sendEmailBtn">
+                        <i class="ri-send-plane-fill me-1"></i>Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Admin-Professional Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="chatModalLabel">
+                    <i class="ri-message-3-line me-2"></i>Chat with <span id="chatProfessionalName">Professional</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="chatContainer" style="height: 450px; display: flex; flex-direction: column;">
+                    <!-- Chat Messages Area -->
+                    <div id="chatMessages" class="flex-fill overflow-auto p-3" style="flex: 1; max-height: 350px; border-bottom: 1px solid #dee2e6;">
+                        <div class="text-center text-muted py-4">
+                            <i class="ri-message-3-line fs-3"></i>
+                            <div>Loading chat...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input Area -->
+                    <div class="p-3 bg-light" style="border-top: 1px solid #dee2e6;">
+                        <form id="chatMessageForm" enctype="multipart/form-data">
+                            <input type="hidden" id="chatId" name="chat_id">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="chatMessageInput" name="message" 
+                                       placeholder="Type your message..." autocomplete="off">
+                                <input type="file" id="chatFileInput" name="attachment" style="display: none;" 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif">
+                                <button type="button" class="btn btn-outline-secondary" id="attachFileBtn" title="Attach File">
+                                    <i class="ri-attachment-line"></i>
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="sendMessageBtn">
+                                    <i class="ri-send-plane-fill"></i>
+                                </button>
+                            </div>
+                            <div id="selectedFile" class="mt-2" style="display: none;">
+                                <small class="text-muted">
+                                    <i class="ri-attachment-line"></i> 
+                                    <span id="fileName"></span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" id="removeFileBtn">Remove</button>
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Add submit handler for the form
-        $('form').on('submit', function(e) {
+        // Add submit handler for the FILTER form only (not email form)
+        $('#filter-form').on('submit', function(e) {
             e.preventDefault();
             let searchTerm = $('#autoComplete').val();
             let specializationFilter = $('#specializationFilter').val();
@@ -685,26 +889,26 @@
         $('#autoComplete').on('keyup', function() {
             if($(this).val().length >= 3 || $(this).val().length === 0) {
                 setTimeout(function() {
-                    $('form').submit();
+                    $('#filter-form').submit();
                 }, 500);
             }
         });
 
         $('#specializationFilter').on('change', function() {
-            $('form').submit();
+            $('#filter-form').submit();
         });
 
         $('#start_date, #end_date').on('change', function() {
             // Only trigger if both dates have values
             if($('#start_date').val() && $('#end_date').val()) {
-                $('form').submit();
+                $('#filter-form').submit();
             }
         });
 
         // Function to fetch data based on filters
         function filterData(startDate = '', endDate = '', searchTerm = '', specializationFilter = '', page = 1) {
             // Show loading indicator
-            $('#professional-table-body').html('<tr><td colspan="11" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
+            $('#professional-table-body').html('<tr><td colspan="12" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
             
             // Format dates to ensure they're in YYYY-MM-DD format for backend
             if (startDate) {
@@ -731,7 +935,7 @@
                     let professionalsHtml = '';
                     
                     if (response.professionals.data.length === 0) {
-                        professionalsHtml = '<tr><td colspan="11" class="text-center">No professionals found matching your criteria</td></tr>';
+                        professionalsHtml = '<tr><td colspan="12" class="text-center">No professionals found matching your criteria</td></tr>';
                     } else {
                         $.each(response.professionals.data, function(index, professional) {
                             // Generate specialization HTML
@@ -788,6 +992,15 @@
                                     <td><span class="fw-medium">${index + 1}</span></td>
                                     <td><span class="fw-medium">${professional.name}</span></td>
                                     <td><span class="fw-medium">${professional.email}</span></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info send-email-btn" 
+                                            data-email="${professional.email}" 
+                                            data-name="${professional.name}"
+                                            data-type="professional"
+                                            title="Send Email">
+                                            <i class="ri-mail-send-line"></i> Email
+                                        </button>
+                                    </td>
                                     <td>${specializationHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
@@ -797,6 +1010,17 @@
                                         <a href="/admin/manage-professional/${professional.id}" class="btn btn-success-light btn-icon btn-sm">
                                             <i class="ri-eye-line"></i>
                                         </a>
+                                        <a href="/admin/manage-professional/${professional.id}/edit" class="btn btn-primary-light btn-icon btn-sm ms-1">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-info-light btn-icon btn-sm ms-1 admin-chat-btn" 
+                                                data-professional-id="${professional.id}" 
+                                                data-professional-name="${professional.name}"
+                                                data-professional-email="${professional.email}"
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-title="Chat with Professional">
+                                            <i class="ri-message-3-line"></i>
+                                        </button>
                                     </td>
                                 </tr>`;
                         });
@@ -1012,8 +1236,6 @@
 
         // Export data function
         window.exportData = function(type) {
-            console.log('Export requested:', type); // Debug message
-            
             // Set the export type
             document.getElementById('export-type').value = type;
             
@@ -1045,6 +1267,392 @@
             let endDate = $('#end_date').val();
             filterData(startDate, endDate, searchTerm, specializationFilter, page);
         });
+
+        // Handle Send Email button click
+        $(document).on('click', '.send-email-btn', function() {
+            const email = $(this).data('email');
+            const name = $(this).data('name');
+            const type = $(this).data('type');
+            
+            // Populate modal fields
+            $('#recipientName').val(name);
+            $('#recipientEmail').val(email);
+            $('#recipientType').val(type);
+            
+            // Clear previous form data
+            $('#emailSubject').val('');
+            $('#emailMessage').val('');
+            
+            // Show modal
+            $('#emailModal').modal('show');
+        });
+
+        // Handle Email Form Submission
+        $('#emailForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = $('#sendEmailBtn');
+            const originalBtnText = submitBtn.html();
+            
+            // Get form data
+            const formData = {
+                recipient_email: $('#recipientEmail').val(),
+                recipient_type: $('#recipientType').val(),
+                subject: $('#emailSubject').val(),
+                message: $('#emailMessage').val(),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
+            
+            // Disable button and show loading state
+            submitBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin me-1"></i>Sending...');
+            
+            $.ajax({
+                url: '{{ route("admin.send-email") }}',
+                method: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message || 'Email sent successfully!');
+                        $('#emailModal').modal('hide');
+                        $('#emailForm')[0].reset();
+                    } else {
+                        toastr.error(response.message || 'Failed to send email.');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Failed to send email. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        const errors = xhr.responseJSON.errors;
+                        errorMsg = Object.values(errors).flat().join(', ');
+                    }
+                    toastr.error(errorMsg);
+                },
+                complete: function() {
+                    // Restore button state
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+                }
+            });
+        });
+    });
+
+    // ============= CHAT FUNCTIONALITY =============
+    let currentChatId = null;
+    let currentProfessionalId = null;
+
+    // Open chat modal when chat button is clicked
+    $(document).on('click', '.admin-chat-btn', function() {
+        const professionalId = $(this).data('professional-id');
+        const professionalName = $(this).data('professional-name');
+        const professionalEmail = $(this).data('professional-email');
+        
+        currentProfessionalId = professionalId;
+        
+        // Update modal title
+        $('#chatProfessionalName').text(professionalName);
+        
+        // Show modal
+        $('#chatModal').modal('show');
+        
+        // Load or create chat
+        loadChat(professionalId);
+    });
+
+    // Load chat function
+    function loadChat(professionalId) {
+        $('#chatMessages').html(`
+            <div class="text-center text-muted py-4">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-2">Loading chat...</div>
+            </div>
+        `);
+
+        $.ajax({
+            url: '{{ route("admin.chat.get-or-create") }}',
+            method: 'POST',
+            data: {
+                professional_id: professionalId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    currentChatId = response.chat.id;
+                    $('#chatId').val(currentChatId);
+                    displayMessages(response.chat.messages);
+                } else {
+                    showChatError('Failed to load chat');
+                }
+            },
+            error: function() {
+                showChatError('Failed to load chat. Please try again.');
+            }
+        });
+    }
+
+    // Display messages in chat
+    function displayMessages(messages) {
+        let messagesHtml = '';
+        
+        if (messages.length === 0) {
+            messagesHtml = `
+                <div class="text-center text-muted py-4">
+                    <i class="ri-message-3-line fs-3"></i>
+                    <div class="mt-2">No messages yet. Start the conversation!</div>
+                </div>
+            `;
+        } else {
+            messages.forEach(function(message) {
+                const isAdmin = message.sender_type === 'App\\Models\\Admin';
+                const messageClass = isAdmin ? 'justify-content-end' : 'justify-content-start';
+                const bgClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+                const alignClass = isAdmin ? 'text-end' : 'text-start';
+                
+                let attachmentHtml = '';
+                if (message.attachments && message.attachments.length > 0) {
+                    message.attachments.forEach(function(attachment) {
+                        attachmentHtml += `
+                            <div class="mt-2">
+                                <a href="/admin/chat/attachment/${attachment.id}/download" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="${attachment.file_icon || 'ri-attachment-line'}"></i>
+                                    ${attachment.original_name}
+                                    <small>(${attachment.human_file_size || 'N/A'})</small>
+                                </a>
+                            </div>
+                        `;
+                    });
+                }
+
+                messagesHtml += `
+                    <div class="d-flex ${messageClass} mb-3">
+                        <div class="message-bubble ${bgClass} rounded-3 px-3 py-2">
+                            <div class="message-sender fw-bold small mb-1 ${alignClass}">
+                                ${isAdmin ? 'You (Admin)' : message.sender_name}
+                            </div>
+                            ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
+                            ${attachmentHtml}
+                            <div class="message-time small mt-1 ${alignClass}">
+                                ${formatDateTime(message.created_at)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        $('#chatMessages').html(messagesHtml);
+        scrollToBottom();
+    }
+
+    // Send message
+    $('#chatMessageForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const message = $('#chatMessageInput').val().trim();
+        const hasFile = $('#chatFileInput')[0].files.length > 0;
+        
+        if (!message && !hasFile) {
+            return;
+        }
+
+        if (!currentChatId) {
+            toastr.error('Chat not loaded properly. Please try again.');
+            return;
+        }
+
+        const formData = new FormData(this);
+        const sendBtn = $('#sendMessageBtn');
+        const originalBtnHtml = sendBtn.html();
+        
+        // Disable send button
+        sendBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin"></i>');
+
+        $.ajax({
+            url: '{{ route("admin.chat.send-message") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Clear form
+                    $('#chatMessageInput').val('');
+                    clearSelectedFile();
+                    
+                    // Add message to chat
+                    appendMessage(response.message);
+                    scrollToBottom();
+                } else {
+                    toastr.error('Failed to send message');
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Failed to send message. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    errorMsg = Object.values(errors).flat().join(', ');
+                }
+                toastr.error(errorMsg);
+            },
+            complete: function() {
+                sendBtn.prop('disabled', false).html(originalBtnHtml);
+            }
+        });
+    });
+
+    // Append single message to chat
+    function appendMessage(message) {
+        const isAdmin = message.sender_type === 'App\\Models\\Admin';
+        const messageClass = isAdmin ? 'justify-content-end' : 'justify-content-start';
+        const bgClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+        const alignClass = isAdmin ? 'text-end' : 'text-start';
+        
+        let attachmentHtml = '';
+        if (message.attachments && message.attachments.length > 0) {
+            message.attachments.forEach(function(attachment) {
+                attachmentHtml += `
+                    <div class="mt-2">
+                        <a href="/admin/chat/attachment/${attachment.id}/download" 
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="${attachment.file_icon || 'ri-attachment-line'}"></i>
+                            ${attachment.original_name}
+                            <small>(${attachment.human_file_size || 'N/A'})</small>
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        const messageHtml = `
+            <div class="d-flex ${messageClass} mb-3">
+                <div class="message-bubble ${bgClass} rounded-3 px-3 py-2">
+                    <div class="message-sender fw-bold small mb-1 ${alignClass}">
+                        ${isAdmin ? 'You (Admin)' : message.sender_name}
+                    </div>
+                    ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
+                    ${attachmentHtml}
+                    <div class="message-time small mt-1 ${alignClass}">
+                        ${formatDateTime(message.created_at)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // If no messages container exists, replace it
+        if ($('#chatMessages').find('.text-center.text-muted').length > 0) {
+            $('#chatMessages').html(messageHtml);
+        } else {
+            $('#chatMessages').append(messageHtml);
+        }
+    }
+
+    // File attachment handling
+    $('#attachFileBtn').on('click', function() {
+        $('#chatFileInput').click();
+    });
+
+    $('#chatFileInput').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            $('#fileName').text(file.name);
+            $('#selectedFile').show();
+        }
+    });
+
+    $('#removeFileBtn').on('click', function() {
+        clearSelectedFile();
+    });
+
+    function clearSelectedFile() {
+        $('#chatFileInput').val('');
+        $('#selectedFile').hide();
+        $('#fileName').text('');
+    }
+
+    // Utility functions
+    function scrollToBottom() {
+        const chatMessages = $('#chatMessages');
+        chatMessages.scrollTop(chatMessages[0].scrollHeight);
+    }
+
+    function showChatError(message) {
+        $('#chatMessages').html(`
+            <div class="text-center text-danger py-4">
+                <i class="ri-error-warning-line fs-3"></i>
+                <div class="mt-2">${message}</div>
+            </div>
+        `);
+    }
+
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Focus on message input when modal is shown
+    $('#chatModal').on('shown.bs.modal', function() {
+        $('#chatMessageInput').focus();
+    });
+
+    // Clear chat data when modal is hidden
+    $('#chatModal').on('hidden.bs.modal', function() {
+        currentChatId = null;
+        currentProfessionalId = null;
+        $('#chatMessages').html('');
+        $('#chatMessageInput').val('');
+        clearSelectedFile();
+    });
+
+    // Auto-open professional chat from notification
+    function checkForAutoOpenProfessionalChat() {
+        const chatData = sessionStorage.getItem('openProfessionalChat');
+        if (chatData) {
+            try {
+                const data = JSON.parse(chatData);
+                const professionalId = data.professionalId;
+                const chatId = data.chatId;
+                const timestamp = data.timestamp;
+                
+                // Clear the stored data
+                sessionStorage.removeItem('openProfessionalChat');
+                
+                // Check if the data is recent (within 30 seconds)
+                if (Date.now() - timestamp < 30000) {
+                    // Find the professional in the current page
+                    const professionalChatBtn = document.querySelector(`[data-professional-id="${professionalId}"]`);
+                    if (professionalChatBtn) {
+                        // Simulate clicking the chat button
+                        setTimeout(() => {
+                            professionalChatBtn.click();
+                        }, 500);
+                    } else {
+                        // Professional not on current page, might be on another page
+                        if (typeof toastr !== 'undefined') {
+                            toastr.info('Looking for professional chat...');
+                        }
+                        // We could add pagination search here if needed
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing professional chat data:', error);
+                sessionStorage.removeItem('openProfessionalChat');
+            }
+        }
+    }
+
+    // Check for auto-open chat when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkForAutoOpenProfessionalChat, 1000);
     });
 </script>
 @endsection

@@ -14,8 +14,6 @@ class CommentController extends Controller
     public function index(Request $request)
     {
         $query = Comment::with(['blogPost.blog']);
-
-        // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -27,8 +25,6 @@ class CommentController extends Controller
                   });
             });
         }
-
-        // Status filter
         if ($request->filled('status')) {
             $status = $request->status;
             if ($status === 'approved') {
@@ -37,13 +33,9 @@ class CommentController extends Controller
                 $query->where('is_approved', false);
             }
         }
-
-        // Blog post filter
         if ($request->filled('blog_post')) {
             $query->where('blog_post_id', $request->blog_post);
         }
-
-        // Date range filter
         if ($request->filled('start_date')) {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
@@ -51,8 +43,6 @@ class CommentController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
-
-        // Sorting
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
 
@@ -76,8 +66,6 @@ class CommentController extends Controller
         }
 
         $comments = $query->paginate(10);
-        
-        // Get blog posts for filter dropdown
         $blogPosts = BlogPost::with('blog')->get();
 
         return view('admin.blog-comment.index', compact('comments', 'blogPosts'));
@@ -86,11 +74,7 @@ class CommentController extends Controller
     public function export(Request $request)
     {
         $type = $request->get('type', 'excel');
-        
-        // Build the same query as index method
         $query = Comment::with(['blogPost.blog']);
-
-        // Apply the same filters
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {

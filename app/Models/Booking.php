@@ -13,16 +13,18 @@ class Booking extends Model
     protected $fillable = [
         'user_id',
         'professional_id',
+        'service_id',
+        'sub_service_id',
         'plan_type',
         'customer_phone',
         'service_name',
-        'sub_service_id',
         'sub_service_name',
         'session_type',
         'customer_name',
         'customer_email',
         'month',
         'booking_date',
+        'booking_time',
         'days',
         'time_slot',
         'amount',
@@ -32,6 +34,15 @@ class Booking extends Model
         'igst_amount',
         'payment_id',
         'payment_status',
+        'paid_status', // Add paid_status field
+        'transaction_id', // Payment transaction ID
+        'payment_method', // Payment method (bank transfer, UPI, etc.)
+        'payment_screenshot', // Payment screenshot path
+        'payment_notes', // Additional payment notes
+        'status',
+        'created_by',
+        'razorpay_payment_id',
+        'razorpay_order_id',
         'remarks',
         'remarks_for_professional',
         'customer_document',
@@ -54,14 +65,6 @@ class Booking extends Model
         return $this->belongsTo(Professional::class, 'professional_id');
     }
 
-    /**
-     * Get the sub-service associated with this booking.
-     */
-    public function subService()
-    {
-        return $this->belongsTo(SubService::class, 'sub_service_id');
-    }
-
     public function timedates()
     {
         return $this->hasMany(BookingTimedate::class, 'booking_id');
@@ -82,5 +85,25 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * Get the service for this booking
+     */
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+    
+    /**
+     * Get the sub-service for this booking
+     */
+    public function subService()
+    {
+        return $this->belongsTo(SubService::class, 'sub_service_id');
+    }
+    public function additionalServices()
+    {
+        return $this->hasMany(AdditionalService::class);
     }
 }

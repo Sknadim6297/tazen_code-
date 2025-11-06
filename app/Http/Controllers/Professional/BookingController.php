@@ -42,8 +42,6 @@ class BookingController extends Controller
     if ($request->filled('plan_type')) {
         $query->where('plan_type', $request->plan_type);
     }
-
-    // Add status filter
     if ($request->filled('status')) {
         if ($request->status === 'completed') {
             $query->whereHas('timedates', function($q) {
@@ -66,16 +64,11 @@ class BookingController extends Controller
     return view('professional.booking.index', compact('bookings', 'planTypes'));
 }
 
-
-
-
-
-    /**
+/**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -83,7 +76,6 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -99,24 +91,17 @@ class BookingController extends Controller
             $booking = Booking::findOrFail($bookingId);
 
             if ($request->hasFile('document')) {
-                // Delete old file if it exists
                 if ($booking->professional_documents) {
                     $oldPath = storage_path('app/public/' . $booking->professional_documents);
                     if (file_exists($oldPath)) {
                         unlink($oldPath);
                     }
                 }
-
-                // Generate unique filename with timestamp
                 $file = $request->file('document');
                 $timestamp = time();
                 $extension = $file->getClientOriginalExtension();
                 $filename = $timestamp . '_' . uniqid() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-                
-                // Store the new file
                 $filePath = $file->storeAs('uploads/documents', $filename, 'public');
-                
-                // Update database
                 $booking->professional_documents = $filePath;
                 $booking->save();
 
@@ -144,7 +129,6 @@ class BookingController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -152,7 +136,6 @@ class BookingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -160,9 +143,7 @@ class BookingController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
-    // app/Http/Controllers/Professional/BookingController.php
 
     public function details($id)
     {
@@ -208,13 +189,8 @@ class BookingController extends Controller
         $timedate->status = $request->status;
         $timedate->remarks = $request->remarks;
         $timedate->save();
-
-        // Get the associated booking
         $booking = Booking::findOrFail($request->booking_id);
-
-        // Only associate MCQ answers if status is completed
         if ($request->status === 'completed') {
-            // Associate the user's questionnaire answers with this booking
             $mcqAnswers = McqAnswer::where('user_id', $booking->user_id)
                                 ->where('service_id', $booking->service_id)
                                 ->whereNull('booking_id')
@@ -236,8 +212,6 @@ class BookingController extends Controller
     {
         try {
             $booking = Booking::with(['customer', 'mcqAnswers.question'])->findOrFail($bookingId);
-            
-            // Get all answers associated with this booking
             $answers = $booking->mcqAnswers;
             
             if ($answers->isEmpty()) {
@@ -251,8 +225,6 @@ class BookingController extends Controller
                     ]
                 ]);
             }
-            
-            // Format answers with their questions
             $formattedAnswers = $answers->map(function ($answer) {
                 return [
                     'question' => $answer->question ? $answer->question->question : 'Question not found',
@@ -261,8 +233,6 @@ class BookingController extends Controller
                     'user_id' => $answer->user_id
                 ];
             });
-            
-            // Get service name and customer name for display
             $serviceName = $booking->service_name ?? 'Unknown Service';
             $customerName = $booking->customer ? $booking->customer->name : 'Unknown Customer';
             
@@ -274,8 +244,7 @@ class BookingController extends Controller
                     'customer_name' => $customerName
                 ]
             ]);
-            
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             
             return response()->json([
                 'success' => false,

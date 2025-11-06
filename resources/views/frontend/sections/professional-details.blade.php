@@ -325,14 +325,55 @@
             .flatpickr-day.today {
                 border: 1px solid #ccc;
             }
+            
+            /* Calendar date styling - Same as admin booking */
+            .flatpickr-day.has-available-slots {
+                background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+                border: 2px solid #28a745 !important;
+                color: #155724 !important;
+                font-weight: bold;
+                position: relative;
+            }
+
+            .flatpickr-day.has-available-slots:hover {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+                color: white !important;
+                transform: scale(1.05);
+                transition: all 0.2s ease;
+            }
+
+            /* Green dot indicator for dates with available slots */
+            .flatpickr-day.has-available-slots::before {
+                content: '●';
+                position: absolute;
+                top: 1px;
+                right: 2px;
+                color: #28a745;
+                font-size: 10px;
+                font-weight: bold;
+                text-shadow: 0 0 2px white;
+            }
     
             /* Time Slots */
             .dropdown.time {
                 width: 100%;
             }
+            
+            .dropdown.time .dropdown-menu {
+                display: block !important;
+                position: relative !important;
+                width: 100% !important;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                box-shadow: none;
+                transform: none !important;
+                margin-top: 10px;
+                min-height: 200px; /* Fixed height to prevent jumping */
+            }
     
             .dropdown-menu-content {
                 padding: 15px;
+                min-height: 100px;
             }
     
             .radio_select.time {
@@ -974,12 +1015,20 @@
 
             .dropdown-menu-content {
                 padding: 15px;
+                min-height: 200px; /* Fixed minimum height to prevent jumping */
+                position: relative;
             }
 
             .radio_select.time {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 10px;
+                min-height: 150px; /* Maintain consistent height */
+            }
+
+            #time-slots-container {
+                position: relative;
+                width: 100%;
             }
 
             .slot-box {
@@ -1000,6 +1049,17 @@
             .slot-box input[type="radio"]:checked + label {
                 background: #00a6eb;
                 color: white;
+            }
+            
+            #no-slots-message {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                padding: 20px;
+                color: #6c757d;
+                display: block; /* Show by default until date is selected */
             }
 
             /* Reviews */
@@ -2010,28 +2070,32 @@
                 </div>
                 
                 <div class="col-xl-4 col-lg-5">
-                    <!-- Service Context Indicator -->
-                    @if($requestedSubServiceId && $services && $services->subServices)
-                        @php $currentSubService = $services->subServices->where('id', $requestedSubServiceId)->first(); @endphp
-                        @if($currentSubService)
-                            <div class="box_booking mb-3">
-                                <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px;">
-                                    <small style="color: #1976d2; font-weight: 600;">
-                                        <i class="fas fa-info-circle"></i> Showing rates for: {{ $currentSubService->name }}
-                                    </small>
-                                </div>
+                    <!-- Service Selection Dropdown -->
+                    @if($services && $services->subServices && count($services->subServices) > 0)
+                        <div class="box_booking mb-3">
+                            <div style="padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+                                <label style="margin: 0 0 10px 0; color: #333; font-weight: 600; font-size: 14px;">
+                                    <i class="fas fa-layer-group"></i> Select Service
+                                </label>
+                                
+                                <select id="service-selector-dropdown" 
+                                        onchange="handleServiceSelection(this.value)"
+                                        style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 14px; font-weight: 500; cursor: pointer;">
+                                    <option value="" {{ !$requestedSubServiceId ? 'selected' : '' }}>
+                                        {{ $services->name }} (Main Service)
+                                    </option>
+                                    @foreach($services->subServices as $subService)
+                                        <option value="{{ $subService->id }}" {{ $requestedSubServiceId == $subService->id ? 'selected' : '' }}>
+                                            {{ $subService->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                
+                                <small style="color: #6c757d; font-style: italic; margin-top: 8px; display: block;">
+                                    <i class="fas fa-info-circle"></i> Choose a service to see rates and availability
+                                </small>
                             </div>
-                        @endif
-                    @else
-                        @if($services && $services->subServices && count($services->subServices) > 0)
-                            <div class="box_booking mb-3">
-                                <div style="padding: 15px; background: #f3e5f5; border-left: 4px solid #9c27b0; border-radius: 8px;">
-                                    <small style="color: #7b1fa2; font-weight: 600;">
-                                        <i class="fas fa-info-circle"></i> Showing general service rates for: {{ $services->name }}
-                                    </small>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     @endif
 
                     <!-- Appointment Type Tabs -->
@@ -2060,13 +2124,29 @@
                                             <p style="color:#555; margin-bottom:18px;">{{ $rate->professional->bio }}</p>
                                             <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
                                                 <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">{{ $rate->num_sessions }} sessions</span></li>
+                                                <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">₹{{ number_format($rate->rate_per_session, 2) }} per session</span></li>
                                                 @foreach($availabilities as $availability)
                                                     <li style="margin-bottom:7px; color:#2563eb;">
                                                         <i class="icon_check_alt2"></i>
                                                         <span style="color:#444;">{{ $availability->session_duration }} min per session</span>
                                                     </li>
                                                 @endforeach
-                                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @php
+                                                    // Filter out empty features
+                                                    $validFeatures = [];
+                                                    if($rate->features && is_array($rate->features)) {
+                                                        $validFeatures = array_filter($rate->features, function($feature) {
+                                                            return !empty(trim($feature));
+                                                        });
+                                                    }
+                                                @endphp
+                                                @if(count($validFeatures) > 0)
+                                                    @foreach($validFeatures as $feature)
+                                                        <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">{{ $feature }}</span></li>
+                                                    @endforeach
+                                                @else
+                                                    <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @endif
                                             </ul>
                                             <div class="price" style="margin-bottom:18px;">
                                                 @php
@@ -2082,18 +2162,15 @@
                                                 <small style="font-size:1rem; color:#666;">{{ $perText }}</small>
                                             </div>
                                             @guest('user')
-                                                <div style="position: relative;">
-                                                    <button 
-                                                        class="select-plan-disabled" 
-                                                        style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
-                                                        disabled
-                                                    >
-                                                        Login to Select {{ ucfirst($rate->session_type) }}
-                                                    </button>
-                                                    <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
-                                                        <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
-                                                    </small>
-                                                </div>
+                                                <button 
+                                                    class="select-plan-login" 
+                                                    onclick="openLoginModal()"
+                                                    style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:pointer; width:100%; transition:background 0.2s;"
+                                                    onmouseover="this.style.background='#1741a6'" 
+                                                    onmouseout="this.style.background='#2563eb'"
+                                                >
+                                                    Login to Select {{ ucfirst($rate->session_type) }}
+                                                </button>
                                             @else
                                                 <button 
                                                     class="select-plan" 
@@ -2120,18 +2197,7 @@
                             <a href="#0" class="close_panel_mobile"><i class="icon_close"></i></a>
                         </div>
                         <div class="main">
-                            @guest('user')
-                                <div class="auth-required-booking" style="text-align: center; padding: 40px 20px;">
-                                    <i class="fas fa-calendar-times" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-                                    <h4 style="color: #666; margin-bottom: 15px; font-weight: 600;">Login Required</h4>
-                                    <p style="color: #888; margin-bottom: 20px;">You need to be logged in to select dates, times, and book appointments.</p>
-                                    <a href="javascript:void(0);" onclick="openLoginModal()" 
-                                       class="btn_1" 
-                                       style="background: #2563eb; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">
-                                        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Login to Book
-                                    </a>
-                                </div>
-                            @else
+                            
                                 <div id="selected-plan-display" style="display:none;">
                                     <strong>Selected Plan: </strong><span id="selected-plan-text">None</span>
                                     <input type="hidden" id="selected_plan" name="selected_plan" value="">
@@ -2162,55 +2228,96 @@
                                     </div>
                                 </div>
                                 <div class="dropdown time mt-4">
-                                    <a href="#" data-bs-toggle="dropdown">
-                                        <div>Hour</div>
+                                    <a href="#" data-bs-toggle="dropdown" class="dropdown-toggle">
+                                        <div>Hour <small class="text-muted">(Select a date to see available times)</small></div>
                                         <div id="selected_time"></div>
                                     </a>
                                     
-                                    <div class="dropdown-menu">
+                                    <div class="dropdown-menu" style="display: block; position: relative; width: 100%;">
                                         <div class="dropdown-menu-content">
-                                            <div class="radio_select d-flex flex-wrap gap-2">
+                                            <div class="radio_select d-flex flex-wrap gap-2" id="time-slots-container">
                                                 @foreach($availabilities as $availability)
-                                                    @php $weekdays = json_decode($availability->weekdays, true); @endphp
-                                                    @if(is_array($weekdays))
-                                                        @foreach($availability->slots as $slot)
-                                                            @foreach($weekdays as $day)
-                                                                @php
-                                                                    $weekday = strtolower($day);
-                                                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
-                                                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
-                                                                @endphp
+                                                    @foreach($availability->slots as $slot)
+                                                        @php
+                                                            // Handle two patterns:
+                                                            // Pattern 1: Slot has its own weekday field (newer system)
+                                                            // Pattern 2: Weekdays in parent availability, slot weekday is null (legacy system)
+                                                            
+                                                            $weekdaysToProcess = [];
+                                                            
+                                                            if (!empty($slot->weekday)) {
+                                                                // Pattern 1: Slot has direct weekday
+                                                                $weekdaysToProcess = [strtolower($slot->weekday)];
+                                                            } else {
+                                                                // Pattern 2: Get from parent availability
+                                                                $weekdaysRaw = $availability->weekdays;
+                                                                
+                                                                if (is_string($weekdaysRaw)) {
+                                                                    $weekdaysToProcess = json_decode($weekdaysRaw, true) ?: [];
+                                                                } elseif (is_array($weekdaysRaw)) {
+                                                                    $weekdaysToProcess = $weekdaysRaw;
+                                                                }
+                                                                
+                                                                // Convert to lowercase
+                                                                $weekdaysToProcess = array_map('strtolower', $weekdaysToProcess);
+                                                            }
+                                                            
+                                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
+                                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
+                                                        @endphp
+                                                        
+                                                        @foreach($weekdaysToProcess as $weekday)
+                                                            <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
+                                                                <input type="radio"
+                                                                    id="time_{{ $slot->id }}_{{ $weekday }}"
+                                                                    name="time"
+                                                                    class="time-slot"
+                                                                    data-id="{{ $slot->id }}"
+                                                                    value="{{ $startTime }} to {{ $endTime }}"
+                                                                    data-start="{{ $startTime }}"
+                                                                    data-end="{{ $endTime }}">
 
-                                                                <div class="slot-box" data-weekday="{{ $weekday }}" style="flex: 0 0 auto; display: none;">
-                                                                    <input type="radio"
-                                                                        id="time_{{ $slot->id }}_{{ $weekday }}"
-                                                                        name="time"
-                                                                        class="time-slot"
-                                                                        data-id="{{ $slot->id }}"
-                                                                        value="{{ $startTime }} to {{ $endTime }}"
-                                                                        data-start="{{ $startTime }}"
-                                                                        data-start-period="{{ strtoupper($slot->start_period) }}"
-                                                                        data-end="{{ $endTime }}"
-                                                                        data-end-period="{{ strtoupper($slot->end_period) }}">
-
-                                                                    <label for="time_{{ $slot->id }}_{{ $weekday }}">
-                                                                        {{ $startTime }} - {{ $endTime }}
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
+                                                                <label for="time_{{ $slot->id }}_{{ $weekday }}">
+                                                                    {{ $startTime }} - {{ $endTime }}
+                                                                </label>
+                                                            </div>
                                                         @endforeach
-                                                    @endif
+                                                    @endforeach
                                                 @endforeach
+                                                <!-- No slots message -->
+                                                <div id="no-slots-message" style="width: 100%; text-align: center; padding: 30px 20px; color: #6c757d;">
+                                                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.4; display: block;"></i>
+                                                    <p style="margin: 0; font-size: 1rem; font-weight: 500;">
+                                                        <strong>No date selected</strong><br>
+                                                        <span style="font-size: 0.9rem; opacity: 0.8;">Please select a date from the calendar above to view available time slots</span>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <script>
+                                    // Debug: Log all slot boxes rendered on page load
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const allSlots = document.querySelectorAll('.slot-box');
+                                        console.log('Total slot boxes rendered:', allSlots.length);
+                                        
+                                        // Group by weekday
+                                        const slotsByDay = {};
+                                        allSlots.forEach(slot => {
+                                            const weekday = slot.getAttribute('data-weekday');
+                                            if (!slotsByDay[weekday]) slotsByDay[weekday] = 0;
+                                            slotsByDay[weekday]++;
+                                        });
+                                        console.log('Slots by weekday:', slotsByDay);
+                                    });
+                                </script>
                                 <ul id="selected-time-list">
                                     <!-- Selected dates and times will be appended here -->
                                 </ul>
                                 
                                 <a href="javascript:void(0);" class="btn_1 full-width booking" id="bookNowBtn">Book Now</a>
-                            @endguest
+                            
                         </div>
                     </div>
                     
@@ -2705,28 +2812,26 @@
             // Function to generate select button based on authentication status
             function generateSelectButton(rate, safeId) {
                 if (!isUserAuthenticated) {
+                    // For non-logged-in users, show "Login to Select" button
                     return `
-                        <div style="position: relative;">
-                            <button 
-                                class="select-plan-disabled" 
-                                style="background:#ccc; color:#666; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; cursor:not-allowed; opacity:0.6; width:100%;"
-                                disabled
-                            >
-                                Login to Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
-                            </button>
-                            <small style="display: block; margin-top: 8px; color: #666; text-align: center;">
-                                <a href="javascript:void(0);" onclick="openLoginModal()" style="color: #2563eb; text-decoration: underline;">Please login</a> to select sessions and book appointments
-                            </small>
-                        </div>
+                        <button 
+                            class="select-plan-login" 
+                            onclick="openLoginModal()"
+                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer; width:100%;"
+                            onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
+                        >
+                            Login to Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
+                        </button>
                     `;
                 } else {
+                    // For logged-in users, show normal "Select" button
                     return `
                         <button 
                             class="select-plan" 
                             data-plan="${safeId}" 
                             data-sessions="${rate.num_sessions}" 
                             data-rate="${rate.final_rate}"
-                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer;"
+                            style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:10px 28px; font-weight:600; font-size:1.08rem; transition:background 0.2s; box-shadow:none; outline:none; cursor:pointer; width:100%;"
                             onmouseover="this.style.background='#1741a6'" onmouseout="this.style.background='#2563eb'"
                         >
                             Select ${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)}
@@ -2757,6 +2862,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            // Update service context indicator
+                            updateServiceContext(subServiceId, data.sub_service_name);
+                            
                             // Update rates tabs
                             updateRatesTabs(data.rates);
                             
@@ -2774,6 +2882,43 @@
                     .finally(() => {
                         loadingOverlay.remove();
                     });
+            }
+
+            // Handle dropdown service selection
+            function handleServiceSelection(subServiceId) {
+                if (subServiceId === '') {
+                    // Main service selected
+                    updateRatesAndAvailability(null);
+                } else {
+                    // Sub-service selected
+                    updateRatesAndAvailability(subServiceId);
+                }
+            }
+
+            // Function to update service context indicator (now simplified)
+            function updateServiceContext(subServiceId, subServiceName) {
+                // Context display removed for cleaner UI
+                console.log('Service context updated:', subServiceId ? subServiceName : 'Main Service');
+            }
+
+            // Function to switch to main service (simplified)
+            function switchToMainService() {
+                // Update dropdown selection
+                const dropdown = document.getElementById('service-selector-dropdown');
+                if (dropdown) dropdown.value = '';
+                
+                // Update rates and availability for main service
+                updateRatesAndAvailability(null);
+            }
+
+            // Function to switch to sub-service (simplified)
+            function switchToSubService(subServiceId, subServiceName) {
+                // Update dropdown selection
+                const dropdown = document.getElementById('service-selector-dropdown');
+                if (dropdown) dropdown.value = subServiceId;
+                
+                // Update rates and availability for sub-service
+                updateRatesAndAvailability(subServiceId);
             }
 
             // Function to update rates tabs
@@ -2828,13 +2973,27 @@
                         'quarterly': 'per 3 months'
                     }[rate.session_type.toLowerCase()] || 'per session';
                     
+                       // Build features list
+                       let featuresHTML = '';
+                       if (rate.features && Array.isArray(rate.features) && rate.features.length > 0) {
+                           featuresHTML = rate.features.map(feature => {
+                               if (feature && feature.trim()) {
+                                   return `<li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${feature}</span></li>`;
+                               }
+                               return '';
+                           }).join('');
+                       }
+                   
+                       // Add default features
+                       featuresHTML += `<li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${rate.num_sessions} sessions</span></li>`;
+                       featuresHTML += `<li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>`;
+                   
                     tabPane.innerHTML = `
                         <div class="appointment-details" style="max-width:500px; margin:auto;">
                             <h4 style="font-weight:700; color:#222; margin-bottom:10px;">${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)} Consultation</h4>
                             <p style="color:#555; margin-bottom:18px;">Professional consultation service</p>
                             <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
-                                <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${rate.num_sessions} sessions</span></li>
-                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                   ${featuresHTML}
                             </ul>
                             <div class="price" style="margin-bottom:18px;">
                                 <strong style="font-size:2rem; color:#2563eb; font-weight:700;">Rs. ${Number(rate.final_rate).toFixed(2)}</strong><br>
@@ -2871,18 +3030,18 @@
 
             // Function to attach select plan listeners
             function attachSelectPlanListeners() {
+                // Handle login buttons for non-authenticated users
+                document.querySelectorAll('.select-plan-login').forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Open login modal
+                        openLoginModal();
+                    });
+                });
+                
+                // Handle select plan buttons for authenticated users
                 document.querySelectorAll('.select-plan').forEach(button => {
                     button.addEventListener('click', function() {
-                        
-                        // Check authentication before plan selection
-                        if (!isUserAuthenticated) {
-                            // User not authenticated - show login modal
-                            window.checkAuthenticationBeforePlanSelection(this);
-                            return;
-                        }
-                        
-                        // User is authenticated, proceed with plan selection
-                        // User authenticated - proceed with plan selection
+                        // Allow plan selection for logged-in users
                         window.selectPlan(this);
                         
                         // Remove active class from all buttons
@@ -2936,27 +3095,49 @@
                         return;
                     }
                     
+                    // Normalize enabled dates to YYYY-MM-DD format
+                    const normalizedEnabledDates = Array.isArray(dates) ? dates.filter(date => date && typeof date === 'string') : [];
+                    console.log('Initializing calendar with enabled dates:', normalizedEnabledDates);
+                    
+                    // Create date boundaries - today to 6 months from now
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const maxDate = new Date();
+                    maxDate.setMonth(maxDate.getMonth() + 6); // 6 months from today
+                    
                     flatpickr("#calendarDiv", {
                         inline: true,
                         mode: "multiple",
                         dateFormat: "Y-m-d",
-                        minDate: "today",
-                        enable: dates, 
-                        disable: [
-                            function (date) {
-                                const dateString = formatLocalDate(date);
-                                return !dates.includes(dateString) || date.getDay() === 0;
+                        minDate: today,
+                        maxDate: maxDate,
+                        onDayCreate: function(dObj, dStr, fp, dayElem) {
+                            // Use local date without timezone conversion to avoid day shift
+                            const dayDate = new Date(dayElem.dateObj);
+                            const year = dayDate.getFullYear();
+                            const month = String(dayDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(dayDate.getDate()).padStart(2, '0');
+                            const dateStr = `${year}-${month}-${day}`;
+                            
+                            dayDate.setHours(0, 0, 0, 0);
+                            
+                            // Skip past dates
+                            if (dayDate < today) {
+                                return;
                             }
-                        ],
-                        onDayCreate: function (dObj, dStr, fp, dayElem) {
-                            const date = dayElem.dateObj;
-                            const dateString = formatLocalDate(date);
-                            if (dates.includes(dateString) && date.getDay() !== 0) {
-                                dayElem.style.backgroundColor = '#28a745';
-                                dayElem.style.color = 'white';
+                            
+                            // Check if this date has available slots (same as admin booking)
+                            if (normalizedEnabledDates.includes(dateStr)) {
+                                // Highlight dates that have availability with green background
+                                dayElem.classList.add('has-available-slots');
+                                dayElem.style.background = 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)';
+                                dayElem.style.border = '2px solid #28a745';
+                                dayElem.style.color = '#155724';
+                                dayElem.style.fontWeight = 'bold';
+                                dayElem.title = `Available slots on ${dateStr}`;
                             } else {
-                                dayElem.style.backgroundColor = '#ccc';
-                                dayElem.style.color = '#999';
+                                // No availability for this date
+                                dayElem.title = `No availability on ${dateStr}`;
                             }
                         },
                         onChange: function (selectedDates, dateStr, instance) {
@@ -3036,23 +3217,77 @@
                     document.querySelectorAll('.slot-box').forEach(box => {
                         box.style.display = 'none';
                         box.removeAttribute('data-current-date');
+                        // Reset any previous selections for unselected dates
+                        const timeInput = box.querySelector('.time-slot');
+                        if (timeInput && !selectedDatesLocal.includes(box.getAttribute('data-current-date'))) {
+                            timeInput.checked = false;
+                        }
                     });
 
-                    // Show slots for last selected date only
+                    // Show/hide no slots message
+                    const noSlotsMessage = document.getElementById('no-slots-message');
+
+                    // Show slots for last selected date only (if any date is selected)
                     if (selectedDates.length > 0) {
+                        if (noSlotsMessage) noSlotsMessage.style.display = 'none';
                         const selectedDateUTC = selectedDates[selectedDates.length - 1];
                         const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
                         const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
                         const weekday = weekdayNames[selectedDate.getDay()];
                         const dateString = selectedDate.toISOString().split('T')[0];
 
-                        // Show available slots for this weekday (use flex to match layout)
-                        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
+                        console.log('Date selected:', dateString, '(', weekday, ')');
+
+                        // Show available slots for this weekday and check if they're booked
+                        const matchingBoxes = document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`);
+                        console.log('Showing slots for', weekday, '- Found:', matchingBoxes.length, 'slots');
+                        
+                        matchingBoxes.forEach(box => {
                             box.style.display = 'flex';
+                            box.style.visibility = 'visible';
                             box.setAttribute('data-current-date', dateString);
+                            
+                            // Check if the slot is already booked
+                            const timeInput = box.querySelector('.time-slot');
+                            if (timeInput) {
+                                const timeValue = timeInput.value;
+                                const label = timeInput.nextElementSibling;
+                                
+                                // Reset any previous styling
+                                timeInput.disabled = false;
+                                timeInput.checked = false;
+                                box.classList.remove('slot-booked');
+                                if (label) {
+                                    label.style.opacity = '';
+                                    label.style.textDecoration = '';
+                                    // Remove previous BOOKED text
+                                    if (label.innerHTML.includes('(BOOKED)')) {
+                                        label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
+                                    }
+                                }
+                                
+                                // Check if this slot is booked for the selected date
+                                if (typeof isTimeSlotBooked === 'function' && isTimeSlotBooked(dateString, timeValue)) {
+                                    timeInput.disabled = true;
+                                    box.classList.add('slot-booked');
+                                    if (label) {
+                                        label.style.opacity = '0.5';
+                                        label.style.textDecoration = 'line-through';
+                                        label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px; font-weight: bold;">(BOOKED)</span>';
+                                    }
+                                }
+                            }
                         });
 
-                        updateSelectedTimeDisplay();
+                        if (typeof updateSelectedTimeDisplay === 'function') {
+                            updateSelectedTimeDisplay();
+                        }
+                        if (typeof updateSelectedTimeList === 'function') {
+                            updateSelectedTimeList();
+                        }
+                    } else {
+                        // No dates selected, show the message
+                        if (noSlotsMessage) noSlotsMessage.style.display = 'block';
                     }
                 }
 
@@ -3062,109 +3297,19 @@
                 // Initialize calendar with default enabled dates
                 initializeCalendar(enabledDates);
 
-                // If no date is selected by the user yet, show slots for the first enabled date so hours are visible
-                if (enabledDates && Array.isArray(enabledDates) && enabledDates.length > 0) {
-                    try {
-                        const firstDate = new Date(enabledDates[0]);
-                        const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-                        const weekday = weekdayNames[firstDate.getDay()];
-                        const dateString = enabledDates[0];
-                        document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
-                            box.style.display = 'flex';
-                            box.setAttribute('data-current-date', dateString);
-                        });
-                        if (typeof updateSelectedTimeList === 'function') updateSelectedTimeList();
-                    } catch (e) {
-                        console.warn('Could not auto-show first enabled date slots:', e);
-                    }
+                // Ensure no slots are shown initially - user must select a date first
+                // Make sure the "no slots message" is visible on page load
+                const noSlotsMessage = document.getElementById('no-slots-message');
+                if (noSlotsMessage) {
+                    noSlotsMessage.style.display = 'block';
                 }
-
-                // Original flatpickr initialization (keeping as backup/reference)
-                // Initialize Flatpickr
-                flatpickr("#calendarDiv", {
-                    inline: true,
-                    mode: "multiple",
-                    dateFormat: "Y-m-d",
-                    minDate: "today",
-                    enable: enabledDates, 
-                    disable: [
-                        function (date) {
-                            const dateString = formatLocalDate(date);
-                            return !enabledDates.includes(dateString) || date.getDay() === 0;
-                        }
-                    ],
-                    onDayCreate: function (dObj, dStr, fp, dayElem) {
-                        const date = dayElem.dateObj;
-                        const dateString = formatLocalDate(date);
-                        if (enabledDates.includes(dateString) && date.getDay() !== 0) {
-                            dayElem.style.backgroundColor = '#28a745';
-                            dayElem.style.color = 'white';
-                        } else {
-                            dayElem.style.backgroundColor = '#ccc'; // Disabled days
-                            dayElem.style.color = '#999';
-                        }
-                    },
-                    onChange: function (selectedDates, dateStr, instance) {
-                        const offset = selectedDates.length ? selectedDates[0].getTimezoneOffset() : 0;
-                        const selectedDatesLocal = selectedDates.map(d => {
-                            return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
-                        });
-
-                        // Remove unselected dates from selectedBookings
-                        Object.keys(selectedBookings).forEach(date => {
-                            if (!selectedDatesLocal.includes(date)) {
-                                delete selectedBookings[date];
-                            }
-                        });
-
-                        // Hide all slot boxes first
-                        document.querySelectorAll('.slot-box').forEach(box => {
-                            box.style.display = 'none';
-                            box.removeAttribute('data-current-date');
-                        });
-
-                        // Show slots for last selected date only
-                        if (selectedDates.length > 0) {
-                            const selectedDateUTC = selectedDates[selectedDates.length - 1];
-                            const selectedDate = new Date(selectedDateUTC.getTime() - offset * 60000);
-                            const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-                            const weekday = weekdayNames[selectedDate.getDay()];
-                            const dateString = selectedDate.toISOString().split('T')[0];
-
-                            document.querySelectorAll(`.slot-box[data-weekday="${weekday}"]`).forEach(box => {
-                                box.style.display = 'flex';
-                                box.setAttribute('data-current-date', dateString);
-                                
-                                // Check if the slot is already booked
-                                const timeInput = box.querySelector('.time-slot');
-                                const timeValue = timeInput.value;
-                                const label = timeInput.nextElementSibling;
-                                
-                                // Reset any previous styling
-                                timeInput.disabled = false;
-                                timeInput.checked = false;
-                                box.classList.remove('slot-booked');
-                                label.style.opacity = '';
-                                label.style.textDecoration = '';
-                                // Remove previous BOOKED text
-                                if (label.innerHTML.includes('(BOOKED)')) {
-                                    label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
-                                }
-                                
-                                // Check if this slot is booked for the selected date
-                                if (isTimeSlotBooked(dateString, timeValue)) {
-                                    timeInput.disabled = true;
-                                    box.classList.add('slot-booked');
-                                    label.style.opacity = '0.5';
-                                    label.style.textDecoration = 'line-through';
-                                    label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px; font-weight: bold;">(BOOKED)</span>';
-                                }
-                            });
-                        }
-
-                        updateSelectedTimeList();
-                    }
+                
+                // Hide all slot boxes on initial load
+                document.querySelectorAll('.slot-box').forEach(box => {
+                    box.style.display = 'none';
                 });
+                
+                console.log('Page loaded: Time slots hidden until user selects a date from calendar');
 
                 // Function to check if a time slot is already booked
                 function isTimeSlotBooked(date, timeSlot) {
@@ -3414,41 +3559,23 @@
 
                 planButtons.forEach(button => {
                     button.addEventListener('click', function () {
-                        // First check if user is logged in before allowing plan selection
-                        checkAuthenticationBeforePlanSelection(this);
+                        // Check if user is authenticated
+                        if (!isUserAuthenticated) {
+                            // Show login modal
+                            openLoginModal();
+                            return;
+                        }
+                        // Allow plan selection for authenticated users
+                        selectPlan(this);
                     });
                 });
-
-                // Function to check authentication before plan selection
-                function checkAuthenticationBeforePlanSelection(planButton) {
-                    fetch('/check-login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            check: true
-                        })
-                    })
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.logged_in) {
-                            // User is logged in, proceed with plan selection
-                            selectPlan(planButton);
-                        } else {
-                            // User is not logged in, show login popup
-                            showLoginPopupForPlanSelection(planButton);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking login status:', error);
-                        // On error, show login popup (safer fallback)
-                        showLoginPopupForPlanSelection(planButton);
+                
+                // Handle login buttons for non-authenticated users on the page
+                document.querySelectorAll('.select-plan-login').forEach(button => {
+                    button.addEventListener('click', function () {
+                        openLoginModal();
                     });
-                }
+                });
 
                 // Function to show login popup for plan selection
                 function showLoginPopupForPlanSelection(planButton) {
@@ -3556,7 +3683,34 @@
                     bookingButton.addEventListener('click', function (e) {
                         e.preventDefault();
                         
-                        // Proceed directly with booking since auth check happened at plan selection
+                        // Check authentication before booking
+                        if (!isUserAuthenticated) {
+                            // Show login modal with message
+                            Swal.fire({
+                                title: 'Login Required',
+                                html: '<p>Please login to complete your booking.</p>',
+                                icon: 'info',
+                                showCancelButton: true,
+                                confirmButtonText: 'Login Now',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonColor: '#2563eb',
+                                cancelButtonColor: '#6c757d',
+                                customClass: {
+                                    popup: 'login-popup-custom',
+                                    title: 'login-popup-title',
+                                    confirmButton: 'login-popup-btn',
+                                    cancelButton: 'btn-secondary'
+                                },
+                                buttonsStyling: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    openLoginModal();
+                                }
+                            });
+                            return;
+                        }
+                        
+                        // User is authenticated, proceed with booking
                         proceedWithBooking();
                     });
                 } else {
@@ -3573,6 +3727,22 @@
                     
                     // Get current session count with multiple fallbacks
                     const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                    
+                    // CRITICAL: Don't allow booking if no dates are selected at all
+                    if (selectedDatesCount === 0) {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Please select at least one date from the calendar before booking.');
+                        } else {
+                            alert('Please select at least one date from the calendar before booking.');
+                        }
+                        
+                        // Scroll to calendar
+                        const calendarDiv = document.getElementById('calendarDiv');
+                        if (calendarDiv) {
+                            calendarDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return;
+                    }
                     
                     // Check plan display state
                     const planDisplay = document.getElementById('selected-plan-display');

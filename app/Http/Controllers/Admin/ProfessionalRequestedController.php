@@ -11,8 +11,6 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use App\Exports\ProfessionalsExport;
-use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
@@ -21,8 +19,6 @@ class ProfessionalRequestedController extends Controller
     public function index(Request $request)
     {
         $query = Professional::where('status', 'pending');
-
-        // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -30,29 +26,19 @@ class ProfessionalRequestedController extends Controller
                     ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
-
-        // Date range filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
             $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-        
-        // Specialization filter
         if ($request->filled('specialization')) {
             $specialization = $request->specialization;
             $query->whereHas('profile', function($q) use ($specialization) {
                 $q->where('specialization', $specialization);
             });
         }
-
-        // Save the query for export functionality
         $exportQuery = clone $query;
-        
-        // Fetch filtered professionals with their profiles with pagination
         $requestedProfessionals = $query->with(['profile', 'professionalRejection'])->latest()->paginate(10);
-        
-        // Get all unique specializations from profiles table for the dropdown
         $specializations = DB::table('profiles')
             ->select('specialization')
             ->whereNotNull('specialization')
@@ -60,10 +46,7 @@ class ProfessionalRequestedController extends Controller
             ->orderBy('specialization')
             ->get()
             ->pluck('specialization');
-
-        // Handle export requests
         if ($request->has('export')) {
-            // Get all data for export without pagination
             $exportData = $exportQuery->with(['profile', 'professionalRejection'])->latest()->get();
             
             if ($request->export === 'excel') {
@@ -92,15 +75,11 @@ class ProfessionalRequestedController extends Controller
             
             $callback = function() use ($professionals) {
                 $file = fopen('php://output', 'w');
-                
-                // Add headers
                 fputcsv($file, [
                     'ID', 'Name', 'Email', 'Phone', 'Specialization', 
                     'Experience', 'Address', 'Starting Price', 
                     'Status', 'Registration Date', 'Rejection Reason'
                 ]);
-                
-                // Add data rows
                 foreach ($professionals as $professional) {
                     $rejectionReason = $professional->professionalRejection->first() ? 
                                       $professional->professionalRejection->first()->reason : 'N/A';
@@ -157,8 +136,6 @@ class ProfessionalRequestedController extends Controller
             $RejectedUser->delete();
         }
         $professional->save();
-
-        // Send email
         Mail::to($professional->email)->send(new ProfessionalApproved($professional));
 
         return response()->json([
@@ -182,8 +159,6 @@ class ProfessionalRequestedController extends Controller
             'admin_id' => auth()->id(),
             'reason' => $request->reason,
         ]);
-
-        // Send email
         Mail::to($professional->email)->send(new ProfessionalRejectedMail($professional, $request->reason));
 
         return response()->json([

@@ -45,8 +45,8 @@
                         <div class="card-content">
                             <div class="detail-item">
                                 <span class="detail-label">Full Name</span>
-                                <span class="detail-value">{{ $profile->professional->name ?? 'N/A' }}</span>
-                                @if(!$profile->professional->name) <span class="warning-badge">Required</span> @endif
+                                <span class="detail-value">{{ $profile->name ?? ($profile->professional->name ?? 'N/A') }}</span>
+                                @if(!$profile->name && !$profile->professional->name) <span class="warning-badge">Required</span> @endif
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Email</span>
@@ -186,6 +186,76 @@
                                     @else 
                                         <span class="warning-badge">Not Uploaded</span>
                                     @endif
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4 class="card-title">Bank Account Details</h4>
+                        <div class="card-content">
+                            <div class="detail-item">
+                                <span class="detail-label">Account Holder Name</span>
+                                <span class="detail-value">{{ $profile->account_holder_name ?? 'Not provided' }}</span>
+                                @if(!$profile->account_holder_name) <span class="warning-badge">Required</span> @endif
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Bank Name</span>
+                                <span class="detail-value">{{ $profile->bank_name ?? 'Not provided' }}</span>
+                                @if(!$profile->bank_name) <span class="warning-badge">Required</span> @endif
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Account Number</span>
+                                <span class="detail-value">
+                                    @if($profile->account_number)
+                                        {{ str_repeat('*', strlen($profile->account_number) - 4) . substr($profile->account_number, -4) }}
+                                    @else
+                                        Not provided
+                                    @endif
+                                </span>
+                                @if(!$profile->account_number) <span class="warning-badge">Required</span> @endif
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">IFSC Code</span>
+                                <span class="detail-value">{{ $profile->ifsc_code ?? 'Not provided' }}</span>
+                                @if(!$profile->ifsc_code) <span class="warning-badge">Required</span> @endif
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Account Type</span>
+                                <span class="detail-value">{{ ucfirst($profile->account_type ?? 'Not specified') }}</span>
+                            </div>
+                            @if($profile->bank_branch)
+                            <div class="detail-item">
+                                <span class="detail-label">Branch</span>
+                                <span class="detail-value">{{ $profile->bank_branch }}</span>
+                            </div>
+                            @endif
+                            
+                            @if($profile->bank_document)
+                            <div class="document-item">
+                                <div class="document-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
+                                        <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/>
+                                        <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/>
+                                    </svg>
+                                </div>
+                                <div class="document-info">
+                                    <span class="document-name">Bank Account Proof</span>
+                                    <a href="{{ asset('storage/'.$profile->bank_document) }}" target="_blank" class="document-link">View Document</a>
+                                </div>
+                            </div>
+                            @else
+                            <div class="document-item">
+                                <div class="document-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#dc3545" viewBox="0 0 16 16">
+                                        <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/>
+                                        <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/>
+                                    </svg>
+                                </div>
+                                <div class="document-info">
+                                    <span class="document-name">Bank Account Proof</span>
+                                    <span class="warning-badge">Not Uploaded</span>
                                 </div>
                             </div>
                             @endif

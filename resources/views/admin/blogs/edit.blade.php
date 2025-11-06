@@ -29,8 +29,14 @@
             <input type="file" class="form-control" name="image" id="blog-image" accept="image/*">
             @if($blog->image)
                 <div class="mt-2">
-                    <img src="{{ asset('storage/' . $blog->image) }}" alt="Current Image" style="height: 100px;">
+                    <img src="{{ asset('storage/' . $blog->image) }}" alt="Current Image" style="height: 100px; border-radius: 5px;">
+                    <br>
+                    <small class="text-muted">Current image: {{ basename($blog->image) }}</small>
+                    <br>
+                    <small class="text-info">Leave empty to keep current image, or select a new file to replace it.</small>
                 </div>
+            @else
+                <small class="text-muted">No image currently set. Select an image file to add one.</small>
             @endif
         </div>
 

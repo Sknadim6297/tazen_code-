@@ -100,7 +100,7 @@ class ServiceController extends Controller
         }
         
         $subServices = SubService::where('service_id', $serviceId)
-            ->where('status', 'active')
+            ->where('status', 1)
             ->select('id', 'name', 'description')
             ->get();
         
@@ -173,11 +173,14 @@ class ServiceController extends Controller
         
         // Get the service category name to use as service_name
         $serviceCategory = Service::find($request->serviceId);
-        $service->service_name = $serviceCategory ? $serviceCategory->name : 'Online Service';
+    $service->service_name = $serviceCategory ? $serviceCategory->name : 'Online Service';
+    // Keep legacy 'category' column in sync to satisfy NOT NULL schemas
+    $service->category = $service->service_name;
         
         $service->duration = $request->serviceDuration;
         $service->description = 'Online session service'; // Add default description
-        $service->features = $request->features ? json_encode($request->features) : json_encode(['online']);
+    // Store features as array; Eloquent will JSON-encode due to casts
+    $service->features = $request->features ?? ['online'];
         $service->tags = $request->serviceTags;
         $service->requirements = $request->serviceRequirements;
 
@@ -286,13 +289,21 @@ class ServiceController extends Controller
             // Get the service category name to use as service_name
             $serviceCategory = Service::find($request->serviceId);
             $service->service_name = $serviceCategory ? $serviceCategory->name : 'Online Service';
+            // Keep legacy 'category' column in sync when service changes
+            $service->category = $service->service_name;
         }
 
         $service->duration = $request->serviceDuration;
         $service->description = 'Online session service'; // Add default description
-        $service->features = $request->features ? json_encode($request->features) : json_encode(['online']);
+        // Store features as array; Eloquent will JSON-encode due to casts
+        $service->features = $request->features ?? ['online'];
         $service->tags = $request->serviceTags;
         $service->requirements = $request->serviceRequirements;
+
+        // Ensure category is set even if serviceId didn’t change (for older rows)
+        if (empty($service->category)) {
+            $service->category = $service->service_name;
+        }
 
         if ($request->hasFile('serviceImage')) {
             if ($service->image_path && file_exists(public_path($service->image_path))) {

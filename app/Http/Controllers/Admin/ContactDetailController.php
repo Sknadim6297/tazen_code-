@@ -22,7 +22,6 @@ class ContactDetailController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -51,13 +50,11 @@ class ContactDetailController extends Controller
         return redirect()->route('admin.contactdetails.index')->with('success', 'Contact details added successfully.');
     }
 
-
-    /**
+/**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -96,8 +93,7 @@ class ContactDetailController extends Controller
     return redirect()->route('admin.contactdetails.index')->with('success', 'Contact details updated successfully.');
     }
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
@@ -107,5 +103,4 @@ class ContactDetailController extends Controller
 
     return redirect()->route('admin.contactdetails.index')->with('success', 'Contact details deleted successfully.');
     }
-
 }

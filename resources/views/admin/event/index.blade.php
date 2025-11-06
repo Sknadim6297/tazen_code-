@@ -367,7 +367,10 @@
                                                 <th>Phone</th>
                                                 <th>Price</th>
                                                 <th>Total Price</th>
+<<<<<<< HEAD
                                                 <th>Gmeet Link / Location</th>
+=======
+>>>>>>> tazen/main
                                                 <th>Payment Status</th>
                                                 <th>Order ID</th>
                                                 <th>Payment Failure Reason</th>
@@ -381,7 +384,19 @@
                                                     <td>{{ $booking->user->name ?? 'N/A' }}</td>
                                                     <td>{{ $booking->event->heading ?? 'N/A' }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($booking->event_date)->format('d-m-Y') }}</td>
+<<<<<<< HEAD
                                                     <td>{{ $booking->location ?? 'N/A' }}</td>
+=======
+                                                    <td>
+                                                        @if($booking->type == 'offline')
+                                                            <span class="badge bg-info text-white">
+                                                                <i class="ri-map-pin-line me-1"></i>{{ $booking->location ?? 'Location not specified' }}
+                                                            </span>
+                                                        @else
+                                                            {{ $booking->location ?? 'N/A' }}
+                                                        @endif
+                                                    </td>
+>>>>>>> tazen/main
                                                     <td>
                                                         <!-- Always highlight the type with badges -->
                                                         @if($booking->type == 'online')
@@ -397,6 +412,7 @@
                                                     <td>₹{{ number_format($booking->price, 2) }}</td>
                                                     <td>₹{{ number_format($booking->total_price, 2) }}</td>
                                                     <td>
+<<<<<<< HEAD
                                                         @if($booking->type == 'online')
                                                         <form action="{{ route('admin.event.updateGmeetLink', $booking->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                                             @csrf
@@ -412,6 +428,8 @@
                                                         @endif
                                                     </td>
                                                     <td>
+=======
+>>>>>>> tazen/main
                                                         @if($booking->payment_status == 'success')
                                                             <span class="badge bg-success">Confirmed</span>
                                                         @elseif($booking->payment_status == 'failed')
@@ -426,7 +444,11 @@
                                                 </tr>
                                             @empty
                                             <tr>
+<<<<<<< HEAD
                                                 <td colspan="15" class="text-center py-3">No event bookings found</td>
+=======
+                                                <td colspan="14" class="text-center py-3">No event bookings found</td>
+>>>>>>> tazen/main
                                             </tr>
                                             @endforelse
                                         </tbody>

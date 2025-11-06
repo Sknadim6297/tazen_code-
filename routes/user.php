@@ -6,16 +6,16 @@ use App\Http\Controllers\Customer\CustomerBookingController;
 use App\Http\Controllers\Customer\EventController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\UpcomingAppointmentController;
-use App\Http\Controllers\Customer\ReRequestedServiceController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\LoginController;
 use App\Http\Controllers\Frontend\ReviewController;
+use App\Http\Controllers\BookingChatController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Service;
 
-// Route to store booking session data (no authentication required)
+
 Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('booking.session.store');
 
 Route::middleware(['auth:user'])->group(function () {
@@ -52,6 +52,9 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
 
+    // My Bookings with Chat
+    Route::get('my-bookings', [App\Http\Controllers\Customer\MyBookingController::class, 'index'])->name('my-bookings');
+
     Route::resource('all-appointment', AppointmentController::class);
     Route::resource('upcoming-appointment', UpcomingAppointmentController::class);
     Route::post('/upcoming-appointment/reschedule', [UpcomingAppointmentController::class, 'reschedule'])->name('upcoming-appointment.reschedule');
@@ -69,26 +72,44 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/payment/success', [BookingController::class, 'paymentSuccess'])->name('booking.payment.success');
     Route::get('/booking/success', [BookingController::class, 'successPage'])->name('booking.success');
     Route::post('/booking/payment/failed', [BookingController::class, 'paymentFailed'])->name('booking.payment.failed');
-    Route::post('/booking/mcq/answers', [BookingController::class, 'storeMCQAnswers'])->name('booking.mcq.store');
     Route::get('/booking/retry/{booking_id}', [BookingController::class, 'retryBooking'])->name('booking.retry');
     Route::get('/reset-booking', [BookingController::class, 'resetBooking'])->name('reset-booking');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
 
-    // Test routes for MCQ functionality
-    Route::get('/test/mcq', [BookingController::class, 'mcqTestPage'])->name('test.mcq');
-    Route::post('/test/set-mcq-session', [BookingController::class, 'setMCQTestSession'])->name('test.set-mcq-session');
+    // Additional Services routes for customers
+    Route::prefix('additional-services')->name('additional-services.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'show'])->name('show');
+        Route::post('/{id}/negotiate', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'negotiate'])->name('negotiate');
+        Route::post('/{id}/confirm-consultation', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'confirmConsultation'])->name('confirm-consultation');
+        Route::post('/{id}/create-payment-order', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'createPaymentOrder'])->name('create-payment-order');
+        Route::post('/{id}/payment-success', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'handlePaymentSuccess'])->name('payment-success');
+        
+        // Invoice Generation Routes
+        Route::get('/{id}/invoice', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'generateInvoice'])->name('invoice');
+        Route::get('/{id}/invoice/pdf', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'generatePdfInvoice'])->name('invoice.pdf');
+    });
 
     Route::get('billing/export-all', [CustomerBookingController::class, 'exportAllTransactions'])
         ->name('billing.export-all');
-    
-    // Re-requested Service Routes (customer)
-    Route::prefix('re-requested-service')->name('customer.re-requested-service.')->group(function () {
-        Route::get('/', [ReRequestedServiceController::class, 'index'])->name('index');
-        Route::get('/{id}', [ReRequestedServiceController::class, 'show'])->name('show');
-        Route::get('/{id}/payment', [ReRequestedServiceController::class, 'createPayment'])->name('payment');
-        Route::post('/{id}/payment', [ReRequestedServiceController::class, 'processPayment'])->name('process-payment');
-        Route::get('/{id}/success', [ReRequestedServiceController::class, 'paymentSuccess'])->name('success');
-        Route::post('/{id}/do-later', [ReRequestedServiceController::class, 'doLater'])->name('do-later');
-        Route::get('/{id}/invoice', [ReRequestedServiceController::class, 'invoice'])->name('invoice');
+
+    // Booking Chat Routes for Customer
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/booking/{bookingId}', [BookingChatController::class, 'openChat'])->name('open');
+        Route::post('/booking/{bookingId}/send', [BookingChatController::class, 'sendMessage'])->name('send');
+        Route::get('/booking/{bookingId}/messages', [BookingChatController::class, 'getMessages'])->name('messages');
+        Route::get('/booking/{bookingId}/unread-count', [BookingChatController::class, 'getUnreadCount'])->name('unread');
+        Route::get('/total-unread-count', [BookingChatController::class, 'getTotalUnreadCount'])->name('total-unread');
+    });
+
+    // Admin-Customer Chat Routes
+    Route::prefix('admin-chat')->name('admin-chat.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('index');
+        Route::post('/get-or-create', [App\Http\Controllers\Customer\ChatController::class, 'getOrCreateChat'])->name('get-or-create');
+        Route::post('/send-message', [App\Http\Controllers\Customer\ChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/messages', [App\Http\Controllers\Customer\ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/mark-as-read', [App\Http\Controllers\Customer\ChatController::class, 'markAsRead'])->name('mark-as-read');
+        Route::get('/unread-count', [App\Http\Controllers\Customer\ChatController::class, 'getUnreadCount'])->name('unread-count');
+        Route::get('/attachment/{id}/download', [App\Http\Controllers\Customer\ChatController::class, 'downloadAttachment'])->name('attachment.download');
     });
 });

@@ -68,4 +68,41 @@ trait ImageUploadTraits
       Storage::delete($path);
     }
   }
+
+  // Upload Base64 Image (for cropped images)
+  public function uploadBase64Image($base64Data, $path, $oldPath = null)
+  {
+    // Delete old image if exists
+    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+      Storage::disk('public')->delete($oldPath);
+    }
+
+    // Extract image data from base64 string
+    if (preg_match('/^data:image\/(\w+);base64,/', $base64Data, $type)) {
+      $data = substr($base64Data, strpos($base64Data, ',') + 1);
+      $type = strtolower($type[1]); // jpg, png, gif
+
+      // Validate image type
+      if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+        throw new \InvalidArgumentException('Invalid image type');
+      }
+
+      $data = base64_decode($data);
+
+      if ($data === false) {
+        throw new \InvalidArgumentException('Base64 decode failed');
+      }
+
+      // Generate unique filename
+      $fileName = 'media_' . uniqid() . '.' . $type;
+      $fullPath = $path . '/' . $fileName;
+
+      // Store the image
+      Storage::disk('public')->put($fullPath, $data);
+
+      return $fullPath;
+    }
+
+    throw new \InvalidArgumentException('Invalid base64 image data');
+  }
 }

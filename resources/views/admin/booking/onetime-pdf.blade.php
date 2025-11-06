@@ -104,6 +104,7 @@
                 <th>Customer Details</th>
                 <th>Professional</th>
                 <th>Service</th>
+                <th>Sub-Service</th>
                 <th>Status</th>
                 <th>Date & Time</th>
                 <th>Amount</th>
@@ -118,6 +119,7 @@
                 <td>{{ $booking->customer_name }}<br>{{ $booking->customer_phone }}</td>
                 <td>{{ $booking->professional->name ?? 'N/A' }}</td>
                 <td>{{ $booking->service_name }}</td>
+                <td>{{ $booking->sub_service_name ?? '-' }}</td>
                 <td>{{ $booking->timedates->first()?->status ?? 'N/A' }}</td>
                 <td>
                     @if($booking->earliest_timedate)

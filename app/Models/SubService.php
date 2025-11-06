@@ -17,8 +17,24 @@ class SubService extends Model
         'status'
     ];
 
+    protected $casts = [
+        'status' => 'integer'
+    ];
+
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    // Accessor to get status as string
+    public function getStatusTextAttribute()
+    {
+        return $this->status == 1 ? 'active' : 'inactive';
+    }
+
+    // Scope for active sub-services
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 }

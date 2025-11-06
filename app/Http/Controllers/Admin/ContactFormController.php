@@ -13,8 +13,6 @@ class ContactFormController extends Controller
     public function index(Request $request)
     {
         $query = ContactForm::query();
-
-        // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -24,8 +22,6 @@ class ContactFormController extends Controller
                   ->orWhere('phone', 'like', '%' . $search . '%');
             });
         }
-
-        // Date range filter
         if ($request->filled('start_date')) {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
@@ -33,8 +29,6 @@ class ContactFormController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
-
-        // Sorting
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
 
@@ -59,11 +53,7 @@ class ContactFormController extends Controller
     public function export(Request $request)
     {
         $type = $request->get('type', 'excel');
-        
-        // Build the same query as index method
         $query = ContactForm::query();
-
-        // Apply the same filters
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {

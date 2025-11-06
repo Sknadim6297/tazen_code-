@@ -132,8 +132,16 @@ class CustomerBookingController extends Controller
     public function verifyPayment(Request $request)
     {
         try {
+            Log::info('BOOKING DEBUG: Payment verification started', [
+                'request_data' => $request->all(),
+                'session_booking_data' => session('booking_data'),
+                'session_gst_details' => session('booking_gst_details'),
+                'session_phone' => session('customer_phone')
+            ]);
+
             // Check if user is authenticated
             if (!Auth::guard('user')->check()) {
+                Log::error('BOOKING DEBUG: User not authenticated');
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Authentication failed. Please login to continue.',
@@ -143,12 +151,15 @@ class CustomerBookingController extends Controller
 
             $user = Auth::guard('user')->user();
             if (!$user) {
+                Log::error('BOOKING DEBUG: User object is null');
                 return response()->json([
                     'status' => 'error',
                     'message' => 'User authentication failed. Please login again.',
                     'redirect' => route('user.login')
                 ], 401);
             }
+
+            Log::info('BOOKING DEBUG: User authenticated', ['user_id' => $user->id, 'user_email' => $user->email]);
 
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
             $attributes = [
@@ -157,18 +168,34 @@ class CustomerBookingController extends Controller
                 'razorpay_signature' => $request->razorpay_signature
             ];
 
+            Log::info('BOOKING DEBUG: Verifying Razorpay signature', $attributes);
             $api->utility->verifyPaymentSignature($attributes);
+            Log::info('BOOKING DEBUG: Razorpay signature verified successfully');
 
             // Get booking data from session
             $bookingData = session('booking_data');
             $gstDetails = session('booking_gst_details');
             $phone = session('customer_phone');
 
+            Log::info('BOOKING DEBUG: Session data retrieved', [
+                'booking_data' => $bookingData,
+                'gst_details' => $gstDetails,
+                'phone' => $phone
+            ]);
+
+            if (!$bookingData) {
+                Log::error('BOOKING DEBUG: No booking data in session');
+                throw new \Exception('No booking data found in session');
+            }
+
             // Get professional details
             $professional = \App\Models\Professional::with('profile')->find($bookingData['professional_id']);
             if (!$professional) {
+                Log::error('BOOKING DEBUG: Professional not found', ['professional_id' => $bookingData['professional_id']]);
                 throw new \Exception('Professional not found');
             }
+
+            Log::info('BOOKING DEBUG: Professional found', ['professional_id' => $professional->id, 'professional_name' => $professional->name]);
             
             // Get service name with fallbacks
             $serviceName = session('selected_service_name');
@@ -186,6 +213,12 @@ class CustomerBookingController extends Controller
                 }
             }
             
+            Log::info('BOOKING DEBUG: Creating booking record', [
+                'service_name' => $serviceName,
+                'user_id' => Auth::guard('user')->id(),
+                'professional_id' => $bookingData['professional_id']
+            ]);
+
             $booking = new Booking();
             $booking->user_id = Auth::guard('user')->id();
             $booking->professional_id = $bookingData['professional_id'];
@@ -193,12 +226,25 @@ class CustomerBookingController extends Controller
             $booking->customer_phone = $phone;
             $booking->service_name = $serviceName ?? 'N/A';
             
-            // Add sub-service data if available in request
-            if ($request->has('sub_service_id') && $request->sub_service_id) {
+            // Add sub-service data from booking_data session or request
+            if (!empty($bookingData['sub_service_id'])) {
+                $booking->sub_service_id = $bookingData['sub_service_id'];
+            } elseif ($request->has('sub_service_id') && $request->sub_service_id) {
                 $booking->sub_service_id = $request->sub_service_id;
             }
-            if ($request->has('sub_service_name') && $request->sub_service_name) {
+            
+            if (!empty($bookingData['sub_service_name'])) {
+                $booking->sub_service_name = $bookingData['sub_service_name'];
+            } elseif ($request->has('sub_service_name') && $request->sub_service_name) {
                 $booking->sub_service_name = $request->sub_service_name;
+            }
+            
+            // If we have sub_service_id but no name, fetch it from database
+            if ($booking->sub_service_id && !$booking->sub_service_name) {
+                $subService = \App\Models\SubService::find($booking->sub_service_id);
+                if ($subService) {
+                    $booking->sub_service_name = $subService->name;
+                }
             }
             
             $booking->session_type = 'online';
@@ -221,7 +267,21 @@ class CustomerBookingController extends Controller
                 return Carbon::parse($b['date'])->day;
             }, $bookingData['bookings']));
             $booking->time_slot = json_encode(array_column($bookingData['bookings'], 'time_slot'));
+            
+            Log::info('BOOKING DEBUG: About to save booking', [
+                'booking_data' => [
+                    'user_id' => $booking->user_id,
+                    'professional_id' => $booking->professional_id,
+                    'service_name' => $booking->service_name,
+                    'amount' => $booking->amount,
+                    'base_amount' => $booking->base_amount,
+                    'payment_id' => $booking->payment_id,
+                    'payment_status' => $booking->payment_status
+                ]
+            ]);
+            
             $booking->save();
+            Log::info('BOOKING DEBUG: Booking saved successfully', ['booking_id' => $booking->id]);
 
             // Store booking info in session for MCQ modal
             $professionalService = null;
@@ -330,6 +390,8 @@ class CustomerBookingController extends Controller
                     'professional_name' => $professional->name,
                     'professional_address' => $professional->profile->address ?? 'Address not available',
                     'service_name' => $serviceName ?? 'N/A',
+                    'sub_service_id' => $booking->sub_service_id ?? null,
+                    'sub_service_name' => $booking->sub_service_name ?? null,
                     'plan_type' => $bookingData['plan_type'],
                     'base_amount' => $gstDetails['base_amount'] ?? $bookingData['total_amount'],
                     'cgst' => $gstDetails['cgst'] ?? 0,
@@ -348,11 +410,22 @@ class CustomerBookingController extends Controller
                 'booking_id' => $booking->id
             ];
 
+            Log::info('BOOKING DEBUG: Payment verification completed successfully', [
+                'booking_id' => $booking->id,
+                'professional_id' => $booking->professional_id,
+                'response' => $response
+            ]);
+
             // Clear booking session data including GST details
             session()->forget(['booking_data', 'booking_gst_details', 'razorpay_order_id', 'customer_phone']);
 
             return response()->json($response);
         } catch (\Exception $e) {
+            Log::error('BOOKING DEBUG: Payment verification failed', [
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Payment verification failed: ' . $e->getMessage()
@@ -377,12 +450,15 @@ class CustomerBookingController extends Controller
         try {
             $professionalId = $request->professional_id;
             
+            Log::info('MCQ DEBUG: Getting MCQ questions', ['professional_id' => $professionalId]);
+            
             // Get the professional's service
             $professionalService = \App\Models\ProfessionalService::with('service')
                 ->where('professional_id', $professionalId)
                 ->first();
             
             if (!$professionalService || !$professionalService->service_id) {
+                Log::warning('MCQ DEBUG: No service found for professional', ['professional_id' => $professionalId]);
                 return response()->json([
                     'status' => 'error',
                     'message' => 'No service found for this professional'
@@ -390,9 +466,11 @@ class CustomerBookingController extends Controller
             }
             
             $serviceId = $professionalService->service_id;
+            Log::info('MCQ DEBUG: Found service', ['service_id' => $serviceId]);
             
             // Get MCQ questions for the service
             $mcqQuestions = \App\Models\ServiceMCQ::getQuestionsForService($serviceId);
+            Log::info('MCQ DEBUG: Retrieved MCQ questions', ['questions_count' => $mcqQuestions->count()]);
             
             // Format questions for frontend
             $formattedQuestions = $mcqQuestions->map(function($question) {
@@ -404,15 +482,22 @@ class CustomerBookingController extends Controller
                     'has_other_option' => $question->has_other_option
                 ];
             });
-            
-            return response()->json([
+
+            $response = [
                 'status' => 'success',
                 'mcq_questions' => $formattedQuestions,
                 'service_id' => $serviceId
-            ]);
+            ];
+            
+            Log::info('MCQ DEBUG: Returning MCQ response', $response);
+            
+            return response()->json($response);
             
         } catch (\Exception $e) {
-            Log::error('Error fetching MCQ questions: ' . $e->getMessage());
+            Log::error('MCQ DEBUG: Error fetching MCQ questions', [
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch questions'

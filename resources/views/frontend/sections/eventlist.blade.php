@@ -11,6 +11,17 @@
 <link href="{{ asset('frontend/assets/css/event-list.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 
+<style>
+/* Ensure event cards have consistent image sizes and card body heights */
+.event-card .featured-thumbnail { overflow: hidden; }
+.event-card-img { width: 100%; height: 220px; object-fit: cover; display: block; }
+.featured-content-inner { min-height: 140px; }
+@media (max-width: 768px) {
+    .event-card-img { height: 160px; }
+    .featured-content-inner { min-height: 120px; }
+}
+</style>
+
 
 @endsection
 @section('content')
@@ -67,7 +78,7 @@
         <div class="page_header">
             <div class="row">
                 <div class="col-lg-3">
-                    <h1>Events</h1><span>: {{ $events->total() }} found</span>
+                    <h1>Events</h1><span>: 814 found</span>
                 </div>
                 <div class="col-lg-9">
                     <h1><span>Event in Kolkata</span></h1>
@@ -141,7 +152,7 @@
                         </div>
                     </div>
                     <!-- /filter_type -->
-                  <div class="filter_type">
+                    <div class="filter_type">
                         <h4><a href="#filter_5" data-bs-toggle="collapse" class="closed">Price</a></h4>
                         <div class="collapse" id="filter_5">
                             <ul>
@@ -192,7 +203,7 @@
                     <li><a href="{{ route('event.list', ['filter' => 'today']) }}">Today</a></li>
                     <li><a href="{{ route('event.list', ['filter' => 'tomorrow']) }}">Tomorrow</a></li>
                     <li><a href="{{ route('event.list', ['filter' => 'weekend']) }}">This weekend</a></li>
-                     <li><a href="{{ route('event.list', ['filter' => 'month']) }}">This month</a></li>
+                    <li><a href="{{ route('event.list', ['filter' => 'month']) }}">This month</a></li>
                 </ul>                
                 <div class="row grid_sidebar">
                     <!-- Display Total Event Count -->
@@ -201,28 +212,61 @@
                     <!-- Loop through each event and display details -->
                     @if($events->count())
                     @foreach($events as $event)
+                        @php
+                            // Determine if this is an admin or professional event
+                            $isAdminEvent = isset($event->event_id) && $event->event;
+                            $isProfessionalEvent = isset($event->event->created_by_type) && $event->event->created_by_type === 'professional';
+                            
+                            // Get the appropriate image
+                            $eventImage = $event->event->card_image ?? 'default-event.jpg';
+                            
+                            // Get the appropriate date
+                            $eventDate = $event->event->date ?? ($event->event->starting_date ?? now());
+                        @endphp
+                        
                         <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
-                            <div class="featured-imagebox featured-imagebox-blog style2">
-                                <div class="featured-thumbnail">
-                                    <a href="{{ route('event.details', $event->id) }}">
-                                        <img class="img-fluid" width="370" height="254" src="{{ asset('storage/' . $event->event->card_image) }}" alt="image">
+                            <div class="featured-imagebox featured-imagebox-blog style2 event-card">
+                                <div class="featured-thumbnail position-relative">
+                                    <a href="{{ url('/allevent/' . $event->event->id) }}">
+                                        <img class="event-card-img" src="{{ asset('storage/' . $eventImage) }}" alt="{{ $event->event->heading }}">
                                     </a>
                                     <div class="ttm-box-date">
                                         <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($event->event->date)->format('M d, Y') }}</span>
+                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($eventDate)->format('M d, Y') }}</span>
                                     </div>
+                                    
+                                    {{-- Badge to show event creator type --}}
+                                    @if($isProfessionalEvent)
+                                        <span class="badge bg-info text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="fa fa-user"></i> Professional
+                                        </span>
+                                    @else
+                                        <span class="badge bg-primary text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="fa fa-shield-alt"></i> Admin
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="featured-content-inner">
                                     <p class="category">{{ $event->event->mini_heading }}</p>
                                     <div class="featured-title">
-                                        <h3><a href="{{ route('event.details', $event->id) }}">{{ $event->event->heading }}</a></h3>
+                                        <h3><a href="{{ url('/allevent/' . $event->event->id) }}">{{ $event->event->heading }}</a></h3>
                                     </div>
                                     <div class="featured-desc">
                                         <p>{{ \Illuminate\Support\Str::words($event->event->short_description, 6, '...') }}</p>
                                     </div>
+                                    
+                                    {{-- Show professional name if it's a professional event --}}
+                                    @if($isProfessionalEvent && isset($event->event->professional))
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fa fa-user-tie"></i> By {{ $event->event->professional->name }}
+                                            </small>
+                                        </div>
+                                    @endif
+                                    
                                     <div class="ttm-blogbox-footer-readmore">
                                         <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark">
-                                            ₹ {{ $event->event->starting_fees }} onwards
+                                            ₹ {{ number_format($event->event->starting_fees, 2) }} onwards
                                         </span>
                                     </div>
                                 </div>
@@ -234,17 +278,17 @@
                     @endif
                 </div>
                 <!-- /row -->
-                 @if($events->hasPages())
+                @if(method_exists($events, 'hasPages') && $events->hasPages())
                 <div class="pagination_fg">
                     {{-- Previous Page Link --}}
                     @if ($events->onFirstPage())
                         <span class="disabled">&laquo;</span>
                     @else
-                        <a href="{{ $events->appends(request()->query())->previousPageUrl() }}">&laquo;</a>
+                        <a href="{{ $events->previousPageUrl() }}">&laquo;</a>
                     @endif
 
                     {{-- Pagination Elements --}}
-                    @foreach ($events->appends(request()->query())->getUrlRange(1, $events->lastPage()) as $page => $url)
+                    @foreach ($events->getUrlRange(1, $events->lastPage()) as $page => $url)
                         @if ($page == $events->currentPage())
                             <a href="#" class="active">{{ $page }}</a>
                         @else
@@ -254,7 +298,7 @@
 
                     {{-- Next Page Link --}}
                     @if ($events->hasMorePages())
-                        <a href="{{ $events->appends(request()->query())->nextPageUrl() }}">&raquo;</a>
+                        <a href="{{ $events->nextPageUrl() }}">&raquo;</a>
                     @else
                         <span class="disabled">&raquo;</span>
                     @endif

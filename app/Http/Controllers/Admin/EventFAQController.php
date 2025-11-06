@@ -22,7 +22,6 @@ class EventFAQController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -51,7 +50,6 @@ class EventFAQController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**

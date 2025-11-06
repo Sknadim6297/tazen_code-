@@ -74,13 +74,13 @@
 
 @section('content')
 <main class="service-page">
-     <div class="hero_single fitness-yoga" style="background-image: url('{{ asset('storage/' . $service->detail->banner_image) }}'); background-size: cover; background-position: center;" aria-label="{{ $service->detail->banner_image_alt ?? 'Service banner for ' . $service->name }}">
+     <div class="hero_single fitness-yoga" style="background-image: url('{{ $service->detail ? asset('storage/' . $service->detail->banner_image) : asset('frontend/assets/img/default-banner.jpg') }}'); background-size: cover; background-position: center;" aria-label="{{ $service->detail->banner_image_alt ?? 'Service banner for ' . $service->name }}">
         <div class="opacity-mask" data-opacity-mask="rgba(0, 0, 0, 0.4)">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-9 col-lg-10">
-                        <h1>{{ $service->detail->banner_heading }}</h1>
-                        <p>{{ $service->detail->banner_sub_heading }}</p>
+                        <h1>{{ $service->detail->banner_heading ?? $service->name }}</h1>
+                        <p>{{ $service->detail->banner_sub_heading ?? 'Book our professional services' }}</p>
                         <form>
                             <div class="row g-0 custom-search-input">
                                 <div class="col-12" style="display: flex; justify-content: flex-start;">
@@ -119,9 +119,9 @@
         <div class="container margin_60_40">
             <div class="row justify-content-md-center how_2">
                 <div class="col-lg-5">
-                    <h1>{{ $service->detail->about_heading }}</h1>
-                    <p>{{ $service->detail->about_subheading }}</p>
-                    <p>{{ $service->detail->about_description }}</p>
+                    <h1>{{ $service->detail->about_heading ?? 'About ' . $service->name }}</h1>
+                    <p>{{ $service->detail->about_subheading ?? '' }}</p>
+                    <p>{{ $service->detail->about_description ?? 'Discover our professional services tailored to your needs.' }}</p>
                     <p class="add_top_30">
                         <a href="{{ url('/professionals?service_id=' . $service->id) }}" class="btn_1" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12); text-decoration: none; color: white;">Start Searching</a>
                     </p>
@@ -129,8 +129,8 @@
                 <div class="col-lg-5 text-center">
                     <figure>
                         <img 
-                            src="{{ asset('storage/' . $service->detail->about_image) }}" 
-                            data-src="{{ asset('storage/' . $service->detail->about_image) }}" 
+                            src="{{ $service->detail ? asset('storage/' . $service->detail->about_image) : asset('frontend/assets/img/default-about.jpg') }}" 
+                            data-src="{{ $service->detail ? asset('storage/' . $service->detail->about_image) : asset('frontend/assets/img/default-about.jpg') }}" 
                             alt="{{ $service->detail->about_image_alt ?? 'About ' . $service->name }}" 
                             class="img-fluid lazy" 
                             width="360" 
@@ -143,22 +143,22 @@
         <!-- /container -->
     </div>
 
-    <section class="services-counter-section-info py-5" style="background: url('{{ asset('storage/' . $service->detail->background_image) }}')center center / cover no-repeat;" aria-label="{{ $service->detail->background_image_alt ?? 'How it works background for ' . $service->name }}">
+    <section class="services-counter-section-info py-5" style="background: url('{{ $service->detail ? asset('storage/' . $service->detail->background_image) : asset('frontend/assets/img/default-background.jpg') }}')center center / cover no-repeat;" aria-label="{{ $service->detail->background_image_alt ?? 'How it works background for ' . $service->name }}">
         <div class="container my-5">
             <div class="row heading">
                 <div class="col">
                     <div class="main_title center">
                         <span><em></em></span>
                         <h2 class="text-white">How does it works?</h2>
-                        <p class="text-white">{{ $service->detail->how_it_works_subheading }}</p>
+                        <p class="text-white">{{ $service->detail->how_it_works_subheading ?? 'Follow these simple steps to get started' }}</p>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-6 hero-info">
                     <div class="counter-hero-info">
-                        <h1 class="text-white">{{ $service->detail->content_heading }}</h1>
-                        <p class="text-white">{{ $service->detail->content_sub_heading }}</p>
+                        <h1 class="text-white">{{ $service->detail->content_heading ?? 'Get Started Today' }}</h1>
+                        <p class="text-white">{{ $service->detail->content_sub_heading ?? 'Book your service with our professionals' }}</p>
                         <p class="add_top_30">
                             <a href="{{ url('/professionals?service_id=' . $service->id) }}" class="btn_1" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12); text-decoration: none; color: white;">Start Searching</a>
                         </p>
@@ -173,8 +173,8 @@
                                         <i class="fa-solid fa-circle-1"></i>
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $service->detail->step1_heading }}</h3>
-                                        <p>{{ $service->detail->step1_description }}</p>
+                                        <h3>{{ $service->detail->step1_heading ?? 'Step 1' }}</h3>
+                                        <p>{{ $service->detail->step1_description ?? 'Choose your service' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -184,8 +184,8 @@
                                         <i class="fa-solid fa-circle-2"></i>
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $service->detail->step2_heading }}</h3>
-                                        <p>{{ $service->detail->step2_description }}</p>
+                                        <h3>{{ $service->detail->step2_heading ?? 'Step 2' }}</h3>
+                                        <p>{{ $service->detail->step2_description ?? 'Select a professional' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -197,8 +197,8 @@
                                         <i class="fa-solid fa-circle-3"></i>
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $service->detail->step3_heading }}</h3>
-                                        <p>{{ $service->detail->step3_description }}</p>
+                                        <h3>{{ $service->detail->step3_heading ?? 'Step 3' }}</h3>
+                                        <p>{{ $service->detail->step3_description ?? 'Book your appointment' }}</p>
                                     </div>
                                 </div>
                             </div>

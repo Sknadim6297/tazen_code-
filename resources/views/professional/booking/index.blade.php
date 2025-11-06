@@ -1,6 +1,7 @@
 @extends('professional.layout.layout')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     /* Core layout styles */
     .content-wrapper {
@@ -246,6 +247,27 @@
     
     .close-modal:hover, .close-upload-modal:hover { color: #000; }
 
+    /* Modal header and body */
+    .modal-header {
+        background: linear-gradient(to right, #2c3e50, #3498db);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
     /* Questionnaire styles */
     .questionnaire-info {
         margin-left: 0.5rem;
@@ -419,6 +441,31 @@
             justify-content: flex-start;
         }
     }
+
+    /* Chat notification badge */
+    .chat-badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    }
+
+    .btn.position-relative {
+        overflow: visible;
+    }
 </style>
 @endsection
 
@@ -497,6 +544,7 @@
                                     <th>Customer Name</th>
                                     <th>Plan Type</th>
                                     <th>Service Name</th>
+                                    <th>Sub-Service</th>
                                     <th>Time Slot</th>
                                     <th>Booking Date</th>
                                     <th>Meeting Link</th>
@@ -505,6 +553,7 @@
                                     <th>Admin Remarks</th>
                                     <th>Upload Documents (PDF)</th>
                                     <th>Customer Document</th>
+                                    <th>Chat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -531,10 +580,12 @@
                                     </button>
                                 </td>
                                 <td>{{ $booking->plan_type }}</td>
+                                <td>{{ $booking->service_name }}</td>
                                 <td>
-                                    {{ $booking->service_name }}
                                     @if($booking->sub_service_name)
-                                        <br><small class="text-muted">Sub: {{ $booking->sub_service_name }}</small>
+                                        <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
@@ -642,8 +693,19 @@
                                         </div>
                                     @endif
                                 </td>
-                                
-                                
+                                <td>
+                                    <a href="{{ route('professional.chat.open', $booking->id) }}" 
+                                       class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
+                                       target="_blank" 
+                                       title="Chat with Customer"
+                                       data-booking-id="{{ $booking->id }}">
+                                        <i class="fas fa-comments"></i> Chat
+                                        <span class="chat-badge badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill d-none" 
+                                              id="chat-badge-{{ $booking->id }}">
+                                            0
+                                        </span>
+                                    </a>
+                                </td>
                             </tr>
                             
                             @endforeach
@@ -688,22 +750,49 @@
     </div>
 </div>
 
-<!-- Upload Modal -->
-<div id="uploadModal" class="upload-modal">
-    <div class="upload-modal-content">
-        <span class="close-upload-modal">&times;</span>
-        <div class="upload-modal-header">
-            <h4>Upload Document</h4>
+<!-- Booking Chat Modal -->
+<div id="bookingChatModal" class="custom-modal" style="display: none;">
+    <div class="custom-modal-content" style="max-width: 700px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 15px;">
+            <div id="chatModalTitle" style="flex: 1;">Chat with Customer</div>
+            <span class="close-modal" id="closeChatModal" style="font-size: 24px; cursor: pointer;" onclick="closeChatModal()">&times;</span>
         </div>
-        <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" id="booking_id" name="booking_id">
-            <div class="form-group">
-                <label for="document">Select PDF Document (Max 2MB)</label>
-                <input type="file" name="document" id="document" accept=".pdf" required>
+        <div id="chatMessages" style="height: 400px; overflow-y: auto; padding: 1rem; background: #f8f9fa; border-radius: 8px; margin: 1rem;">
+            <!-- Messages will be loaded here -->
+        </div>
+        <div style="padding: 0 1rem 1rem 1rem;">
+            <div id="selectedFileName" style="color: #007bff; margin-bottom: 10px; min-height: 20px; font-size: 14px;"></div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
             </div>
-            <button type="submit" class="btn-upload">Upload Document</button>
-        </form>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="upload-modal" style="display: none;">
+    <div class="upload-modal-content">
+        <div class="modal-header">
+            <h3>Upload Document</h3>
+            <span class="close-upload-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" id="booking_id" name="booking_id" value="">
+                
+                <div class="form-group">
+                    <label for="document">Select PDF Document:</label>
+                    <input type="file" id="document" name="document" accept=".pdf" required>
+                    <small class="form-text text-muted">Only PDF files are allowed. Max size: 10MB</small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn-upload">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <style>
@@ -1004,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let html = `<div class="questionnaire-details">
                         <h5>Customer: ${data.booking_details.customer_name}</h5>
                         <h6>Service: ${data.booking_details.service_name}</h6>
-                        ${data.booking_details.sub_service_name ? `<h6>Sub-service: ${data.booking_details.sub_service_name}</h6>` : ''}
+                        ${data.booking_details.sub_service_name ? '<h6>Sub-Service: <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></h6>' : ''}
                         <div class="answers-list">`;
                     
                     data.answers.forEach(item => {
@@ -1062,7 +1151,7 @@ function fetchQuestionnaireAnswers(bookingId) {
                 let html = `<div class="questionnaire-details">
                     <h5>Customer: ${data.booking_details.customer_name}</h5>
                     <h6>Service: ${data.booking_details.service_name}</h6>
-                    ${data.booking_details.sub_service_name ? `<h6>Sub-service: ${data.booking_details.sub_service_name}</h6>` : ''}
+                    ${data.booking_details.sub_service_name ? '<h6>Sub-Service: <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></h6>' : ''}
                     <div class="answers-list">`;
                 
                 data.answers.forEach(item => {
@@ -1101,63 +1190,104 @@ window.addEventListener('click', event => {
     }
 });
 
-// Add this after your existing JavaScript
-const uploadModal = document.getElementById('uploadModal');
-const closeUploadModal = document.querySelector('.close-upload-modal');
-const uploadForm = document.getElementById('uploadForm');
-const bookingIdInput = document.getElementById('booking_id');
+// Upload Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadModal = document.getElementById('uploadModal');
+    const closeUploadModal = document.querySelector('.close-upload-modal');
+    const uploadForm = document.getElementById('uploadForm');
+    const bookingIdInput = document.getElementById('booking_id');
 
-function openUploadModal(bookingId) {
-    bookingIdInput.value = bookingId;
-    uploadModal.style.display = 'block';
-}
-
-closeUploadModal.onclick = function() {
-    uploadModal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == uploadModal) {
-        uploadModal.style.display = 'none';
-    }
-}
-
-uploadForm.onsubmit = function(e) {
-    e.preventDefault();
-    const formData = new FormData(uploadForm);
-    const bookingId = bookingIdInput.value;
-    
-    // Get the file input and check if a file is selected
-    const fileInput = document.getElementById('document');
-    if (fileInput.files.length === 0) {
-        toastr.error('Please select a file to upload');
+    // Check if elements exist before adding event listeners
+    if (!uploadModal || !closeUploadModal || !uploadForm || !bookingIdInput) {
+        console.error('Upload modal elements not found');
         return;
     }
 
-    // Add the single file to formData
-    formData.append('document', fileInput.files[0]);
+    window.openUploadModal = function(bookingId) {
+        bookingIdInput.value = bookingId;
+        uploadModal.style.display = 'block';
+    }
 
-    fetch(`/professional/bookings/${bookingId}/upload-documents`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            toastr.success(data.message);
+    closeUploadModal.onclick = function() {
+        uploadModal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == uploadModal) {
             uploadModal.style.display = 'none';
-            location.reload(); 
-        } else {
-            toastr.error(data.message || 'Upload failed');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        toastr.error('An error occurred while uploading');
+    }
+
+    uploadForm.onsubmit = function(e) {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+        const bookingId = bookingIdInput.value;
+        
+        // Get the file input and check if a file is selected
+        const fileInput = document.getElementById('document');
+        if (fileInput.files.length === 0) {
+            toastr.error('Please select a file to upload');
+            return;
+        }
+
+        // Add the single file to formData
+        formData.append('document', fileInput.files[0]);
+
+        fetch(`/professional/bookings/${bookingId}/upload-documents`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success(data.message);
+                uploadModal.style.display = 'none';
+                location.reload(); 
+            } else {
+                toastr.error(data.message || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while uploading');
+        });
+    };
+});
+
+// Load unread chat counts for all bookings
+function loadUnreadChatCounts() {
+    $('[data-booking-id]').each(function() {
+        const bookingId = $(this).data('booking-id');
+        const badgeElement = $(`#chat-badge-${bookingId}`);
+        
+        $.ajax({
+            url: `/professional/chat/booking/${bookingId}/unread-count`,
+            method: 'GET',
+            success: function(response) {
+                if(response.success && response.unread_count > 0) {
+                    badgeElement.text(response.unread_count);
+                    badgeElement.removeClass('d-none');
+                } else {
+                    badgeElement.addClass('d-none');
+                }
+            },
+            error: function() {
+                // Silently fail
+            }
+        });
     });
-};
+}
+
+// Load counts on page load
+$(document).ready(function() {
+    loadUnreadChatCounts();
+    
+    // Refresh counts every 30 seconds
+    setInterval(loadUnreadChatCounts, 30000);
+});
+
 </script>
 @endsection

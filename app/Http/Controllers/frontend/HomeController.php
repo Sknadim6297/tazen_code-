@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\BlogPost;
 use App\Models\EventDetail;
 use App\Models\Review;
+use App\Models\CategoryBox;
+use App\Models\FAQ;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -53,8 +55,63 @@ class HomeController extends Controller
         $mcqs = DB::table('service_m_c_q_s')->get();
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
-        $eventDetails = EventDetail::with('event')->latest()->take(6)->get();
-        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogPosts', 'eventDetails'));
+        
+        // Fetch admin events (EventDetail with event relationship)
+        $adminEvents = EventDetail::with('event')->latest()->take(6)->get();
+        
+        // Fetch approved professional events (AllEvent)
+        $professionalEvents = AllEvent::with('professional')
+            ->where('created_by_type', 'professional')
+            ->where('status', 'approved')
+            ->latest()
+            ->take(6)
+            ->get();
+        
+        // Combine both admin and professional events, then take only 6 most recent
+        $allEvents = collect();
+        
+        // Add admin events with creator type
+        foreach ($adminEvents as $adminEvent) {
+            $allEvents->push((object)[
+                'id' => $adminEvent->id,
+                'event_id' => $adminEvent->event_id,
+                'event' => $adminEvent->event,
+                'banner_image' => $adminEvent->banner_image,
+                'starting_date' => $adminEvent->starting_date,
+                'starting_fees' => $adminEvent->starting_fees,
+                'city' => $adminEvent->city,
+                'event_mode' => $adminEvent->event_mode,
+                'created_at' => $adminEvent->created_at,
+                'creator_type' => 'admin'
+            ]);
+        }
+        
+        // Add professional events with creator type
+        foreach ($professionalEvents as $proEvent) {
+            $allEvents->push((object)[
+                'id' => $proEvent->id,
+                'event_id' => $proEvent->id,
+                'event' => $proEvent,
+                'banner_image' => $proEvent->card_image ? [$proEvent->card_image] : null,
+                'starting_date' => $proEvent->date,
+                'starting_fees' => $proEvent->starting_fees,
+                'city' => null,
+                'event_mode' => null,
+                'created_at' => $proEvent->created_at,
+                'creator_type' => 'professional',
+                'professional' => $proEvent->professional
+            ]);
+        }
+        
+        // Sort by created_at descending and take only 6
+        $eventDetails = $allEvents->sortByDesc('created_at')->take(6)->values();
+        
+        $categoryBoxes = CategoryBox::with(['subCategories' => function($query) {
+            $query->where('status', true)
+                  ->select('id', 'category_box_id', 'service_id', 'name', 'image', 'status');
+        }])->where('status', true)->get();
+        $faqs = FAQ::where('status', true)->orderBy('order')->get();
+        return view('frontend.index', compact('services', 'banners', 'about_us', 'whychooses', 'testimonials', 'homeblogs', 'howworks', 'mcqs', 'blogPosts', 'eventDetails', 'categoryBoxes', 'faqs'));
     }
 
     //     public function getServiceQuestions($serviceId)
@@ -169,11 +226,26 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by sub-service
+        // Filter by sub-service - try both sub-service ID and tags matching
         if ($request->has('sub_service_id') && !empty($request->sub_service_id)) {
-            $professionalsQuery->whereHas('professionalServices.subServices', function ($query) use ($request) {
-                $query->where('sub_services.id', $request->sub_service_id);
-            });
+            // Get the sub-service name
+            $subService = SubService::find($request->sub_service_id);
+            
+            if ($subService) {
+                $subServiceName = strtolower($subService->name);
+                
+                // Filter by either sub-service ID relationship OR tags containing the sub-service name
+                $professionalsQuery->where(function($query) use ($request, $subServiceName) {
+                    // Try sub-service relationship first
+                    $query->whereHas('professionalServices.subServices', function ($q) use ($request) {
+                        $q->where('sub_services.id', $request->sub_service_id);
+                    })
+                    // OR filter by tags matching sub-service name
+                    ->orWhereHas('professionalServices', function ($q) use ($subServiceName) {
+                        $q->whereRaw('LOWER(tags) LIKE ?', ['%' . $subServiceName . '%']);
+                    });
+                });
+            }
         }
 
         // Filter by experience
@@ -410,7 +482,8 @@ class HomeController extends Controller
 
         // Get rates - show service-level rates when no sub-service, sub-service rates when specified
         $ratesQuery = Rate::where('professional_id', $professionalId);
-        if ($professionalServiceId) {
+        // Only filter by professional_service_id if it's provided and not 0
+        if ($professionalServiceId && $professionalServiceId > 0) {
             $ratesQuery->where('professional_service_id', $professionalServiceId);
         }
         if ($subServiceId) {
@@ -425,7 +498,8 @@ class HomeController extends Controller
         // Get availability - show service-level availability when no sub-service, sub-service availability when specified
         $availabilityQuery = Availability::where('professional_id', $professionalId)
             ->with('slots');
-        if ($professionalServiceId) {
+        // Only filter by professional_service_id if it's provided and not 0
+        if ($professionalServiceId && $professionalServiceId > 0) {
             $availabilityQuery->where('professional_service_id', $professionalServiceId);
         }
         if ($subServiceId) {
@@ -495,11 +569,19 @@ class HomeController extends Controller
 
         // Return final enabled dates
 
+        // Get sub-service name if sub-service ID is provided
+        $subServiceName = null;
+        if ($subServiceId) {
+            $subService = \App\Models\SubService::find($subServiceId);
+            $subServiceName = $subService ? $subService->name : null;
+        }
+
         return response()->json([
             'success' => true,
             'rates' => $rates,
             'availabilities' => $availabilities,
-            'enabled_dates' => $enabledDates
+            'enabled_dates' => $enabledDates,
+            'sub_service_name' => $subServiceName
         ]);
     }
 

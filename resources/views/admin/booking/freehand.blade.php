@@ -395,6 +395,7 @@
                                         <th>Customer Name</th>
                                         <th>Professional Name</th>
                                         <th>Service Required</th>
+                                        <th>Sub-Service</th>
                                         <th>Paid Amount</th>
                                         <th>#Sessions</th>
                                         <th>#Sessions Taken</th>
@@ -438,6 +439,13 @@
                                                 ({{ $booking->professional->phone ?? 'N/A' }})
                                             </td>
                                             <td>{{ $booking->service_name }}</td>
+                                            <td>
+                                                @if($booking->sub_service_name)
+                                                    <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if($booking->payment_status === 'paid')
                                                     ₹{{ number_format($booking->amount, 2) }}

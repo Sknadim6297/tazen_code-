@@ -85,8 +85,12 @@ function scrollToTop() {
 
 
 // responsive Logoipsum Slider
+<<<<<<< HEAD
 if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
     $('.logoipsum-slider').slick({
+=======
+$('.logoipsum-slider').slick({
+>>>>>>> tazen/main
     arrows: false,
     dots: false,
     infinite: true,
@@ -181,6 +185,7 @@ function open_img_two(evt, cityName) {
 
 
 // ============= testimonial Slider
+<<<<<<< HEAD
 if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
     $(document).ready(function() {
         var slider = $('.testimonial_slider');
@@ -211,6 +216,33 @@ if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.sli
 // responsive star Slider
 if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
     $('.star-slider').slick({
+=======
+$(document).ready(function() {
+    var slider = $('.testimonial_slider');
+
+    slider.slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: true,
+        dots: false,
+    });
+
+    // Pause the slider on hover
+    slider.on('mouseenter', function() {
+        slider.slick('slickPause');
+    });
+
+    // Resume the slider when not hovering
+    slider.on('mouseleave', function() {
+        slider.slick('slickPlay');
+    });
+});
+
+// responsive star Slider
+$('.star-slider').slick({
+>>>>>>> tazen/main
     arrows: false,
     dots: false,
     infinite: false,
@@ -243,8 +275,12 @@ if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.sli
 });
 
 // responsive team Slider
+<<<<<<< HEAD
 if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
     $('.team-slider').slick({
+=======
+$('.team-slider').slick({
+>>>>>>> tazen/main
     arrows: true,
     dots: false,
     infinite: false,
@@ -276,6 +312,7 @@ if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.sli
             }
         }
     ]
+<<<<<<< HEAD
     });
 } else {
     console.warn('Slick slider is not available. Skipping team-slider initialization.');
@@ -285,6 +322,13 @@ if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.sli
 // responsive service Slider
 if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.slick === 'function') {
     $('.service-slider').slick({
+=======
+});
+// ============= slider end
+
+// responsive team Slider
+$('.service-slider').slick({
+>>>>>>> tazen/main
     arrows: true,
     dots: false,
     infinite: false,
@@ -316,10 +360,14 @@ if (typeof jQuery !== 'undefined' && jQuery && jQuery.fn && typeof jQuery.fn.sli
             }
         }
     ]
+<<<<<<< HEAD
     });
 } else {
     console.warn('Slick slider is not available. Skipping service-slider initialization.');
 }
+=======
+});
+>>>>>>> tazen/main
 // ============= slider end
 
 // ============= counter start ============= // 

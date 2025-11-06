@@ -15,12 +15,8 @@ class BillingController extends Controller
     {
         $professional = Auth::guard('professional')->user();
         $marginPercentage = $professional->margin;
-        
-        // Start with base query
         $query = Booking::with(['customer.customerProfile', 'professional.profile'])
             ->where('professional_id', Auth::guard('professional')->id());
-        
-        // Apply date filters
         if ($request->filled('start_date')) {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
@@ -28,52 +24,33 @@ class BillingController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
-        
-        // Apply plan type filter
         if ($request->filled('plan_type')) {
             $query->where('plan_type', $request->plan_type);
         }
-        
-        // Apply service filter
         if ($request->filled('service')) {
             $query->where('service_name', $request->service);
         }
-        
-        // Apply payment status filter
         if ($request->filled('payment_status')) {
             $query->where('paid_status', $request->payment_status);
         }
-        
-        // Get bookings
         $bookings = $query->select('id', 'customer_name', 'service_name', 'plan_type', 'month', 'amount', 'base_amount', 'cgst_amount', 'sgst_amount', 'igst_amount', 'transaction_number', 'paid_status', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
-            
-        // Get unique services for filter dropdown
         $services = Booking::where('professional_id', Auth::guard('professional')->id())
             ->select('service_name')
             ->distinct()
             ->whereNotNull('service_name')
             ->pluck('service_name');
-            
-        // Fill in month if not present and calculate margins
         foreach ($bookings as $booking) {
-            // Set month if not present
             if (empty($booking->month)) {
                 $booking->month = Carbon::parse($booking->created_at)->format('F Y');
             }
-            
-            // Calculate proper GST breakdown and platform fee
             $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
             $customerGST = $booking->amount - $baseAmount; // Total GST paid by customer
-            
-            // Platform fee calculation on base amount only
             $platformFee = ($baseAmount * $marginPercentage) / 100;
             $platformFeeCGST = $platformFee * 0.09;
             $platformFeeSGST = $platformFee * 0.09;
             $totalPlatformCut = $platformFee + $platformFeeCGST + $platformFeeSGST;
-            
-            // Professional's earning calculation
             $booking->customer_amount = $booking->amount; // Total paid by customer
             $booking->base_amount_calc = $baseAmount;
             $booking->customer_gst = $customerGST;
@@ -82,13 +59,9 @@ class BillingController extends Controller
             $booking->platform_sgst = $platformFeeSGST;
             $booking->total_platform_cut = $totalPlatformCut;
             $booking->professional_earning = $booking->amount - $totalPlatformCut;
-            
-            // Legacy fields for backward compatibility
             $booking->margin_amount = $totalPlatformCut;
             $booking->net_amount = $booking->professional_earning;
         }
-
-        // Calculate totals
         $totalGrossAmount = $bookings->sum('amount');
         $totalMarginDeducted = $bookings->sum('margin_amount');
         $totalNetAmount = $bookings->sum('net_amount');
@@ -108,7 +81,6 @@ class BillingController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -116,7 +88,6 @@ class BillingController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -124,7 +95,6 @@ class BillingController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -132,7 +102,6 @@ class BillingController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -140,7 +109,6 @@ class BillingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -148,7 +116,6 @@ class BillingController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 
     public function downloadInvoice($id)
@@ -160,12 +127,8 @@ class BillingController extends Controller
 
         $professional = Auth::guard('professional')->user();
         $marginPercentage = $professional->margin;
-
-        // Calculate proper GST breakdown and platform fee
         $baseAmount = $booking->base_amount ?? ($booking->amount / 1.18);
         $customerGST = $booking->amount - $baseAmount;
-        
-        // Platform fee calculation on base amount only
         $platformFee = ($baseAmount * $marginPercentage) / 100;
         $platformFeeCGST = $platformFee * 0.09;
         $platformFeeSGST = $platformFee * 0.09;
@@ -203,8 +166,6 @@ class BillingController extends Controller
         $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
             ->where('professional_id', Auth::guard('professional')->id())
             ->findOrFail($id);
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -223,8 +184,6 @@ class BillingController extends Controller
         $booking = Booking::with(['professional.profile', 'customer.customerProfile', 'timedates'])
             ->where('professional_id', Auth::guard('professional')->id())
             ->findOrFail($id);
-        
-        // Generate invoice number based on booking ID and date
         $invoice_no = 'TZCUS-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT);
         $invoice_date = $booking->created_at->format('d M Y');
         
@@ -233,8 +192,6 @@ class BillingController extends Controller
             'invoice_no', 
             'invoice_date'
         ));
-        
-        // Generate filename with date
         $filename = 'customer_invoice_' . $booking->id . '_' . $booking->created_at->format('Y_m_d') . '.pdf';
         
         return $pdf->download($filename);

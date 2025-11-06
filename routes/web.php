@@ -31,6 +31,7 @@ use App\Http\Controllers\Customer\UpcomingAppointmentController;
 use App\Http\Controllers\Customer\CustomerBookingController;
 use App\Http\Controllers\Professional\ProfessionalController;
 use App\Http\Controllers\Professional\BillingController;
+use App\Http\Controllers\OnboardingController;
 
 // Models
 use App\Models\AboutUs;
@@ -73,6 +74,11 @@ Route::get('/csrf-token', function () {
 // Route to check login status (no authentication required)
 Route::post('/check-login', [BookingController::class, 'checkLogin'])->name('check.login');
 
+Route::get('/run-migrations', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return "Migrations ran successfully!";
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
 
@@ -82,6 +88,9 @@ Route::get("professionals/details/{id}/{professional_name?}/{sub_service_slug?}"
 // AJAX routes for dynamic filtering
 Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
 Route::get('/get-professional-rates-availability', [HomeController::class, 'getProfessionalRatesAvailability'])->name('get.professional.rates.availability');
+Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+// Removed conflicting duplicate route name to ensure JSON endpoint resolves correctly
+// Route::get('professionals/get-rates-by-sub-service', [HomeController::class, 'getProfessionalRatesBySubService'])->name('get.professional.rates.availability');
 
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
@@ -102,9 +111,8 @@ Route::get('/eventlist', function (Request $request) {
     $city = $request->query('city');
     $event_mode = $request->query('event_mode');
 
-    $events = EventDetail::with('event'); // Eager load event relation
-
-    $events = $events->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+    // Get admin events
+    $adminEvents = EventDetail::with('event')->whereHas('event', function ($query) use ($filter, $category, $price_range) {
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
@@ -140,21 +148,80 @@ Route::get('/eventlist', function (Request $request) {
         }
     });
 
-    // Add city filter
+    // Add city filter for admin events
     if ($city) {
-        $events = $events->where('city', $city);
+        $adminEvents = $adminEvents->where('city', $city);
     }
 
-    // Add event mode filter
+    // Add event mode filter for admin events
     if ($event_mode) {
-        $events = $events->where('event_mode', $event_mode);
+        $adminEvents = $adminEvents->where('event_mode', $event_mode);
     }
 
-    $events = $events->latest()->paginate(12); // Change from get() to paginate() with 12 items per page
+    $adminEvents = $adminEvents->latest()->get();
+
+    // Get approved professional events from AllEvent model
+    $professionalEvents = AllEvent::with('professional')
+        ->where('created_by_type', 'professional')
+        ->where('status', 'approved');
+
+    // Apply filters to professional events
+    if ($filter == 'today') {
+        $professionalEvents = $professionalEvents->whereDate('date', Carbon::today()->toDateString());
+    } elseif ($filter == 'tomorrow') {
+        $professionalEvents = $professionalEvents->whereDate('date', Carbon::tomorrow()->toDateString());
+    } elseif ($filter == 'weekend') {
+        $startOfWeekend = Carbon::now()->next(Carbon::SATURDAY)->startOfDay();
+        $endOfWeekend = Carbon::now()->next(Carbon::SUNDAY)->endOfDay();
+        $professionalEvents = $professionalEvents->whereBetween('date', [$startOfWeekend, $endOfWeekend]);
+    }
+
+    if ($category) {
+        $professionalEvents = $professionalEvents->where('mini_heading', $category);
+    }
+
+    if ($price_range) {
+        switch ($price_range) {
+            case '100-200':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [100, 200]);
+                break;
+            case '200-300':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [200, 300]);
+                break;
+            case '300-400':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [300, 400]);
+                break;
+            case '400-500':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [400, 500]);
+                break;
+            case '500-1000':
+                $professionalEvents = $professionalEvents->whereBetween('starting_fees', [500, 1000]);
+                break;
+        }
+    }
+
+    $professionalEvents = $professionalEvents->latest()->get();
+
+    Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
+
+    // Transform professional events to match admin event structure
+    $professionalEvents = $professionalEvents->map(function ($event) {
+        // Create a pseudo EventDetail structure for consistency with admin events
+        $pseudoEventDetail = new stdClass();
+        $pseudoEventDetail->id = $event->id;
+        $pseudoEventDetail->event = $event;
+        return $pseudoEventDetail;
+    });
+
+    // Combine both types of events
+    $events = collect($adminEvents)->merge($professionalEvents)->sortByDesc('created_at');
+
     $services = Service::latest()->get();
 
-    // Get unique categories for the filter
-    $categories = AllEvent::distinct()->pluck('mini_heading');
+    // Get unique categories for the filter (from both admin and professional events)
+    $adminCategories = AllEvent::where('created_by_type', 'admin')->distinct()->pluck('mini_heading');
+    $professionalCategories = AllEvent::where('created_by_type', 'professional')->where('status', 'approved')->distinct()->pluck('mini_heading');
+    $categories = $adminCategories->merge($professionalCategories)->unique();
 
     // Get unique cities for the filter
     $cities = EventDetail::distinct()->pluck('city')->filter();
@@ -170,6 +237,23 @@ Route::get('/allevent/{id}', function ($id) {
     $eventfaqs = EventFAQ::latest()->get();
 
     return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
+    // First try to find in AllEvent (for professional events)
+    $allEvent = AllEvent::find($id);
+
+    if ($allEvent && $allEvent->created_by_type === 'professional') {
+        // This is a professional event from AllEvent
+        $services = Service::all();
+        $eventfaqs = EventFAQ::latest()->get();
+
+        return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs'));
+    } else {
+        // This is an admin event from Event model
+        $event = Event::with('eventDetails')->findOrFail($id);
+        $services = Service::all();
+        $eventfaqs = EventFAQ::latest()->get();
+
+        return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
+    }
 })->name('event.details');
 Route::get('allevent', function ($id) {
     $eventdetails = Eventdetail::with('event')->latest()->get();
@@ -213,23 +297,21 @@ Route::get('blog', function (Request $request) {
     return view('frontend.sections.blog', compact('blogbanners', 'blogPosts', 'services', 'latestBlogs', 'categoryCounts', 'search', 'category'));
 })->name('blog.index');
 Route::get('/blog-post/{identifier}', function ($identifier) {
-    // identifier can be numeric ID or slugified title
-    // If numeric ID provided, redirect to slug URL for consistency
+    $blogPost = null;
+
     if (is_numeric($identifier)) {
-        $bp = App\Models\BlogPost::with('blog')->find($identifier);
-        if (! $bp) {
-            abort(404, 'Blog not found');
+        // Handle numeric ID
+        $blogPost = App\Models\BlogPost::with('blog')->find($identifier);
+        if ($blogPost) {
+            // Redirect to slug URL for SEO consistency
+            $slug = \Illuminate\Support\Str::slug($blogPost->blog->title ?? '');
+            if ($slug && $slug !== (string) $identifier) {
+                return redirect()->route('blog.show', $slug);
+            }
         }
-        $slug = \Illuminate\Support\Str::slug($bp->blog->title ?? '');
-        if ($slug && $slug !== (string) $identifier) {
-            return redirect()->route('blog.show', $slug);
-        }
-        // If slug equals numeric or empty, continue to render using the model
-        $blogPost = $bp;
     } else {
         // Handle slug - find by matching slugified title
-        $allBlogPosts = BlogPost::with('blog')->get();
-        $blogPost = null;
+        $allBlogPosts = App\Models\BlogPost::with('blog')->get();
         foreach ($allBlogPosts as $bp) {
             if (\Illuminate\Support\Str::slug($bp->blog->title ?? '') === $identifier) {
                 $blogPost = $bp;
@@ -239,13 +321,13 @@ Route::get('/blog-post/{identifier}', function ($identifier) {
     }
 
     // Handle case where blog doesn't exist
-    if (! $blogPost) {
+    if (!$blogPost) {
         abort(404, 'Blog not found');
     }
 
     $relatedBlog = DB::table('blogs')->where('id', $blogPost->blog_id)->first();
-    $latestBlogs = BlogPost::latest()->take(3)->get();
-    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
+    $latestBlogs = App\Models\BlogPost::latest()->take(3)->get();
+    $categoryCounts = App\Models\BlogPost::select('category', DB::raw('count(*) as post_count'))
         ->groupBy('category')
         ->get();
     $comments = \App\Models\Comment::where('blog_post_id', $blogPost->id)
@@ -255,7 +337,7 @@ Route::get('/blog-post/{identifier}', function ($identifier) {
         ->get();
 
     // Fetch latest services
-    $services = Service::latest()->get();
+    $services = App\Models\Service::latest()->get();
 
     return view('frontend.sections.blog-post', compact('blogPost', 'services', 'relatedBlog', 'latestBlogs', 'categoryCounts', 'comments'));
 })->name('blog.show');
@@ -311,6 +393,10 @@ Route::post('login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('register', [LoginController::class, 'register'])->name('register.submit');
 Route::post('/register/send-otp', [App\Http\Controllers\Frontend\LoginController::class, 'sendOtp'])->name('register.send-otp');
 Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
+Route::post('/register/save-lead', [App\Http\Controllers\Frontend\LoginController::class, 'saveCustomerLead'])->name('register.save-lead');
+Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
+Route::post('/register/create-incomplete', [App\Http\Controllers\Frontend\LoginController::class, 'createIncompleteUser'])->name('register.create-incomplete');
+Route::post('/register/complete', [App\Http\Controllers\Frontend\LoginController::class, 'completeRegistration'])->name('register.complete');
 
 
 Route::get('admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
@@ -331,6 +417,15 @@ Route::post('/set-service-session', [HomeController::class, 'setServiceSession']
 // Professionals listing page (no authentication required for viewing)
 Route::get("professionals", [HomeController::class, 'professionals'])->name('professionals');
 
+// Onboarding routes (require authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/onboarding/status', [OnboardingController::class, 'getOnboardingStatus'])->name('onboarding.status');
+    Route::post('/onboarding/complete-customer', [OnboardingController::class, 'completeCustomerOnboarding'])->name('onboarding.complete.customer');
+    Route::post('/onboarding/complete-professional', [OnboardingController::class, 'completeProfessionalOnboarding'])->name('onboarding.complete.professional');
+    Route::post('/onboarding/reset-customer', [OnboardingController::class, 'resetCustomerOnboarding'])->name('onboarding.reset.customer');
+    Route::post('/onboarding/reset-professional', [OnboardingController::class, 'resetProfessionalOnboarding'])->name('onboarding.reset.professional');
+});
+
 Route::middleware(['auth:user'])->group(function () {
     // Upcoming appointments routes
     Route::get('/upcoming-appointments', [UpcomingAppointmentController::class, 'index'])->name('user.upcoming-appointment.index');
@@ -342,9 +437,6 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/booking/verify-payment', [CustomerBookingController::class, 'verifyPayment'])->name('user.booking.verify-payment');
     Route::get('/booking/success', [CustomerBookingController::class, 'success'])->name('user.booking.success');
     Route::get('/event/booking/success', [CustomerBookingController::class, 'eventSuccess'])->name('user.event.booking.success');
-    Route::post('/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.booking.payment.failed');
-    Route::get('/booking', [HomeController::class, 'booking'])->name('user.booking');
-    Route::post('/booking/session-store', [HomeController::class, 'storeInSession'])->name('user.booking.session.store');
 
     // Customer Billing routes
     Route::get('/customer/billing', [CustomerBookingController::class, 'billing'])->name('user.billing.index');
@@ -354,7 +446,6 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('customer/booking/payment-failed', [CustomerBookingController::class, 'paymentFailed'])->name('user.customer.booking.payment.failed');
     Route::get('customer/booking/retry/{booking_id}', [CustomerBookingController::class, 'retryBooking'])->name('user.customer.booking.retry');
 
-    // MCQ routes
     Route::post('/get-mcq-questions', [CustomerBookingController::class, 'getMCQQuestions'])->name('get.mcq.questions');
     Route::post('/submit-mcq-answers', [CustomerBookingController::class, 'submitMCQAnswers'])->name('user.mcq.submit');
 });
@@ -499,6 +590,8 @@ Route::get('/blog-comments', [App\Http\Controllers\Admin\CommentController::clas
 Route::post('/blog-comments/{id}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('admin.comments.approve');
 Route::delete('/blog-comments/{id}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('admin.comments.destroy');
 Route::get('/blog-comments/export', [App\Http\Controllers\Admin\CommentController::class, 'export'])->name('admin.comments.export');
+
+
 
 // Add this route for Excel export
 Route::get('admin/professional/billing/export-excel', [App\Http\Controllers\Admin\BillingController::class, 'exportBillingToExcel'])

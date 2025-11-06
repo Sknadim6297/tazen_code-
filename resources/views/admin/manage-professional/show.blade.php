@@ -159,6 +159,12 @@
         background: var(--gray-100);
     }
 
+    .profile-actions .btn:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
     /* Profile Cards */
     .profile-grid {
         display: grid;
@@ -724,6 +730,14 @@
                                 <div class="stat-label">Member Since</div>
                             </div>
                         </div>
+                        
+                        <!-- Edit Button -->
+                        <div class="profile-actions" style="margin-top: 1.5rem;">
+                            <button onclick="confirmEdit({{ $professional->id }})" class="btn btn-primary" style="background: var(--white); color: var(--primary); border: 2px solid var(--white);">
+                                <i class="fas fa-edit"></i>
+                                Edit Professional
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Profile Content -->
@@ -836,6 +850,88 @@
                             </div>
                         </div>
 
+                        <!-- Bank Account Details -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h3 class="section-title">
+                                    <i class="fas fa-university"></i>
+                                    Bank Account Details
+                                </h3>
+                                <div class="header-actions">
+                                    @if($profile->account_number && $profile->ifsc_code && $profile->account_holder_name && $profile->bank_name)
+                                        <button onclick="downloadBankDetails({{ $profile->id }})" class="btn btn-outline">
+                                            <i class="fas fa-download"></i>
+                                            Download Details
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Holder Name</div>
+                                    <div class="detail-value">{{ $profile->account_holder_name ?: 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Bank Name</div>
+                                    <div class="detail-value">{{ $profile->bank_name ?: 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Number</div>
+                                    <div class="detail-value">
+                                        @if($profile->account_number)
+                                            <span id="account-{{ $profile->id }}" style="display: none;">{{ $profile->account_number }}</span>
+                                            <span id="masked-{{ $profile->id }}">{{ str_repeat('*', strlen($profile->account_number) - 4) . substr($profile->account_number, -4) }}</span>
+                                            <button onclick="toggleAccountNumber({{ $profile->id }})" class="btn" style="padding: 0.25rem 0.5rem; margin-left: 0.5rem; font-size: 0.75rem;">
+                                                <i id="eye-{{ $profile->id }}" class="fas fa-eye"></i>
+                                            </button>
+                                        @else
+                                            Not provided
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">IFSC Code</div>
+                                    <div class="detail-value">{{ $profile->ifsc_code ?: 'Not provided' }}</div>
+                                </div>
+                                @if($profile->account_type)
+                                <div class="detail-item">
+                                    <div class="detail-label">Account Type</div>
+                                    <div class="detail-value">{{ ucfirst($profile->account_type) }}</div>
+                                </div>
+                                @endif
+                                @if($profile->bank_branch)
+                                <div class="detail-item">
+                                    <div class="detail-label">Branch</div>
+                                    <div class="detail-value">{{ $profile->bank_branch }}</div>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            @if($profile->bank_document)
+                            <div class="documents-grid" style="margin-top: 1.5rem;">
+                                <div class="document-card has-file">
+                                    <div class="document-icon">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </div>
+                                    <div class="document-name">Bank Account Proof</div>
+                                    <div class="document-status">
+                                        <a href="{{ asset('storage/'.$profile->bank_document) }}" target="_blank" class="document-action">
+                                            <i class="fas fa-eye"></i>
+                                            View Document
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            @else
+                            <div class="empty-state" style="padding: 1.5rem; margin-top: 1rem;">
+                                <i class="fas fa-file-invoice"></i>
+                                <h3>No Bank Document</h3>
+                                <p>Professional hasn't uploaded bank account proof yet</p>
+                            </div>
+                            @endif
+                        </div>
+
                         <!-- Gallery -->
                         <div class="profile-section">
                             <div class="section-header">
@@ -878,6 +974,12 @@
                                     <i class="fas fa-concierge-bell"></i>
                                     Services Offered
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editServices({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Services
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($services->count() > 0)
@@ -920,6 +1022,12 @@
                                     <i class="fas fa-money-bill-wave"></i>
                                     Pricing Plans
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editRates({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Rates
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($rates->count() > 0)
@@ -946,6 +1054,112 @@
                             @endif
                         </div>
 
+                        <!-- Commission & Service Request Settings -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h3 class="section-title">
+                                    <i class="fas fa-percentage"></i>
+                                    Commission & Service Request Settings
+                                </h3>
+                                <div class="header-actions">
+                                    <button onclick="editCommissionSettings({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Settings
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="details-grid">
+                                <!-- Regular Session Margin -->
+                                <div class="detail-item" style="border-left-color: var(--primary);">
+                                    <div class="detail-label">
+                                        <i class="fas fa-handshake"></i>
+                                        Regular Session Margin
+                                    </div>
+                                    <div class="detail-value">
+                                        {{ number_format($professional->margin ?? 0, 2) }}%
+                                    </div>
+                                    <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                                        Commission for regular booking sessions
+                                    </small>
+                                </div>
+
+                                <!-- Service Request Margin -->
+                                <div class="detail-item" style="border-left-color: var(--success);">
+                                    <div class="detail-label">
+                                        <i class="fas fa-plus-circle"></i>
+                                        Service Request Margin
+                                    </div>
+                                    <div class="detail-value">
+                                        {{ number_format($professional->service_request_margin ?? 0, 2) }}%
+                                    </div>
+                                    <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                                        Commission for additional service requests
+                                    </small>
+                                </div>
+
+                                <!-- Negotiation Offset -->
+                                <div class="detail-item" style="border-left-color: var(--warning);">
+                                    <div class="detail-label">
+                                        <i class="fas fa-arrows-alt-v"></i>
+                                        Negotiation Offset
+                                    </div>
+                                    <div class="detail-value">
+                                        {{ number_format($professional->service_request_offset ?? 0, 2) }}%
+                                    </div>
+                                    <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                                        Maximum negotiation limit for customers
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Earnings Calculator -->
+                            <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius); border: 1px solid var(--gray-200);">
+                                <h4 style="margin: 0 0 1rem 0; color: var(--gray-800); font-size: 1rem; font-weight: 600;">
+                                    <i class="fas fa-calculator" style="color: var(--primary);"></i>
+                                    Earnings Calculator (Example for ₹1000 service)
+                                </h4>
+                                
+                                <div class="details-grid" style="gap: 1rem;">
+                                    <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200);">
+                                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            Regular Session
+                                        </div>
+                                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);">
+                                            ₹{{ number_format(1000 - (1000 * ($professional->margin ?? 0) / 100), 2) }}
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--gray-500);">
+                                            Professional receives
+                                        </div>
+                                    </div>
+
+                                    <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200);">
+                                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--success); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            Service Request
+                                        </div>
+                                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);">
+                                            ₹{{ number_format(1000 - (1000 * ($professional->service_request_margin ?? 0) / 100), 2) }}
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--gray-500);">
+                                            Professional receives
+                                        </div>
+                                    </div>
+
+                                    <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200);">
+                                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--warning); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            Min Negotiated Price
+                                        </div>
+                                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);">
+                                            ₹{{ number_format(1000 - (1000 * ($professional->service_request_offset ?? 0) / 100), 2) }}
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--gray-500);">
+                                            Customer can't go below
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Availability -->
                         <div class="profile-section">
                             <div class="section-header">
@@ -953,6 +1167,12 @@
                                     <i class="fas fa-calendar-check"></i>
                                     Availability Schedule
                                 </h3>
+                                <div class="header-actions">
+                                    <button onclick="editAvailability({{ $professional->id }})" class="btn btn-outline">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Availability
+                                    </button>
+                                </div>
                             </div>
                             
                             @if($availabilities->count() > 0)
@@ -960,14 +1180,56 @@
                                     @foreach($availabilities as $availability)
                                         <div class="availability-item">
                                             <div class="availability-header">
-                                                <div class="availability-month">{{ $availability->month }}</div>
-                                                <div class="availability-duration">{{ $availability->session_duration }} min sessions</div>
+                                                <div>
+                                                    @php
+                                                        // Normalize month display: handle 'all_months', 'Y-m' and old short names
+                                                        $monthValue = $availability->month;
+
+                                                        if ($monthValue === 'all_months') {
+                                                            $months = [];
+                                                            $currentDate = now();
+                                                            for ($i = 0; $i < 6; $i++) {
+                                                                $months[] = $currentDate->copy()->addMonths($i)->format('F Y');
+                                                            }
+                                                            $fullMonth = implode(', ', $months);
+                                                        } elseif (strpos($monthValue, '-') !== false) {
+                                                            try {
+                                                                $fullMonth = \Carbon\Carbon::createFromFormat('Y-m', $monthValue)->format('F Y');
+                                                            } catch (\Exception $e) {
+                                                                $fullMonth = $monthValue;
+                                                            }
+                                                        } else {
+                                                            $monthNames = [
+                                                                'jan' => 'January', 'feb' => 'February', 'mar' => 'March',
+                                                                'apr' => 'April', 'may' => 'May', 'jun' => 'June',
+                                                                'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
+                                                                'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
+                                                            ];
+                                                            $fullMonth = $monthNames[strtolower($monthValue)] ?? ucfirst($monthValue);
+                                                        }
+                                                    @endphp
+                                                    <div class="availability-month">{{ $fullMonth }}</div>
+                                                    <div class="availability-duration">{{ $availability->session_duration }} min sessions</div>
+                                                </div>
                                             </div>
                                             
                                             <div class="availability-slots">
                                                 @foreach($availability->slots as $slot)
                                                     <div class="slot-badge">
-                                                        {{ $slot->start_time }} - {{ $slot->end_time }}
+                                                        @php
+                                                            try {
+                                                                $start = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
+                                                            } catch (\Exception $e) {
+                                                                $start = $slot->start_time;
+                                                            }
+
+                                                            try {
+                                                                $end = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
+                                                            } catch (\Exception $e) {
+                                                                $end = $slot->end_time;
+                                                            }
+                                                        @endphp
+                                                        {{ $start }} - {{ $end }}
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -988,4 +1250,347 @@
         </div>
     </div>
 </div>
+
+<!-- Commission Settings Modal -->
+<div class="modal fade" id="commissionModal" tabindex="-1" role="dialog" aria-labelledby="commissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius: var(--radius-lg); border: none; box-shadow: var(--shadow-lg);">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                <h5 class="modal-title" id="commissionModalLabel" style="font-weight: 700;">
+                    <i class="fas fa-percentage"></i>
+                    Commission & Service Request Settings
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="commissionForm">
+                @csrf
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="margin" class="form-label">
+                                    <i class="fas fa-handshake" style="color: var(--primary);"></i>
+                                    Regular Session Margin (%)
+                                </label>
+                                <input type="number" class="form-control" id="margin" name="margin" 
+                                       value="{{ number_format($professional->margin ?? 0, 2) }}" min="0" max="100" step="0.01"
+                                       style="border-radius: var(--radius); border: 2px solid var(--gray-200);">
+                                <small class="form-text text-muted">Commission percentage for regular booking sessions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="service_request_margin" class="form-label">
+                                    <i class="fas fa-plus-circle" style="color: var(--success);"></i>
+                                    Service Request Margin (%)
+                                </label>
+                                <input type="number" class="form-control" id="service_request_margin" name="service_request_margin" 
+                                       value="{{ number_format($professional->service_request_margin ?? $professional->margin ?? 0, 2) }}" min="0" max="100" step="0.01"
+                                       style="border-radius: var(--radius); border: 2px solid var(--gray-200);">
+                                <small class="form-text text-muted">Defaults to Regular Session Margin but is editable</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="service_request_offset" class="form-label">
+                                    <i class="fas fa-arrows-alt-v" style="color: var(--warning);"></i>
+                                    Negotiation Offset (%)
+                                </label>
+                                <input type="number" class="form-control" id="service_request_offset" name="service_request_offset" 
+                                       value="{{ number_format($professional->service_request_offset ?? 10, 2) }}" min="0" max="100" step="0.01"
+                                       style="border-radius: var(--radius); border: 2px solid var(--gray-200);">
+                                <small class="form-text text-muted">Defaults to 10% but is editable</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Calculator -->
+                    <div class="mt-4" style="padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius); border: 1px solid var(--gray-200);">
+                        <h6 style="margin: 0 0 1rem 0; color: var(--gray-800); font-weight: 600;">
+                            <i class="fas fa-calculator" style="color: var(--primary);"></i>
+                            Live Earnings Calculator (₹1000 Service Example)
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200); text-align: center;">
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">
+                                        Regular Session Professional Earns
+                                    </div>
+                                    <div id="regularEarning" style="font-size: 1.5rem; font-weight: 700; color: var(--success);">
+                                        ₹{{ number_format(1000 - (1000 * ($professional->margin ?? 0) / 100), 2) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200); text-align: center;">
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--success); margin-bottom: 0.5rem;">
+                                        Service Request Professional Earns
+                                    </div>
+                                    <div id="serviceRequestEarning" style="font-size: 1.5rem; font-weight: 700; color: var(--success);">
+                                        ₹{{ number_format(1000 - (1000 * ($professional->service_request_margin ?? $professional->margin ?? 0) / 100), 2) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--gray-200); text-align: center;">
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--warning); margin-bottom: 0.5rem;">
+                                        Min Customer Can Pay
+                                    </div>
+                                    <div id="minNegotiatedPrice" style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">
+                                        ₹{{ number_format(1000 - (1000 * ($professional->service_request_offset ?? 10) / 100), 2) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 1.5rem 2rem; border-top: 1px solid var(--gray-200);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                            style="border-radius: var(--radius); padding: 0.75rem 1.5rem;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn" 
+                            style="background: var(--primary); color: white; border-radius: var(--radius); padding: 0.75rem 1.5rem; border: none;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+// Toggle account number visibility
+function toggleAccountNumber(profileId) {
+    const accountSpan = document.getElementById(`account-${profileId}`);
+    const maskedSpan = document.getElementById(`masked-${profileId}`);
+    const eyeIcon = document.getElementById(`eye-${profileId}`);
+    
+    if (accountSpan.style.display === 'none') {
+        accountSpan.style.display = 'inline';
+        maskedSpan.style.display = 'none';
+        eyeIcon.className = 'fas fa-eye-slash';
+    } else {
+        accountSpan.style.display = 'none';
+        maskedSpan.style.display = 'inline';
+        eyeIcon.className = 'fas fa-eye';
+    }
+}
+
+// Download bank details
+function downloadBankDetails(profileId) {
+    // Redirect to export route with professional ID
+    window.location.href = `{{ route('admin.professional.bank-details.export') }}?professional_id=${profileId}`;
+}
+
+// Confirm edit action
+function confirmEdit(professionalId) {
+    if (confirm('Are you sure you want to edit this professional\'s details?')) {
+        // Redirect to edit page
+        window.location.href = '/admin/manage-professional/' + professionalId + '/edit';
+    }
+}
+
+// Edit Services
+function editServices(professionalId) {
+    if (confirm('Edit services for this professional?')) {
+        // Redirect to admin professional services management page
+        window.location.href = '/admin/professional/' + professionalId + '/services';
+    }
+}
+
+// Edit Rates
+function editRates(professionalId) {
+    if (confirm('Edit rates/pricing for this professional?')) {
+        // Redirect to admin professional rates management page
+        window.location.href = '/admin/professional/' + professionalId + '/rates';
+    }
+}
+
+// Edit Availability
+function editAvailability(professionalId) {
+    if (confirm('Edit availability schedule for this professional?')) {
+        // Redirect to admin professional availability management page
+        window.location.href = '/admin/professional/' + professionalId + '/availability';
+    }
+}
+
+// Edit Commission Settings
+function editCommissionSettings(professionalId) {
+    console.log('Opening commission modal for professional:', professionalId);
+    
+    // Use Bootstrap's modal methods with better compatibility
+    if (typeof $ !== 'undefined' && $.fn.modal) {
+        console.log('Using jQuery modal');
+        $('#commissionModal').modal('show');
+    } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        // Fallback for Bootstrap 5 vanilla JS
+        console.log('Using Bootstrap 5 vanilla JS modal');
+        const modal = document.getElementById('commissionModal');
+        if (modal) {
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+        }
+    } else {
+        // Final fallback - show modal manually
+        console.log('Using manual modal display');
+        const modal = document.getElementById('commissionModal');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+    }
+}
+
+// Wait for DOM and jQuery to be ready
+$(document).ready(function() {
+    console.log('jQuery is loaded and DOM is ready');
+    
+    // Initialize modal event handlers
+    $('#commissionModal').on('shown.bs.modal', function() {
+        // Set default values if not already set
+        setDefaultValues();
+        // Load current values and update calculator
+        updateCalculator();
+    });
+    
+    function setDefaultValues() {
+        const margin = parseFloat($('#margin').val()) || 0;
+        const serviceMargin = parseFloat($('#service_request_margin').val());
+        const offset = parseFloat($('#service_request_offset').val());
+        
+        // If service request margin is empty or 0, default to regular session margin
+        if (!serviceMargin || serviceMargin === 0) {
+            $('#service_request_margin').val(margin.toFixed(2));
+        }
+        
+        // If negotiation offset is empty or 0, default to 10%
+        if (!offset || offset === 0) {
+            $('#service_request_offset').val('10.00');
+        }
+    }
+    
+    function updateCalculator() {
+        const margin = parseFloat($('#margin').val()) || 0;
+        const serviceMargin = parseFloat($('#service_request_margin').val()) || margin;
+        const offset = parseFloat($('#service_request_offset').val()) || 10;
+        
+        const baseAmount = 1000;
+        
+        // Calculate earnings
+        const regularEarning = baseAmount - (baseAmount * margin / 100);
+        const serviceEarning = baseAmount - (baseAmount * serviceMargin / 100);
+        const minPrice = baseAmount - (baseAmount * offset / 100);
+        
+        // Update display
+        $('#regularEarning').text('₹' + regularEarning.toFixed(2));
+        $('#serviceRequestEarning').text('₹' + serviceEarning.toFixed(2));
+        $('#minNegotiatedPrice').text('₹' + minPrice.toFixed(2));
+    }
+    
+    // Sync service request margin with regular session margin when it changes
+    $('#margin').on('input', function() {
+        const margin = parseFloat($(this).val()) || 0;
+        const serviceMargin = parseFloat($('#service_request_margin').val()) || 0;
+        
+        // Only update service margin if it was previously equal to the old regular margin or empty
+        // This allows for independent editing while maintaining the default sync behavior
+        if (serviceMargin === 0 || $('#service_request_margin').data('sync-with-margin') !== false) {
+            $('#service_request_margin').val(margin.toFixed(2));
+        }
+        updateCalculator();
+    });
+    
+    // Mark service request margin as independently edited when user manually changes it
+    $('#service_request_margin').on('input', function() {
+        $(this).data('sync-with-margin', false);
+        updateCalculator();
+    });
+    
+    // Update calculator on input change for offset
+    $('#service_request_offset').on('input', updateCalculator);
+    
+    // Commission form submission
+    $('#commissionForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const professionalId = {{ $professional->id }};
+        const formData = {
+            _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val(),
+            margin: $('#margin').val(),
+            service_request_margin: $('#service_request_margin').val(),
+            service_request_offset: $('#service_request_offset').val()
+        };
+        
+        console.log('Submitting form data:', formData);
+        
+        // Show loading state
+        const submitBtn = $(this).find('button[type="submit"]');
+        const originalText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        $.ajax({
+            url: `/admin/manage-professional/${professionalId}/update-commission`,
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val(),
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            success: function(response) {
+                console.log('Success response:', response);
+                if (response.success) {
+                    // Close modal and reload page
+                    $('#commissionModal').modal('hide');
+                    
+                    // Show success message
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Commission settings updated successfully!');
+                    } else {
+                        alert('Commission settings updated successfully!');
+                    }
+                    
+                    // Reload page after short delay
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert('Error: ' + (response.message || 'Unknown error occurred'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', xhr, status, error);
+                console.error('Response Text:', xhr.responseText);
+                
+                let errorMessage = 'An error occurred while updating commission settings.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                } else if (xhr.responseText) {
+                    errorMessage = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
+                }
+                
+                alert(errorMessage);
+            },
+            complete: function() {
+                // Restore button state
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+    
+    // Initial calculator update
+    updateCalculator();
+});
+</script>
+
 @endsection

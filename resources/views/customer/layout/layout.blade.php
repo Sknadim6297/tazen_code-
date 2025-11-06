@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-type" content="user">
+    <meta name="user-id" content="{{ Auth::guard('user')->id() }}">
     <title>Customer Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
@@ -147,25 +149,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Chat System removed -->
     <script>
-        // Defensive sidebar toggle/close to avoid errors when elements are missing
-        (function () {
-            const toggleBtn = document.querySelector('.toggle-sidebar');
-            const closeBtn = document.querySelector('.close-sidebar');
-            const sidebarEl = document.querySelector('.sidebar');
+        // Toggle sidebar on mobile
+        document.querySelector('.toggle-sidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
 
-            if (toggleBtn && sidebarEl && typeof toggleBtn.addEventListener === 'function') {
-                toggleBtn.addEventListener('click', function () {
-                    sidebarEl.classList.toggle('active');
-                });
-            }
-
-            if (closeBtn && sidebarEl && typeof closeBtn.addEventListener === 'function') {
-                closeBtn.addEventListener('click', function () {
-                    sidebarEl.classList.remove('active');
-                });
-            }
-        })();
+        // Close sidebar on mobile
+        document.querySelector('.close-sidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.remove('active');
+        });
     </script>
      <script>
 		@if (session('success'))

@@ -20,7 +20,15 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
+        'email_verified',
+        'registration_completed',
+        'registration_status',
+        'password_set_at',
+        'customer_onboarding_completed_at',
+        'professional_onboarding_completed_at',
+        'onboarding_data',
     ];
 
     /**
@@ -40,12 +48,28 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'password_set_at' => 'datetime',
+        'email_verified' => 'boolean',
+        'registration_completed' => 'boolean',
+        'customer_onboarding_completed_at' => 'datetime',
+        'professional_onboarding_completed_at' => 'datetime',
+        'onboarding_data' => 'array',
     ];
     public function customerProfile()
     {
         return $this->hasOne(CustomerProfile::class);
     }
+    
+    /**
+     * Hash password when setting it
+     */
+    public function setPasswordAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['password'] = bcrypt($value);
+        }
+    }
+    
     public function bookings()
     {
         return $this->hasMany(EventBooking::class);
@@ -53,6 +77,11 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function additionalServices()
+    {
+        return $this->hasMany(AdditionalService::class);
     }
 
     // Add a method to check if user has already reviewed a professional

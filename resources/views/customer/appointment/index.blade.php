@@ -2,6 +2,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/appointment.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     /* Custom Modal Styles */
@@ -311,6 +312,31 @@
         color: #e65100;
         border-color: #ffe0b2;
     }
+
+    /* Chat notification badge */
+    .chat-badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    }
+
+    .btn.position-relative {
+        overflow: visible;
+    }
 </style>
 @endsection
 
@@ -352,30 +378,35 @@
 @php
     /**
      * Format plan type for display (e.g., "one_time" becomes "One Time")
+     *
+     * Wrapped in function_exists check to avoid redeclaration when views are
+     * compiled multiple times or included from other templates.
      */
-    function formatPlanType($planType) {
-        if (empty($planType)) return null;
-        
-        // Handle special case for "one_time"
-        if (strtolower($planType) == 'one_time') {
-            return 'One Time';
+    if (! function_exists('formatPlanType')) {
+        function formatPlanType($planType) {
+            if (empty($planType)) return null;
+
+            // Handle special case for "one_time"
+            if (strtolower($planType) == 'one_time') {
+                return 'One Time';
+            }
+            if( strtolower($planType) == 'no_plan') {
+                return 'No Plan';
+            }
+            if( strtolower($planType) == 'monthly') {
+                return 'Monthly';
+            }
+            if ( strtolower($planType) == 'quarterly') {
+                return 'Quarterly';
+            }
+            if ( strtolower($planType) == 'free_hand') {
+                return 'Free Hand';
+            }
+
+            // Replace underscores with spaces and capitalize each word
+            $planType = str_replace('_', ' ', $planType);
+            return ucwords($planType);
         }
-        if( strtolower($planType) == 'no_plan') {
-            return 'No Plan';
-        }
-        if( strtolower($planType) == 'monthly') {
-            return 'Monthly';
-        }
-        if ( strtolower($planType) == 'quarterly') {
-            return 'Quarterly';
-        }
-        if ( strtolower($planType) == 'free_hand') {
-            return 'Free Hand';
-        }
-        
-        // Replace underscores with spaces and capitalize each word
-        $planType = str_replace('_', ' ', $planType);
-        return ucwords($planType);
     }
 @endphp
             <!-- Plan Type Filter -->
@@ -443,10 +474,12 @@
                     <th>Booking date</th>
                     <th>Professional Name</th>
                     <th>Service Category</th>
+                    <th>Sub-Service</th>
                     <th>Plan Type</th>
                     <th>Sessions Taken</th>
                     <th>Sessions Remaining</th>
                     <th>Documents</th>
+                    <th>Chat</th>
                     <th>Details</th>
                 </tr>
             </thead>
@@ -488,8 +521,12 @@
                             @else
                                 {{ $booking->service_name }}
                             @endif
+                        </td>
+                        <td>
                             @if($booking->sub_service_name)
-                                <br><small class="text-muted">Sub: {{ $booking->sub_service_name }}</small>
+                                <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                            @else
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
                       <!-- Change this part in the table row -->
@@ -531,6 +568,19 @@
                             @endif
                         </td>
                         <td>
+                            <a href="{{ route('user.chat.open', $booking->id) }}" 
+                               class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
+                               target="_blank" 
+                               title="Chat with Professional"
+                               data-booking-id="{{ $booking->id }}">
+                                <i class="fas fa-comments"></i> Chat
+                                <span class="chat-badge badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill d-none" 
+                                      id="chat-badge-{{ $booking->id }}">
+                                    0
+                                </span>
+                            </a>
+                        </td>
+                        <td>
                             <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ $booking->id }}">
                                 View Details
                             </button>
@@ -538,7 +588,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center">No appointments found</td>
+                        <td colspan="12" class="text-center">No appointments found</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -817,5 +867,281 @@ $(window).on('click', function (e) {
         $('#customModal').hide();
     }
 });
+
+
+
+// Chat Functionality
+function openBookingChat(bookingId) {
+    // Prevent opening multiple chats
+    if(currentBookingChatId === bookingId && $('#bookingChatModal').is(':visible')) {
+        return;
+    }
+    
+    // Clear any existing interval
+    if(messageCheckInterval) {
+        clearInterval(messageCheckInterval);
+        messageCheckInterval = null;
+    }
+    
+    currentBookingChatId = bookingId;
+    isPolling = false;
+    
+    // Initialize or get existing chat
+    $.ajax({
+        url: '/user/booking-chat/initialize',
+        type: 'POST',
+        data: {
+            booking_id: bookingId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if(response.success) {
+                currentChatId = response.chat_id;
+                
+                // Update modal title with booking context
+                const title = `
+                    <div>
+                        <strong>${response.booking.service_name}</strong><br>
+                        <small style="font-weight: normal; opacity: 0.8;">
+                            Chat with ${response.participant.name} (${response.participant.type})
+                        </small>
+                    </div>
+                `;
+                $('#chatModalTitle').html(title);
+                $('#bookingChatModal').fadeIn(300);
+                
+                // Load messages
+                loadChatMessages(bookingId);
+                
+                // Attach send button click handler directly (not delegated)
+                $('#sendMessageBtn').off('click').on('click', function() {
+                    console.log('Send button clicked');
+                    sendChatMessage();
+                });
+                
+                // Attach Enter key handler directly
+                $('#chatMessageInput').off('keypress').on('keypress', function(e) {
+                    if(e.which === 13) {
+                        console.log('Enter key pressed');
+                        sendChatMessage();
+                    }
+                });
+                
+                // Start polling only if not already polling
+                if(!messageCheckInterval && !isPolling) {
+                    isPolling = true;
+                    messageCheckInterval = setInterval(() => {
+                        if($('#bookingChatModal').is(':visible')) {
+                            loadChatMessages(bookingId);
+                        }
+                    }, 3000);
+                }
+            }
+        },
+        error: function(xhr) {
+            alert('Error opening chat: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        }
+    });
+}
+
+function loadChatMessages(bookingId) {
+    $.ajax({
+        url: `/user/booking-chat/${bookingId}/messages`,
+        type: 'GET',
+        success: function(response) {
+            if(response.success) {
+                displayChatMessages(response.messages);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading messages:', xhr);
+        }
+    });
+}
+
+function displayChatMessages(messages) {
+    const chatContainer = $('#chatMessages');
+    const wasScrolledToBottom = chatContainer[0].scrollHeight - chatContainer.scrollTop() <= chatContainer.outerHeight() + 50;
+    
+    chatContainer.empty();
+    
+    if(messages.length === 0) {
+        chatContainer.append('<div style="text-align: center; color: #999; padding: 20px;">No messages yet. Start the conversation!</div>');
+    } else {
+        messages.forEach(msg => {
+            const isOwn = msg.sender_type === 'customer';
+            const messageClass = isOwn ? 'message-own' : 'message-other';
+            
+            // Get sender name - fallback to type if name not available
+            let senderName = msg.sender_name || 'Unknown';
+            if (!msg.sender_name) {
+                senderName = isOwn ? 'You' : (msg.sender_type === 'professional' ? 'Professional' : msg.sender_type);
+            } else if (isOwn) {
+                senderName = 'You';
+            }
+            
+            const time = msg.formatted_time || new Date(msg.created_at).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+            
+            let messageContent = '';
+            
+            // Handle different message types
+            if(msg.message_type === 'image' && msg.file_path) {
+                messageContent = `
+                    <img src="/storage/${msg.file_path}" alt="Image" style="max-width: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('/storage/${msg.file_path}', '_blank')">
+                    ${msg.message ? '<div>' + msg.message + '</div>' : ''}
+                `;
+            } else if(msg.message_type === 'file' && msg.file_path) {
+                const fileName = msg.file_path.split('/').pop();
+                messageContent = `
+                    <a href="/storage/${msg.file_path}" target="_blank" style="color: inherit; text-decoration: underline;">
+                        <i class="fas fa-file"></i> ${fileName}
+                    </a>
+                    ${msg.message ? '<div>' + msg.message + '</div>' : ''}
+                `;
+            } else {
+                messageContent = msg.message;
+            }
+            
+            chatContainer.append(`
+                <div class="chat-message ${messageClass}">
+                    <div class="message-sender" style="font-weight: bold; margin-bottom: 5px;">${senderName}</div>
+                    <div class="message-content">${messageContent}</div>
+                    <div class="message-time" style="font-size: 11px; opacity: 0.7; margin-top: 5px;">${time}</div>
+                </div>
+            `);
+        });
+    }
+    
+    // Auto scroll to bottom
+    if(wasScrolledToBottom) {
+        chatContainer.scrollTop(chatContainer[0].scrollHeight);
+    }
+}
+
+function sendChatMessage() {
+    const messageInput = $('#chatMessageInput');
+    const fileInput = $('#chatFileInput')[0];
+    
+    console.log('sendChatMessage called');
+    console.log('messageInput element:', messageInput);
+    console.log('messageInput length:', messageInput.length);
+    console.log('messageInput value:', messageInput.val());
+    
+    const message = messageInput.val()?.trim() || '';
+    const file = fileInput?.files[0];
+    
+    console.log('After processing - message:', message);
+    console.log('After processing - message length:', message.length);
+    console.log('After processing - file:', file);
+    
+    console.log('Sending message:', { message: message, hasFile: !!file });
+    
+    if(!message && !file) {
+        console.log('No message or file to send');
+        return;
+    }
+    
+    const formData = new FormData();
+    if(message) formData.append('message', message);
+    if(file) formData.append('file', file);
+    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+    
+    console.log('FormData contents:', {
+        hasMessage: formData.has('message'),
+        hasFile: formData.has('file'),
+        hasToken: formData.has('_token')
+    });
+    
+    // Disable send button
+    $('#sendMessageBtn').prop('disabled', true);
+    
+    $.ajax({
+        url: `/user/booking-chat/${currentBookingChatId}/send`,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            console.log('Message sent successfully:', response);
+            if(response.success) {
+                messageInput.val('');
+                if(fileInput) fileInput.value = '';
+                $('#selectedFileName').text('');
+                loadChatMessages(currentBookingChatId);
+            } else {
+                console.error('Response success was false:', response);
+                alert('Failed to send message: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function(xhr) {
+            console.error('Error sending message:', xhr);
+            const errorMsg = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Unknown error';
+            const details = xhr.responseJSON?.details ? JSON.stringify(xhr.responseJSON.details) : '';
+            alert('Error sending message: ' + errorMsg + (details ? '\n' + details : ''));
+        },
+        complete: function() {
+            $('#sendMessageBtn').prop('disabled', false);
+        }
+    });
+}
+
+// Show selected file name
+$(document).on('change', '#chatFileInput', function() {
+    const fileName = this.files[0]?.name || '';
+    $('#selectedFileName').text(fileName ? `📎 ${fileName}` : '');
+});
+
+// Close modal and stop polling - Use OFF to prevent multiple bindings
+$(document).off('click', '#closeChatModal').on('click', '#closeChatModal', function() {
+    $('#bookingChatModal').fadeOut(300);
+    if(messageCheckInterval) {
+        clearInterval(messageCheckInterval);
+        messageCheckInterval = null;
+        isPolling = false;
+    }
+    currentBookingChatId = null;
+    currentChatId = null;
+});
+
+// Close on outside click
+$(window).off('click.chatModal').on('click.chatModal', function (e) {
+    if ($(e.target).is('#bookingChatModal')) {
+        $('#closeChatModal').trigger('click');
+    }
+});
+
+// Load unread chat counts for all bookings
+function loadUnreadChatCounts() {
+    $('[data-booking-id]').each(function() {
+        const bookingId = $(this).data('booking-id');
+        const badgeElement = $(`#chat-badge-${bookingId}`);
+        
+        $.ajax({
+            url: `/user/chat/booking/${bookingId}/unread-count`,
+            method: 'GET',
+            success: function(response) {
+                if(response.success && response.unread_count > 0) {
+                    badgeElement.text(response.unread_count);
+                    badgeElement.removeClass('d-none');
+                } else {
+                    badgeElement.addClass('d-none');
+                }
+            },
+            error: function() {
+                // Silently fail
+            }
+        });
+    });
+}
+
+// Load counts on page load
+$(document).ready(function() {
+    loadUnreadChatCounts();
+    
+    // Refresh counts every 30 seconds
+    setInterval(loadUnreadChatCounts, 30000);
+});
+
 </script>
+
 @endsection

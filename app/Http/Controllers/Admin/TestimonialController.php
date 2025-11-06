@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Testimonial;
 use Illuminate\Support\Facades\Storage;
 
-
 class TestimonialController extends Controller
 {
     /**
@@ -16,8 +15,6 @@ class TestimonialController extends Controller
     public function index()
     {
         $testimonials = Testimonial::all();
-    
-    // Check if data is being passed to the view
     return view('admin.testimonials.index', compact('testimonials'));
     }
 
@@ -26,7 +23,6 @@ class TestimonialController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -57,7 +53,6 @@ class TestimonialController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -84,7 +79,6 @@ class TestimonialController extends Controller
         $data = [];
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($testimonial->image) {
                 Storage::disk('public')->delete($testimonial->image);
             }
@@ -101,8 +95,7 @@ class TestimonialController extends Controller
         return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial updated successfully.');
     }
 
-
-    /**
+/**
      * Remove the specified resource from storage.
      */
     public function destroy($id)

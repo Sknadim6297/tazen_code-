@@ -378,18 +378,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch already used session types for current service/sub-service scope
     async function fetchUsedSessionTypes(subServiceId = null) {
         try {
-            const params = new URLSearchParams();
-            params.append('professional_service_id', currentServiceId);
-            if (subServiceId) params.append('sub_service_id', subServiceId);
-            const url = `{{ route('professional.rate.get-session-types') }}?` + params.toString();
+            const url = `{{ route('professional.rate.get-session-types') }}`;
             const resp = await fetch(url, { credentials: 'same-origin' });
             if (!resp.ok) return [];
             const data = await resp.json();
-            if (data.status === 'success' && Array.isArray(data.session_types)) {
-                return data.session_types;
+            if (data.status === 'success' && Array.isArray(data.rates)) {
+                // Filter rates based on service_id and sub_service_id
+                const filteredRates = data.rates.filter(rate => {
+                    if (subServiceId) {
+                        // For sub-service rates, match sub_service_id
+                        return rate.sub_service_id == subServiceId;
+                    } else {
+                        // For service rates, sub_service_id should be null
+                        return rate.sub_service_id == null;
+                    }
+                });
+                return filteredRates.map(rate => rate.session_type);
             }
         } catch (err) {
-            // ignore errors
+            console.error('Error fetching used session types:', err);
         }
         return [];
     }
@@ -408,19 +415,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="text" class="form-control" value="${currentService.service_name}" readonly style="background-color: #f8f9fa;">
             </td>
             <td>
-                <select class="form-control session-type" name="service_rates[${serviceRateCounter}][session_type]" required>
+                <select class="form-control session-type" name="service_rates[${serviceRateCounter}][session_type]" >
                     <option value="">Select Session Type</option>
                     ${sessionTypes.map(type => {
                         const disabled = usedSessionTypes.includes(type) ? 'disabled' : '';
-                        return `<option value="${type}" ${disabled}>${type}${disabled ? ' (used)' : ''}</option>`;
+                        return `<option value="${type}" ${disabled}>${type}${disabled ? ' - Already Added' : ''}</option>`;
                     }).join('')}
                 </select>
             </td>
             <td>
-                <input type="number" class="form-control num-sessions" name="service_rates[${serviceRateCounter}][num_sessions]" value="1" min="1" required>
+                <input type="number" class="form-control num-sessions" name="service_rates[${serviceRateCounter}][num_sessions]" value="1" min="1" >
             </td>
             <td>
-                <input type="number" class="form-control rate-per-session" name="service_rates[${serviceRateCounter}][rate_per_session]" value="0" min="0" step="100" required>
+                <input type="number" class="form-control rate-per-session" name="service_rates[${serviceRateCounter}][rate_per_session]" value="0" min="0" step="100" >
             </td>
             <td>
                 <input type="number" class="form-control final-rate" name="service_rates[${serviceRateCounter}][final_rate]" readonly style="background-color: #f8f9fa;">
@@ -453,19 +460,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="text" class="form-control" value="${subServiceName}" readonly style="background-color: #f8f9fa;">
             </td>
             <td>
-                <select class="form-control session-type" name="subservice_rates[${subServiceId}][${counter}][session_type]" required>
+                <select class="form-control session-type" name="subservice_rates[${subServiceId}][${counter}][session_type]" >
                     <option value="">Select Session Type</option>
                     ${sessionTypes.map(type => {
                         const disabled = (usedForSub.length ? usedForSub.includes(type) : usedSessionTypes.includes(type)) ? 'disabled' : '';
-                        return `<option value="${type}" ${disabled}>${type}${disabled ? ' (used)' : ''}</option>`;
+                        return `<option value="${type}" ${disabled}>${type}${disabled ? ' - Already Added' : ''}</option>`;
                     }).join('')}
                 </select>
             </td>
             <td>
-                <input type="number" class="form-control num-sessions" name="subservice_rates[${subServiceId}][${counter}][num_sessions]" value="1" min="1" required>
+                <input type="number" class="form-control num-sessions" name="subservice_rates[${subServiceId}][${counter}][num_sessions]" value="1" min="1">
             </td>
             <td>
-                <input type="number" class="form-control rate-per-session" name="subservice_rates[${subServiceId}][${counter}][rate_per_session]" value="0" min="0" step="100" required>
+                <input type="number" class="form-control rate-per-session" name="subservice_rates[${subServiceId}][${counter}][rate_per_session]" value="0" min="0" step="100">
             </td>
             <td>
                 <input type="number" class="form-control final-rate" name="subservice_rates[${subServiceId}][${counter}][final_rate]" readonly style="background-color: #f8f9fa;">
@@ -493,10 +500,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentVal = select.value;
             Array.from(select.options).forEach(opt => {
                 if (!opt.value) return;
-                if (opt.value !== currentVal && serviceCombined.includes(opt.value)) {
-                    opt.disabled = true;
-                } else {
-                    opt.disabled = false;
+                const isUsed = opt.value !== currentVal && serviceCombined.includes(opt.value);
+                opt.disabled = isUsed;
+                
+                // Update the text content to show "Already Added"
+                if (isUsed && !opt.textContent.includes(' - Already Added')) {
+                    opt.textContent = opt.value + ' - Already Added';
+                } else if (!isUsed && opt.textContent.includes(' - Already Added')) {
+                    opt.textContent = opt.value;
                 }
             });
         });
@@ -522,10 +533,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const currentVal = select.value;
                 Array.from(select.options).forEach(opt => {
                     if (!opt.value) return;
-                    if (opt.value !== currentVal && combined.includes(opt.value)) {
-                        opt.disabled = true;
-                    } else {
-                        opt.disabled = false;
+                    const isUsed = opt.value !== currentVal && combined.includes(opt.value);
+                    opt.disabled = isUsed;
+                    
+                    // Update the text content to show "Already Added"
+                    if (isUsed && !opt.textContent.includes(' - Already Added')) {
+                        opt.textContent = opt.value + ' - Already Added';
+                    } else if (!isUsed && opt.textContent.includes(' - Already Added')) {
+                        opt.textContent = opt.value;
                     }
                 });
             });
@@ -605,61 +620,79 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Validate that we have at least one service rate
-        const serviceRows = document.querySelectorAll('#serviceRateTableBody tr');
-        if (serviceRows.length === 0) {
-            toastr.error('Please add at least one service rate.');
-            return;
-        }
-        
-        // Validate all inputs
-        let isValid = true;
-        const allRows = document.querySelectorAll('tbody tr');
-        
-        allRows.forEach(row => {
-            const sessionType = row.querySelector('.session-type').value;
-            const numSessions = row.querySelector('.num-sessions').value;
-            const ratePerSession = row.querySelector('.rate-per-session').value;
-            
-            if (!sessionType || !numSessions || !ratePerSession) {
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            toastr.error('Please fill in all required fields.');
-            return;
-        }
-        
         // Collect form data and build rateData array expected by backend
         const formData = new FormData(this);
         formData.append('professional_id', "{{ Auth::guard('professional')->id() }}");
         formData.append('professional_service_id', currentServiceId);
 
         // Build rateData from all rows (service-level and sub-service-level)
+        // Only include rows that have session_type selected
         const rateData = [];
         document.querySelectorAll('#serviceRateTableBody tr').forEach(row => {
-            rateData.push({
-                session_type: row.querySelector('.session-type').value,
-                num_sessions: row.querySelector('.num-sessions').value,
-                rate_per_session: row.querySelector('.rate-per-session').value,
-                final_rate: row.querySelector('.final-rate').value,
-                sub_service_id: null
-            });
+            const sessionType = row.querySelector('.session-type').value;
+            // Only add if session type is selected
+            if (sessionType) {
+                rateData.push({
+                    session_type: sessionType,
+                    num_sessions: row.querySelector('.num-sessions').value,
+                    rate_per_session: row.querySelector('.rate-per-session').value,
+                    final_rate: row.querySelector('.final-rate').value,
+                    sub_service_id: null
+                });
+            }
         });
 
         document.querySelectorAll('#subServiceRatesList tbody').forEach(tbody => {
             const subServiceId = tbody.dataset.subserviceId;
             tbody.querySelectorAll('tr').forEach(row => {
-                rateData.push({
-                    session_type: row.querySelector('.session-type').value,
-                    num_sessions: row.querySelector('.num-sessions').value,
-                    rate_per_session: row.querySelector('.rate-per-session').value,
-                    final_rate: row.querySelector('.final-rate').value,
-                    sub_service_id: subServiceId
-                });
+                const sessionType = row.querySelector('.session-type').value;
+                // Only add if session type is selected
+                if (sessionType) {
+                    rateData.push({
+                        session_type: sessionType,
+                        num_sessions: row.querySelector('.num-sessions').value,
+                        rate_per_session: row.querySelector('.rate-per-session').value,
+                        final_rate: row.querySelector('.final-rate').value,
+                        sub_service_id: subServiceId
+                    });
+                }
             });
         });
+        
+        // Validate that we have at least one complete rate after filtering
+        if (rateData.length === 0) {
+            toastr.error('Please fill in at least one complete rate with session type selected.');
+            return;
+        }
+        
+        // NOW check what complete rates were added and show confirmation alerts
+        const hasSubServicesAvailable = currentService && currentService.sub_services && currentService.sub_services.length > 0;
+        const hasCompleteMainServiceRates = rateData.some(r => r.sub_service_id === null);
+        const hasCompleteSubServiceRates = rateData.some(r => r.sub_service_id !== null);
+        
+        // Show confirmation alerts for skipped sections (only if sub-services are available)
+        if (hasSubServicesAvailable && hasCompleteMainServiceRates && !hasCompleteSubServiceRates) {
+            if (!confirm('You skipped the sub-service add rate. Do you want to continue saving only main service rates?')) {
+                return;
+            }
+        }
+        
+        if (hasSubServicesAvailable && !hasCompleteMainServiceRates && hasCompleteSubServiceRates) {
+            if (!confirm('You skipped the main service add rate. Do you want to continue saving only sub-service rates?')) {
+                return;
+            }
+        }
+
+        // Check for duplicate session types with same sub-service combination
+        const combinations = rateData.map(r => {
+            return r.session_type.toLowerCase() + '|' + (r.sub_service_id || 'null');
+        });
+        const duplicates = combinations.filter((item, index) => combinations.indexOf(item) !== index);
+        
+        if (duplicates.length > 0) {
+            toastr.error('Duplicate session types with the same sub-service are not allowed. Please ensure each combination is unique.');
+            return;
+        }
 
         // Append rateData entries to FormData as rateData[0][field]
         rateData.forEach((r, idx) => {

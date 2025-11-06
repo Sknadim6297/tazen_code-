@@ -441,20 +441,20 @@
                     <div class="card answer-group">
                         <div class="card-header">
                             <div class="row align-items-center">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <h6 class="mb-1 fw-semibold">
                                         <i class="ri-user-line text-primary me-1"></i>
                                         {{ $group['user']->name ?? 'N/A' }}
                                     </h6>
                                     <small class="text-muted">{{ $group['user']->email ?? '' }}</small>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <h6 class="mb-1 fw-semibold">
                                         <i class="ri-service-line text-info me-1"></i>
                                         Service: <span class="badge badge-info">{{ $group['service']->name ?? 'N/A' }}</span>
                                     </h6>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <h6 class="mb-1 fw-semibold">
                                         <i class="ri-user-star-line text-success me-1"></i>
                                         Professional: 
@@ -466,52 +466,17 @@
                                         @endif
                                     </h6>
                                 </div>
+                                <div class="col-md-3 text-end">
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="downloadSingleGroupPDF('{{ $key }}', '{{ $group['user']->id }}', '{{ $group['service']->id }}', '{{ $group['created_at']->format('Y-m-d') }}')" title="Download this answer as PDF">
+                                        <i class="ri-file-pdf-line me-1"></i>Download PDF
+                                    </button>
+                                </div>
                             </div>
                             <div class="mt-2">
                                 <small class="text-muted">
                                     <i class="ri-time-line me-1"></i>
                                     Answered on: {{ $group['created_at']->format('M d, Y H:i') }}
                                 </small>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th width="10%">#</th>
-                                            <th width="60%">Question</th>
-                                            <th width="30%">Answer</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($group['answers'] as $index => $answer)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>
-                                                <strong>{{ $answer->question->question ?? 'Question not found' }}</strong>
-                                                @if($answer->question && $answer->question->options)
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        <i class="ri-list-check me-1"></i>Options: 
-                                                        @php
-                                                            $options = is_string($answer->question->options) ? json_decode($answer->question->options, true) : $answer->question->options;
-                                                        @endphp
-                                                        @if(is_array($options))
-                                                            {{ implode(', ', $options) }}
-                                                        @else
-                                                            {{ $answer->question->options }}
-                                                        @endif
-                                                    </small>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-primary">{{ $answer->answer }}</span>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -557,7 +522,7 @@
         });
     });
     
-    // Export data function
+    // Export all data function
     window.exportData = function(type) {
         console.log('Export requested:', type);
         
@@ -570,13 +535,67 @@
         document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]')?.value || '';
         document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]')?.value || '';
         
-        // Show a loading message (optional)
+        // Show a loading message
         if (typeof toastr !== 'undefined') {
-            toastr.info('Preparing ' + type.toUpperCase() + ' export...');
+            toastr.info('Preparing ' + type.toUpperCase() + ' export...', 'Please Wait');
         }
         
         // Submit the form
         document.getElementById('export-form').submit();
+        
+        // Show success message after a delay
+        setTimeout(function() {
+            if (typeof toastr !== 'undefined') {
+                toastr.success('Download started!', 'Success');
+            }
+        }, 1000);
+    }
+    
+    // Download single group PDF
+    window.downloadSingleGroupPDF = function(groupKey, userId, serviceId, date) {
+        console.log('Downloading single group PDF:', groupKey);
+        
+        // Create a temporary form
+        var form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '{{ route("admin.mcq-answers.export") }}';
+        form.target = '_blank';
+        
+        // Add hidden fields
+        var fields = {
+            'type': 'pdf',
+            'username': '', // We'll filter by exact user
+            'service': serviceId,
+            'start_date': date,
+            'end_date': date,
+            'user_id': userId // Add user_id filter
+        };
+        
+        for (var key in fields) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = fields[key];
+            form.appendChild(input);
+        }
+        
+        // Add form to body, submit, and remove
+        document.body.appendChild(form);
+        
+        // Show loading message
+        if (typeof toastr !== 'undefined') {
+            toastr.info('Preparing PDF for this answer group...', 'Please Wait');
+        }
+        
+        form.submit();
+        
+        // Show success message
+        setTimeout(function() {
+            if (typeof toastr !== 'undefined') {
+                toastr.success('PDF download started!', 'Success');
+            }
+            document.body.removeChild(form);
+        }, 1000);
     }
 </script>
 @endsection 

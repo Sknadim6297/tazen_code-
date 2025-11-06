@@ -1,921 +1,587 @@
-@php
-    $currentMonth = now()->format('n');
-    $months = [
-        1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-        5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
-    ];
-@endphp
-
 @extends('professional.layout.layout')
 
 @section('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-/* Availability form specific styles */
-.availability-form-container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.table-bordered {
-    border: 2px solid #dee2e6;
-}
-
-.table-bordered th {
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-    font-weight: 600;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.table-bordered td {
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-}
-
-.sub-service-availability-section {
-    border: 1px solid #e3e6f0;
-    border-radius: 8px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    margin-bottom: 20px;
-}
-
-.form-control[readonly] {
-    background-color: #f8f9fa !important;
-    opacity: 1;
-}
-
-.btn-outline {
-    background-color: #fff;
-    border: 2px solid #007bff;
-    color: #007bff;
-    font-weight: 500;
-}
-
-.btn-outline:hover {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-h4 {
-    color: #495057;
-    font-weight: 600;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 8px;
-    margin-bottom: 20px;
-}
-
-.time-slot {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.time-input-group {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.remove-slot-btn {
-    background: transparent;
-    border: none;
-    color: red;
-    cursor: pointer;
-}
-
-.weekday-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.weekday-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.time-slots-container {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.month-selection {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.month-checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.month-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-@media screen and (max-width: 767px) {
-    /* Make table container scrollable horizontally */
-    .table-responsive {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Ensure the table takes full width of container */
-    .table {
-        width: 100%;
-        table-layout: auto;
-        min-width: 1000px; /* Minimum width to ensure proper display */
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Make form responsive */
-    .form-container {
-        padding: 10px;
-    }
-    
-    .sub-service-availability-section {
+    /* Weekly Scheduler Styles */
+    .weekly-scheduler-container {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
         margin-bottom: 20px;
-        padding: 10px;
     }
-    
-    .form-actions {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
+
+    .weekly-scheduler {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 15px;
+        margin-top: 15px;
     }
-    
-    .btn {
-        width: 100%;
-        margin-bottom: 5px;
+
+    .day-column {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        min-height: 200px;
     }
-    
-    .weekday-group {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+
+    .day-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 10px;
+        text-align: center;
+        padding: 8px;
+        background: #e9ecef;
+        border-radius: 6px;
+        font-size: 0.9rem;
     }
-    
-    .month-checkbox-group {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+
+    .day-slots {
+        margin-top: 10px;
     }
-    
-    .time-slot {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 5px;
-    }
-    
-    .time-input-group {
-        flex-direction: row;
+
+    .slot-item {
+        display: flex;
         justify-content: space-between;
+        align-items: center;
+        background: #e3f2fd;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1px solid #bbdefb;
     }
-}
+
+    .slot-time {
+        font-weight: 500;
+        color: #1565c0;
+    }
+
+    .delete-slot {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+
+    .delete-slot:hover {
+        background: #f8d7da;
+    }
+
+    .add-slot-form {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f1f3f4;
+        border-radius: 6px;
+        border: 1px dashed #adb5bd;
+    }
+
+    .time-inputs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 8px;
+        align-items: center;
+    }
+
+    .time-inputs input {
+        width: 70px;
+        padding: 4px 6px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .time-inputs input:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+    .add-slot-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .add-slot-btn:hover {
+        background: #218838;
+    }
+
+    .time-inputs span {
+        color: #6c757d;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Month Selection */
+    .months-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .month-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .month-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+    }
+
+    .month-card.selected {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+
+    .month-card input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 10px 12px;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+
+    /* Submit section */
+    .submit-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        border-color: #007bff;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        border-color: #6c757d;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .weekly-scheduler {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .weekly-scheduler {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .months-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .weekly-scheduler {
+            grid-template-columns: 1fr;
+        }
+        
+        .months-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .alert {
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <h3>Add Availability</h3>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h4>Set Your Availability</h4>
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">Add New Availability</h1>
+                <div>
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('professional.availability.index') }}">Availability</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add New</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <form id="availabilityForm">
-                @csrf
-                
-                <!-- Service Information (Auto-selected) -->
-                @if($professionalServices && count($professionalServices) > 0)
-                    @php $currentService = $professionalServices[0]; @endphp
-                    <div class="form-row" style="margin-bottom: 20px;">
-                        <div style="width: 100%; max-width: 400px;">
-                            <label>Your Service</label>
-                            <input type="text" class="form-control" value="{{ $currentService->service_name }}" readonly style="background-color: #f8f9fa;">
-                            <input type="hidden" id="serviceId" name="professional_service_id" value="{{ $currentService->id }}">
-                            <small class="text-muted">Setting availability for your professional service.</small>
+
+        <!-- Error Messages -->
+        <div id="error-messages"></div>
+
+        <!-- Availability Form -->
+        <form id="availability-form">
+            @csrf
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-settings-line me-2"></i>Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="session_duration">Session Duration (in minutes)</label>
+                                <select name="session_duration" id="session_duration" class="form-control" required>
+                                    @foreach([30, 45, 60, 90, 120] as $duration)
+                                        <option value="{{ $duration }}" {{ $duration == 30 ? 'selected' : '' }}>
+                                            {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
-                @else
-                    <div class="alert alert-warning">
-                        <strong>No Service Found!</strong> Please create a service first before setting availability.
-                        <a href="{{ route('professional.service.create') }}" class="btn btn-primary btn-sm ml-2">Create Service</a>
+                </div>
+            </div>
+
+            <!-- Month Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-calendar-line me-2"></i>Select Months</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Choose the months for which you want to set this availability schedule.</p>
+                    <div class="months-grid">
+                        @php
+                            $currentYear = date('Y');
+                            $currentMonth = date('n');
+                            $months = [
+                                1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                            ];
+                        @endphp
+                        
+                        @for($year = $currentYear; $year <= $currentYear + 1; $year++)
+                            @foreach($months as $monthNum => $monthName)
+                                @if($year == $currentYear && $monthNum < $currentMonth)
+                                    @continue
+                                @endif
+                                @php
+                                    $monthValue = sprintf('%04d-%02d', $year, $monthNum);
+                                @endphp
+                                <div class="month-card" onclick="toggleMonth('{{ $monthValue }}')">
+                                    <input type="checkbox" name="months[]" value="{{ $monthValue }}" id="month_{{ $monthValue }}">
+                                    <label for="month_{{ $monthValue }}" class="mb-0">
+                                        {{ $monthName }} {{ $year }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        @endfor
                     </div>
-                @endif
-                
-                <!-- Service Level Availability Table -->
-                <div id="serviceAvailabilityContainer" style="display: none; margin-bottom: 30px;">
-                    <h4 style="margin-bottom: 15px; color: #333;">Service Level Availability</h4>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead style="background-color: #f8f9fa;">
-                                <tr>
-                                    <th style="width: 200px;">Select Service</th>
-                                    <th style="width: 150px;">Select Month(s)</th>
-                                    <th style="width: 130px;">Week Days</th>
-                                    <th style="width: 150px;">Time Slots</th>
-                                    <th style="width: 120px;">Session Duration</th>
-                                    <th style="width: 80px;">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="serviceAvailabilityBody">
-                                <!-- Service level availability will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="ri-time-line me-2"></i>Weekly Schedule</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Set your available time slots for each day of the week. You can add multiple time slots per day.</p>
                     
-                    <div class="form-actions" style="margin-bottom: 20px;">
-                        <button type="button" class="btn btn-outline" id="addServiceAvailabilityBtn">
-                            <i class="fas fa-plus"></i> Add New Availability
-                        </button>
+                    <div class="weekly-scheduler">
+                        @php
+                            $days = [
+                                'mon' => 'Monday',
+                                'tue' => 'Tuesday', 
+                                'wed' => 'Wednesday',
+                                'thu' => 'Thursday',
+                                'fri' => 'Friday',
+                                'sat' => 'Saturday',
+                                'sun' => 'Sunday'
+                            ];
+                        @endphp
+                        
+                        @foreach($days as $dayCode => $dayName)
+                            <div class="day-column">
+                                <div class="day-header">{{ $dayName }}</div>
+                                <div class="day-slots" id="slots-{{ $dayCode }}">
+                                    <!-- Slots will be added dynamically -->
+                                </div>
+                                <div class="add-slot-form">
+                                    <div class="time-inputs">
+                                        <input type="time" id="start-{{ $dayCode }}" placeholder="Start" onchange="calculateEndTime('{{ $dayCode }}')">
+                                        <span>to</span>
+                                        <input type="time" id="end-{{ $dayCode }}" placeholder="End" readonly>
+                                    </div>
+                                    <button type="button" class="add-slot-btn" onclick="addSlot('{{ $dayCode }}')">
+                                        <i class="ri-add-line me-1"></i>Add Slot
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+            </div>
 
-                <!-- Sub-Service Level Availability -->
-                <div id="subServiceAvailabilityContainer" style="display: none;">
-                    <h4 style="margin-bottom: 15px; color: #333;">Sub-Service Level Availability</h4>
-                    <div id="subServiceAvailabilityList">
-                        <!-- Sub-service availability tables will be dynamically added here -->
-                    </div>
-                </div>
-
-                <!-- Save Button -->
-                <div class="form-actions" id="saveButtonContainer" style="display: none; margin-top: 30px;">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Save Availability
-                    </button>
-                </div>
-            </form>
-        </div>
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary me-3">
+                    <i class="ri-save-line me-2"></i>Save Availability
+                </button>
+                <a href="{{ route('professional.availability.index') }}" class="btn btn-secondary">
+                    <i class="ri-arrow-left-line me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let currentServiceId = null;
-    let currentService = null;
-    let serviceAvailabilityCounter = 0;
-    let subServiceAvailabilityCounters = {};
-    
-    const months = @json($months);
-    const currentMonth = @json($currentMonth);
-    
-    // Auto-initialize with the professional's service
-    const serviceId = document.getElementById('serviceId');
-    if (serviceId && serviceId.value) {
-        currentServiceId = serviceId.value;
-        currentService = @json($professionalServices).find(s => s.id == currentServiceId);
+    // Store weekly slots data
+    let weeklySlots = {
+        mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: []
+    };
+
+    // Toggle month selection
+    window.toggleMonth = function(monthValue) {
+        const checkbox = document.getElementById('month_' + monthValue);
+        const card = checkbox.closest('.month-card');
         
-        if (currentService) {
-            // Show service level availability table
-            document.getElementById('serviceAvailabilityContainer').style.display = 'block';
-            document.getElementById('saveButtonContainer').style.display = 'block';
-            
-            // Check if service has sub-services
-            if (currentService && currentService.sub_services && currentService.sub_services.length > 0) {
-                document.getElementById('subServiceAvailabilityContainer').style.display = 'block';
-                createSubServiceAvailabilityTables();
-            } else {
-                document.getElementById('subServiceAvailabilityContainer').style.display = 'none';
-            }
-            
-            // Add initial service availability row
-            addServiceAvailabilityRow();
-        }
-    }
-    
-    // Service selection handler (removed as no longer needed)
-    /*
-    document.getElementById('serviceSelect').addEventListener('change', function() {
-        currentServiceId = this.value;
-        currentService = null;
+        checkbox.checked = !checkbox.checked;
+        card.classList.toggle('selected', checkbox.checked);
+    };
+
+    // Calculate end time based on start time and session duration
+    window.calculateEndTime = function(day) {
+        const startInput = document.getElementById('start-' + day);
+        const endInput = document.getElementById('end-' + day);
+        const sessionDuration = document.getElementById('session_duration').value;
         
-        if (currentServiceId) {
-            // Find the selected service
-            currentService = @json($professionalServices).find(s => s.id == currentServiceId);
-            
-            // Show service level availability table
-            document.getElementById('serviceAvailabilityContainer').style.display = 'block';
-            document.getElementById('saveButtonContainer').style.display = 'block';
-            
-            // Clear existing tables
-            document.getElementById('serviceAvailabilityBody').innerHTML = '';
-            document.getElementById('subServiceAvailabilityList').innerHTML = '';
-            
-            // Reset counters
-            serviceAvailabilityCounter = 0;
-            subServiceAvailabilityCounters = {};
-            
-            // Check if service has sub-services
-            if (currentService && currentService.sub_services && currentService.sub_services.length > 0) {
-                document.getElementById('subServiceAvailabilityContainer').style.display = 'block';
-                createSubServiceAvailabilityTables();
-            } else {
-                document.getElementById('subServiceAvailabilityContainer').style.display = 'none';
-            }
-            
-            // Add initial service availability row
-            addServiceAvailabilityRow();
-            
-        } else {
-            document.getElementById('serviceAvailabilityContainer').style.display = 'none';
-            document.getElementById('subServiceAvailabilityContainer').style.display = 'none';
-            document.getElementById('saveButtonContainer').style.display = 'none';
+        if (!startInput.value || !sessionDuration) {
+            endInput.value = '';
+            return;
         }
+        
+        // Parse start time
+        const [hours, minutes] = startInput.value.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        // Add session duration
+        const endDate = new Date(startDate.getTime() + parseInt(sessionDuration) * 60000);
+        
+        // Format end time
+        const endHours = String(endDate.getHours()).padStart(2, '0');
+        const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+        endInput.value = `${endHours}:${endMinutes}`;
+    };
+
+    // Update all end times when session duration changes
+    document.getElementById('session_duration').addEventListener('change', function() {
+        // Update all start time inputs that have values
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        days.forEach(day => {
+            const startInput = document.getElementById('start-' + day);
+            if (startInput.value) {
+                calculateEndTime(day);
+            }
+        });
     });
-    */
-    
-    // Create sub-service availability tables
-    function createSubServiceAvailabilityTables() {
-        const container = document.getElementById('subServiceAvailabilityList');
+
+    // Add time slot to a specific day
+    window.addSlot = function(day) {
+        const startInput = document.getElementById('start-' + day);
+        const endInput = document.getElementById('end-' + day);
         
-        currentService.sub_services.forEach(subService => {
-            subServiceAvailabilityCounters[subService.id] = 0;
-            
-            const subServiceDiv = document.createElement('div');
-            subServiceDiv.className = 'sub-service-availability-section';
-            
-            subServiceDiv.innerHTML = `
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead style="background-color: #e9ecef;">
-                            <tr>
-                                <th style="width: 200px;">Select Sub-service</th>
-                                <th style="width: 150px;">Select Month(s)</th>
-                                <th style="width: 130px;">Week Days</th>
-                                <th style="width: 150px;">Time Slots</th>
-                                <th style="width: 120px;">Session Duration</th>
-                                <th style="width: 80px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody data-subservice-id="${subService.id}">
-                            <!-- Sub-service availability will be added here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="form-actions" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-outline add-subservice-availability-btn" data-subservice-id="${subService.id}" data-subservice-name="${subService.name}">
-                        <i class="fas fa-plus"></i> Add New Availability
-                    </button>
-                </div>
-            `;
-            
-            container.appendChild(subServiceDiv);
-            
-            // Add initial sub-service availability row
-            addSubServiceAvailabilityRow(subService.id, subService.name);
+        const startTime = startInput.value;
+        const endTime = endInput.value;
+        
+        if (!startTime || !endTime) {
+            alert('Please select both start and end times');
+            return;
+        }
+        
+        if (startTime >= endTime) {
+            alert('Start time must be before end time');
+            return;
+        }
+        
+        // Add to data structure
+        weeklySlots[day].push({
+            start_time: startTime,
+            end_time: endTime
         });
         
-        // Add event listeners for sub-service add buttons
-        document.querySelectorAll('.add-subservice-availability-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const subServiceId = this.dataset.subserviceId;
-                const subServiceName = this.dataset.subserviceName;
-                addSubServiceAvailabilityRow(subServiceId, subServiceName);
-            });
-        });
-    }
-    
-    // Create month selection dropdown
-    function createMonthSelection(prefix, counter) {
-        let monthOptions = '<option value="">Select Month(s)</option>';
-        monthOptions += '<option value="all">All Available Months</option>';
+        // Update UI
+        renderDaySlots(day);
         
-        Object.entries(months).forEach(([num, name]) => {
-            if (parseInt(num) >= currentMonth) {
-                monthOptions += `<option value="${num}">${name}</option>`;
-            }
-        });
+        // Clear inputs
+        startInput.value = '';
+        endInput.value = '';
+    };
+
+    // Remove slot from a specific day
+    window.deleteSlot = function(day, index) {
+        weeklySlots[day].splice(index, 1);
+        renderDaySlots(day);
+    };
+
+    // Render slots for a specific day
+    function renderDaySlots(day) {
+        const container = document.getElementById('slots-' + day);
+        container.innerHTML = '';
         
-        return `
-            <select class="form-control month-select" name="${prefix}[${counter}][month_type]" onchange="toggleMonthSelection(this)">
-                ${monthOptions}
-            </select>
-            <div class="month-selection" style="display: none;">
-                <div class="month-checkbox-group">
-                    ${Object.entries(months).map(([num, name]) => {
-                        if (parseInt(num) >= currentMonth) {
-                            return `
-                                <label class="month-label">
-                                    <input type="checkbox" name="${prefix}[${counter}][months][]" value="${num}"> ${name}
-                                </label>
-                            `;
-                        }
-                        return '';
-                    }).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    // Create weekdays selection
-    function createWeekdaysSelection(prefix, counter) {
-        const weekdays = {
-            'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday', 'thu': 'Thursday',
-            'fri': 'Friday', 'sat': 'Saturday', 'sun': 'Sunday'
-        };
-        
-        return `
-            <div class="weekday-group">
-                ${Object.entries(weekdays).map(([dayVal, dayName]) => `
-                    <label class="weekday-label">
-                        <input type="checkbox" name="${prefix}[${counter}][weekdays][]" value="${dayVal}"> ${dayName}
-                    </label>
-                `).join('')}
-            </div>
-        `;
-    }
-    
-    // Create time slots selection
-    function createTimeSlotsSelection(prefix, counter) {
-        return `
-            <div class="time-slots-container">
-                <div class="time-slot">
-                    <label>From</label>
-                    <div class="time-input-group">
-                        <input type="text" class="form-control timepicker" name="${prefix}[${counter}][start_time][]" required placeholder="Start Time">
-                    </div>
-                    <label>To</label>
-                    <div class="time-input-group">
-                        <input type="text" class="form-control timepicker" name="${prefix}[${counter}][end_time][]" required placeholder="End Time" readonly>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-success add-time-slot" data-prefix="${prefix}" data-counter="${counter}">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Create session duration selection
-    function createSessionDurationSelection(prefix, counter) {
-        return `
-            <select class="form-control session-duration" name="${prefix}[${counter}][session_duration]" required onchange="updateTimePickers(this)">
-                <option value="30">30 minutes</option>
-                <option value="45">45 minutes</option>
-                <option value="60" selected>60 minutes</option>
-                <option value="90">90 minutes</option>
-                <option value="120">2 hours</option>
-            </select>
-        `;
-    }
-    
-    // Add service level availability row
-    function addServiceAvailabilityRow() {
-        const tbody = document.getElementById('serviceAvailabilityBody');
-        serviceAvailabilityCounter++;
-        
-        const newRow = document.createElement('tr');
-        newRow.dataset.type = 'service';
-        newRow.dataset.counter = serviceAvailabilityCounter;
-        
-        newRow.innerHTML = `
-            <td>
-                <input type="text" class="form-control" value="${currentService.service_name}" readonly style="background-color: #f8f9fa;">
-            </td>
-            <td>${createMonthSelection('service_availability', serviceAvailabilityCounter)}</td>
-            <td>${createWeekdaysSelection('service_availability', serviceAvailabilityCounter)}</td>
-            <td>${createTimeSlotsSelection('service_availability', serviceAvailabilityCounter)}</td>
-            <td>${createSessionDurationSelection('service_availability', serviceAvailabilityCounter)}</td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm delete-row">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(newRow);
-        initializeRowEventHandlers(newRow);
-    }
-    
-    // Add sub-service level availability row
-    function addSubServiceAvailabilityRow(subServiceId, subServiceName) {
-        const tbody = document.querySelector(`tbody[data-subservice-id="${subServiceId}"]`);
-        subServiceAvailabilityCounters[subServiceId]++;
-        const counter = subServiceAvailabilityCounters[subServiceId];
-        
-        const newRow = document.createElement('tr');
-        newRow.dataset.type = 'subservice';
-        newRow.dataset.subserviceId = subServiceId;
-        newRow.dataset.counter = counter;
-        
-        newRow.innerHTML = `
-            <td>
-                <input type="text" class="form-control" value="${subServiceName}" readonly style="background-color: #f8f9fa;">
-            </td>
-            <td>${createMonthSelection(`subservice_availability[${subServiceId}]`, counter)}</td>
-            <td>${createWeekdaysSelection(`subservice_availability[${subServiceId}]`, counter)}</td>
-            <td>${createTimeSlotsSelection(`subservice_availability[${subServiceId}]`, counter)}</td>
-            <td>${createSessionDurationSelection(`subservice_availability[${subServiceId}]`, counter)}</td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm delete-row">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(newRow);
-        initializeRowEventHandlers(newRow);
-    }
-    
-    // Initialize event handlers for a row
-    function initializeRowEventHandlers(row) {
-        // Initialize time pickers
-        initializeTimePickers(row);
-        
-        // Add time slot handler
-        row.querySelector('.add-time-slot').addEventListener('click', function() {
-            const timeSlotsContainer = this.closest('.time-slots-container');
-            const prefix = this.dataset.prefix;
-            const counter = this.dataset.counter;
-            
-            const newTimeSlot = document.createElement('div');
-            newTimeSlot.className = 'time-slot';
-            newTimeSlot.innerHTML = `
-                <label>From</label>
-                <div class="time-input-group">
-                    <input type="text" class="form-control timepicker" name="${prefix}[${counter}][start_time][]" required placeholder="Start Time">
-                </div>
-                <label>To</label>
-                <div class="time-input-group">
-                    <input type="text" class="form-control timepicker" name="${prefix}[${counter}][end_time][]" required placeholder="End Time" readonly>
-                </div>
-                <button type="button" class="btn btn-sm btn-danger remove-time-slot">
-                    <i class="fas fa-trash"></i>
+        weeklySlots[day].forEach((slot, index) => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'slot-item';
+            slotDiv.innerHTML = `
+                <span class="slot-time">${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}</span>
+                <button type="button" class="delete-slot" onclick="deleteSlot('${day}', ${index})">
+                    <i class="ri-delete-bin-line"></i>
                 </button>
             `;
-            
-            timeSlotsContainer.appendChild(newTimeSlot);
-            initializeTimePickers(newTimeSlot);
-            
-            // Add remove handler
-            newTimeSlot.querySelector('.remove-time-slot').addEventListener('click', function() {
-                newTimeSlot.remove();
-            });
+            container.appendChild(slotDiv);
         });
     }
-    
-    // Initialize time pickers for a container
-    function initializeTimePickers(container) {
-        const sessionDurationSelect = container.querySelector('.session-duration');
-        const duration = sessionDurationSelect ? parseInt(sessionDurationSelect.value) : 60;
-        
-        container.querySelectorAll('input[name*="[start_time]"]').forEach(el => {
-            if (!el._flatpickr) {
-                flatpickr(el, {
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "h:i K",
-                    time_24hr: false,
-                    minuteIncrement: duration,
-                    disableMobile: true,
-                    onChange: function(selectedDates, dateStr, instance) {
-                        if (dateStr) {
-                            const timeSlot = instance.element.closest('.time-slot');
-                            const endTimeInput = timeSlot.querySelector('input[name*="[end_time]"]');
-                            
-                            const startTime = new Date(`1/1/2023 ${dateStr}`);
-                            const endTime = new Date(startTime.getTime() + (duration * 60 * 1000));
-                            
-                            const hours = endTime.getHours();
-                            const minutes = endTime.getMinutes();
-                            const ampm = hours >= 12 ? 'PM' : 'AM';
-                            const formattedHours = hours % 12 || 12;
-                            const formattedMinutes = minutes.toString().padStart(2, '0');
-                            const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-                            
-                            if (endTimeInput._flatpickr) {
-                                endTimeInput._flatpickr.setDate(formattedTime);
-                            } else {
-                                endTimeInput.value = formattedTime;
-                            }
-                        }
-                    }
-                });
-            }
-        });
-        
-        container.querySelectorAll('input[name*="[end_time]"]').forEach(el => {
-            if (!el._flatpickr) {
-                flatpickr(el, {
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "h:i K",
-                    time_24hr: false,
-                    minuteIncrement: duration,
-                    disableMobile: true,
-                    allowInput: false,
-                    clickOpens: false
-                });
-            }
+
+    // Format time for display
+    function formatTime(time) {
+        return new Date('2000-01-01 ' + time).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
         });
     }
-    
-    // Add service availability button event listener
-    document.getElementById('addServiceAvailabilityBtn').addEventListener('click', function() {
-        addServiceAvailabilityRow();
-    });
-    
-    // Global functions for dropdown handlers
-    window.toggleMonthSelection = function(selectElement) {
-        const monthSelection = selectElement.nextElementSibling;
-        if (selectElement.value === 'all') {
-            monthSelection.style.display = 'block';
-        } else {
-            monthSelection.style.display = 'none';
-            // Clear all checkboxes
-            monthSelection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-        }
-    };
-    
-    window.updateTimePickers = function(selectElement) {
-        const row = selectElement.closest('tr');
-        const duration = parseInt(selectElement.value);
-        
-        // Destroy existing pickers and reinitialize
-        row.querySelectorAll('.timepicker').forEach(el => {
-            if (el._flatpickr) {
-                el._flatpickr.destroy();
-            }
-        });
-        
-        initializeTimePickers(row);
-    };
-    
-    // Row deletion event listener
-    document.addEventListener('click', function(e) {
-        if (e.target && (e.target.classList.contains('delete-row') || e.target.closest('.delete-row'))) {
-            const rowToDelete = e.target.closest('tr');
-            
-            // Check if this is the last row in service availability
-            if (rowToDelete.dataset.type === 'service') {
-                const serviceRows = document.querySelectorAll('#serviceAvailabilityBody tr');
-                if (serviceRows.length <= 1) {
-                    toastr.error('At least one service availability is required.');
-                    return;
-                }
-            }
-            
-            // Check if this is the last row in a sub-service
-            if (rowToDelete.dataset.type === 'subservice') {
-                const subServiceId = rowToDelete.dataset.subserviceId;
-                const subServiceRows = document.querySelectorAll(`tbody[data-subservice-id="${subServiceId}"] tr`);
-                if (subServiceRows.length <= 1) {
-                    toastr.error('At least one availability is required for each sub-service.');
-                    return;
-                }
-            }
-            
-            rowToDelete.remove();
-        }
-    });
-    
+
     // Form submission
-    document.getElementById('availabilityForm').addEventListener('submit', function(e) {
+    document.getElementById('availability-form').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if (!currentServiceId) {
-            toastr.error('Please select a service.');
+        // Validate form
+        const selectedMonths = document.querySelectorAll('input[name="months[]"]:checked');
+        if (selectedMonths.length === 0) {
+            showError('Please select at least one month');
             return;
         }
         
-        // Validate that we have at least one service availability
-        const serviceRows = document.querySelectorAll('#serviceAvailabilityBody tr');
-        if (serviceRows.length === 0) {
-            toastr.error('Please add at least one service availability.');
+        // Check if any slots are added
+        const totalSlots = Object.values(weeklySlots).reduce((total, daySlots) => total + daySlots.length, 0);
+        if (totalSlots === 0) {
+            showError('Please add at least one time slot');
             return;
         }
         
-        // Validate all inputs
-        let isValid = true;
-        const allRows = document.querySelectorAll('tbody tr');
+        // Prepare data
+        const formData = new FormData(this);
         
-        allRows.forEach(row => {
-            // Check month selection
-            const monthSelect = row.querySelector('.month-select');
-            if (!monthSelect.value) {
-                isValid = false;
-                toastr.error('Please select month(s) for all availability entries.');
-                return;
-            }
-            
-            // Check if "all" is selected but no specific months are checked
-            if (monthSelect.value === 'all') {
-                const checkedMonths = row.querySelectorAll('input[name*="[months]"]:checked');
-                if (checkedMonths.length === 0) {
-                    isValid = false;
-                    toastr.error('Please select specific months when "All Available Months" is selected.');
-                    return;
-                }
-            }
-            
-            // Check weekdays
-            const checkedWeekdays = row.querySelectorAll('input[name*="[weekdays]"]:checked');
-            if (checkedWeekdays.length === 0) {
-                isValid = false;
-                toastr.error('Please select at least one weekday for all availability entries.');
-                return;
-            }
-            
-            // Check time slots
-            const startTimes = row.querySelectorAll('input[name*="[start_time]"]');
-            const endTimes = row.querySelectorAll('input[name*="[end_time]"]');
-            
-            if (startTimes.length === 0) {
-                isValid = false;
-                toastr.error('Please add at least one time slot for all availability entries.');
-                return;
-            }
-            
-            for (let i = 0; i < startTimes.length; i++) {
-                if (!startTimes[i].value || !endTimes[i].value) {
-                    isValid = false;
-                    toastr.error('Please fill all time slots.');
-                    return;
-                }
-            }
-        });
-        
-        if (!isValid) {
-            return;
-        }
-        
-        // We'll build per-row requests because the controller expects top-level fields: month, session_duration, weekdays, start_time[], end_time[]
-        const token = document.querySelector('input[name="_token"]').value;
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-        // Helper to send a single availability payload
-        function sendAvailabilityPayload(payload) {
-            return new Promise((resolve, reject) => {
-                const fd = new FormData();
-                fd.append('_token', token);
-                fd.append('professional_id', "{{ Auth::guard('professional')->id() }}");
-                fd.append('professional_service_id', payload.professional_service_id);
-                if (payload.sub_service_id) fd.append('sub_service_id', payload.sub_service_id);
-                fd.append('month', payload.month);
-                fd.append('session_duration', payload.session_duration);
-                payload.weekdays.forEach(w => fd.append('weekdays[]', w));
-                payload.start_time.forEach(s => fd.append('start_time[]', s));
-                payload.end_time.forEach(e => fd.append('end_time[]', e));
-
-                $.ajax({
-                    url: "{{ route('professional.availability.store') }}",
-                    type: 'POST',
-                    data: fd,
-                    processData: false,
-                    contentType: false,
-                    success: function(res) { resolve(res); },
-                    error: function(xhr) { reject(xhr); }
-                });
-            });
-        }
-
-        // Build payloads from each row (service-level and sub-service-level)
-        const payloads = [];
-
-        // Service-level rows
-        document.querySelectorAll('#serviceAvailabilityBody tr').forEach(row => {
-            const prefix = `service_availability[${row.dataset.counter}]`;
-            const monthSelect = row.querySelector('.month-select');
-            const monthType = monthSelect ? monthSelect.value : '';
-            let monthsToSend = [];
-            if (monthType === 'all') {
-                row.querySelectorAll(`input[name*="[months][]"]:checked`).forEach(cb => monthsToSend.push(cb.value));
-            } else if (monthType) {
-                monthsToSend.push(monthType);
-            }
-            if (monthsToSend.length === 0) {
-                // already validated earlier, but double-check
-                return;
-            }
-
-            const weekdays = [];
-            row.querySelectorAll(`input[name*="[weekdays][]"]:checked`).forEach(cb => weekdays.push(cb.value));
-
-            const sessionDuration = row.querySelector('.session-duration').value;
-
-            // collect start/end times for this row
-            const startTimes = Array.from(row.querySelectorAll('input[name*="[start_time]"]')).map(i => i.value).filter(Boolean);
-            const endTimes = Array.from(row.querySelectorAll('input[name*="[end_time]"]')).map(i => i.value).filter(Boolean);
-
-            monthsToSend.forEach(m => {
-                payloads.push({
-                    professional_service_id: currentServiceId,
-                    sub_service_id: null,
-                    month: m,
-                    session_duration: sessionDuration,
-                    weekdays: weekdays,
-                    start_time: startTimes,
-                    end_time: endTimes
+        // Convert weeklySlots to the format expected by backend
+        const slotsArray = [];
+        Object.keys(weeklySlots).forEach(day => {
+            weeklySlots[day].forEach(slot => {
+                slotsArray.push({
+                    weekday: day,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time
                 });
             });
         });
-
-        // Sub-service rows
-        document.querySelectorAll('#subServiceAvailabilityList tbody[data-subservice-id]').forEach(tbody => {
-            const subId = tbody.dataset.subserviceId;
-            tbody.querySelectorAll('tr').forEach(row => {
-                const monthSelect = row.querySelector('.month-select');
-                const monthType = monthSelect ? monthSelect.value : '';
-                let monthsToSend = [];
-                if (monthType === 'all') {
-                    row.querySelectorAll(`input[name*="[months][]"]:checked`).forEach(cb => monthsToSend.push(cb.value));
-                } else if (monthType) {
-                    monthsToSend.push(monthType);
-                }
-                if (monthsToSend.length === 0) return;
-
-                const weekdays = [];
-                row.querySelectorAll(`input[name*="[weekdays][]"]:checked`).forEach(cb => weekdays.push(cb.value));
-
-                const sessionDuration = row.querySelector('.session-duration').value;
-                const startTimes = Array.from(row.querySelectorAll('input[name*="[start_time]"]')).map(i => i.value).filter(Boolean);
-                const endTimes = Array.from(row.querySelectorAll('input[name*="[end_time]"]')).map(i => i.value).filter(Boolean);
-
-                monthsToSend.forEach(m => {
-                    payloads.push({
-                        professional_service_id: currentServiceId,
-                        sub_service_id: subId,
-                        month: m,
-                        session_duration: sessionDuration,
-                        weekdays: weekdays,
-                        start_time: startTimes,
-                        end_time: endTimes
-                    });
-                });
-            });
-        });
-
-        if (payloads.length === 0) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-            toastr.error('No availability payloads to submit.');
-            return;
-        }
-
-        // Send payloads sequentially to make error handling simpler
-        (async () => {
-            try {
-                for (let i = 0; i < payloads.length; i++) {
-                    await sendAvailabilityPayload(payloads[i]);
-                }
-                toastr.success('Availability saved successfully.');
-                setTimeout(() => { window.location.href = "{{ route('professional.availability.index') }}"; }, 1200);
-            } catch (xhr) {
-                // show server validation errors if present
-                if (xhr.status === 422) {
-                    const resp = xhr.responseJSON;
-                    if (resp.message) toastr.error(resp.message);
-                    if (resp.errors) {
-                        Object.values(resp.errors).forEach(arr => toastr.error(arr[0]));
-                    }
+        
+        formData.append('weekly_slots', JSON.stringify(slotsArray));
+        
+        // Submit form
+        fetch('{{ route("professional.availability.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess(data.message);
+                setTimeout(() => {
+                    window.location.href = data.redirect || '{{ route("professional.availability.index") }}';
+                }, 1500);
+            } else {
+                if (data.errors) {
+                    showError(data.errors.join('<br>'));
                 } else {
-                    toastr.error(xhr.responseJSON?.message || 'An unexpected error occurred');
+                    showError(data.message || 'An error occurred');
                 }
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
             }
-        })();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('An error occurred while saving availability');
+        });
     });
+
+    function showError(message) {
+        const errorContainer = document.getElementById('error-messages');
+        errorContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        errorContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showSuccess(message) {
+        const errorContainer = document.getElementById('error-messages');
+        errorContainer.innerHTML = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        errorContainer.scrollIntoView({ behavior: 'smooth' });
+    }
 });
 </script>
 @endsection

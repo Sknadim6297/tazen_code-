@@ -1,0 +1,264 @@
+// TEMPORARILY DISABLED - Admin Chat System JavaScript
+/*
+ * Chat System JavaScript
+ * Handles opening chat modal and loading chat messages
+ */
+/*
+// Global chat state
+let currentChatParticipant = {
+    type: null,
+    id: null
+};
+
+let chatPollingInterval = null;
+
+/**
+ * Open chat modal with specific participant
+ */
+function openChatModal(participantType, participantId) {
+    // Set current chat participant
+    currentChatParticipant = {
+        type: participantType,
+        id: participantId
+    };
+
+    // Set hidden form fields
+    document.getElementById('chatParticipantType').value = participantType;
+    document.getElementById('chatParticipantId').value = participantId;
+
+    // Update modal title
+    const titleMap = {
+        'admin': 'Chat with Admin',
+        'customer': 'Chat with Customer',
+        'professional': 'Chat with Professional'
+    };
+    document.getElementById('chatModalTitle').textContent = titleMap[participantType] || 'Chat';
+
+    // Show modal
+    document.getElementById('chatModal').style.display = 'block';
+
+    // Load messages
+    loadChatMessages();
+
+    // Start polling for new messages
+    startChatPolling();
+}
+
+/**
+ * Load chat messages
+ */
+function loadChatMessages() {
+    const container = document.getElementById('chatMessagesContainer');
+    
+    // Show loading state
+    container.innerHTML = `
+        <div class="chat-loading">
+            <i class="fas fa-spinner"></i>
+            <p>Loading messages...</p>
+        </div>
+    `;
+
+    // Fetch messages from backend
+    fetch(`/chat/messages?participant_type=${currentChatParticipant.type}&participant_id=${currentChatParticipant.id}`, {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.messages) {
+            displayChatMessages(data.messages);
+        } else {
+            showEmptyChat();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading chat messages:', error);
+        container.innerHTML = `
+            <div class="chat-empty">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Failed to load messages</p>
+            </div>
+        `;
+    });
+}
+
+/**
+ * Display chat messages
+ */
+function displayChatMessages(messages) {
+    const container = document.getElementById('chatMessagesContainer');
+    
+    if (!messages || messages.length === 0) {
+        showEmptyChat();
+        return;
+    }
+
+    let html = '';
+    messages.forEach(message => {
+        const isSent = message.is_sent_by_me;
+        const messageClass = isSent ? 'chat-message sent' : 'chat-message';
+        const avatar = message.sender_name ? message.sender_name.charAt(0).toUpperCase() : 'U';
+        
+        html += `
+            <div class="${messageClass}">
+                <div class="chat-message-avatar">${avatar}</div>
+                <div class="chat-message-content">
+                    <div class="chat-message-bubble">
+                        ${escapeHtml(message.message)}
+                    </div>
+                    <div class="chat-message-meta">
+                        <span>${message.sender_name || 'User'}</span>
+                        <span>•</span>
+                        <span>${message.time_ago}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+}
+
+/**
+ * Show empty chat state
+ */
+function showEmptyChat() {
+    const container = document.getElementById('chatMessagesContainer');
+    container.innerHTML = `
+        <div class="chat-empty">
+            <i class="fas fa-comments"></i>
+            <p>No messages yet</p>
+            <p style="font-size: 14px; margin-top: 8px;">Start the conversation!</p>
+        </div>
+    `;
+}
+
+/**
+ * Send chat message
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('chatMessageForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('chatMessageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                return;
+            }
+
+            // Disable input while sending
+            messageInput.disabled = true;
+            
+            // Send message to backend
+            fetch('/chat/send', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    participant_type: currentChatParticipant.type,
+                    participant_id: currentChatParticipant.id,
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear input
+                    messageInput.value = '';
+                    
+                    // Reload messages
+                    loadChatMessages();
+                } else {
+                    alert('Failed to send message: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Failed to send message');
+            })
+            .finally(() => {
+                messageInput.disabled = false;
+                messageInput.focus();
+            });
+        });
+    }
+
+    // Auto-resize textarea
+    const messageInput = document.getElementById('chatMessageInput');
+    if (messageInput) {
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Submit on Enter (without Shift)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+});
+
+/**
+ * Start polling for new messages
+ */
+function startChatPolling() {
+    // Clear existing interval
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+    }
+
+    // Poll every 5 seconds
+    chatPollingInterval = setInterval(() => {
+        if (document.getElementById('chatModal').style.display === 'block') {
+            loadChatMessages();
+        } else {
+            // Stop polling if modal is closed
+            clearInterval(chatPollingInterval);
+        }
+    }, 5000);
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Close chat modal
+ */
+function closeChatModal() {
+    document.getElementById('chatModal').style.display = 'none';
+    
+    // Clear polling
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+        chatPollingInterval = null;
+    }
+    
+    
+    // Reset state
+    currentChatParticipant = {
+        type: null,
+        id: null
+    };
+}
+*/

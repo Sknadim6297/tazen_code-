@@ -591,6 +591,7 @@ textarea.form-control {
     margin-right: 5px;
     cursor: pointer;
 }
+<<<<<<< HEAD
 
 /* Action button overrides: ensure these buttons show outline styles and not the global .btn background */
 /* Placed at the end to ensure higher priority than earlier .btn declarations */
@@ -641,3 +642,5 @@ textarea.form-control {
         text-align: center;
     }
 }
+=======
+>>>>>>> tazen/main

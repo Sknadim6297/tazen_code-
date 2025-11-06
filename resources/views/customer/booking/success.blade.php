@@ -64,6 +64,7 @@
 @php
     // Get service name with multiple fallbacks
     $serviceName = 'N/A';
+    $subServiceName = null;
     
     // First try from session
     if (session('booking_success.service_name')) {
@@ -90,6 +91,17 @@
     // Final fallback to session
     elseif (session('selected_service_name')) {
         $serviceName = session('selected_service_name');
+    }
+    
+    // Get sub-service name from session if available
+    if (session('booking_success.sub_service_name')) {
+        $subServiceName = session('booking_success.sub_service_name');
+    } elseif (session('booking_success.sub_service_id')) {
+        // If sub_service_id exists but not name, fetch from database
+        $subService = \App\Models\SubService::find(session('booking_success.sub_service_id'));
+        if ($subService) {
+            $subServiceName = $subService->name;
+        }
     }
 @endphp
 
@@ -119,6 +131,12 @@
                                 <strong>Service:</strong>
                                 <span>{{ $serviceName }}</span>
                             </li>
+                            @if($subServiceName)
+                            <li>
+                                <strong>Sub-Service:</strong>
+                                <span>{{ $subServiceName }}</span>
+                            </li>
+                            @endif
                         </ul>
 
                         <h5>Booking Information</h5>

@@ -1,0 +1,281 @@
+@extends('admin.layouts.layout')
+@section('content')
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">All Events Management</h1>
+                <div class="">
+                    <nav>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Admin</a></li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">Events</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">All Events</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- Page Header Close -->
+
+        <!-- Filter & Search -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('admin.allevents.index') }}" id="filterForm">
+                            <div class="row g-3">
+                                <div class="col-md-2">
+                                    <label class="form-label">Created By</label>
+                                    <select name="filter" class="form-select">
+                                        <option value="all" {{ request('filter') == 'all' ? 'selected' : '' }}>All Events</option>
+                                        <option value="admin" {{ request('filter') == 'admin' ? 'selected' : '' }}>Admin Created</option>
+                                        <option value="professional" {{ request('filter') == 'professional' ? 'selected' : '' }}>Professional Created</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">All Status</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Search</label>
+                                    <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ request('search') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="ri-filter-line me-1"></i>Filter
+                                        </button>
+                                        <a href="{{ route('admin.allevents.index') }}" class="btn btn-outline-secondary">
+                                            <i class="ri-refresh-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start::row-2 -->
+        <div class="row">
+            <div class="col-xxl-12 col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">
+                            All Events (Admin + Professional)
+                        </div>
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-primary btn-wave waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-medium align-middle me-1"></i> Create Event</button>
+                            <!-- Start::add task modal -->
+                            <div class="modal fade" id="create-task" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <form action="{{ route('admin.allevents.store') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title">Add Event</h6>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                    
+                                            <div class="modal-body px-4">
+                                                <div class="row gy-3">
+                                    
+                                                    {{-- Card Image --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="card_image" class="form-label">Event Image</label>
+                                                        <input type="file" class="form-control" id="card_image" name="card_image" accept="image/*" required>
+                                                    </div>
+                                    
+                                                    {{-- Date --}}
+                                                    <div class="col-xl-6">
+                                                        <label for="date" class="form-label">Event Date</label>
+                                                        <input type="date" class="form-control" id="date" name="date" required>
+                                                    </div>
+                                    
+                                                    {{-- Starting Fees --}}
+                                                    <div class="col-xl-6">
+                                                        <label for="starting_fees" class="form-label">Starting Fees</label>
+                                                        <input type="number" class="form-control" id="starting_fees" name="starting_fees" placeholder="Enter Starting Fees" required>
+                                                    </div>
+                                    
+                                                    {{-- Mini Heading --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="mini_heading" class="form-label">Event Type</label>
+                                                        <input type="text" class="form-control" id="mini_heading" name="mini_heading" placeholder="Enter Mini Heading" required>
+                                                    </div>
+                                    
+                                                    {{-- Heading --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="heading" class="form-label">Event Name</label>
+                                                        <input type="text" class="form-control" id="heading" name="heading" placeholder="Enter Main Heading" required>
+                                                    </div>
+                                    
+                                                    {{-- Short Description --}}
+                                                    <div class="col-xl-12">
+                                                        <label for="short_description" class="form-label">Short Description</label>
+                                                        <textarea class="form-control" id="short_description" name="short_description" rows="4" placeholder="Enter a short description about the event" required></textarea>
+                                                    </div>
+                                    
+                                                </div>
+                                            </div>
+                                    
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Add Event</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                                                                                                                                                                                                                                                  </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Event Image</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Event Type</th>
+                                        <th scope="col">Event Name</th>
+                                        <th scope="col">Short Description</th>
+                                        <th scope="col">Starting Fees</th>
+                                        <th scope="col">Created By</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($allevents as $event)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ asset('storage/' . $event->card_image) }}" alt="Event Image" width="80" height="80" class="rounded">
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($event->date)->format('d M, Y') }}</td>
+                                            <td>
+                                                <span class="badge bg-info">{{ $event->mini_heading }}</span>
+                                            </td>
+                                            <td>{{ $event->heading }}</td>
+                                            <td>{{ Str::limit($event->short_description, 50) }}</td>
+                                            <td>₹{{ number_format($event->starting_fees, 2) }}</td>
+                                            <td>
+                                                @if($event->isProfessionalEvent())
+                                                    <div class="d-flex flex-column">
+                                                        <span class="badge bg-warning-transparent mb-1">
+                                                            <i class="ri-user-star-line"></i> By Professional
+                                                        </span>
+                                                        @if($event->professional)
+                                                            <small class="text-muted">{{ $event->professional->name }}</small>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="badge bg-primary-transparent">
+                                                        <i class="ri-admin-line"></i> By Admin
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($event->status == 'pending')
+                                                    <span class="badge bg-warning">
+                                                        <i class="ri-time-line"></i> Pending
+                                                    </span>
+                                                @elseif($event->status == 'approved')
+                                                    <span class="badge bg-success">
+                                                        <i class="ri-check-line"></i> Approved
+                                                    </span>
+                                                @elseif($event->status == 'rejected')
+                                                    <span class="badge bg-danger">
+                                                        <i class="ri-close-line"></i> Rejected
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    @if($event->isProfessionalEvent() && $event->status == 'pending')
+                                                        <!-- Accept/Reject buttons for pending professional events -->
+                                                        <form action="{{ route('admin.professional-events.approve', $event->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this event?')" title="Approve Event">
+                                                                <i class="ri-check-line"></i> Accept
+                                                            </button>
+                                                        </form>
+                                                        <form action="{{ route('admin.professional-events.reject', $event->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this event?')" title="Reject Event">
+                                                                <i class="ri-close-line"></i> Reject
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    
+                                                    <!-- View/Edit/Delete buttons -->
+                                                    <a href="{{ route('admin.allevents.show', $event->id) }}" class="btn btn-info btn-sm" title="View Details">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    
+                                                    @if($event->isAdminEvent() || $event->status != 'pending')
+                                                        <a href="{{ route('admin.allevents.edit', $event->id) }}" class="btn btn-warning btn-sm" title="Edit Event">
+                                                            <i class="ri-edit-line"></i>
+                                                        </a>
+                                                    @endif
+                                                    
+                                                    <form action="{{ route('admin.allevents.destroy', $event->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this event?')" title="Delete Event">
+                                                            <i class="ri-delete-bin-line"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="9" class="text-center py-4">
+                                                <div class="text-muted">
+                                                    <i class="ri-inbox-line fs-48 mb-3"></i>
+                                                    <p>No events found</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                                                       
+                        </div>
+                    </div>
+                    <div class="card-footer border-top-0">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0 float-end">
+                                <li class="page-item disabled">
+                                    <a class="page-link">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                <li class="page-item active" aria-current="page">
+                                    <a class="page-link" href="javascript:void(0);">2</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="javascript:void(0);">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::row-2 -->
+
+
+    </div>
+</div>
+@endsection

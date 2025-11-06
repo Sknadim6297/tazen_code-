@@ -158,11 +158,20 @@ class ProfileController extends Controller
             'gst_address' => 'nullable|string|max:1000',
             'gst_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
             'photo' => 'nullable|image',
+            'cropped_photo' => 'nullable|string', // Base64 cropped photo data
             'gallery.*' => 'nullable|image',
             'deleted_images' => 'nullable|string', // Changed from delete_gallery array to deleted_images string
             'qualificationDocument' => 'nullable|file',
             'aadhaarCard' => 'nullable|file',
             'panCard' => 'nullable|file',
+            // Bank account details
+            'account_holder_name' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:50',
+            'ifsc_code' => 'nullable|string|max:11',
+            'account_type' => 'nullable|in:savings,current',
+            'bank_branch' => 'nullable|string|max:255',
+            'bank_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
         $profile = Profile::findOrFail($id);
@@ -180,6 +189,17 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($profile->photo);
             }
             $profile->photo = $this->uploadImage($request, 'photo', 'uploads/profiles/photo');
+        } elseif ($request->filled('cropped_photo')) {
+            // Handle cropped photo as base64 data
+            try {
+                $croppedPhotoData = $request->cropped_photo;
+                
+                // Process base64 image data and handle old photo deletion
+                $profile->photo = $this->uploadBase64Image($croppedPhotoData, 'uploads/profiles/photo', $profile->photo);
+            } catch (\Exception $e) {
+                Log::error('Base64 image upload failed: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => 'Photo upload failed. Please try again.'], 500);
+            }
         }
 
         // Enhanced gallery handling - preserve existing images and handle deletions
@@ -259,6 +279,13 @@ class ProfileController extends Controller
             $profile->gst_certificate = $this->uploadImage($request, 'gst_certificate', 'uploads/profiles/gst');
         }
 
+        if ($request->hasFile('bank_document')) {
+            if ($profile->bank_document) {
+                Storage::disk('public')->delete($profile->bank_document);
+            }
+            $profile->bank_document = $this->uploadImage($request, 'bank_document', 'uploads/profiles/bank');
+        }
+
         // Update other fields
         $profile->professional_id = $professionalId;
         $profile->name = $data['name'];
@@ -273,12 +300,31 @@ class ProfileController extends Controller
         $profile->bio = $data['bio'] ?? null;
         $profile->gst_number = $data['gst_number'] ?? null;
         $profile->gst_address = $data['gst_address'] ?? null;
+        
+        // Update bank account details
+        $profile->account_holder_name = $data['account_holder_name'] ?? null;
+        $profile->bank_name = $data['bank_name'] ?? null;
+        $profile->account_number = $data['account_number'] ?? null;
+        $profile->ifsc_code = $data['ifsc_code'] ?? null;
+        $profile->account_type = $data['account_type'] ?? null;
+        $profile->bank_branch = $data['bank_branch'] ?? null;
+        
         $profile->save();
 
         // Update Professional name also
         $professional = Professional::findOrFail($professionalId);
         $professional->name = $data['name'];
-        $professional->save();
+        $professional->email = $data['email']; // Also update email in professionals table
+        $professionalSaved = $professional->save();
+
+        // Log for debugging
+        Log::info('Professional Profile Update:', [
+            'profile_saved' => $profile->wasRecentlyCreated || $profile->wasChanged(),
+            'professional_saved' => $professionalSaved,
+            'professional_name' => $professional->name,
+            'profile_name' => $profile->name,
+            'professional_id' => $professionalId
+        ]);
 
         return response()->json(['status' => 'success', 'message' => 'Profile updated successfully!']);
     }

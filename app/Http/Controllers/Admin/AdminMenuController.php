@@ -14,9 +14,7 @@ class AdminMenuController extends Controller
      */
     public function index()
     {
-        // Get top-level menus with their children
         $parentMenus = AdminMenu::whereNull('parent_id')->with('children')->orderBy('order')->get();
-        // Get all menus for flat display
         $allMenus = AdminMenu::with('parent')->orderBy('order')->get();
         return view('admin.admin_menus.index', compact('parentMenus', 'allMenus'));
     }
@@ -26,7 +24,6 @@ class AdminMenuController extends Controller
      */
     public function create()
     {
-        // Only top-level menus and first-level children can be parents
         $topLevelMenus = AdminMenu::whereNull('parent_id')->orderBy('display_name')->get();
         $firstLevelMenus = AdminMenu::whereNotNull('parent_id')
             ->whereIn('parent_id', $topLevelMenus->pluck('id'))
@@ -57,12 +54,9 @@ class AdminMenuController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        
-        // Check if we're adding a third-level menu which should not be allowed
         if ($request->parent_id) {
             $parentMenu = AdminMenu::find($request->parent_id);
             if ($parentMenu && $parentMenu->parent_id) {
-                // This is already a second-level menu, we shouldn't add a third level
                 $parentMenu = $parentMenu->parent;
                 return redirect()->back()
                     ->with('error', 'Cannot create a third-level menu. Please select a top-level menu or first-level menu as parent.')
@@ -89,8 +83,6 @@ class AdminMenuController extends Controller
     public function edit($id)
     {
         $menu = AdminMenu::findOrFail($id);
-        
-        // Only top-level menus and first-level children can be parents
         $topLevelMenus = AdminMenu::whereNull('parent_id')
             ->where('id', '!=', $id)
             ->orderBy('display_name')
@@ -128,8 +120,6 @@ class AdminMenuController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        // Make sure parent_id is not set to its own ID or any of its children
         if ($request->parent_id && $request->parent_id == $id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'A menu cannot be its own parent.'])
@@ -155,8 +145,6 @@ class AdminMenuController extends Controller
     public function destroy($id)
     {
         $menu = AdminMenu::findOrFail($id);
-        
-        // Check if this menu has children
         if ($menu->children()->exists()) {
             return redirect()->route('admin.admin_menus.index')
                 ->with('error', 'Cannot delete menu with children. Delete the children first or reassign them.');
@@ -175,8 +163,6 @@ class AdminMenuController extends Controller
      */
     public function syncFromSidebar(Request $request)
     {
-        // This is a placeholder for a more complex implementation
-        // Would require parsing the sidebar.blade.php file
 
         return redirect()->route('admin.admin_menus.index')
             ->with('success', 'Menus synced from sidebar');

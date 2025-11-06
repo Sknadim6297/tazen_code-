@@ -250,7 +250,7 @@
                  <div class="about-inside-content">
                     
                      <div class="main-about-content">
-                         <h1>{{ $aboutus->heading }}</h1>
+                         <h3>{{ $aboutus->heading }}</h3>
                          <p>{{ $aboutus->description }}</p>
 
                          <div class="list-data-div">
@@ -280,7 +280,7 @@
                  </div>
                  <div class="ab-count d-flex justify-content-center align-items-center flex-column text-center">
                     <div class="d-flex align-items-center justify-content-center">
-                        <h2 class="count">{{ $aboutus->year_of_experience }}</h2>
+                        <h5 class="count">{{ $aboutus->year_of_experience }}</h5>
                         <h2>+</h2>
                     </div>
                     <p>years of experience</p>
@@ -302,15 +302,15 @@
                 <div class="col ">
                     <div class="main_title center ">
                         <span><em></em></span>
-                        <h2>{{ $exp->section_heading }}</h2>
-                        <p>{{ $exp->section_subheading }}</p>
+                        <h3>{{ $exp->section_heading }}</h3>
+                        <h3>{{ $exp->section_subheading }}</h3>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-6 hero-info">
                     <div class="counter-hero-info">
-                        <h1>{{ $exp->content_heading }}</h1>
+                        <h3>{{ $exp->content_heading }}</h3>
                         <p>{{ $exp->content_subheading }}</p>
                         <a href="{{ url('/login') }}"><button class=" btn_1 medium" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
 ">Get Started</button></a>
@@ -377,7 +377,7 @@
             <div class="row">
                 <div class="col-lg-6 hero-info">
                     <div class="counter-hero-info">
-                        <h1 class="text-white">{{ $how->content_heading }}</h1>
+                        <h4 class="text-white">{{ $how->content_heading }}</h4>
                         <p class="text-white">{{ $how->content_sub_heading }}</p>
                         <!--<p class="add_top_30"><a href="#0" class="btn_1" style="    background: linear-gradient(135deg, #152a70, #c51010, #f39c12);">Join Team</a></p>-->
 
@@ -395,7 +395,7 @@
                                        
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $how->step1_heading }}</h3>
+                                        <h5>{{ $how->step1_heading }}</h5>
                                         <p>{{ $how->step1_description }}</p>
                                     </div>
                                 </div>
@@ -407,7 +407,7 @@
 
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $how->step2_heading }}</h3>
+                                        <h5>{{ $how->step2_heading }}</h5>
                                         <p>{{ $how->step2_description }}</p>
                                     </div>
                                 </div>
@@ -421,7 +421,7 @@
 
                                     </div>
                                     <div class="text-info">
-                                        <h3> {{ $how->step3_heading }}</h3>
+                                        <h5> {{ $how->step3_heading }}</h5>
                                         <p>{{ $how->step3_description }}</p>
                                     </div>
                                 </div>
@@ -433,7 +433,7 @@
 
                                     </div>
                                     <div class="text-info">
-                                        <h3>{{ $how->step4_heading }}</h3>
+                                        <h5>{{ $how->step4_heading }}</h5>
                                         <p>{{ $how->step4_description }}</p>
                                     </div>
                                 </div>
@@ -561,18 +561,18 @@
                         <hr class="faq-hr1">
                         <h5>FAQ</h5>
                     </div>
-                    <h2 class="h2_margin">Frequently Asked Questions</h2>
+                    <h4 class="h2_margin">Frequently Asked Questions</h4>
                     <p>{{ $faq->faq_description }}
                     </p>
                 </div>
                 <div class="col-lg-6 col-md-6 mt-md-0 mt-sm-4 mt-4">
                     <div class="accordion d-flex flex-column gap-4" id="accordionExample" data-aos="fade-down">
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingOne">
+                            <h5 class="accordion-header" id="headingOne">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                     {{ $faq->question1 }}
                           </button>
-                            </h2>
+                            </h5>
                             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
                                     <p>{{ $faq->answer1 }}
@@ -581,11 +581,11 @@
                             </div>
                         </div>
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingTwo">
+                            <h5 class="accordion-header" id="headingTwo">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                     {{ $faq->question2 }}
                           </button>
-                            </h2>
+                            </h5>
                             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
                                     <p>{{ $faq->answer2 }}
@@ -593,11 +593,11 @@
                             </div>
                         </div>
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingThree">
+                            <h5 class="accordion-header" id="headingThree">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                     {{ $faq->question3 }}
                           </button>
-                            </h2>
+                            </h5>
                             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
                                     <p>{{ $faq->answer3 }}
@@ -606,11 +606,11 @@
                             </div>
                         </div>
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingfour">
+                            <h5 class="accordion-header" id="headingfour">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsefour" aria-expanded="false" aria-controls="collapsefour">
                                     {{ $faq->question4 }}
                           </button>
-                            </h2>
+                            </h5>
                             <div id="collapsefour" class="accordion-collapse collapse" aria-labelledby="headingfour" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
                                     <p>{{ $faq->answer4 }}

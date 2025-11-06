@@ -134,6 +134,48 @@
                                             </div>
                                         </div>
                                     </li>
+                                @elseif($type === 'App\Notifications\NewChatMessage')
+                                    @php
+                                        $isCustomerChat = isset($data['sender_type']) && $data['sender_type'] === 'App\Models\User';
+                                        $isProfessionalChat = isset($data['sender_type']) && $data['sender_type'] === 'App\Models\Professional';
+                                        
+                                        if ($isCustomerChat) {
+                                            $chatUrl = route('admin.manage-customer.index') . '?open_chat=' . ($data['sender_id'] ?? '') . '&chat_id=' . ($data['chat_id'] ?? '');
+                                            $clickHandler = 'handleCustomerChatNotification(' . ($data['sender_id'] ?? '0') . ', ' . ($data['chat_id'] ?? '0') . '); return false;';
+                                        } elseif ($isProfessionalChat) {
+                                            $chatUrl = route('admin.manage-professional.index') . '?open_chat=' . ($data['sender_id'] ?? '') . '&chat_id=' . ($data['chat_id'] ?? '');
+                                            $clickHandler = 'handleProfessionalChatNotification(' . ($data['sender_id'] ?? '0') . ', ' . ($data['chat_id'] ?? '0') . '); return false;';
+                                        } else {
+                                            $chatUrl = route('admin.manage-professional.index');
+                                            $clickHandler = '';
+                                        }
+                                    @endphp
+                                    <li class="dropdown-item position-relative">
+                                        <a href="{{ $chatUrl }}" class="d-flex align-items-start gap-3 text-decoration-none chat-notification-link" 
+                                           onclick="markAdminNotificationAsRead('{{ $notification->id }}'); {{ $clickHandler }}">
+                                            <span class="avatar avatar-md flex-shrink-0 bg-success-transparent">
+                                                <i class="ri-message-3-line fs-18 lh-1 align-middle text-success"></i>
+                                            </span>
+                                            <div class="flex-grow-1">
+                                                <div class="fs-13">
+                                                    <div class="text-dark fw-medium">
+                                                        {{ $data['sender_name'] ?? ($isCustomerChat ? 'Customer' : ($isProfessionalChat ? 'Professional' : 'User')) }} sent a message
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-12 mt-1">
+                                                        "{{ $data['message_preview'] ?? 'No message content' }}"
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-11 mt-1">
+                                                        <i class="ri-time-line me-1"></i>{{ $notification->created_at->diffForHumans() }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <a href="javascript:void(0);" class="min-w-fit-content text-muted dropdown-item-close" onclick="event.stopPropagation(); markAdminNotificationAsRead('{{ $notification->id }}')">
+                                                <i class="ri-close-line fs-16"></i>
+                                            </a>
+                                        </div>
+                                    </li>
                                 @else
                                     <li class="dropdown-item">
                                         <div class="d-flex align-items-start gap-3">
@@ -640,6 +682,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.innerHTML = 'Mark All as Read';
             }
         });
+    };
+    
+    // Function to handle customer chat notifications
+    window.handleCustomerChatNotification = function(customerId, chatId) {
+        // Store the chat info in sessionStorage to be used by the customer management page
+        sessionStorage.setItem('openCustomerChat', JSON.stringify({
+            customerId: customerId,
+            chatId: chatId,
+            timestamp: Date.now()
+        }));
+        
+        // Navigate to customer management page
+        window.location.href = '{{ route("admin.manage-customer.index") }}';
+    };
+    
+    // Function to handle professional chat notifications
+    window.handleProfessionalChatNotification = function(professionalId, chatId) {
+        // Store the chat info in sessionStorage to be used by the professional management page
+        sessionStorage.setItem('openProfessionalChat', JSON.stringify({
+            professionalId: professionalId,
+            chatId: chatId,
+            timestamp: Date.now()
+        }));
+        
+        // Navigate to professional management page
+        window.location.href = '{{ route("admin.manage-professional.index") }}';
     };
     
     // Function to update notification count badge

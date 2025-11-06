@@ -19,10 +19,6 @@
             </div>
         </div>
         <!-- Page Header Close -->
-
-
-
-        <!-- Start::row-2 -->
         <div class="row">
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">
@@ -187,7 +183,7 @@
                 </div>
             </div>
         </div>
-        <!--End::row-2 -->
+
 
 
     </div>

@@ -15,7 +15,7 @@
                 <div class="row justify-content-center">
                     <div class="col-xl-9 col-lg-10 col-md-8">
                         <h1>{{ $banner->heading }}</h1>
-                        <p>{{ $banner->sub_heading }}</p>
+                        <h2>{{ $banner->sub_heading }}</h2>
                     </div>
                 </div>
                
@@ -33,7 +33,7 @@
                 <div class="col-lg-4">
                     <div class="box_contacts">
                         <i class="{{ $detail->icon1 }}"></i>
-                        <h2>{{ $detail->heading1 }}</h2>
+                        <h4>{{ $detail->heading1 }}</h4>
                         <a href="#0">{{ $detail->sub_heading1 }}</a>
                         <small>{{ $detail->description1 }}</small>
                     </div>
@@ -41,7 +41,7 @@
                 <div class="col-lg-4">
                     <div class="box_contacts">
                         <i class="{{ $detail->icon2 }}"></i>
-                        <h2>{{ $detail->heading2 }}</h2>
+                        <h4>{{ $detail->heading2 }}</h4>
                         <div>{{ $detail->sub_heading2 }}</div>
                         <small>{{ $detail->description2 }}</small>
                     </div>
@@ -49,7 +49,7 @@
                 <div class="col-lg-4">
                     <div class="box_contacts">
                         <i class="{{ $detail->icon3 }}"></i>
-                        <h2>{{ $detail->heading3 }}</h2>
+                        <h4>{{ $detail->heading3 }}</h4>
                         <a href="#0">{{ $detail->sub_heading3 }}</a>
                         <small>{{ $detail->description3 }}</small>
                     </div>
@@ -63,7 +63,7 @@
     <!-- /bg_gray -->
 
     <div class="container margin_60_40">
-        <h5 class="mb_5">Drop Us a Line</h5>
+        <h3 class="mb_5">Drop Us a Line</h3>
         <div class="row">
             <div class="col-lg-4 col-md-6 add_bottom_25">
                 <div id="message-contact"></div>

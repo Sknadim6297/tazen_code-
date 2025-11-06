@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rate;
+use App\Models\ProfessionalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,12 +16,21 @@ class RateController extends Controller
      */
     public function index()
     {
-        $rates = Rate::with('professionalService')
-            ->where('professional_id', Auth::guard('professional')->id())
+        $professionalId = Auth::guard('professional')->id();
+        
+        $rates = Rate::where('professional_id', $professionalId)
+            ->with(['professionalService.service', 'subService'])
             ->get();
-        $rateCount = Rate::where('professional_id', auth()->guard('professional')->id())->count();
+            
+        // Get professional services to show service names
+        $professionalServices = ProfessionalService::where('professional_id', $professionalId)
+            ->with('service')
+            ->get()
+            ->keyBy('service_id');
+            
+        $rateCount = Rate::where('professional_id', $professionalId)->count();
 
-        return view('professional.rate.index', compact('rates', 'rateCount'));
+        return view('professional.rate.index', compact('rates', 'rateCount', 'professionalServices'));
     }
 
     /**
@@ -28,8 +38,9 @@ class RateController extends Controller
      */
     public function create()
     {
-        $professionalServices = \App\Models\ProfessionalService::with('subServices')
-            ->where('professional_id', Auth::guard('professional')->id())
+        $professionalId = Auth::guard('professional')->id();
+        $professionalServices = ProfessionalService::where('professional_id', $professionalId)
+            ->with('service', 'subServices')
             ->get();
 
         return view('professional.rate.create', compact('professionalServices'));
@@ -43,123 +54,83 @@ class RateController extends Controller
         // Validate the incoming request data
         $validated = $request->validate([
             'professional_service_id' => 'required|exists:professional_services,id',
-            'sub_service_id' => 'nullable|exists:sub_services,id',
             'rateData' => 'required|array',
             'rateData.*.session_type' => 'required|string|max:255',
+            'rateData.*.sub_service_id' => 'nullable|exists:sub_services,id',
             'rateData.*.num_sessions' => 'required|integer|min:1',
             'rateData.*.rate_per_session' => 'required|numeric|min:0',
             'rateData.*.final_rate' => 'required|numeric|min:0',
-            'rateData.*.sub_service_id' => 'nullable|exists:sub_services,id',
+            'rateData.*.features' => 'nullable|array',
+            'rateData.*.features.*' => 'nullable|string|max:255',
         ]);
         
         $professionalId = Auth::guard('professional')->id();
-        $professionalServiceId = $request->professional_service_id;
+        $professionalServiceId = $request->input('professional_service_id');
         
-        // Verify that the professional service belongs to the authenticated professional
-        $professionalService = \App\Models\ProfessionalService::where('id', $professionalServiceId)
-            ->where('professional_id', $professionalId)
-            ->first();
-            
-        if (!$professionalService) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid service selection.',
-            ], 422);
-        }
-            if ($professionalService->subServices()->exists() && $request->filled('sub_service_id')) {
-                $exists = $professionalService->subServices()->where('sub_services.id', $request->sub_service_id)->exists();
-                if (!$exists) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Invalid sub-service selection for the chosen service.'
-                    ], 422);
-                }
-            }
+        // Get the actual service_id from professional_services table
+        $professionalService = ProfessionalService::findOrFail($professionalServiceId);
+        $serviceId = $professionalService->service_id;
         
-        // Build keys to detect duplicates within submission and prepare DB checks
-        $submittedKeys = [];
-        $duplicateKeys = [];
-        $toCheckAgainstDb = [];
-
-        foreach ($request->input('rateData') as $item) {
-            $sessionType = $item['session_type'];
-            // prefer per-rate sub_service_id, fall back to top-level sub_service_id
-            $subServiceId = $item['sub_service_id'] ?? ($request->sub_service_id ?? null);
-            $key = $sessionType . '|' . ($subServiceId === null ? 'null' : $subServiceId);
-
-            if (isset($submittedKeys[$key])) {
-                $duplicateKeys[] = $sessionType . ($subServiceId ? ' (sub-service ' . $subServiceId . ')' : ' (service level)');
+        // Check for duplicate session types with sub-service combinations within the submitted data
+        $combinations = [];
+        foreach ($request->input('rateData') as $rate) {
+            $key = $rate['session_type'] . '|' . ($rate['sub_service_id'] ?? 'null');
+            if (in_array($key, $combinations)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Duplicate session types with the same sub-service are not allowed in the same submission.',
+                ], 422);
             }
-            $submittedKeys[$key] = true;
-
-            $toCheckAgainstDb[] = ['session_type' => $sessionType, 'sub_service_id' => $subServiceId];
+            $combinations[] = $key;
         }
-
-        if (!empty($duplicateKeys)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Duplicate session types for the same scope are not allowed in the same submission: ' . implode(', ', $duplicateKeys),
-            ], 422);
-        }
-
-        // Check against existing session types in DB for each (session_type, sub_service_id)
-        $existingSessionTypes = [];
-        foreach ($toCheckAgainstDb as $check) {
-            $query = Rate::where('professional_id', $professionalId)
-                ->where('professional_service_id', $professionalServiceId)
-                ->where('session_type', $check['session_type']);
-
-            if ($check['sub_service_id']) {
-                $query->where('sub_service_id', $check['sub_service_id']);
-            } else {
-                $query->whereNull('sub_service_id');
+        
+        // Check against existing rates for this professional
+        foreach ($request->input('rateData') as $rate) {
+            $exists = Rate::where('professional_id', $professionalId)
+                    ->where('professional_service_id', $professionalServiceId)
+                ->where('session_type', $rate['session_type'])
+                ->where('sub_service_id', $rate['sub_service_id'] ?? null)
+                ->exists();
+                
+            if ($exists) {
+                $subServiceMsg = isset($rate['sub_service_id']) ? ' with this sub-service' : '';
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You already have a rate for session type "' . $rate['session_type'] . '"' . $subServiceMsg . '.',
+                ], 422);
             }
-
-            if ($query->exists()) {
-                $existingSessionTypes[] = $check['session_type'] . ($check['sub_service_id'] ? ' (sub-service ' . $check['sub_service_id'] . ')' : ' (service level)');
-            }
-        }
-
-        if (!empty($existingSessionTypes)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You already have rates for the following session types for this service: ' . implode(', ', array_unique($existingSessionTypes)),
-            ], 422);
         }
 
         DB::beginTransaction();
 
         try {
             foreach ($request->input('rateData') as $rate) {
-                // determine per-rate sub_service_id (may be null)
-                $rowSubServiceId = $rate['sub_service_id'] ?? ($request->sub_service_id ?? null);
-
-                // If a sub_service_id is provided per-row, validate it belongs to this professional service
-                if ($rowSubServiceId !== null && $professionalService->subServices()->exists()) {
-                    $exists = $professionalService->subServices()->where('sub_services.id', $rowSubServiceId)->exists();
-                    if (!$exists) {
-                        throw new \Exception('Invalid sub-service selection for one of the rates.');
-                    }
-                } elseif (!$professionalService->subServices()->exists()) {
-                    // service has no sub-services; ensure we store null
-                    $rowSubServiceId = null;
+                // Filter out empty features
+                $features = isset($rate['features']) ? array_values(array_filter($rate['features'], function($feature) {
+                    return !empty(trim($feature));
+                })) : [];
+                
+                // Set to null if no valid features
+                if (empty($features)) {
+                    $features = null;
                 }
-
+                
                 Rate::create([
                     'professional_id' => $professionalId,
-                    'professional_service_id' => $professionalServiceId,
-                    'sub_service_id' => $rowSubServiceId,
+                        'professional_service_id' => $professionalServiceId,
                     'session_type' => $rate['session_type'],
+                    'sub_service_id' => $rate['sub_service_id'] ?? null,
                     'num_sessions' => $rate['num_sessions'],
                     'rate_per_session' => $rate['rate_per_session'],
                     'final_rate' => $rate['final_rate'],
+                    'features' => $features,
                 ]);
             }
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Rates added successfully for ' . $professionalService->service_name . '.',
+                'message' => 'Rates added successfully.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -170,63 +141,29 @@ class RateController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-    }    /**
-     * Get already used session types for the logged in professional and specific service
+    }
+
+    /**
+     * Get already used session types for the logged in professional
+     * Returns session types with their sub_service_id to properly check duplicates
      */
-    public function getSessionTypes(Request $request)
+    public function getSessionTypes()
     {
         $professionalId = Auth::guard('professional')->id();
-            $professionalServiceId = $request->get('professional_service_id');
-    $subServiceId = $request->get('sub_service_id');
-        $query = Rate::where('professional_id', $professionalId);
-
-        if ($professionalServiceId) {
-            $query->where('professional_service_id', $professionalServiceId);
-
-            // Load the professional service so we can validate sub-service membership
-            $professionalService = \App\Models\ProfessionalService::where('id', $professionalServiceId)
-                ->where('professional_id', $professionalId)
-                ->first();
-
-            if (!$professionalService) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid service selection.'
-                ], 422);
-            }
-
-            // When this professional service exposes sub-services, allow both service-level 
-            // and sub-service-level rates
-            if ($professionalService->subServices()->exists()) {
-                if ($request->filled('sub_service_id')) {
-                    // Validate that the sub-service belongs to this service
-                    $exists = $professionalService->subServices()->where('sub_services.id', $request->sub_service_id)->exists();
-                    if (!$exists) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Invalid sub-service selection for the chosen service.'
-                        ], 422);
-                    }
-
-                    $query->where('sub_service_id', $request->sub_service_id);
-                } else {
-                    // No sub-service selected: get service-level rates (sub_service_id is null)
-                    $query->whereNull('sub_service_id');
-                }
-            } elseif ($request->filled('sub_service_id')) {
-                // If service has no sub-services but sub_service_id was passed, ensure it's null
-                $query->whereNull('sub_service_id');
-            }
-        }
-        if ($subServiceId) {
-            $query->where('sub_service_id', $subServiceId);
-        }
-        
-        $sessionTypes = $query->pluck('session_type')->toArray();
+        $rates = Rate::where('professional_id', $professionalId)
+            ->select('session_type', 'sub_service_id')
+            ->get()
+            ->map(function($rate) {
+                return [
+                    'session_type' => $rate->session_type,
+                    'sub_service_id' => $rate->sub_service_id
+                ];
+            })
+            ->toArray();
         
         return response()->json([
             'status' => 'success',
-            'session_types' => $sessionTypes
+            'rates' => $rates
         ]);
     }
 
@@ -243,14 +180,8 @@ class RateController extends Controller
      */
     public function edit(string $id)
     {
-        $rates = Rate::with('professionalService')->findOrFail($id);
-        if ($rates->professional_id != Auth::guard('professional')->id()) {
-            return redirect()->route('professional.rate.index')->with('error', 'Unauthorized access');
-        }
-
-        $professionalServices = \App\Models\ProfessionalService::where('professional_id', Auth::guard('professional')->id())->get();
-
-        return view('professional.rate.edit', compact('rates', 'professionalServices'));
+        $rates = Rate::findOrFail($id);
+        return view('professional.rate.edit', compact('rates'));
     }
 
     /**
@@ -259,56 +190,29 @@ class RateController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'professional_service_id' => 'required|exists:professional_services,id',
-            'sub_service_id' => 'nullable|exists:sub_services,id',
             'num_sessions' => 'required|integer|min:1',
             'rate_per_session' => 'required|numeric|min:0',
             'final_rate' => 'required|numeric|min:0',
+            'features' => 'nullable|array',
+            'features.*' => 'nullable|string|max:255',
         ]);
 
+        // Filter out empty features
+        if (isset($validated['features'])) {
+            $validated['features'] = array_values(array_filter($validated['features'], function($feature) {
+                return !empty(trim($feature));
+            }));
+            
+            // If no valid features remain, set to null
+            if (empty($validated['features'])) {
+                $validated['features'] = null;
+            }
+        }
+
         $rate = Rate::findOrFail($id);
-        if ($rate->professional_id != Auth::guard('professional')->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access'
-            ], 403);
-        }
-
-        $professionalId = Auth::guard('professional')->id();
-        $professionalServiceId = $request->professional_service_id;
-        
-        // Verify that the professional service belongs to the authenticated professional
-        $professionalService = \App\Models\ProfessionalService::where('id', $professionalServiceId)
-            ->where('professional_id', $professionalId)
-            ->first();
-            
-        if (!$professionalService) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid service selection.',
-            ], 422);
-        }
-
-        // Check if rate already exists for this service/sub-service and session combination (excluding current)
-        $existingRateQuery = Rate::where('professional_id', $professionalId)
-            ->where('professional_service_id', $professionalServiceId)
-            ->where('session_type', $request->session_type ?? $rate->session_type)
-            ->where('id', '!=', $id);
-        if ($request->filled('sub_service_id')) {
-            $existingRateQuery->where('sub_service_id', $request->sub_service_id);
-        }
-        $existingRate = $existingRateQuery->first();
-            
-        if ($existingRate) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Rate already exists for this service and session type. Please edit the existing one.',
-            ], 422);
-        }
-
         $rate->update($validated);
 
-        return response()->json(['success' => true, 'message' => 'Rate updated successfully for ' . $professionalService->service_name . '.']);
+        return response()->json(['success' => true, 'message' => 'Rate updated successfully.']);
     }
 
 

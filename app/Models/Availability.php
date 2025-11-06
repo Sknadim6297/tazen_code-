@@ -11,8 +11,6 @@ class Availability extends Model
 
     protected $fillable = [
         'professional_id',
-        'professional_service_id',
-    'sub_service_id',
         'month',
         'session_duration',
         'weekdays',
@@ -27,17 +25,12 @@ class Availability extends Model
         return $this->belongsTo(Professional::class, 'professional_id');
     }
     
-    public function professionalService()
+    public function slots()
     {
-        return $this->belongsTo(ProfessionalService::class);
+        return $this->hasMany(AvailabilitySlot::class);
     }
 
-    public function subService()
-    {
-        return $this->belongsTo(SubService::class, 'sub_service_id');
-    }
-    
-    public function slots()
+    public function availabilitySlots()
     {
         return $this->hasMany(AvailabilitySlot::class);
     }

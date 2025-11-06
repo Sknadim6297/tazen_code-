@@ -14,8 +14,6 @@ class HelpController extends Controller
     public function index(Request $request)
     {
         $query = Help::query();
-
-        // Apply category filter if selected
         if ($request->has('category_filter') && $request->category_filter != '') {
             $query->where('category', $request->category_filter);
         }
@@ -101,8 +99,6 @@ class HelpController extends Controller
     public function frontend(Request $request)
     {
         $query = Help::where('status', 'active');
-
-        // Handle search
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -110,8 +106,6 @@ class HelpController extends Controller
                   ->orWhere('answer', 'like', "%{$search}%");
             });
         }
-
-        // Handle category filter
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }

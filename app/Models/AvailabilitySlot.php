@@ -13,6 +13,7 @@ class AvailabilitySlot extends Model
         'availability_id',
         'start_time',
         'end_time',
+        'weekday',
     ];
 
     public function availability()

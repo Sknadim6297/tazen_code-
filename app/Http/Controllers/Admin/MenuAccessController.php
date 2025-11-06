@@ -37,11 +37,7 @@ class MenuAccessController extends Controller
     public function update(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
-        
-        // Delete existing permissions
         AdminMenuPermission::where('admin_id', $admin->id)->delete();
-        
-        // Assign new permissions
         if ($request->has('menus')) {
             foreach ($request->menus as $menuId) {
                 AdminMenuPermission::create([

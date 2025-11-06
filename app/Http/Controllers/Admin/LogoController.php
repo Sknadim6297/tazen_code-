@@ -21,7 +21,6 @@ class LogoController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -48,7 +47,6 @@ class LogoController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
@@ -56,7 +54,6 @@ class LogoController extends Controller
      */
     public function edit(string $id)
     {
-        //
     }
 
     /**
@@ -64,7 +61,6 @@ class LogoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
     }
 
     /**
@@ -72,6 +68,5 @@ class LogoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }
