@@ -270,14 +270,30 @@
   <div class="hero_single event-slide">
     <div class="owl-carousel owl-theme">
         @if(isset($allEvent))
-            {{-- Professional Event - use card_image as banner --}}
-            <div class="item">
-                <img src="{{ asset('storage/' . $allEvent->card_image) }}" alt="{{ $allEvent->heading }}" />
-            </div>
+            {{-- Professional Event --}}
+            @if(isset($eventDetail) && $eventDetail && $eventDetail->banner_image)
+                {{-- Professional event with event details banner --}}
+                @php
+                    $bannerImages = json_decode($eventDetail->banner_image, true);
+                    if (!is_array($bannerImages)) {
+                        $bannerImages = [$eventDetail->banner_image];
+                    }
+                @endphp
+                @foreach($bannerImages as $banner)
+                    <div class="item">
+                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $allEvent->heading }}" />
+                    </div>
+                @endforeach
+            @else
+                {{-- Professional event using card_image as fallback --}}
+                <div class="item">
+                    <img src="{{ asset('storage/' . $allEvent->card_image) }}" alt="{{ $allEvent->heading }}" />
+                </div>
+            @endif
         @else
             {{-- Admin Event - use banner_image array --}}
             @php
-                $banners = $event->banner_image;
+                $banners = $event->eventDetails->banner_image ?? $event->banner_image ?? '[]';
                 if (is_string($banners)) {
                     $banners = json_decode($banners, true);
                     if (is_string($banners)) {
@@ -291,7 +307,7 @@
             @if (is_array($banners) && count($banners))
                 @foreach ($banners as $banner)
                     <div class="item">
-                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $event->eventDetails->heading }}" />
+                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $event->eventDetails->heading ?? $event->heading ?? 'Event' }}" />
                     </div>
                 @endforeach
             @else
@@ -308,18 +324,27 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="details-event">
-                    <h3>{{ isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading }}</h3>
-                    <p>{{ isset($allEvent) ? $allEvent->mini_heading : ($event->event_type ?? 'Event') }}</p>
+                    @if(isset($allEvent))
+                        <h3>{{ $allEvent->heading }}</h3>
+                        @if(isset($eventDetail) && $eventDetail)
+                            <p>{{ $eventDetail->event_type ?? $allEvent->mini_heading }}</p>
+                        @else
+                            <p>{{ $allEvent->mini_heading }}</p>
+                        @endif
+                    @else
+                        <h3>{{ $event->eventDetails->heading ?? $event->heading ?? 'Event' }}</h3>
+                        <p>{{ $event->eventDetails->event_type ?? $event->event_type ?? 'Event' }}</p>
+                    @endif
                 </div>
             </div>
             <div class="col-lg-4 text-end">
                 <button class="btn unique-btn" id="bookNowBtn"
                     data-event-id="{{ isset($allEvent) ? $allEvent->id : ($event->event_id ?? $event->id) }}"
-                    data-event-name="{{ isset($allEvent) ? $allEvent->heading : ($event->eventDetails->heading ?? $event->name ?? 'Event') }}"
-                    data-location="{{ isset($allEvent) ? 'Online/Offline' : ($event->city ?? 'Kolkata') }}"
-                    data-type="{{ isset($allEvent) ? 'TBD' : ($event->event_mode ?? 'offline') }}"
-                    data-event-date="{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }}"
-                    data-amount="{{ isset($allEvent) ? $allEvent->starting_fees : $event->starting_fees }}">
+                    data-event-name="{{ isset($allEvent) ? $allEvent->heading : ($event->eventDetails->heading ?? $event->heading ?? 'Event') }}"
+                    data-location="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->city ? $eventDetail->city : 'To be announced') : ($event->eventDetails->city ?? $event->city ?? 'Kolkata') }}"
+                    data-type="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->event_mode ? $eventDetail->event_mode : 'TBD') : ($event->eventDetails->event_mode ?? $event->event_mode ?? 'offline') }}"
+                    data-event-date="{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }}"
+                    data-amount="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees) : ($event->eventDetails->starting_fees ?? $event->starting_fees ?? 0) }}">
                     Book Now
                 </button>
             </div>
@@ -329,9 +354,24 @@
 <hr>
 <div class="col-lg-12">
     <div class="event-date" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 30px;">
-        <p>{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->starting_date)->format('d-m-Y') }} onwards</p>
-        <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ isset($allEvent) ? 'To be announced' : $event->event_mode }}</p>
-        <p><span>₹{{ isset($allEvent) ? $allEvent->starting_fees : $event->starting_fees }}</span> onwards</p>
+        @if(isset($allEvent))
+            <p>{{ \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') }} onwards</p>
+            <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>
+                @if(isset($eventDetail) && $eventDetail && $eventDetail->event_mode)
+                    {{ ucfirst($eventDetail->event_mode) }}
+                    @if($eventDetail->city)
+                        - {{ $eventDetail->city }}
+                    @endif
+                @else
+                    To be announced
+                @endif
+            </p>
+            <p><span>₹{{ isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees }}</span> onwards</p>
+        @else
+            <p>{{ \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }} onwards</p>
+            <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->eventDetails->event_mode ?? $event->event_mode ?? 'To be announced' }}</p>
+            <p><span>₹{{ $event->eventDetails->starting_fees ?? $event->starting_fees ?? '0' }}</span> onwards</p>
+        @endif
     </div>
 </div>
 
@@ -388,31 +428,64 @@
                <div class="third-portion my-3">
                 <div class="about-content">
                     <h3>About Event Details</h3>
-                    <p>{{ isset($allEvent) ? $allEvent->short_description : $event->event_details }}</p>
+                    @if(isset($allEvent))
+                        @if(isset($eventDetail) && $eventDetail)
+                            {{-- Professional event with event details --}}
+                            <p>{{ $eventDetail->event_details }}</p>
+                        @else
+                            {{-- Professional event without additional details --}}
+                            <p>{{ $allEvent->short_description }}</p>
+                        @endif
+                    @else
+                        {{-- Admin event --}}
+                        <p>{{ $event->eventDetails->event_details ?? $event->event_details ?? 'Event details not available' }}</p>
+                    @endif
                 </div>
             </div>
             
-            @if(!isset($allEvent))
-            {{-- Gallery section only for admin events --}}
+            @if(!isset($allEvent) || (isset($eventDetail) && $eventDetail && $eventDetail->event_gallery))
+            {{-- Gallery section for admin events or professional events with gallery --}}
             <div class="forth-portion my-3">
                 <div class="gallery-sliding">
                     <h2>Gallery</h2>
                     <div class="owl-carousel gallery-carousal">
-                        @php
-                            $decoded = json_decode($event->event_gallery, true);
-                            $galleryImages = is_string($decoded) ? json_decode($decoded, true) : $decoded;
-                        @endphp
-            
-                        @if (is_array($galleryImages) && count($galleryImages))
-                            @foreach ($galleryImages as $galleryImage)
+                        @if(isset($allEvent) && isset($eventDetail) && $eventDetail)
+                            {{-- Professional event with event details gallery --}}
+                            @php
+                                $galleryImages = json_decode($eventDetail->event_gallery, true);
+                                if (!is_array($galleryImages)) {
+                                    $galleryImages = [];
+                                }
+                            @endphp
+                            @if (count($galleryImages))
+                                @foreach ($galleryImages as $galleryImage)
+                                    <div class="item">
+                                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $galleryImage)) }}" alt="Gallery Image">
+                                    </div>
+                                @endforeach
+                            @else
                                 <div class="item">
-                                    <img src="{{ asset('storage/' . str_replace('\\/', '/', $galleryImage)) }}" alt="Gallery Image">
+                                    <p>No gallery images available.</p>
                                 </div>
-                            @endforeach
+                            @endif
                         @else
-                            <div class="item">
-                                <p>No gallery images available.</p>
-                            </div>
+                            {{-- Admin event gallery --}}
+                            @php
+                                $decoded = json_decode($event->eventDetails->event_gallery ?? $event->event_gallery ?? '[]', true);
+                                $galleryImages = is_string($decoded) ? json_decode($decoded, true) : $decoded;
+                            @endphp
+                
+                            @if (is_array($galleryImages) && count($galleryImages))
+                                @foreach ($galleryImages as $galleryImage)
+                                    <div class="item">
+                                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $galleryImage)) }}" alt="Gallery Image">
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="item">
+                                    <p>No gallery images available.</p>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -422,56 +495,71 @@
             <div class="fifth-portion">
                 <div class="col-lg-12 col-md-12 mt-md-0 mt-sm-4 mt-4">
                     <div class="accordion d-flex flex-column gap-4" id="accordionExample" data-aos="fade-down">
-                        @foreach($eventfaqs as $faq)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingOne">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                          {{$faq->question1}}
-                          </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <p>{{$faq->answer1}}</p>
+                        @if(isset($allEvent))
+                            {{-- Professional Event FAQs --}}
+                            @if(isset($eventfaqs) && $eventfaqs->count() > 0)
+                                @foreach($eventfaqs as $faq)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingOne">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                  {{$faq->question1}}
+                                  </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <p>{{$faq->answer1}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                            {{$faq->question2}}
+                                  </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <p>{{$faq->answer2}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                                <div class="accordion-item">
+                                    <div class="accordion-body">
+                                        <p>No FAQs available for this event.</p>
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            {{-- Admin Event FAQs --}}
+                            @foreach($eventfaqs as $faq)
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                              {{$faq->question1}}
+                              </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <p>{{$faq->answer1}}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    {{$faq->question2}}
-                          </button>
-                            </h2>
-                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <p>{{$faq->answer2}}</p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        {{$faq->question2}}
+                              </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <p>{{$faq->answer2}}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    {{$faq->question3}}
-                          </button>
-                            </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <p>{{$faq->answer3}}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingfour">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsefour" aria-expanded="false" aria-controls="collapsefour">
-                                    {{$faq->question4}}
-                          </button>
-                            </h2>
-                            <div id="collapsefour" class="accordion-collapse collapse" aria-labelledby="headingfour" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <p>{{$faq->answer4}}</p>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>

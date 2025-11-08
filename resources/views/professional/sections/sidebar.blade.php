@@ -54,6 +54,10 @@
             <i class="fas fa-calendar-alt"></i>
             <span>My Events</span>
         </a>
+        <a href="{{ route('professional.event-details.index') }}" class="menu-item {{ Route::is('professional.event-details.*') ? 'active' : '' }}">
+            <i class="fas fa-list-alt"></i>
+            <span>Event Details</span>
+        </a>
         <div class="menu-title">Billing</div>
         <a href="{{ route('professional.billing.index') }}" class="menu-item {{ Route::is('professional.billing.*') ? 'active' : '' }}">
             <i class="fas fa-wallet"></i>
