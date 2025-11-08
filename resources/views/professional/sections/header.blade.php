@@ -65,16 +65,17 @@
                 // Check if professional has requested services (other information)
                 $hasRequestedServices = \App\Models\ProfessionalOtherInformation::where('professional_id', $professionalId)->exists();
                 
-                // Check for additional service notifications
-                $additionalServiceNotifications = DB::table('notifications')
-                    ->where('notifiable_type', 'App\Models\Professional')
-                    ->where('notifiable_id', $professionalId)
-                    ->where('type', 'App\Notifications\AdditionalServiceNotification')
-                    ->whereNull('read_at')
-                    ->count();
-                
                 // Get unread booking chats with booking details
                 try {
+                    // Get unread additional service notifications for display
+                    $unreadNotifications = collect();
+                    if ($professional) {
+                        $unreadNotifications = $professional->unreadNotifications()
+                            ->where('type', 'App\Notifications\AdditionalServiceNotification')
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+                    }
+
                     $unreadBookingChats = \App\Models\BookingChat::whereHas('booking', function($q) use ($professionalId) {
                             $q->where('professional_id', $professionalId);
                         })
@@ -103,14 +104,30 @@
                 } catch (\Exception $e) {
                     $unreadBookingChats = collect();
                     $unreadChatCount = 0;
+                    $unreadNotifications = collect();
+                    // Log error for debugging
+                    \Log::error('Professional notification fetch error: ' . $e->getMessage());
                 }
                 
-                // Count total notifications (including reschedule notifications and booking chats)
-                $totalNotifications = $newBookings + $rescheduleCount + $additionalServiceNotifications + $unreadChatCount;
+                // Count unread additional service notifications
+                $unreadNotificationsCount = $unreadNotifications ? $unreadNotifications->count() : 0;
+                
+                // Count total notifications (including all notification types)
+                $totalNotifications = $newBookings + $rescheduleCount + $unreadNotificationsCount + $unreadChatCount;
                 if (!$hasServices) $totalNotifications++;
                 if (!$hasRates) $totalNotifications++;
                 if (!$hasAvailability) $totalNotifications++;
                 if (!$hasRequestedServices) $totalNotifications++;
+
+                // Debug: Log notification counts for troubleshooting
+                \Log::info('Professional Notification Debug', [
+                    'professional_id' => $professionalId,
+                    'unread_notifications_count' => $unreadNotificationsCount,
+                    'total_notifications' => $totalNotifications,
+                    'new_bookings' => $newBookings,
+                    'reschedule_count' => $rescheduleCount,
+                    'unread_chat_count' => $unreadChatCount
+                ]);
             @endphp
             
             <div class="header-actions">
@@ -166,6 +183,41 @@
             <button class="notification-modal-close">&times;</button>
         </div>
         <div class="notification-modal-body">
+            {{-- Additional Service Notifications --}}
+            @if($unreadNotifications && $unreadNotifications->count() > 0)
+                @foreach($unreadNotifications as $notification)
+                    @php
+                        $data = $notification->data;
+                        $serviceId = $data['additional_service_id'] ?? null;
+                        $serviceName = $data['service_name'] ?? 'Additional Service';
+                        $type = $data['type'] ?? 'update';
+                        $icon = $data['icon'] ?? 'fas fa-bell';
+                        $color = $data['color'] ?? '#3498db';
+                    @endphp
+                    <div class="notification-item service-notification" data-notification-id="{{ $notification->id }}">
+                        <div class="notification-icon-wrapper" style="background-color: {{ $color }};">
+                            <i class="{{ $icon }}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h5>{{ $data['title'] ?? 'Service Update' }}</h5>
+                            <p>{{ $data['message'] ?? 'You have a new update regarding an additional service.' }}</p>
+                            <p><small>Service: {{ $serviceName }} - {{ $notification->created_at->diffForHumans() }}</small></p>
+                            <div class="button-container">
+                                @if($serviceId)
+                                    <a href="{{ route('professional.additional-services.show', $serviceId) }}" class="notification-btn view-btn">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                @endif
+                                <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">
+                                    <i class="fas fa-check"></i> Mark as Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+
+            {{-- Chat Notifications --}}
             @if($unreadChatCount > 0)
                 @foreach($unreadBookingChats as $chatGroup)
                     @php
@@ -193,6 +245,7 @@
                 @endforeach
             @endif
             
+            {{-- Other Notifications --}}
             @if($newBookings > 0)
                 <div class="notification-item new">
                     <h5>New Booking Alert!</h5>
@@ -1263,6 +1316,32 @@
         flex: 1;
     }
 
+    /* Service Notification Specific Styles */
+    .notification-item.service-notification {
+        border-left-color: #e67e22;
+        background: linear-gradient(135deg, #fef9e7, #ffffff);
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .notification-item.service-notification .notification-icon-wrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        background: var(--icon-color, linear-gradient(135deg, #e67e22, #d35400));
+    }
+
+    .notification-item.service-notification .notification-content {
+        flex: 1;
+    }
+
     .notification-item h5 {
         margin: 0 0 10px 0;
         font-size: 16px;
@@ -1769,18 +1848,60 @@ function markProfessionalNotificationAsRead(notificationId) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+            notification_id: notificationId
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Refresh the page to update notification counts
-            location.reload();
+            // Remove the notification from the modal
+            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationItem) {
+                notificationItem.style.opacity = '0.5';
+                notificationItem.style.pointerEvents = 'none';
+                
+                // Fade out and remove
+                setTimeout(() => {
+                    notificationItem.remove();
+                    updateProfessionalNotificationBadge();
+                }, 300);
+            }
+        } else {
+            console.error('Failed to mark notification as read');
         }
     })
     .catch(error => {
         console.error('Error marking notification as read:', error);
     });
+}
+
+// Function to update professional notification badge count
+function updateProfessionalNotificationBadge() {
+    const remainingNotifications = document.querySelectorAll('.notification-item:not([style*="opacity: 0.5"])').length;
+    const badge = document.querySelector('.notification-badge');
+    
+    if (remainingNotifications === 0) {
+        if (badge) badge.style.display = 'none';
+        
+        // Show empty state if modal is open
+        const modalBody = document.querySelector('.notification-modal-body');
+        if (modalBody && modalBody.querySelector('.notification-empty') === null) {
+            modalBody.innerHTML = `
+                <div class="notification-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No notifications available</p>
+                    <p>You're all caught up! No new notifications at this time.</p>
+                </div>
+            `;
+        }
+    } else {
+        if (badge) {
+            badge.textContent = remainingNotifications;
+            badge.style.display = 'inline-block';
+        }
+    }
 }
 
 // Admin Chat Manager

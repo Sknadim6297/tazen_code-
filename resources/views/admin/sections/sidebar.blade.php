@@ -51,7 +51,6 @@
                             <li class="slide has-sub">
                                 <a href="{{ route('admin.professional.requests') }}" class="side-menu__item">Manage Professional</a>
                                 <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professional</a>
-                                <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">Bank Accounts</a>
                                 <a href="{{ route('admin.professional.billing') }}" class="side-menu__item">Professional Billing</a>
                             </li>
                         </ul>
@@ -75,7 +74,7 @@
                         </ul>
                     </li>
 
-                    @php
+                                      @php
     $onetimeCount = \App\Models\Booking::whereIn('plan_type', ['one_time', 'One Time'])->count();
     $monthlyCount = \App\Models\Booking::whereIn('plan_type', ['monthly', 'Monthly'])->count();
     $freehandCount = \App\Models\Booking::whereIn('plan_type', ['free_hand', 'Free Hand'])->count();
@@ -111,10 +110,10 @@
                         </ul>
                     </li>
                     @endif
+  
 
 
-
-                    {{-- @if($isMenuAccessible('bank_accounts'))
+                    @if($isMenuAccessible('bank_accounts'))
                     <li class="slide">
                         <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
@@ -132,7 +131,7 @@
                             <span class="side-menu__label">Bank Accounts</span>
                         </a>
                     </li>
-                    @endif --}}
+                    @endif
 
                     @if($isMenuAccessible('admin_booking'))
                     <li class="slide">
@@ -150,8 +149,7 @@
                     </li>
                     @endif
 
-                    {{-- TEMPORARILY DISABLED - Additional Services Functionality --}}
-                    {{-- @if($isMenuAccessible('additional_services'))
+                    @if($isMenuAccessible('additional_services'))
                     <li class="slide">
                         <a href="{{ route('admin.additional-services.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
@@ -164,7 +162,7 @@
                             <span class="side-menu__label">Additional Services</span>
                         </a>
                     </li>
-                    @endif --}}
+                    @endif
 
                     @if($isMenuAccessible('user_management'))
                     <li class="slide">
@@ -180,7 +178,6 @@
                         </a>
                     </li>
                     @endif
-  
                     @if($isMenuAccessible('manage_website'))
                     <li class="slide has-sub">
                         <a href="javascript:void(0);" class="side-menu__item">
@@ -203,6 +200,9 @@
                                         <a href="{{ route('admin.banners.index') }}" class="side-menu__item">Banner Section</a>
                                     </li>
                                     <li class="slide">
+                                        <a href="{{ route('admin.header.index') }}" class="side-menu__item">Header Section</a>
+                                    </li>
+                                    <li class="slide">
                                         <a href="{{ route('admin.whychoose.index') }}" class="side-menu__item">Why Choose us Section</a>
                                     </li>
                                     <li class="slide">
@@ -216,6 +216,9 @@
                                     </li>
                                     <li class="slide">
                                         <a href="{{ route('admin.servicemcq.index') }}" class="side-menu__item">MCQ</a>
+                                    </li>
+                                    <li class="slide">
+                                        <a href="{{ route('admin.faq.index') }}" class="side-menu__item">FAQ Section</a>
                                     </li>
                                 </ul>
                             </li>
@@ -289,10 +292,16 @@
                                         <a href="{{ route('admin.service.index') }}" class="side-menu__item">Service Cards </a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
+                                        <a href="{{ route('admin.sub-service.index') }}" class="side-menu__item">Sub-Services </a>
                                     </li>
                                     <li class="slide">
-                                        <a href="{{ route('admin.sub-service.index') }}" class="side-menu__item">Sub-Services </a>
+                                        <a href="{{ route('admin.service-details.index') }}" class="side-menu__item">Service Details </a>
+                                    </li>
+                                    {{-- <li class="slide">
+                                        <a href="{{ route('admin.re-requested-service.index') }}" class="side-menu__item">Re-requested Service </a>
+                                    </li> --}}
+                                    <li class="slide">
+                                        <a href="{{ route('admin.categorybox.index') }}" class="side-menu__item">Category Management </a>
                                     </li>
                                 </ul>
                             </li>
@@ -339,7 +348,7 @@
                         </ul>
                     </li>
                     @endif
-                    <!-- MCQ Bank Section -->
+                    
                     @if($isMenuAccessible('mcq'))
                     <li class="slide has-sub">
                         <a href="#" class="side-menu__item">

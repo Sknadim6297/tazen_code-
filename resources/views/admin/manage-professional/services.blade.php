@@ -307,9 +307,6 @@
                                     <h3 class="service-name">{{ $service->service->name ?? $service->service_name }}</h3>
                                     <div class="service-meta">
                                         <span class="service-badge">{{ $service->service->name ?? 'General' }}</span>
-                                        @if($service->duration)
-                                            <span class="service-badge duration-badge">{{ $service->duration }} mins</span>
-                                        @endif
                                         @if($service->price)
                                             <span class="service-badge price-badge">₹{{ number_format($service->price, 2) }}</span>
                                         @endif
@@ -406,7 +403,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="service_id">Service Category</label>
-                        <select class="form-control" id="service_id" name="service_id" required onchange="updateServiceFeatures('add')">
+                        <select class="form-control" id="service_id" name="service_id" required onchange="updateServiceFeatures('add'); loadSubServices(this.value, 'add');">
                             <option value="">Select a service</option>
                             @foreach(\App\Models\Service::all() as $service)
                                 <option value="{{ $service->id }}" data-features='@json($service->features ?? [])'>{{ $service->name }}</option>
@@ -421,8 +418,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="description">Service Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe this service in detail"></textarea>
+                        <label>Sub-Services</label>
+                        <div id="addSubServiceContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 5px; background-color: #f8f9fa;">
+                            <p class="text-muted">Please select a service category first to see available sub-services.</p>
+                        </div>
+                        <small class="text-muted">Select one or more sub-services for this professional. You can select multiple sub-services.</small>
                     </div>
                     <div class="form-group">
                         <label for="tags">Tags</label>
@@ -458,21 +458,25 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit_service_id">Service Category</label>
-                        <select class="form-control" id="edit_service_id" name="service_id" required onchange="updateServiceFeatures('edit')">
+                        <label for="edit_service_id">Service Category *</label>
+                        <select class="form-control" id="edit_service_id" name="service_id" required onchange="updateServiceFeatures('edit'); loadSubServices(this.value, 'edit');">
                             <option value="">Select a service</option>
                             @foreach(\App\Models\Service::all() as $service)
                                 <option value="{{ $service->id }}" data-features='@json($service->features ?? [])'>{{ $service->name }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Choose a service category to see relevant features</small>
+                        <small class="text-muted">Choose a service category to see relevant features and sub-services</small>
                     </div>
+                    
+                    <!-- Sub-Service Selection -->
                     <div class="form-group">
-                        <label>Service Features</label>
-                        <div class="checkbox-group" id="editFeaturesContainer">
-                            <div class="text-muted">Please select a service category first</div>
+                        <label for="edit_subServices">Sub-Services (Optional)</label>
+                        <div id="editSubServiceContainer" class="checkbox-group" style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; background-color: #f8f9fa; min-height: 60px;">
+                            <div class="text-muted">Loading sub-services...</div>
                         </div>
+                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
                     </div>
+
                     <div class="form-group">
                         <label for="edit_description">Service Description</label>
                         <textarea class="form-control" id="edit_description" name="description" rows="3" placeholder="Describe this service in detail"></textarea>
@@ -499,12 +503,15 @@
 <script>
 // Service features mapping based on categories
 const serviceFeatureTemplates = {
-    'coaching': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'goal_setting', 'progress_tracking'],
-    'counseling': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'confidential', 'assessment'],
-    'therapy': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'individual', 'group_therapy'],
-    'training': ['online_sessions', 'offline_sessions', 'certification', 'materials', 'hands_on', 'group_training'],
-    'consultation': ['online_sessions', 'offline_sessions', 'expert_advice', 'report', 'follow_up', 'analysis'],
-    'default': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up']
+    'coaching': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'goal_setting', 'progress_tracking', 'assessment', 'certification'],
+    'counseling': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'confidential', 'assessment', 'individual', 'group_therapy'],
+    'therapy': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'individual', 'group_therapy', 'assessment', 'confidential'],
+    'training': ['online_sessions', 'offline_sessions', 'certification', 'materials', 'hands_on', 'group_training', 'assessment', 'follow_up'],
+    'consultation': ['online_sessions', 'offline_sessions', 'expert_advice', 'report', 'follow_up', 'analysis', 'assessment', 'consultation'],
+    'astrology': ['online_sessions', 'offline_sessions', 'consultation', 'horoscope', 'birth_chart', 'prediction', 'follow_up', 'analysis'],
+    'numerology': ['online_sessions', 'offline_sessions', 'consultation', 'life_path', 'name_analysis', 'prediction', 'follow_up', 'report'],
+    'vastu': ['online_sessions', 'offline_sessions', 'consultation', 'site_visit', 'analysis', 'recommendations', 'follow_up', 'report'],
+    'default': ['online_sessions', 'offline_sessions', 'consultation', 'follow_up', 'assessment', 'expert_advice', 'certification', 'materials', 'analysis', 'report']
 };
 
 // Feature display names
@@ -525,7 +532,14 @@ const featureLabels = {
     'group_training': 'Group Training',
     'expert_advice': 'Expert Advice',
     'report': 'Detailed Report',
-    'analysis': 'Analysis & Review'
+    'analysis': 'Analysis & Review',
+    'horoscope': 'Horoscope Reading',
+    'birth_chart': 'Birth Chart Analysis',
+    'prediction': 'Future Prediction',
+    'life_path': 'Life Path Analysis',
+    'name_analysis': 'Name Analysis',
+    'site_visit': 'Site Visit',
+    'recommendations': 'Recommendations'
 };
 
 function updateServiceFeatures(modalType) {
@@ -544,33 +558,82 @@ function updateServiceFeatures(modalType) {
         return;
     }
     
-    // Get features from data attribute or use service name to determine features
+    // For add modal, only show "Online Sessions" feature
+    if (modalType === 'add') {
+        const html = `
+            <label class="checkbox-item">
+                <input type="checkbox" name="features[]" value="online_sessions" checked>
+                <span>Online Sessions</span>
+            </label>
+        `;
+        container.innerHTML = html;
+        return;
+    }
+    
+    // For edit modal, show existing logic for flexibility
+    // Get features from data attribute first
     let features = [];
     try {
         const dataFeatures = selectedOption.getAttribute('data-features');
-        if (dataFeatures) {
-            features = JSON.parse(dataFeatures);
+        if (dataFeatures && dataFeatures !== 'null' && dataFeatures !== '[]') {
+            const parsedFeatures = JSON.parse(dataFeatures);
+            if (Array.isArray(parsedFeatures) && parsedFeatures.length > 0) {
+                features = parsedFeatures;
+            }
         }
     } catch (e) {
-        console.log('Could not parse features from data attribute');
+        console.log('Could not parse features from data attribute:', e);
     }
     
-    // If no features from data, use service name to determine features
+    // If no features from data attribute, use service name to determine features
     if (!features || features.length === 0) {
-        const serviceName = selectedOption.textContent.toLowerCase();
-        features = serviceFeatureTemplates[serviceName] || serviceFeatureTemplates['default'];
+        const serviceName = selectedOption.textContent.toLowerCase().trim();
+        console.log('Using service name for features:', serviceName);
+        
+        // Match service name with templates (more flexible matching)
+        let foundTemplate = null;
+        for (const [key, templateFeatures] of Object.entries(serviceFeatureTemplates)) {
+            if (serviceName.includes(key)) {
+                foundTemplate = templateFeatures;
+                break;
+            }
+        }
+        
+        // If no specific match found, use all default features
+        features = foundTemplate || serviceFeatureTemplates['default'];
     }
     
-    // Generate checkboxes
+    console.log('Final features for', selectedOption.textContent, ':', features);
+    
+    // Always show a comprehensive set of features for edit
+    if (!features || features.length <= 2) {
+        // If we only have very few features, show a more comprehensive default set
+        features = [
+            'online_sessions', 
+            'offline_sessions', 
+            'consultation', 
+            'follow_up', 
+            'assessment', 
+            'certification',
+            'materials',
+            'expert_advice',
+            'report',
+            'analysis'
+        ];
+    }
+    
+    // Generate checkboxes for edit modal
     let html = '';
     features.forEach((feature, index) => {
         const featureKey = feature.toLowerCase().replace(/\s+/g, '_');
         const featureLabel = featureLabels[featureKey] || feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const checked = index === 0 ? 'checked' : ''; // Check first option by default
+        
+        // Auto-check "online_sessions" by default
+        const isDefaultChecked = featureKey === 'online_sessions' ? 'checked' : '';
         
         html += `
             <label class="checkbox-item">
-                <input type="checkbox" name="features[]" value="${featureKey}" ${checked}>
+                <input type="checkbox" name="features[]" value="${featureKey}" ${isDefaultChecked}>
                 <span>${featureLabel}</span>
             </label>
         `;
@@ -627,8 +690,14 @@ function editService(serviceId) {
     console.log('Found service:', service);
     
     if (service) {
-        // Set service dropdown and trigger feature update
+        // Set service dropdown (now editable in admin panel)
         $('#edit_service_id').val(service.service_id || '');
+        
+        // Load sub-services first
+        const subServiceIds = service.sub_services ? service.sub_services.map(s => s.id) : [];
+        loadSubServices(service.service_id, 'edit', subServiceIds);
+        
+        // Update features based on selected service
         updateServiceFeatures('edit');
         
         // Handle features checkboxes - decode if string
@@ -649,11 +718,16 @@ function editService(serviceId) {
             const featuresCheckboxes = document.querySelectorAll('#editFeaturesContainer input[type="checkbox"]');
             featuresCheckboxes.forEach(checkbox => {
                 checkbox.checked = false;
-                if (serviceFeatures.includes(checkbox.value)) {
+                // Always check "online_sessions" by default
+                if (checkbox.value === 'online_sessions') {
+                    checkbox.checked = true;
+                }
+                // Check other features from service data
+                else if (serviceFeatures.includes(checkbox.value)) {
                     checkbox.checked = true;
                 }
             });
-        }, 100);
+        }, 200);
         
         // Set form field values
         $('#edit_description').val(service.description || '');
@@ -664,6 +738,47 @@ function editService(serviceId) {
         $('#editServiceForm').attr('action', '{{ route('admin.professional.services.update', ['professional' => $professional->id, 'service' => '__SERVICE_ID__']) }}'.replace('__SERVICE_ID__', serviceId));
         $('#editServiceModal').modal('show');
     }
+}
+
+function loadSubServices(serviceId, modalType = 'edit', selectedSubServices = []) {
+    const containerId = modalType === 'edit' ? 'editSubServiceContainer' : 'addSubServiceContainer';
+    const container = $('#' + containerId);
+    
+    console.log('loadSubServices called with serviceId:', serviceId, 'modalType:', modalType, 'selectedSubServices:', selectedSubServices);
+    
+    if (!serviceId) {
+        container.html('<p class="text-muted">Please select a service category first to see available sub-services.</p>');
+        return;
+    }
+    
+    container.html('<div class="text-muted">Loading sub-services...</div>');
+    
+    $.ajax({
+        url: "{{ route('admin.get.sub.services', ['serviceId' => '__SERVICE_ID__']) }}".replace('__SERVICE_ID__', serviceId),
+        type: "GET",
+        success: function(response) {
+            console.log('AJAX response:', response);
+            if (response.success && response.subServices && response.subServices.length > 0) {
+                let html = '';
+                response.subServices.forEach(function(subService) {
+                    const isSelected = selectedSubServices.includes(subService.id);
+                    html += `
+                        <label class="checkbox-item" style="display: flex; align-items: center; margin-bottom: 10px; padding: 8px; background-color: white; border-radius: 5px; border: 1px solid #dee2e6; cursor: pointer;">
+                            <input type="checkbox" name="subServices[]" value="${subService.id}" id="subService${subService.id}_${modalType}" ${isSelected ? 'checked' : ''} style="margin-right: 10px; transform: scale(1.2);">
+                            <span style="cursor: pointer; font-weight: 500;">${subService.name}</span>
+                        </label>
+                    `;
+                });
+                container.html(html);
+            } else {
+                container.html('<p class="text-muted">No sub-services available for this category.</p>');
+            }
+        },
+        error: function(xhr) {
+            console.error('AJAX error:', xhr);
+            container.html('<p class="text-danger">Error loading sub-services. Please try again.</p>');
+        }
+    });
 }
 
 function deleteService(serviceId) {

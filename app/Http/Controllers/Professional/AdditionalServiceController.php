@@ -9,6 +9,7 @@ use App\Models\Professional;
 use App\Models\User;
 use App\Models\Admin;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Notification;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of additional services for the professional
      */
@@ -93,33 +95,41 @@ class AdditionalServiceController extends Controller
             $additionalService->service_name = $request->service_name;
             $additionalService->reason = $request->reason;
             $additionalService->base_price = $request->base_price;
+            $additionalService->original_professional_price = $request->base_price; // Store original price
             
-            // GST will be calculated automatically by the model
+            // Calculate GST and total price
+            $basePrice = $request->base_price;
+            $cgst = $basePrice * 0.09; // 9% CGST
+            $sgst = $basePrice * 0.09; // 9% SGST
+            $totalPrice = $basePrice + $cgst + $sgst; // Base + 18% GST
+            
+            $additionalService->cgst = $cgst;
+            $additionalService->sgst = $sgst;
+            $additionalService->igst = 0.00; // Usually 0 for intrastate
+            $additionalService->total_price = $totalPrice;
+            
             $additionalService->save();
 
-            // Send notifications to User and Admin
-            $user = User::find($booking->user_id);
-            $admins = Admin::all();
-
-            if ($user) {
-                $user->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'new_service'
-                ));
-            }
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'new_service'
-                ));
-            }
+            // Send enhanced notifications using the trait
+            $this->sendNotificationWithLogging(
+                $additionalService, 
+                'new_service',
+                "Professional {$additionalService->professional->name} has created a new additional service '{$additionalService->service_name}' for booking #{$additionalService->booking_id}. Amount: ₹" . number_format($additionalService->total_price, 2),
+                [
+                    'action' => 'service_created',
+                    'booking_id' => $booking->id,
+                    'base_price' => $additionalService->base_price,
+                    'total_price' => $additionalService->total_price,
+                    'cgst' => $additionalService->cgst,
+                    'sgst' => $additionalService->sgst,
+                ]
+            );
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Additional service created successfully and notifications sent.',
+                'message' => 'Additional service created successfully and notifications sent to all parties.',
                 'redirect' => route('professional.additional-services.index')
             ]);
 
@@ -261,27 +271,24 @@ class AdditionalServiceController extends Controller
                 'can_complete_consultation' => false, // Will be updated when date passes
             ]);
 
-            // Notify admin and user
-            $admins = Admin::all();
-            $user = $additionalService->user;
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'delivery_date_set'
-                ));
-            }
-
-            $user->notify(new AdditionalServiceNotification(
-                $additionalService, 
-                'delivery_date_set'
-            ));
+            // Send enhanced notification
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'delivery_date_set',
+                "Professional has set delivery date to " . \Carbon\Carbon::parse($request->delivery_date)->format('M d, Y') . " for '{$additionalService->service_name}'",
+                [
+                    'action' => 'delivery_date_set',
+                    'delivery_date' => $request->delivery_date,
+                    'set_by' => 'professional',
+                    'professional_name' => $additionalService->professional->name,
+                ]
+            );
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Delivery date set successfully. Admin and customer have been notified.'
+                'message' => 'Delivery date set successfully. All parties have been notified.'
             ]);
 
         } catch (\Exception $e) {
@@ -549,6 +556,144 @@ class AdditionalServiceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate invoice for a completed additional service
+     */
+    public function generateInvoice($id)
+    {
+        $service = AdditionalService::with(['user', 'professional', 'booking'])
+            ->where('id', $id)
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->where('consulting_status', 'done')
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$service) {
+            return redirect()->back()->with('error', 'Service not found or not eligible for invoice generation.');
+        }
+
+        // Prepare invoice data
+        $invoiceNumber = 'INV-AS-' . str_pad($service->id, 6, '0', STR_PAD_LEFT) . '-' . date('Y');
+        $invoiceDate = now()->format('d M, Y');
+        
+        // Get pricing details
+        $pricing = [
+            'base_price' => $service->getEffectiveBasePrice(),
+            'cgst' => $service->cgst ?? 0,
+            'sgst' => $service->sgst ?? 0,
+            'igst' => $service->igst ?? 0,
+            'total_price' => $service->getEffectiveTotalPrice()
+        ];
+
+        // Negotiation details
+        $negotiationDetails = null;
+        if ($service->negotiation_status !== 'none') {
+            $negotiationDetails = [
+                'negotiation_status' => $service->negotiation_status,
+                'original_price' => $service->base_price,
+                'user_negotiated_price' => $service->user_negotiated_price,
+                'admin_final_price' => $service->admin_final_negotiated_price
+            ];
+        }
+
+        return view('professional.additional-services.invoice', [
+            'service' => $service,
+            'customer' => $service->user,
+            'professional' => $service->professional,
+            'invoice_number' => $invoiceNumber,
+            'invoice_date' => $invoiceDate,
+            'pricing' => $pricing,
+            'negotiation_details' => $negotiationDetails
+        ]);
+    }
+
+    /**
+     * Generate PDF invoice for a completed additional service
+     */
+    public function generatePdfInvoice($id)
+    {
+        $service = AdditionalService::with(['user', 'professional', 'booking'])
+            ->where('id', $id)
+            ->where('professional_id', Auth::guard('professional')->id())
+            ->where('consulting_status', 'done')
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$service) {
+            return redirect()->back()->with('error', 'Service not found or not eligible for invoice generation.');
+        }
+
+        // Prepare invoice data
+        $invoiceNumber = 'INV-AS-' . str_pad($service->id, 6, '0', STR_PAD_LEFT) . '-' . date('Y');
+        $invoiceDate = now()->format('d M, Y');
+        
+        // Get pricing details
+        $pricing = [
+            'base_price' => $service->getEffectiveBasePrice(),
+            'cgst' => $service->cgst ?? 0,
+            'sgst' => $service->sgst ?? 0,
+            'igst' => $service->igst ?? 0,
+            'total_price' => $service->getEffectiveTotalPrice()
+        ];
+
+        // Negotiation details
+        $negotiationDetails = null;
+        if ($service->negotiation_status !== 'none') {
+            $negotiationDetails = [
+                'negotiation_status' => $service->negotiation_status,
+                'original_price' => $service->base_price,
+                'user_negotiated_price' => $service->user_negotiated_price,
+                'admin_final_price' => $service->admin_final_negotiated_price
+            ];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('professional.additional-services.invoice-pdf', [
+            'service' => $service,
+            'customer' => $service->user,
+            'professional' => $service->professional,
+            'invoice_number' => $invoiceNumber,
+            'invoice_date' => $invoiceDate,
+            'pricing' => $pricing,
+            'negotiation_details' => $negotiationDetails
+        ]);
+
+        return $pdf->download('invoice-' . $invoiceNumber . '.pdf');
+    }
+
+    /**
+     * Mark a notification as read for professional
+     */
+    public function markNotificationAsRead(Request $request, $notificationId)
+    {
+        try {
+            $professional = Auth::guard('professional')->user();
+            
+            // Find the notification for this professional
+            $notification = $professional->notifications()->where('id', $notificationId)->first();
+            
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found'
+                ], 404);
+            }
+            
+            // Mark as read
+            $notification->markAsRead();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while marking notification as read'
             ], 500);
         }
     }

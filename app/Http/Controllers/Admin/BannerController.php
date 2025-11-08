@@ -32,13 +32,15 @@ class BannerController extends Controller
     $request->validate([
         'heading' => 'required|string|max:255',
         'sub_heading' => 'nullable|string|max:255',
-        'banner_video' => 'nullable|mimes:mp4,avi,mov,wmv|max:51200', // max 50MB
+        'banner_video' => 'nullable|mimes:mp4,avi,mov,wmv,gif|max:102400', // max 100MB, added gif support
     ]);
 
     $data = $request->only(['heading', 'sub_heading', 'status']);
+
+    // Handle video/gif upload
     if ($request->hasFile('banner_video')) {
         $videoPath = $request->file('banner_video')->store('banners', 'public');
-        $data['banner_video'] = $videoPath; // only save 'banners/video.mp4'
+        $data['banner_video'] = $videoPath; // only save 'banners/video.mp4' or 'banners/animation.gif'
     }
 
     Banner::create($data);
@@ -46,7 +48,9 @@ class BannerController extends Controller
     return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully!');
 }
 
-/**
+
+
+    /**
      * Display the specified resource.
      */
     public function show(string $id)
@@ -71,7 +75,7 @@ class BannerController extends Controller
 
         $request->validate([
             'heading' => 'required|string|max:255',
-            'banner_video' => 'nullable|mimes:mp4,avi,mov|max:20480',
+            'banner_video' => 'nullable|mimes:mp4,avi,mov,wmv,gif|max:102400', // Added gif support and increased size limit to 100MB
         ]);
 
         $data = $request->only('heading', 'sub_heading', 'status');

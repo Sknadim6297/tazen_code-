@@ -458,9 +458,10 @@ function ResizeMenu() {
 function menuClose() {
   let html = document.querySelector("html");
   html.setAttribute("data-toggled", "close");
-  const responsiveOverlay = document.querySelector("#responsive-overlay");
-  if (responsiveOverlay && responsiveOverlay.classList) {
-    responsiveOverlay.classList.remove("active");
+  // defensive: responsive overlay may not exist
+  const respOverlay = document.querySelector("#responsive-overlay");
+  if (respOverlay && respOverlay.classList) {
+    respOverlay.classList.remove("active");
   }
 }
 function toggleSidemenu() {

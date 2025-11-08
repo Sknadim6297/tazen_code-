@@ -621,7 +621,16 @@
                                         {{ $allCompleted ? 'Completed' : 'Pending' }}
                                     </span>
                                 </td>
-                                <td>{{ $booking->remarks ?? 'No remarks' }}</td>
+                                <td>
+                                    @if($booking->remarks_for_professional)
+                                        <div class="alert alert-info mb-0 p-2" style="font-size: 0.875rem;">
+                                            <i class="fas fa-comment-alt me-1"></i>
+                                            {{ $booking->remarks_for_professional }}
+                                        </div>
+                                    @else
+                                        <span class="text-muted fst-italic">No admin remarks</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="d-flex flex-wrap gap-2">
                                         @if ($booking->professional_documents)

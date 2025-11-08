@@ -51,7 +51,8 @@ class ServiceMCQ extends Model
     public static function getQuestionsForService($serviceId)
     {
         return self::where('service_id', $serviceId)
-                   ->where('question_type', 'mcq')
+                   ->whereIn('question_type', ['mcq', 'text'])
+                   ->orderBy('id', 'asc')
                    ->get();
     }
 }

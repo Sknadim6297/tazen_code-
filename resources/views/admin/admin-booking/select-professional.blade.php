@@ -290,11 +290,43 @@
                         <div class="row" id="professionals_container">
                             @foreach($professionals as $prof)
                                 @php
+                                    // Get proper rate from rates table based on selected service
+                                    $serviceId = session('admin_booking_service_id');
+                                    $subServiceId = session('admin_booking_sub_service_id');
+                                    
+                                    // Debug info
+                                    $debugInfo = "Looking for: Service ID={$serviceId}, Sub-service ID=" . ($subServiceId ?? 'NULL');
+                                    
+                                    // Fetch rates for this professional and service - EXACT MATCH ONLY
+                                    $professionalRates = \App\Models\Rate::where('professional_id', $prof->id)
+                                        ->where('service_id', $serviceId);
+                                    
+                                    if ($subServiceId) {
+                                        $professionalRates->where('sub_service_id', $subServiceId);
+                                    } else {
+                                        $professionalRates->whereNull('sub_service_id');
+                                    }
+                                    
+                                    $rates = $professionalRates->get();
+                                    
+                                    // If no exact service match found and we're looking for sub-service, try broader search
+                                    if ($rates->isEmpty() && $subServiceId) {
+                                        // Look for any rate with this sub-service ID for this professional
+                                        $rates = \App\Models\Rate::where('professional_id', $prof->id)
+                                            ->where('sub_service_id', $subServiceId)
+                                            ->get();
+                                    }
+                                    
+                                    // Debug: Also get ALL rates for this professional to see what's available
+                                    $allRates = \App\Models\Rate::where('professional_id', $prof->id)->get();
+                                    
+                                    // Get the minimum rate for display
+                                    $minRate = $rates->min('final_rate') ?? ($allRates->min('final_rate') ?? 1000);
+                                    
                                     // Collect session packages
                                     $sessionPackages = [];
-                                    if($prof->rates && $prof->rates->count() > 0) {
-                                        foreach($prof->rates as $rate) {
-                                            // session_type contains the package info (One Time, Monthly, etc.)
+                                    if($rates->count() > 0) {
+                                        foreach($rates as $rate) {
                                             $sessionPackages[] = strtolower($rate->session_type);
                                         }
                                     }
@@ -329,7 +361,7 @@
                                      data-name="{{ strtolower($prof->name ?? ($prof->first_name . ' ' . $prof->last_name)) }}"
                                      data-location="{{ strtolower($location) }}"
                                      data-rating="{{ $rating }}"
-                                     data-price="{{ $prof->rate ?? 1000 }}"
+                                     data-price="{{ $minRate }}"
                                      data-session-packages="{{ $sessionPackagesStr }}"
                                      data-weekdays="{{ strtolower($availableWeekdays) }}">
                                     <div class="prof-card" data-professional-id="{{ $prof->id }}">
@@ -355,8 +387,8 @@
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="mb-0 fw-semibold">{{ $prof->name ?? ($prof->first_name . ' ' . $prof->last_name ?? 'Professional') }}</h6>
                                     <div class="text-end">
-                                        <div class="fw-bold text-primary">₹{{ number_format($prof->rate ?? 1000) }}</div>
-                                        <small class="text-muted">per session</small>
+                                        <div class="fw-bold text-primary">₹{{ number_format($minRate) }}</div>
+                                        <small class="text-muted">starting from</small>
                                     </div>
                                 </div>
                                 
@@ -365,16 +397,20 @@
                                 @if($prof->specialization)
                                     <p class="mb-2"><small class="text-muted">{{ $prof->specialization }}</small></p>
                                 @endif
-
+                                
                                 <!-- Session Types -->
-                                @if($prof->rates && $prof->rates->count() > 0)
+                                @if($rates->count() > 0)
                                     <div class="mb-2">
                                         <small class="text-muted fw-semibold">Available Sessions:</small>
                                         <div class="session-types mt-1">
-                                            @foreach($prof->rates as $rate)
-                                                <span class="session-badge">{{ $rate->session_type }}</span>
+                                            @foreach($rates as $rate)
+                                                <span class="session-badge">{{ $rate->session_type }} - ₹{{ number_format($rate->final_rate) }}</span>
                                             @endforeach
                                         </div>
+                                    </div>
+                                @else
+                                    <div class="mb-2">
+                                        <small class="text-warning">No rates configured</small>
                                     </div>
                                 @endif                                                <div class="d-flex align-items-center justify-content-between">
                                                     <div class="rating-stars">

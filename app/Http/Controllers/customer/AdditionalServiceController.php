@@ -7,6 +7,7 @@ use App\Models\AdditionalService;
 use App\Models\Professional;
 use App\Models\Admin;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ use Razorpay\Api\Api;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of additional services for the user
      */
@@ -38,7 +40,13 @@ class AdditionalServiceController extends Controller
             ->where('user_id', Auth::guard('user')->id())
             ->firstOrFail();
 
-    return view('customer.additional-services.show', compact('additionalService'));
+        // Calculate minimum allowed price for negotiation using professional's service_request_offset
+        $professional = $additionalService->professional;
+        $maxNegotiationPercentage = $professional->service_request_offset ?? 10; // Default 10% if not set
+        $basePriceForNegotiation = $additionalService->getEffectiveBasePrice();
+        $minPrice = round($basePriceForNegotiation * (1 - ($maxNegotiationPercentage / 100)), 2);
+
+        return view('customer.additional-services.show', compact('additionalService', 'minPrice'));
     }
 
     /**
@@ -62,21 +70,28 @@ class AdditionalServiceController extends Controller
             ], 400);
         }
 
-        // Check negotiation margin from professional
+        // Check negotiation margin from professional  
         $professional = $additionalService->professional;
-        $maxNegotiationPercentage = $professional->margin ?? 10; // Default 10% if not set
-        $minAllowedPrice = $additionalService->total_price * (1 - ($maxNegotiationPercentage / 100));
+        $maxNegotiationPercentage = $professional->service_request_offset ?? 10; // Default 10% if not set
+        
+        // Calculate minimum allowed price based on BASE PRICE (not total with GST)
+        $basePriceForNegotiation = $additionalService->getEffectiveBasePrice(); // Uses base_price, modified_base_price, etc.
+        $minAllowedPrice = round($basePriceForNegotiation * (1 - ($maxNegotiationPercentage / 100)), 2);
 
         if ($request->negotiated_price < $minAllowedPrice) {
             return response()->json([
                 'success' => false,
-                'message' => "You can't negotiate below this price"
+                'message' => "Minimum allowed price is ₹" . number_format($minAllowedPrice, 2) . " (maximum " . $maxNegotiationPercentage . "% discount)",
+                'min_allowed_price' => $minAllowedPrice
             ], 400);
         }
 
         try {
             DB::beginTransaction();
 
+            // Update the negotiated base price and calculate GST automatically
+            $additionalService->updatePricingWithGST($request->negotiated_price, 'user_negotiated');
+            
             $additionalService->update([
                 'user_negotiated_price' => $request->negotiated_price,
                 'user_negotiation_reason' => $request->negotiation_reason,
@@ -84,21 +99,27 @@ class AdditionalServiceController extends Controller
                 'user_responded_at' => now()
             ]);
 
-            // Notify professional and admin
-            $professional = $additionalService->professional;
-            $admins = Admin::all();
+            // Send enhanced notification
+            $originalPrice = $additionalService->original_professional_price;
+            $negotiatedPrice = $request->negotiated_price;
+            $discountAmount = $originalPrice - $negotiatedPrice;
+            $discountPercent = ($originalPrice > 0) ? (($discountAmount / $originalPrice) * 100) : 0;
 
-            $professional->notify(new AdditionalServiceNotification(
-                $additionalService, 
-                'negotiation_started'
-            ));
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'negotiation_started'
-                ));
-            }
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'negotiation_started',
+                "Customer {$additionalService->user->name} has started price negotiation for '{$additionalService->service_name}'. Original: ₹" . number_format($originalPrice, 2) . " → Offered: ₹" . number_format($negotiatedPrice, 2) . " (" . number_format($discountPercent, 1) . "% discount). Reason: {$request->negotiation_reason}",
+                [
+                    'action' => 'negotiation_started',
+                    'original_price' => $originalPrice,
+                    'negotiated_price' => $negotiatedPrice,
+                    'discount_amount' => $discountAmount,
+                    'discount_percent' => $discountPercent,
+                    'negotiation_reason' => $request->negotiation_reason,
+                    'customer_name' => $additionalService->user->name,
+                    'professional_name' => $additionalService->professional->name,
+                ]
+            );
 
             DB::commit();
 
@@ -294,6 +315,51 @@ class AdditionalServiceController extends Controller
     }
 
     /**
+     * Handle payment failure for additional services
+     */
+    public function handlePaymentFailure(Request $request, $id)
+    {
+        try {
+            $additionalService = AdditionalService::where('id', $id)
+                ->where('user_id', Auth::guard('user')->id())
+                ->firstOrFail();
+
+            // Update payment status to failed
+            $additionalService->update([
+                'payment_status' => 'failed',
+                'payment_failure_reason' => $request->error_description ?? 'Payment failed',
+                'updated_at' => now()
+            ]);
+
+            // Send failure notifications using the trait
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'payment_failed',
+                "Payment failed for additional service '{$additionalService->service_name}'. Amount: ₹" . number_format($additionalService->getEffectiveTotalPrice(), 2) . ". Customer can retry payment.",
+                [
+                    'action' => 'payment_failed',
+                    'amount' => $additionalService->getEffectiveTotalPrice(),
+                    'failure_reason' => $request->error_description ?? 'Payment failed',
+                    'order_id' => $request->order_id ?? null,
+                    'payment_id' => $request->payment_id ?? null,
+                ]
+            );
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment failed. You can retry the payment anytime.',
+                'redirect' => route('user.additional-services.show', $id)
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing payment failure: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Calculate professional earnings
      */
     private function calculateProfessionalEarnings(AdditionalService $additionalService)
@@ -311,5 +377,143 @@ class AdditionalServiceController extends Controller
             'professional_final_amount' => $professionalAmount,
             'earnings_calculated_at' => now()
         ]);
+    }
+
+    /**
+     * Generate invoice for a completed additional service
+     */
+    public function generateInvoice($id)
+    {
+        $service = AdditionalService::with(['professional', 'booking'])
+            ->where('id', $id)
+            ->where('user_id', Auth::guard('user')->id())
+            ->where('consulting_status', 'done')
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$service) {
+            return redirect()->back()->with('error', 'Service not found or not eligible for invoice generation.');
+        }
+
+        // Prepare invoice data
+        $invoiceNumber = 'INV-AS-' . str_pad($service->id, 6, '0', STR_PAD_LEFT) . '-' . date('Y');
+        $invoiceDate = now()->format('d M, Y');
+        
+        // Get pricing details
+        $pricing = [
+            'base_price' => $service->getEffectiveBasePrice(),
+            'cgst' => $service->cgst ?? 0,
+            'sgst' => $service->sgst ?? 0,
+            'igst' => $service->igst ?? 0,
+            'total_price' => $service->getEffectiveTotalPrice()
+        ];
+
+        // Negotiation details
+        $negotiationDetails = null;
+        if ($service->negotiation_status !== 'none') {
+            $negotiationDetails = [
+                'negotiation_status' => $service->negotiation_status,
+                'original_price' => $service->base_price,
+                'user_negotiated_price' => $service->user_negotiated_price,
+                'admin_final_price' => $service->admin_final_negotiated_price
+            ];
+        }
+
+        return view('customer.additional-services.invoice', [
+            'service' => $service,
+            'customer' => Auth::guard('user')->user(),
+            'professional' => $service->professional,
+            'invoice_number' => $invoiceNumber,
+            'invoice_date' => $invoiceDate,
+            'pricing' => $pricing,
+            'negotiation_details' => $negotiationDetails
+        ]);
+    }
+
+    /**
+     * Generate PDF invoice for a completed additional service
+     */
+    public function generatePdfInvoice($id)
+    {
+        $service = AdditionalService::with(['professional', 'booking'])
+            ->where('id', $id)
+            ->where('user_id', Auth::guard('user')->id())
+            ->where('consulting_status', 'done')
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$service) {
+            return redirect()->back()->with('error', 'Service not found or not eligible for invoice generation.');
+        }
+
+        // Prepare invoice data
+        $invoiceNumber = 'INV-AS-' . str_pad($service->id, 6, '0', STR_PAD_LEFT) . '-' . date('Y');
+        $invoiceDate = now()->format('d M, Y');
+        
+        // Get pricing details
+        $pricing = [
+            'base_price' => $service->getEffectiveBasePrice(),
+            'cgst' => $service->cgst ?? 0,
+            'sgst' => $service->sgst ?? 0,
+            'igst' => $service->igst ?? 0,
+            'total_price' => $service->getEffectiveTotalPrice()
+        ];
+
+        // Negotiation details
+        $negotiationDetails = null;
+        if ($service->negotiation_status !== 'none') {
+            $negotiationDetails = [
+                'negotiation_status' => $service->negotiation_status,
+                'original_price' => $service->base_price,
+                'user_negotiated_price' => $service->user_negotiated_price,
+                'admin_final_price' => $service->admin_final_negotiated_price
+            ];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.additional-services.invoice-pdf', [
+            'service' => $service,
+            'customer' => Auth::guard('user')->user(),
+            'professional' => $service->professional,
+            'invoice_number' => $invoiceNumber,
+            'invoice_date' => $invoiceDate,
+            'pricing' => $pricing,
+            'negotiation_details' => $negotiationDetails
+        ]);
+
+        return $pdf->download('invoice-' . $invoiceNumber . '.pdf');
+    }
+
+    /**
+     * Mark a notification as read
+     */
+    public function markNotificationAsRead(Request $request, $notificationId)
+    {
+        try {
+            $user = Auth::guard('user')->user();
+            
+            // Find the notification for this user
+            $notification = $user->notifications()->where('id', $notificationId)->first();
+            
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found'
+                ], 404);
+            }
+            
+            // Mark as read
+            $notification->markAsRead();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while marking notification as read'
+            ], 500);
+        }
     }
 }

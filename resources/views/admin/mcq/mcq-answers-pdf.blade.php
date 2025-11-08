@@ -258,22 +258,22 @@
                         @foreach($group['answers'] as $index => $answer)
                         <tr>
                             <td class="question-cell">
-                                <span class="question-text">{{ $answer->question->question ?? 'Question not found' }}</span>
-                                @if($answer->question && $answer->question->options)
+                                <span class="question-text">{{ $answer->serviceMcq->question ?? 'Question not found' }}</span>
+                                @if($answer->serviceMcq && isset($answer->serviceMcq->options) && $answer->serviceMcq->options)
                                     <div class="question-options">
                                         Options: 
                                         @php
-                                            $options = is_string($answer->question->options) ? json_decode($answer->question->options, true) : $answer->question->options;
+                                            $options = is_array($answer->serviceMcq->options) ? $answer->serviceMcq->options : json_decode($answer->serviceMcq->options, true);
                                         @endphp
-                                        @if(is_array($options))
+                                        @if(is_array($options) && !empty($options))
                                             {{ implode(', ', $options) }}
-                                        @else
-                                            {{ $answer->question->options }}
+                                        @elseif(is_string($answer->serviceMcq->options))
+                                            {{ $answer->serviceMcq->options }}
                                         @endif
                                     </div>
                                 @endif
                             </td>
-                            <td class="answer-cell">{{ $answer->answer }}</td>
+                            <td class="answer-cell">{{ $answer->selected_answer ?? 'No answer' }}</td>
                         </tr>
                         @endforeach
                     </tbody>

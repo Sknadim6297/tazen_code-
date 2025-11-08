@@ -269,20 +269,20 @@
                     <div class="mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="opacity-90">Base Amount:</span>
-                            <span class="fw-semibold">Rs. {{ number_format($baseAmount, 2) }}</span>
+                            <span class="fw-semibold">₹{{ number_format($baseAmount) }}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="opacity-90">CGST (9%):</span>
-                            <span class="fw-semibold">Rs. {{ number_format($cgst, 2) }}</span>
+                            <span class="fw-semibold">₹{{ number_format($cgst) }}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="opacity-90">SGST (9%):</span>
-                            <span class="fw-semibold">Rs. {{ number_format($sgst, 2) }}</span>
+                            <span class="fw-semibold">₹{{ number_format($sgst) }}</span>
                         </div>
                         <hr class="my-2 opacity-50">
                     </div>
                     
-                    <div class="total-amount">Rs. {{ number_format($totalAmount, 2) }}</div>
+                    <div class="total-amount">₹{{ number_format($totalAmount) }}</div>
                     <p class="mb-0 opacity-90">Total Amount (incl. taxes)</p>
                 </div>
             </div>
@@ -374,7 +374,7 @@
                         </div>
                         <div class="info-row">
                             <span class="info-label">Rate:</span>
-                            <span class="info-value">Rs. {{ number_format($selectedRate->final_rate ?? 0, 2) }}</span>
+                            <span class="info-value">₹{{ number_format($selectedRate->final_rate ?? 0) }}</span>
                         </div>
                     </div>
                 </div>

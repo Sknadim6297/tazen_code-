@@ -26,7 +26,7 @@ class ChatController extends Controller
         
         // Get all chats for this professional
         $chats = AdminProfessionalChat::where('professional_id', $professional->id)
-            ->with(['admin', 'latestMessage.sender'])
+            ->with(['latestMessage.sender'])
             ->orderBy('last_message_at', 'desc')
             ->get();
 
@@ -50,16 +50,12 @@ class ChatController extends Controller
         }
 
         $chat = AdminProfessionalChat::firstOrCreate([
-            'admin_id' => $admin->id,
             'professional_id' => $professional->id,
             'chat_type' => 'admin_professional'
-        ], [
-            'is_active' => true,
-            'last_message_at' => now()
         ]);
 
-        // Load chat with admin and messages
-        $chat->load(['admin', 'messages.sender', 'messages.attachments']);
+        // Load chat with messages
+        $chat->load(['messages.sender', 'messages.attachments']);
 
         // Mark messages as read for professional
         $chat->markAsReadForUser('professional', $professional->id);
@@ -106,12 +102,8 @@ class ChatController extends Controller
         }
 
         $chat = AdminProfessionalChat::firstOrCreate([
-            'admin_id' => $admin->id,
             'professional_id' => $professional->id,
             'chat_type' => 'admin_professional'
-        ], [
-            'is_active' => true,
-            'last_message_at' => now()
         ]);
 
         // Create the message
@@ -119,8 +111,7 @@ class ChatController extends Controller
             'chat_id' => $chat->id,
             'sender_type' => Professional::class,
             'sender_id' => $professional->id,
-            'message' => trim($request->message) ?: null,
-            'message_type' => $request->hasFile('attachment') ? 'file' : 'text'
+            'message' => trim($request->message) ?: null
         ];
 
         $message = AdminProfessionalChatMessage::create($messageData);
@@ -151,9 +142,6 @@ class ChatController extends Controller
                 'mime_type' => $mimeType,
                 'file_size' => $file->getSize()
             ]);
-
-            $message->message_type = 'file';
-            $message->save();
         }
 
         // Update chat's last message info
@@ -164,7 +152,10 @@ class ChatController extends Controller
 
         // Send notification to admin
         try {
-            $chat->admin->notify(new NewChatMessage($message, $professional->name));
+            $adminUser = \App\Models\Admin::first();
+            if ($adminUser) {
+                $adminUser->notify(new NewChatMessage($message, $professional->name));
+            }
         } catch (\Exception $e) {
             // Log notification error but don't fail the message sending
             Log::warning('Failed to send chat notification: ' . $e->getMessage());

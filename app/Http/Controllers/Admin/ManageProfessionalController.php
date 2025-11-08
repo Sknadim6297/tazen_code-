@@ -228,6 +228,8 @@ class ManageProfessionalController extends Controller
             'id_proof_document' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:5120',
             'gst_certificate' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:5120',
             'bank_document' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:5120',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'removed_images' => 'nullable|string',
         ]);
 
         try {
@@ -281,6 +283,37 @@ class ManageProfessionalController extends Controller
                 'account_type' => $request->account_type,
                 'bank_branch' => $request->bank_branch,
             ]);
+
+            // Handle gallery images upload
+            $currentGallery = $profile->gallery_array ?? [];
+            
+            // Remove images that were marked for deletion
+            if ($request->removed_images) {
+                $removedImages = explode(',', $request->removed_images);
+                foreach ($removedImages as $imageToRemove) {
+                    if (!empty($imageToRemove)) {
+                        // Remove from current gallery array
+                        $currentGallery = array_diff($currentGallery, [$imageToRemove]);
+                        
+                        // Delete from storage
+                        \Storage::disk('public')->delete($imageToRemove);
+                    }
+                }
+            }
+            
+            // Add new gallery images
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $image) {
+                    if ($image && $image->isValid()) {
+                        $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $image->storeAs('public/gallery', $imageName);
+                        $currentGallery[] = 'gallery/' . $imageName;
+                    }
+                }
+            }
+            
+            // Update gallery field
+            $profile->gallery = json_encode(array_values($currentGallery));
 
             $profile->save();
 
@@ -456,7 +489,7 @@ class ManageProfessionalController extends Controller
     public function manageServices($professionalId)
     {
         $professional = Professional::findOrFail($professionalId);
-        $services = ProfessionalService::where('professional_id', $professionalId)->with('service')->get();
+        $services = ProfessionalService::where('professional_id', $professionalId)->with(['service', 'subServices'])->get();
         
         return view('admin.manage-professional.services', compact('professional', 'services'));
     }
@@ -500,7 +533,9 @@ class ManageProfessionalController extends Controller
             'features' => 'nullable|array',
             'features.*' => 'string',
             'tags' => 'nullable|string',
-            'requirements' => 'nullable|string'
+            'requirements' => 'nullable|string',
+            'subServices' => 'nullable|array',
+            'subServices.*' => 'exists:sub_services,id'
         ]);
 
         $professional = Professional::findOrFail($professionalId);
@@ -523,7 +558,7 @@ class ManageProfessionalController extends Controller
         // Get service details
         $service = Service::findOrFail($request->service_id);
 
-        ProfessionalService::create([
+        $professionalService = ProfessionalService::create([
             'professional_id' => $professionalId,
             'service_id' => $request->service_id,
             'service_name' => $service->name,
@@ -535,6 +570,11 @@ class ManageProfessionalController extends Controller
             'tags' => $request->tags,
             'requirements' => $request->requirements
         ]);
+
+        // Attach sub-services
+        if ($request->has('subServices')) {
+            $professionalService->subServices()->attach($request->subServices);
+        }
 
         return back()->with('success', 'Service added successfully!');
     }
@@ -549,7 +589,9 @@ class ManageProfessionalController extends Controller
             'features' => 'nullable|array',
             'features.*' => 'string',
             'tags' => 'nullable|string',
-            'requirements' => 'nullable|string'
+            'requirements' => 'nullable|string',
+            'subServices' => 'nullable|array',
+            'subServices.*' => 'exists:sub_services,id'
         ]);
 
         $professionalService = ProfessionalService::where('professional_id', $professionalId)
@@ -569,6 +611,13 @@ class ManageProfessionalController extends Controller
             'tags' => $request->tags,
             'requirements' => $request->requirements
         ]);
+
+        // Sync sub-services
+        if ($request->has('subServices')) {
+            $professionalService->subServices()->sync($request->subServices);
+        } else {
+            $professionalService->subServices()->sync([]);
+        }
 
         return back()->with('success', 'Service updated successfully!');
     }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\frontend\AuthController;
+use App\Http\Controllers\Frontend\AuthController;
 use App\Http\Controllers\Professional\AuthController as ProfessionalAuthController;
 use App\Http\Controllers\Professional\AvailabilityController;
 use App\Http\Controllers\Professional\BillingController;
@@ -37,7 +37,6 @@ Route::middleware(['auth:professional'])->group(function () {
 Route::middleware(['auth:professional', 'professional.status'])->group(function () {
     Route::get('dashboard', function () {
         $professional = Auth::guard('professional')->user();
-
         // Clean up notifications older than 30 days
         $thirtyDaysAgo = \Carbon\Carbon::now()->subDays(30);
         DB::table('notifications')
@@ -45,7 +44,6 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
             ->where('notifiable_id', $professional->id)
             ->where('created_at', '<', $thirtyDaysAgo)
             ->delete();
-
         return view('professional.index');
     })->name('dashboard');
 
@@ -72,8 +70,7 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
     // Add route for getting questionnaire answers
     Route::get('/bookings/{booking}/questionnaire', [App\Http\Controllers\Professional\BookingController::class, 'getQuestionnaireAnswers'])->name('booking.questionnaire');
 
-    // TEMPORARILY DISABLED - Additional Services routes
-    /*
+    // Additional Services routes
     Route::prefix('additional-services')->name('additional-services.')->group(function () {
         Route::get('/', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'index'])->name('index');
         Route::get('/create', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'create'])->name('create');
@@ -87,8 +84,14 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         // Professional negotiation routes
         Route::post('/{id}/respond-negotiation', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'respondToNegotiation'])->name('respond-negotiation');
         Route::post('/{id}/update-price', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'updatePrice'])->name('update-price');
+        
+        // Invoice Generation Routes
+        Route::get('/{id}/invoice', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'generateInvoice'])->name('invoice');
+        Route::get('/{id}/invoice/pdf', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'generatePdfInvoice'])->name('invoice.pdf');
     });
-    */
+
+    // Notification Routes
+    Route::post('/notifications/{notificationId}/mark-as-read', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'markNotificationAsRead'])->name('notifications.mark-as-read');
 
     // Notification routes
     Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {

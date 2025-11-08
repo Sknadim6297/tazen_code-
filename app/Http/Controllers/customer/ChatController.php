@@ -34,17 +34,14 @@ class ChatController extends Controller
             ], 404);
         }
 
-        // Get or create the chat
+        // Get or create the chat (admin_id not needed, chat_type identifies admin chats)
         $chat = AdminProfessionalChat::firstOrCreate([
-            'admin_id' => $admin->id,
             'customer_id' => $customerId,
             'chat_type' => 'admin_customer'
-        ], [
-            'is_active' => true
         ]);
 
         // Load relationships
-        $chat->load(['admin', 'messages.sender', 'messages.attachments']);
+        $chat->load(['messages.sender', 'messages.attachments']);
 
         // Mark messages as read for customer
         $chat->markAsReadForUser('customer', $customerId);
@@ -139,8 +136,7 @@ class ChatController extends Controller
             }
 
             // Get the chat
-            $chat = AdminProfessionalChat::where('admin_id', $admin->id)
-                ->where('customer_id', $customerId)
+            $chat = AdminProfessionalChat::where('customer_id', $customerId)
                 ->where('chat_type', 'admin_customer')
                 ->first();
 
@@ -188,9 +184,15 @@ class ChatController extends Controller
             $message->load(['sender', 'attachments']);
 
             // Send notification to admin
-            if ($chat->admin) {
-                $senderName = Auth::user()->name ?? 'Customer';
-                $chat->admin->notify(new NewChatMessage($message, $senderName));
+            try {
+                $adminUser = \App\Models\Admin::first();
+                if ($adminUser) {
+                    $senderName = Auth::user()->name ?? 'Customer';
+                    $adminUser->notify(new NewChatMessage($message, $senderName));
+                }
+            } catch (\Exception $e) {
+                // Log notification error but don't fail the message sending
+                Log::warning('Failed to send chat notification: ' . $e->getMessage());
             }
 
             return response()->json([
@@ -224,8 +226,7 @@ class ChatController extends Controller
             ], 404);
         }
         
-        $chat = AdminProfessionalChat::where('admin_id', $admin->id)
-            ->where('customer_id', $customerId)
+        $chat = AdminProfessionalChat::where('customer_id', $customerId)
             ->where('chat_type', 'admin_customer')
             ->with(['messages.sender', 'messages.attachments'])
             ->first();
@@ -295,8 +296,7 @@ class ChatController extends Controller
             ], 404);
         }
         
-        $chat = AdminProfessionalChat::where('admin_id', $admin->id)
-            ->where('customer_id', $customerId)
+        $chat = AdminProfessionalChat::where('customer_id', $customerId)
             ->where('chat_type', 'admin_customer')
             ->first();
 
@@ -332,8 +332,7 @@ class ChatController extends Controller
             ]);
         }
         
-        $chat = AdminProfessionalChat::where('admin_id', $admin->id)
-            ->where('customer_id', $customerId)
+        $chat = AdminProfessionalChat::where('customer_id', $customerId)
             ->where('chat_type', 'admin_customer')
             ->first();
 

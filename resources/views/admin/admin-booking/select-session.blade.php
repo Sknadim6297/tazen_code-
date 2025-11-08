@@ -231,7 +231,7 @@
                                         
                                         <div class="session-title">{{ $session->session_type }}</div>
                                         <div class="session-duration">{{ $session->num_sessions }} {{ $session->num_sessions > 1 ? 'sessions' : 'session' }}</div>
-                                        <div class="session-price">₹{{ number_format($session->final_rate, 2) }}</div>
+                                        <div class="session-price">₹{{ number_format($session->final_rate) }}</div>
                                         <div class="session-period">
                                             @if($session->session_type == 'One Time')
                                                 one time payment
@@ -246,7 +246,7 @@
                                         
                                         <ul class="session-features">
                                             <li><i class="ri-check-line"></i> {{ $session->num_sessions }} {{ $session->num_sessions > 1 ? 'sessions' : 'session' }} included</li>
-                                            <li><i class="ri-check-line"></i> ₹{{ number_format($session->rate_per_session, 2) }} per session</li>
+                                            <li><i class="ri-check-line"></i> ₹{{ number_format($session->rate_per_session) }} per session</li>
                                             @if($session->features && is_array($session->features) && count($session->features) > 0)
                                                 @foreach($session->features as $feature)
                                                     @if($feature)

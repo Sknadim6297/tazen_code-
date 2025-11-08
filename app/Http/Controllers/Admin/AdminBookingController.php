@@ -98,9 +98,6 @@ class AdminBookingController extends Controller
 
         // Get paginated results
         $bookings = $query->orderBy('created_at', 'desc')->paginate($perPage);
-            
-        // Debug: Log recent bookings for troubleshooting
-        Log::info('Admin booking index - Total bookings found: ' . $bookings->total());
         
         // Load services for the multi-step admin booking UI
         $services = Service::where('status', 'active')->get();
@@ -267,13 +264,6 @@ class AdminBookingController extends Controller
     {
         $query = $request->get('query', '');
         
-        // Log the start of search
-        Log::info('Customer search started', [
-            'query' => $query,
-            'trimmed_query' => trim($query),
-            'query_length' => strlen($query)
-        ]);
-        
         if (empty(trim($query))) {
             return response()->json([
                 'success' => true,
@@ -283,10 +273,6 @@ class AdminBookingController extends Controller
         }
         
         try {
-            // Simple test first - get all users
-            $allUsers = User::count();
-            Log::info('Total users in database', ['count' => $allUsers]);
-            
             // Simple search
             $customers = User::where('name', 'like', "%{$query}%")
                            ->orWhere('email', 'like', "%{$query}%")
@@ -303,44 +289,18 @@ class AdminBookingController extends Controller
                     'phone' => $user->phone ?? ''
                 ];
             })->toArray();
-            
-            // Log the search results
-            Log::info('Customer search completed', [
-                'query' => $query,
-                'results_count' => $customers->count(),
-                'results' => $results
-            ]);
 
             return response()->json([
                 'success' => true,
                 'customers' => $results,
-                'total' => $customers->count(),
-                'debug' => [
-                    'query' => $query,
-                    'count' => $customers->count(),
-                    'total_users' => $allUsers
-                ]
+                'total' => $customers->count()
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Customer search error', [
-                'query' => $query,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
             return response()->json([
                 'success' => false,
                 'customers' => [],
-                'message' => 'Search failed. Please try again.',
-                'error' => $e->getMessage(),
-                'debug' => [
-                    'query' => $query,
-                    'error_line' => $e->getLine(),
-                    'error_file' => basename($e->getFile())
-                ]
+                'message' => 'Search failed. Please try again.'
             ], 500);
         }
     }
@@ -496,38 +456,33 @@ class AdminBookingController extends Controller
         $serviceId = session('admin_booking_service_id');
         $subServiceId = session('admin_booking_sub_service_id'); // Can be null
 
-        Log::info('Admin Booking - Select Professional', [
-            'service_id' => $serviceId,
-            'sub_service_id' => $subServiceId
-        ]);
-
         // Load professional services matching the selected service
         $query = ProfessionalService::where('service_id', $serviceId)
-            ->with(['professional.profile', 'professional.rates', 'subServices']);
+            ->with([
+                'professional.profile', 
+                'professional.rates' => function($q) use ($serviceId, $subServiceId) {
+                    $q->where('service_id', $serviceId);
+                    if ($subServiceId) {
+                        $q->where('sub_service_id', $subServiceId);
+                    } else {
+                        $q->whereNull('sub_service_id');
+                    }
+                },
+                'professional.reviews',
+                'subServices'
+            ]);
 
         // If sub-service is selected, filter professionals who have that sub-service
         if ($subServiceId) {
             $query->whereHas('subServices', function($q) use ($subServiceId) {
                 $q->where('sub_services.id', $subServiceId);
             });
-            
-            Log::info('Filtering by sub-service', ['sub_service_id' => $subServiceId]);
         }
 
         $professionalServices = $query->get();
-        
-        Log::info('Professional Services Found', [
-            'count' => $professionalServices->count(),
-            'professional_service_ids' => $professionalServices->pluck('id')->toArray()
-        ]);
 
         // Extract unique professionals with their rates
         $professionals = $professionalServices->pluck('professional')->unique('id')->filter();
-        
-        Log::info('Unique Professionals', [
-            'count' => $professionals->count(),
-            'professional_ids' => $professionals->pluck('id')->toArray()
-        ]);
 
         return view('admin.admin-booking.select-professional', compact('customer', 'professionals'));
     }
@@ -571,6 +526,14 @@ class AdminBookingController extends Controller
         }
 
         $sessions = $sessionsQuery->get();
+        
+        // If no exact service match found and we're looking for sub-service, try broader search
+        if ($sessions->isEmpty() && $subServiceId) {
+            // Look for any rate with this sub-service ID for this professional
+            $sessions = Rate::where('professional_id', $professional->id)
+                ->where('sub_service_id', $subServiceId)
+                ->get();
+        }
 
         return view('admin.admin-booking.select-session', compact('customer', 'professional', 'sessions'));
     }
@@ -603,8 +566,12 @@ class AdminBookingController extends Controller
         $professional = Professional::find(session('admin_booking_professional_id'));
         $selectedRate = Rate::find(session('admin_booking_session_id'));
 
-        // Get professional's availability
-        $availabilities = Availability::where('professional_id', $professional->id)->with('slots')->get();
+        // Get professional's availability - only get future availabilities
+        $currentMonth = Carbon::now()->format('Y-m'); // Current month in YYYY-MM format
+        $availabilities = Availability::where('professional_id', $professional->id)
+            ->where('month', '>=', $currentMonth) // Only future and current month availabilities
+            ->with('slots')
+            ->get();
         
         // Calculate enabled dates based on professional's availability
         $enabledDates = $this->calculateEnabledDates($availabilities);
@@ -625,9 +592,11 @@ class AdminBookingController extends Controller
         $professionalId = $request->professional_id;
         $date = $request->date;
         
-        // Check if the date is in professional's availability
-        $dayName = strtolower(Carbon::parse($date)->format('D')); // mon, tue, etc.
-        $monthKey = Carbon::parse($date)->format('Y-m'); // 2025-10 format to match availability storage
+        // Get day names in different formats for comparison
+        $carbonDate = Carbon::parse($date);
+        $dayName3Letter = strtolower($carbonDate->format('D')); // mon, tue, etc.
+        $dayNameFull = strtolower($carbonDate->format('l')); // monday, tuesday, etc.
+        $monthKey = $carbonDate->format('Y-m'); // 2026-05 format to match availability storage
         
         $availability = Availability::where('professional_id', $professionalId)
             ->where('month', $monthKey)
@@ -637,16 +606,17 @@ class AdminBookingController extends Controller
         if (!$availability) {
             return response()->json([
                 'available_slots' => [],
-                'message' => 'No availability set for this month'
+                'message' => "No availability set for {$monthKey}"
             ]);
         }
 
         // Get slots for the specific weekday using the new weekday-specific structure
         $daySlots = [];
         if ($availability->slots && $availability->slots->count() > 0) {
-            // Filter slots that match the requested weekday
-            $matchingSlots = $availability->slots->filter(function($slot) use ($dayName) {
-                return $slot->weekday === $dayName;
+            // Filter slots that match the requested weekday (try both formats)
+            $matchingSlots = $availability->slots->filter(function($slot) use ($dayName3Letter, $dayNameFull) {
+                $slotWeekday = strtolower($slot->weekday);
+                return $slotWeekday === $dayName3Letter || $slotWeekday === $dayNameFull;
             });
             
             if ($matchingSlots->count() > 0) {
@@ -684,15 +654,7 @@ class AdminBookingController extends Controller
             }
             
             // Debug logging
-            Log::info('getAvailableSlots debug - using legacy weekdays', [
-                'date' => $date,
-                'dayName' => $dayName,
-                'raw_weekdays' => $availability->weekdays,
-                'processed_weekdays' => $availableWeekdays,
-                'availableWeekdaysLower' => is_array($availableWeekdays) ? array_map('strtolower', $availableWeekdays) : []
-            ]);
-            
-            if (is_array($availableWeekdays) && in_array($dayName, array_map('strtolower', $availableWeekdays))) {
+            if (is_array($availableWeekdays) && (in_array($dayName3Letter, array_map('strtolower', $availableWeekdays)) || in_array($dayNameFull, array_map('strtolower', $availableWeekdays)))) {
                 // Use general slots for legacy availability
                 if ($availability->slots && $availability->slots->count() > 0) {
                     foreach ($availability->slots as $slot) {
@@ -728,9 +690,11 @@ class AdminBookingController extends Controller
                 'available_slots' => [],
                 'message' => 'Professional not available on this day',
                 'debug' => [
-                    'dayName' => $dayName,
+                    'day_3_letter' => $dayName3Letter,
+                    'day_full' => $dayNameFull,
                     'slotsCount' => $availability->slots ? $availability->slots->count() : 0,
-                    'slotsWithWeekday' => $availability->slots ? $availability->slots->where('weekday', $dayName)->count() : 0
+                    'slotsWithWeekday3' => $availability->slots ? $availability->slots->where('weekday', $dayName3Letter)->count() : 0,
+                    'slotsWithWeekdayFull' => $availability->slots ? $availability->slots->where('weekday', $dayNameFull)->count() : 0
                 ]
             ]);
         }
@@ -939,65 +903,99 @@ class AdminBookingController extends Controller
     {
         $enabledDates = [];
         
-        // Map day names to ISO day numbers (Monday = 1, Sunday = 7)
+        // Map day names to Carbon weekday names (support both 3-letter and full names)
         $dayMap = [
-            'mon' => 1,
-            'tue' => 2,
-            'wed' => 3,
-            'thu' => 4,
-            'fri' => 5,
-            'sat' => 6,
-            'sun' => 7,
+            'mon' => 'monday',
+            'tue' => 'tuesday', 
+            'wed' => 'wednesday',
+            'thu' => 'thursday',
+            'fri' => 'friday',
+            'sat' => 'saturday',
+            'sun' => 'sunday',
+            'monday' => 'monday',
+            'tuesday' => 'tuesday',
+            'wednesday' => 'wednesday',
+            'thursday' => 'thursday',
+            'friday' => 'friday',
+            'saturday' => 'saturday',
+            'sunday' => 'sunday',
         ];
 
+        if ($availabilities->isEmpty()) {
+            return $enabledDates;
+        }
+
+        // Process each availability month individually
         foreach ($availabilities as $availability) {
+            $availabilityMonth = $availability->month; // e.g., "2026-05"
+            
+            // Parse the month to get year and month
             try {
-                // Handle both old format (jan, feb, etc.) and new format (2025-10)
-                $monthValue = $availability->month;
+                $monthDate = Carbon::createFromFormat('Y-m', $availabilityMonth)->startOfMonth();
+                $monthStart = $monthDate->copy();
+                $monthEnd = $monthDate->copy()->endOfMonth();
                 
-                if (strpos($monthValue, '-') !== false) {
-                    // New format: 2025-10
-                    $start = Carbon::createFromFormat('Y-m-d', "$monthValue-01");
-                } else {
-                    // Old format: jan, feb, etc. - assume current year
-                    $monthNumber = Carbon::parse("1 " . $monthValue)->format('m');
-                    $year = Carbon::now()->year;
-                    $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
-                }
-                
-                $end = $start->copy()->endOfMonth();
-                $period = CarbonPeriod::create($start, $end);
+                // Make sure we don't go before today
+                $startDate = Carbon::today()->max($monthStart);
+                $endDate = $monthEnd;
                 
             } catch (\Exception $e) {
-                Log::warning("Failed to parse availability month: {$availability->month}", ['error' => $e->getMessage()]);
                 continue;
             }
             
-            // Use the new weekday-specific slot structure
-            // Get unique weekdays from slots
-            $weekdaysFromSlots = [];
+            // Skip if the entire month is in the past
+            if ($endDate->isPast()) {
+                continue;
+            }
+            
+            // Get weekdays available for this month
+            $availableWeekdays = collect();
+            
+            // Get weekdays from slots (new structure)
             if ($availability->slots && $availability->slots->count() > 0) {
                 foreach ($availability->slots as $slot) {
                     if ($slot->weekday) {
-                        $weekdaysFromSlots[] = strtolower($slot->weekday);
+                        $weekday = strtolower($slot->weekday);
+                        if (isset($dayMap[$weekday])) {
+                            $availableWeekdays->push($dayMap[$weekday]);
+                        }
                     }
                 }
-                $weekdaysFromSlots = array_unique($weekdaysFromSlots);
             }
             
-            // Convert weekday names to ISO numbers
-            $isoDays = [];
-            foreach ($weekdaysFromSlots as $day) {
-                $dayLower = strtolower($day);
-                if (isset($dayMap[$dayLower])) {
-                    $isoDays[] = $dayMap[$dayLower];
+            // Fallback to legacy weekdays field if no slots found
+            if ($availableWeekdays->isEmpty() && $availability->weekdays) {
+                $weekdays = $availability->weekdays;
+                
+                // Handle potential double JSON encoding
+                if (is_string($weekdays) && str_starts_with($weekdays, '"') && str_ends_with($weekdays, '"')) {
+                    $weekdays = json_decode($weekdays);
+                }
+                
+                if (is_string($weekdays)) {
+                    $weekdays = json_decode($weekdays);
+                }
+                
+                if (is_array($weekdays)) {
+                    foreach ($weekdays as $day) {
+                        $dayLower = strtolower($day);
+                        if (isset($dayMap[$dayLower])) {
+                            $availableWeekdays->push($dayMap[$dayLower]);
+                        }
+                    }
                 }
             }
+            
+            $availableWeekdays = $availableWeekdays->unique();
 
-            // Only add dates that have slots configured
-            if (!empty($isoDays)) {
+            // Generate dates for this specific month where professional is available
+            if ($availableWeekdays->isNotEmpty()) {
+                $period = CarbonPeriod::create($startDate, $endDate);
+                
                 foreach ($period as $date) {
-                    if (in_array($date->dayOfWeekIso, $isoDays) && $date->gte(Carbon::today())) {
+                    $dayName = strtolower($date->format('l')); // monday, tuesday, etc.
+                    
+                    if ($availableWeekdays->contains($dayName)) {
                         $enabledDates[] = $date->toDateString();
                     }
                 }

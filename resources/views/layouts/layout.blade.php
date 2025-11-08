@@ -633,6 +633,23 @@ $(document).ready(function () {
 
 	<!-- yield view scripts after libraries -->
 	@yield('script')
+
+	<!-- Global image fallback: replace broken images with a default placeholder -->
+	<script>
+		(function(){
+			const fallbackSrc = "{{ asset('frontend/assets/img/detail_placeholder.png') }}";
+			function onImgError(e) {
+				const el = e.target;
+				if (!el || el.tagName !== 'IMG') return;
+				// Prevent infinite loop
+				if (el.dataset.fallbackApplied === '1') return;
+				el.dataset.fallbackApplied = '1';
+				el.src = fallbackSrc;
+			}
+			// Capture errors in capture phase to catch as many as possible
+			document.addEventListener('error', onImgError, true);
+		})();
+	</script>
 <script>
 	let currentQuestion = 1;
 	const totalQuestions = 5;

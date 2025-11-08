@@ -40,8 +40,10 @@ use App\Http\Controllers\Admin\ManageAdminController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ProfessionalEventController;
+use App\Http\Controllers\Admin\CategoryBoxController;
+use App\Http\Controllers\Admin\FAQController;
+use App\Http\Controllers\Admin\HeaderController;
 use App\Http\Controllers\frontend\HomeController;
-
 
 Route::get('/run-migrate-seed', function () {
     Artisan::call('migrate', ['--force' => true]);
@@ -84,7 +86,16 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::resource('logo', LogoController::class);
     Route::resource('manage_admins', ManageAdminController::class);
     Route::resource('admin_menus', AdminMenuController::class);
+    Route::resource('categorybox', CategoryBoxController::class);
+    Route::get('/get-sub-services/{serviceId}', [\App\Http\Controllers\Admin\CategoryBoxController::class, 'getSubServices'])->name('get.sub.services');
+    Route::resource('faq', FAQController::class);
+    Route::resource('header', HeaderController::class);
+    Route::resource('whychoose', WhychooseController::class);
+    Route::get('/admin/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
 
+        Route::resource('sub-service', \App\Http\Controllers\Admin\SubServiceController::class);
+
+    Route::get('/admin/banner', [BannerController::class, 'index'])->name('banner.index');
     // Admin permissions routes
     Route::get('manage_admins/{admin}/permissions', [ManageAdminController::class, 'showPermissions'])->name('manage_admins.permissions');
     Route::post('manage_admins/{admin}/permissions', [ManageAdminController::class, 'updatePermissions'])->name('manage_admins.update_permissions');
@@ -94,13 +105,13 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     Route::resource('blogs', BlogController::class);
     Route::resource('allevents', AllEventController::class);
-    
+
     // All Events Approve/Reject Routes
     Route::post('allevents/{allevent}/approve', [AllEventController::class, 'approve'])->name('allevents.approve');
     Route::post('allevents/{allevent}/reject', [AllEventController::class, 'reject'])->name('allevents.reject');
     Route::post('allevents/{allevent}/meet-link', [AllEventController::class, 'updateMeetLink'])->name('allevents.update-meet-link');
     Route::post('allevents/{allevent}/toggle-homepage', [AllEventController::class, 'toggleHomepage'])->name('allevents.toggle-homepage');
-    
+
     // All Events Export Routes
     Route::get('allevents-export/excel', [AllEventController::class, 'exportExcel'])->name('allevents.export.excel');
     Route::get('allevents-export/pdf', [AllEventController::class, 'exportPdf'])->name('allevents.export.pdf');
@@ -134,7 +145,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     // Additional routes for professional management
     Route::post('manage-professional/{id}/update-commission', [ManageProfessionalController::class, 'updateCommission'])->name('manage-professional.update-commission');
-    
+
     // Send email to customers or professionals
     Route::post('send-email', [ManageProfessionalController::class, 'sendEmail'])->name('send-email');
 
@@ -330,6 +341,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/verify-payment', [App\Http\Controllers\Admin\AdminBookingController::class, 'verifyPayment'])->name('verify-payment');
         Route::get('/{id}/details', [App\Http\Controllers\Admin\AdminBookingController::class, 'getBookingDetails'])->name('details');
         Route::post('/{id}/mark-paid', [App\Http\Controllers\Admin\AdminBookingController::class, 'markAsPaid'])->name('mark-paid');
+    });
         Route::get('/debug-payment', function () {
             return response()->json([
                 'route_exists' => true,
@@ -372,8 +384,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/set-password', [App\Http\Controllers\Admin\AdminBookingController::class, 'setPassword'])->name('set-password');
     });
 
-    // TEMPORARILY DISABLED - Additional Services Management Routes
-    /*
+    // Additional Services Management Routes
     Route::prefix('additional-services')->name('additional-services.')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'index'])->name('index');
         Route::get('/statistics/data', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getStatistics'])->name('statistics');
@@ -388,8 +399,11 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         // Admin price editing with history
         Route::post('/{id}/update-service-price', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'updateServicePrice'])->name('update-service-price');
         Route::get('/{id}/price-history', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'getPriceHistory'])->name('price-history');
+        
+        // Invoice Generation Routes
+        Route::get('/{id}/invoice', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'generateInvoice'])->name('invoice');
+        Route::get('/{id}/invoice/pdf', [App\Http\Controllers\Admin\AdditionalServiceController::class, 'generatePdfInvoice'])->name('invoice.pdf');
     });
-    */
 
     // Chat Management - Admin to Professional Communication
     Route::prefix('chat')->name('chat.')->group(function () {
@@ -409,5 +423,3 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/mark-as-read/{chatId}', [App\Http\Controllers\Admin\CustomerChatController::class, 'markAsRead'])->name('mark-as-read');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Admin\CustomerChatController::class, 'downloadAttachment'])->name('attachment.download');
     });
-
-});

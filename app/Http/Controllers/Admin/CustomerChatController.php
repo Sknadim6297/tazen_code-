@@ -30,13 +30,10 @@ class CustomerChatController extends Controller
         $adminId = Auth::guard('admin')->id();
         $customerId = $request->customer_id;
 
-        // Get or create the chat
+        // Get or create the chat (admin_id is not needed as chat_type identifies admin chats)
         $chat = AdminProfessionalChat::firstOrCreate([
-            'admin_id' => $adminId,
             'customer_id' => $customerId,
             'chat_type' => 'admin_customer'
-        ], [
-            'is_active' => true
         ]);
 
         // Load relationships
@@ -107,7 +104,6 @@ class CustomerChatController extends Controller
         try {
             $adminId = Auth::guard('admin')->id();
             $chat = AdminProfessionalChat::where('id', $request->chat_id)
-                ->where('admin_id', $adminId)
                 ->where('chat_type', 'admin_customer')
                 ->first();
 
@@ -182,7 +178,6 @@ class CustomerChatController extends Controller
         $adminId = Auth::guard('admin')->id();
         
         $chat = AdminProfessionalChat::where('id', $chatId)
-            ->where('admin_id', $adminId)
             ->where('chat_type', 'admin_customer')
             ->with(['messages.sender', 'messages.attachments'])
             ->first();
@@ -210,11 +205,10 @@ class CustomerChatController extends Controller
     {
         $attachment = AdminProfessionalChatAttachment::findOrFail($attachmentId);
         
-        // Verify admin has access to this attachment
-        $adminId = Auth::guard('admin')->id();
+        // Verify this is an admin-customer chat
         $chat = $attachment->message->chat;
         
-        if ($chat->admin_id !== $adminId || $chat->chat_type !== 'admin_customer') {
+        if ($chat->chat_type !== 'admin_customer') {
             abort(403, 'Unauthorized');
         }
 
@@ -234,8 +228,7 @@ class CustomerChatController extends Controller
     {
         $adminId = Auth::guard('admin')->id();
         
-        $chats = AdminProfessionalChat::where('admin_id', $adminId)
-            ->where('chat_type', 'admin_customer')
+        $chats = AdminProfessionalChat::where('chat_type', 'admin_customer')
             ->with(['customer', 'latestMessage'])
             ->orderBy('last_message_at', 'desc')
             ->get();
@@ -259,7 +252,6 @@ class CustomerChatController extends Controller
         $adminId = Auth::guard('admin')->id();
         
         $chat = AdminProfessionalChat::where('id', $chatId)
-            ->where('admin_id', $adminId)
             ->where('chat_type', 'admin_customer')
             ->first();
 

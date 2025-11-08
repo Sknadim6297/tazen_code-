@@ -591,3 +591,56 @@ textarea.form-control {
     margin-right: 5px;
     cursor: pointer;
 }
+<<<<<<< HEAD
+
+/* Action button overrides: ensure these buttons show outline styles and not the global .btn background */
+/* Placed at the end to ensure higher priority than earlier .btn declarations */
+.table .btn-outline-primary,
+.btn.btn-outline-primary,
+.rate-button.btn-outline-primary,
+.rate-button.primary {
+    background-color: transparent !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+.table .btn-outline-primary:hover,
+.btn.btn-outline-primary:hover,
+.rate-button.btn-outline-primary:hover,
+.rate-button.primary:hover {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+.table .btn-outline-danger,
+.btn.btn-outline-danger,
+.delete-item.btn-outline-danger,
+.delete-item {
+    background-color: transparent !important;
+    border: 1px solid var(--danger) !important;
+    color: var(--danger) !important;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.table .btn-outline-danger:hover,
+.btn.btn-outline-danger:hover,
+.delete-item.btn-outline-danger:hover,
+.delete-item:hover {
+    background-color: var(--danger) !important;
+    color: #fff !important;
+}
+
+/* Make action links/tap targets comfortable on mobile */
+@media screen and (max-width: 767px) {
+    table.table td[data-label="Actions"] a,
+    table.table td[data-label="Actions"] .btn {
+        flex: 1 1 auto;
+        margin-left: 8px;
+        padding: 10px 12px;
+        text-align: center;
+    }
+}
+=======
+>>>>>>> tazen/main

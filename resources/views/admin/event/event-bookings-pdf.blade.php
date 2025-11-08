@@ -110,6 +110,7 @@
                 <th>Phone</th>
                 <th>Amount (₹)</th>
                 <th>Status</th>
+                <th>Meeting Link</th>
             </tr>
         </thead>
         <tbody>
@@ -124,10 +125,11 @@
                 <td>{{ $booking->user->phone ?? 'N/A' }}</td>
                 <td>&#8377;{{ number_format($booking->amount, 2) }}</td>
                 <td>{{ ucfirst($booking->payment_status) }}</td>
+                <td>{{ $booking->gmeet_link ? 'Available' : 'Not Set' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="9" style="text-align:center">No event bookings found</td>
+                <td colspan="10" style="text-align:center">No event bookings found</td>
             </tr>
             @endforelse
         </tbody>

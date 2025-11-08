@@ -86,26 +86,53 @@
             </div>
             <div class="table-responsive">
                 @php
-                    $groupedRates = $rates->groupBy('service_id');
+                    $groupedRates = $rates->groupBy(function($rate) {
+                        // Get service ID from multiple sources to ensure consistent grouping
+                        if ($rate->professionalService && $rate->professionalService->service_id) {
+                            return $rate->professionalService->service_id;
+                        }
+                        // Fallback: get service from sub-service if this is a sub-service rate
+                        if ($rate->subService && $rate->subService->service_id) {
+                            return $rate->subService->service_id;
+                        }
+                        return 'unknown';
+                    });
                 @endphp
                 
                 @if($groupedRates->count() > 0)
                     @foreach($groupedRates as $serviceId => $serviceRates)
                         @php
-                            // Ensure serviceId is properly typed
-                            $serviceId = $serviceId ? (int)$serviceId : null;
-                            $professionalService = $serviceId ? $professionalServices->get($serviceId) : null;
+                            // Get service name directly from the first rate's relationship
+                            $firstRate = $serviceRates->first();
+                            $serviceName = null;
                             
-                            // Get service name from multiple sources in order of preference
-                            if ($professionalService && $professionalService->service) {
-                                $serviceName = $professionalService->service->name;
-                            } elseif ($professionalService && isset($professionalService->service_name)) {
-                                $serviceName = $professionalService->service_name;
-                            } elseif ($serviceRates->first() && $serviceRates->first()->service) {
-                                $serviceName = $serviceRates->first()->service->name;
-                            } else {
-                                $serviceName = 'N/A';
+                            if ($firstRate && $firstRate->professionalService) {
+                                // Try to get from related service
+                                if ($firstRate->professionalService->service) {
+                                    $serviceName = $firstRate->professionalService->service->name;
+                                } 
+                                // Fallback to service_name on professional service
+                                elseif ($firstRate->professionalService->service_name) {
+                                    $serviceName = $firstRate->professionalService->service_name;
+                                }
                             }
+                            
+                            // If still no service name and we have a sub-service, try to get service from sub-service
+                            if (!$serviceName && $firstRate && $firstRate->subService) {
+                                $subServiceModel = $firstRate->subService;
+                                if ($subServiceModel && $subServiceModel->service_id) {
+                                    $serviceFromSubService = \App\Models\Service::find($subServiceModel->service_id);
+                                    if ($serviceFromSubService) {
+                                        $serviceName = $serviceFromSubService->name;
+                                    }
+                                }
+                            }
+                            
+                            // Final fallback
+                            if (!$serviceName) {
+                                $serviceName = 'Service';
+                            }
+                            
                             $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
                             $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
                             
@@ -135,7 +162,7 @@
                                     @foreach($serviceOnlyRates as $rate)
                                         <tr class="service-rate">
                                             <td data-label="Type">
-                                                <span class="badge bg-primary">{{ $serviceName }}</span>
+                                                <span class="badge bg-primary">Main Service</span>
                                             </td>
                                             <td data-label="Session Type">{{ $rate->session_type }}</td>
                                             <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>

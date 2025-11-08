@@ -28,19 +28,19 @@ class BankDetailsExport implements FromArray, WithHeadings, ShouldAutoSize, With
         
         foreach ($this->profiles as $profile) {
             $data[] = [
-                'Professional Name' => $profile->professional->name ?? 'N/A',
-                'Email' => $profile->email ?? 'N/A',
-                'Phone' => $profile->phone ?? 'N/A',
-                'Account Holder Name' => $profile->account_holder_name ?? 'Not provided',
-                'Bank Name' => $profile->bank_name ?? 'Not provided',
-                'Account Number' => $profile->account_number ?? 'Not provided',
-                'IFSC Code' => $profile->ifsc_code ?? 'Not provided',
-                'Account Type' => ucfirst($profile->account_type ?? 'Not specified'),
-                'Branch' => $profile->bank_branch ?? 'Not provided',
-                'GST Number' => $profile->gst_number ?? 'N/A',
-                'Status' => $profile->professional->status ?? 'N/A',
-                'Registration Date' => $profile->created_at ? $profile->created_at->format('Y-m-d') : 'N/A',
-                'Last Updated' => $profile->updated_at ? $profile->updated_at->format('Y-m-d H:i:s') : 'N/A',
+                $profile->professional->name ?? 'N/A',
+                $profile->email ?? 'N/A',
+                $profile->phone ?? 'N/A',
+                $profile->account_holder_name ?? 'Not provided',
+                $profile->bank_name ?? 'Not provided',
+                $profile->account_number ?? 'Not provided',
+                $profile->ifsc_code ?? 'Not provided',
+                ucfirst($profile->account_type ?? 'Not specified'),
+                $profile->bank_branch ?? 'Not provided',
+                $profile->gst_number ?? 'N/A',
+                $profile->professional->status ?? 'N/A',
+                $profile->created_at ? $profile->created_at->format('Y-m-d') : 'N/A',
+                $profile->updated_at ? $profile->updated_at->format('Y-m-d H:i:s') : 'N/A',
             ];
         }
         
@@ -51,7 +51,7 @@ class BankDetailsExport implements FromArray, WithHeadings, ShouldAutoSize, With
     {
         return [
             'Professional Name',
-            'Email',
+            'Email', 
             'Phone',
             'Account Holder Name',
             'Bank Name',

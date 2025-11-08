@@ -166,9 +166,9 @@
 
                                 <!-- Starting Fees -->
                                 <div class="col-xl-6">
-                                    <label for="starting_fees" class="form-label">Starting Fees (₹) <span class="text-danger">*</span></label>
+                                    <label for="starting_fees" class="form-label">Event Fees (₹) <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control @error('starting_fees') is-invalid @enderror" 
-                                           id="starting_fees" name="starting_fees" placeholder="Enter Starting Fees" 
+                                           id="starting_fees" name="starting_fees" placeholder="Enter event Fees" 
                                            min="0" step="0.01" value="{{ old('starting_fees') }}" required>
                                     @error('starting_fees')
                                         <div class="invalid-feedback">{{ $message }}</div>

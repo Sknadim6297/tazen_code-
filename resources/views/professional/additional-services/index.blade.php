@@ -3,47 +3,120 @@
 @section('title', 'Additional Services')
 
 @section('styles')
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    /* Additional Services Page Specific Styles */
-    #additional-services-page .page-header {
-        margin-bottom: 1.5rem;
+    /* Global Font */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Modern Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
     }
     
-    #additional-services-page .page-header .page-title h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 100%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(45deg);
+        border-radius: 50px;
     }
 
-    /* Card styling */
-    #additional-services-page .card {
-        background-color: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        margin-bottom: 1.5rem;
-        border: 1px solid #e9ecef;
-    }
-    
-    #additional-services-page .card-body {
-        padding: 1.25rem;
-    }
-
-    #additional-services-page .card-header {
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-        padding: 1rem;
-        border-radius: 0.5rem 0.5rem 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    #additional-services-page .card-header h4 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #495057;
+    .page-title h3 {
+        font-size: 2.5rem;
+        font-weight: 800;
         margin: 0;
+        color: #fff;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 2;
+        letter-spacing: -0.5px;
+    }
+
+    /* Content Wrapper */
+    .content-wrapper {
+        padding: 30px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    /* Enhanced Card Styling */
+    .card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 2.5rem;
+        background: #fff;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 2rem 2.5rem;
+        position: relative;
+    }
+
+    .card-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 2.5rem;
+        right: 2.5rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+    }
+
+    .card-header h4 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-body {
+        padding: 2.5rem;
     }
 
     /* Table styling */
@@ -839,6 +912,20 @@
                                             <li>
                                                 <a href="javascript:void(0)" class="dropdown-item set-delivery-date" data-id="{{ $service->id }}">
                                                     <i class="fas fa-calendar"></i> Set Delivery Date
+                                                </a>
+                                            </li>
+                                            @endif
+                                            
+                                            @if($service->consulting_status === 'done' && $service->payment_status === 'paid')
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a href="{{ route('professional.additional-services.invoice', $service->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-file-text"></i> View Invoice
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('professional.additional-services.invoice.pdf', $service->id) }}" class="dropdown-item" target="_blank">
+                                                    <i class="fas fa-download"></i> Download PDF Invoice
                                                 </a>
                                             </li>
                                             @endif

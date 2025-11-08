@@ -19,7 +19,7 @@ class RateController extends Controller
         $professionalId = Auth::guard('professional')->id();
         
         $rates = Rate::where('professional_id', $professionalId)
-            ->with(['service', 'subService'])
+            ->with(['professionalService.service', 'subService'])
             ->get();
             
         // Get professional services to show service names
@@ -87,7 +87,7 @@ class RateController extends Controller
         // Check against existing rates for this professional
         foreach ($request->input('rateData') as $rate) {
             $exists = Rate::where('professional_id', $professionalId)
-                ->where('service_id', $serviceId)
+                    ->where('professional_service_id', $professionalServiceId)
                 ->where('session_type', $rate['session_type'])
                 ->where('sub_service_id', $rate['sub_service_id'] ?? null)
                 ->exists();
@@ -117,7 +117,7 @@ class RateController extends Controller
                 
                 Rate::create([
                     'professional_id' => $professionalId,
-                    'service_id' => $serviceId,
+                        'professional_service_id' => $professionalServiceId,
                     'session_type' => $rate['session_type'],
                     'sub_service_id' => $rate['sub_service_id'] ?? null,
                     'num_sessions' => $rate['num_sessions'],

@@ -33,11 +33,8 @@ class ChatController extends Controller
 
         // Get or create the chat
         $chat = AdminProfessionalChat::firstOrCreate([
-            'admin_id' => $adminId,
             'professional_id' => $professionalId,
             'chat_type' => 'admin_professional'
-        ], [
-            'is_active' => true
         ]);
 
         // Load relationships
@@ -80,8 +77,8 @@ class ChatController extends Controller
         $adminId = Auth::guard('admin')->id();
         $chat = AdminProfessionalChat::findOrFail($request->chat_id);
 
-        // Verify admin owns this chat
-        if ($chat->admin_id !== $adminId) {
+        // Verify this is an admin-professional chat
+        if ($chat->chat_type !== 'admin_professional') {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -93,8 +90,7 @@ class ChatController extends Controller
             'chat_id' => $chat->id,
             'sender_type' => Admin::class,
             'sender_id' => $adminId,
-            'message' => trim($request->message) ?: null,
-            'message_type' => $request->hasFile('attachment') ? 'file' : 'text'
+            'message' => trim($request->message) ?: null
         ];
 
         $message = AdminProfessionalChatMessage::create($messageData);
@@ -125,9 +121,6 @@ class ChatController extends Controller
                 'mime_type' => $mimeType,
                 'file_size' => $file->getSize()
             ]);
-
-            $message->message_type = 'file';
-            $message->save();
         }
 
         // Update chat's last message info
@@ -167,8 +160,8 @@ class ChatController extends Controller
         $adminId = Auth::guard('admin')->id();
         $chat = AdminProfessionalChat::findOrFail($request->chat_id);
 
-        // Verify admin owns this chat
-        if ($chat->admin_id !== $adminId) {
+        // Verify this is an admin-professional chat
+        if ($chat->chat_type !== 'admin_professional') {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -197,9 +190,9 @@ class ChatController extends Controller
         $attachment = AdminProfessionalChatAttachment::findOrFail($attachmentId);
         $adminId = Auth::guard('admin')->id();
         
-        // Verify admin has access to this attachment
+        // Verify this is an admin-professional chat
         $chat = $attachment->message->chat;
-        if ($chat->admin_id !== $adminId) {
+        if ($chat->chat_type !== 'admin_professional') {
             abort(403, 'Unauthorized');
         }
 
@@ -219,7 +212,7 @@ class ChatController extends Controller
     {
         $adminId = Auth::guard('admin')->id();
         
-        $chats = AdminProfessionalChat::where('admin_id', $adminId)
+        $chats = AdminProfessionalChat::where('chat_type', 'admin_professional')
             ->with(['professional', 'latestMessage.sender'])
             ->orderBy('last_message_at', 'desc')
             ->get();

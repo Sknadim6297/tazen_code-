@@ -12,27 +12,21 @@ class AdminProfessionalChat extends Model
     protected $table = 'admin_professional_chats';
 
     protected $fillable = [
-        'admin_id',
         'professional_id', 
         'customer_id',
         'chat_type',
         'last_message_at',
-        'last_message_by',
-        'is_active'
+        'last_message_by'
     ];
 
     protected $casts = [
         'last_message_at' => 'datetime',
-        'is_active' => 'boolean',
     ];
 
     /**
-     * Get the admin that owns this chat
+     * Note: No admin relationship needed as all admin-customer and admin-professional 
+     * chats are managed by the platform admin (identified by chat_type)
      */
-    public function admin()
-    {
-        return $this->belongsTo(Admin::class, 'admin_id');
-    }
 
     /**
      * Get the professional that owns this chat

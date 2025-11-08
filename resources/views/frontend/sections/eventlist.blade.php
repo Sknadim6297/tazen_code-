@@ -212,28 +212,61 @@
                     <!-- Loop through each event and display details -->
                     @if($events->count())
                     @foreach($events as $event)
+                        @php
+                            // Determine if this is an admin or professional event
+                            $isAdminEvent = isset($event->event_id) && $event->event;
+                            $isProfessionalEvent = isset($event->event->created_by_type) && $event->event->created_by_type === 'professional';
+                            
+                            // Get the appropriate image
+                            $eventImage = $event->event->card_image ?? 'default-event.jpg';
+                            
+                            // Get the appropriate date
+                            $eventDate = $event->event->date ?? ($event->event->starting_date ?? now());
+                        @endphp
+                        
                         <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
                             <div class="featured-imagebox featured-imagebox-blog style2 event-card">
-                                <div class="featured-thumbnail">
-                                    <a href="{{ route('event.details', $event->id) }}">
-                                        <img class="event-card-img" src="{{ asset('storage/' . $event->event->card_image) }}" alt="image">
+                                <div class="featured-thumbnail position-relative">
+                                    <a href="{{ url('/allevent/' . $event->event->id) }}">
+                                        <img class="event-card-img" src="{{ asset('storage/' . $eventImage) }}" alt="{{ $event->event->heading }}">
                                     </a>
                                     <div class="ttm-box-date">
                                         <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($event->event->date)->format('M d, Y') }}</span>
+                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($eventDate)->format('M d, Y') }}</span>
                                     </div>
+                                    
+                                    {{-- Badge to show event creator type --}}
+                                    @if($isProfessionalEvent)
+                                        <span class="badge bg-info text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="fa fa-user"></i> Professional
+                                        </span>
+                                    @else
+                                        <span class="badge bg-primary text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="fa fa-shield-alt"></i> Admin
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="featured-content-inner">
                                     <p class="category">{{ $event->event->mini_heading }}</p>
                                     <div class="featured-title">
-                                        <h3><a href="{{ route('event.details', $event->id) }}">{{ $event->event->heading }}</a></h3>
+                                        <h3><a href="{{ url('/allevent/' . $event->event->id) }}">{{ $event->event->heading }}</a></h3>
                                     </div>
                                     <div class="featured-desc">
                                         <p>{{ \Illuminate\Support\Str::words($event->event->short_description, 6, '...') }}</p>
                                     </div>
+                                    
+                                    {{-- Show professional name if it's a professional event --}}
+                                    @if($isProfessionalEvent && isset($event->event->professional))
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fa fa-user-tie"></i> By {{ $event->event->professional->name }}
+                                            </small>
+                                        </div>
+                                    @endif
+                                    
                                     <div class="ttm-blogbox-footer-readmore">
                                         <span class="ttm-btn btn-inline ttm-btn-size-md ttm-icon-btn-right ttm-btn-color-dark">
-                                            ₹ {{ $event->event->starting_fees }} onwards
+                                            ₹ {{ number_format($event->event->starting_fees, 2) }} onwards
                                         </span>
                                     </div>
                                 </div>

@@ -13,7 +13,7 @@ class McqAnswerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
+        $query = McqAnswer::with(['user', 'service', 'serviceMcq', 'booking.professional.profile']);
         if ($request->has('username') && !empty(trim($request->username))) {
             $username = trim($request->username);
             $query->whereHas('user', function ($q) use ($username) {
@@ -59,7 +59,7 @@ class McqAnswerController extends Controller
 
     public function export(Request $request)
     {
-        $query = McqAnswer::with(['user', 'service', 'question', 'booking.professional.profile']);
+        $query = McqAnswer::with(['user', 'service', 'serviceMcq', 'booking.professional.profile']);
         
         // Filter by specific user_id (for single group download)
         if ($request->has('user_id') && $request->user_id != '') {

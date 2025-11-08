@@ -63,9 +63,24 @@ class OtpService
             }
             
             // Send OTP email
-            Mail::to($email)->send(new OtpVerificationMail($otp));
+            try {
+                Mail::to($email)->send(new OtpVerificationMail($otp));
+                Log::info("OTP email sent successfully", ['email' => $email]);
+            } catch (Exception $mailException) {
+                // Log mail error but don't fail the OTP generation
+                Log::error("Failed to send OTP email, but OTP generated successfully", [
+                    'email' => $email,
+                    'otp' => $otp, // Log OTP for development
+                    'mail_error' => $mailException->getMessage()
+                ]);
+                
+                // In development, we can still proceed even if email fails
+                if (config('app.env') === 'local') {
+                    Log::warning("DEVELOPMENT MODE: OTP for {$email} is: {$otp}");
+                }
+            }
             
-            Log::info("New OTP generated and sent for email: {$email}");
+            Log::info("New OTP generated for email: {$email}");
             return $otp;
         } catch (Exception $e) {
             Log::error("Error generating OTP: " . $e->getMessage(), [

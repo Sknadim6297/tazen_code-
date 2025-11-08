@@ -60,8 +60,15 @@
                                     
                                                     {{-- Banner Video --}}
                                                     <div class="col-xl-12">
-                                                        <label for="banner_video" class="form-label">Banner Video</label>
-                                                        <input type="file" class="form-control" name="banner_video" id="banner_video" accept="video/*" required>
+                                                        <label for="banner_video" class="form-label">Banner Video/GIF</label>
+                                                        <input type="file" class="form-control" name="banner_video" id="banner_video" accept="video/*,image/gif" required onchange="validateFileSize(this, 104857600)">
+                                                        <small class="text-muted">Supports MP4, AVI, MOV, WMV videos and GIF files (Max: 100MB)</small>
+                                                        <div id="upload_progress" class="mt-2" style="display: none;">
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                                            </div>
+                                                            <small class="text-muted">Uploading large file, please wait...</small>
+                                                        </div>
                                                     </div>
                                     
                                                     {{-- Status --}}
@@ -93,7 +100,7 @@
                                         <th>#</th>
                                         <th>Heading</th>
                                         <th>Sub Heading</th>
-                                        <th>Video</th>
+                                        <th>Video/GIF</th>
                                         <th>Status</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
@@ -107,9 +114,21 @@
                                         <td>{{ $banner->sub_heading ?? '-' }}</td>
                                         <td>
                                             @if($banner->banner_video)
-                                                <img src="{{ asset($banner->banner_video) }}" alt="Banner Video" width="100">
+                                                @php
+                                                    $fileExtension = pathinfo($banner->banner_video, PATHINFO_EXTENSION);
+                                                    $isGif = strtolower($fileExtension) === 'gif';
+                                                @endphp
+                                                
+                                                @if($isGif)
+                                                    <img src="{{ asset('storage/' . $banner->banner_video) }}" alt="Banner GIF" width="100" style="max-height: 60px;">
+                                                @else
+                                                    <video width="100" height="60" muted>
+                                                        <source src="{{ asset('storage/' . $banner->banner_video) }}" type="video/mp4">
+                                                        Video not supported
+                                                    </video>
+                                                @endif
                                             @else
-                                                No video
+                                                No media
                                             @endif
                                         </td>
                                         <td>
@@ -165,4 +184,54 @@
 
     </div>
 </div>
+
+<script>
+function validateFileSize(input, maxSize) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const fileSize = file.size;
+        
+        // Show file size to user
+        const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+        console.log('Selected file size: ' + fileSizeMB + ' MB');
+        
+        if (fileSize > maxSize) {
+            alert('File size (' + fileSizeMB + ' MB) exceeds the maximum allowed size of 100 MB. Please choose a smaller file.');
+            input.value = ''; // Clear the input
+            return false;
+        }
+        
+        // Show progress indicator for large files (>10MB)
+        if (fileSize > 10485760) { // 10MB
+            const progressDiv = input.closest('.col-xl-12').querySelector('[id*="upload_progress"]');
+            if (progressDiv) {
+                progressDiv.style.display = 'block';
+            }
+        }
+        
+        return true;
+    }
+}
+
+// Show progress on form submission for large files
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form[enctype="multipart/form-data"]');
+    forms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const fileSize = fileInput.files[0].size;
+                if (fileSize > 10485760) { // 10MB
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading...';
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+
 @endsection

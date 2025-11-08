@@ -16,6 +16,7 @@ class AdditionalService extends Model
         'service_name',
         'reason',
         'base_price',
+        'original_professional_price',
         'cgst',
         'sgst',
         'igst',
@@ -43,6 +44,8 @@ class AdditionalService extends Model
         'user_responded_at',
         'professional_completed_at',
         'customer_confirmed_at',
+        'admin_completed_at',
+        'admin_completion_note',
         'delivery_date',
         'delivery_date_set',
         'delivery_date_set_by_professional_at',
@@ -53,11 +56,15 @@ class AdditionalService extends Model
         'professional_payment_processed_at',
         'payment_id',
         'payment_status',
+        'payment_transaction_id',
+        'payment_method',
+        'payment_notes',
         'user_completion_date',
     ];
 
     protected $casts = [
         'base_price' => 'decimal:2',
+        'original_professional_price' => 'decimal:2',
         'cgst' => 'decimal:2',
         'sgst' => 'decimal:2',
         'igst' => 'decimal:2',
@@ -77,6 +84,7 @@ class AdditionalService extends Model
         'user_responded_at' => 'datetime',
         'professional_completed_at' => 'datetime',
         'customer_confirmed_at' => 'datetime',
+        'admin_completed_at' => 'datetime',
         'delivery_date' => 'datetime',
         'delivery_date_set_by_professional_at' => 'datetime',
         'delivery_date_modified_by_admin_at' => 'datetime',
@@ -107,20 +115,115 @@ class AdditionalService extends Model
         $this->calculateGST();
     }
 
-    // Calculate GST automatically
-    public function calculateGST()
+    // Calculate GST automatically based on the effective price
+    public function calculateGST($basePrice = null)
     {
-        if (isset($this->attributes['base_price'])) {
-            $basePrice = (float) $this->attributes['base_price'];
+        // Determine the effective base price to use for GST calculation
+        $effectivePrice = $basePrice ?? $this->getEffectiveBasePrice();
+        
+        if ($effectivePrice) {
+            $price = (float) $effectivePrice;
             
             // GST calculation (18% total = 9% CGST + 9% SGST)
-            $this->attributes['cgst'] = round($basePrice * 0.09, 2);
-            $this->attributes['sgst'] = round($basePrice * 0.09, 2);
-            $this->attributes['igst'] = 0.00; // Typically for inter-state transactions
+            $cgst = round($price * 0.09, 2);
+            $sgst = round($price * 0.09, 2);
+            $igst = 0.00; // Typically for inter-state transactions
             
             // Calculate total price
-            $this->attributes['total_price'] = round($basePrice + $this->attributes['cgst'] + $this->attributes['sgst'], 2);
+            $totalPrice = round($price + $cgst + $sgst, 2);
+            
+            return [
+                'base_price' => $price,
+                'cgst' => $cgst,
+                'sgst' => $sgst,
+                'igst' => $igst,
+                'total_price' => $totalPrice
+            ];
         }
+        
+        return null;
+    }
+
+    // Get the effective base price (considering negotiations and admin modifications)
+    public function getEffectiveBasePrice()
+    {
+        // Priority: Admin final negotiated price > Admin modified price > User negotiated price > Base price
+        if ($this->admin_final_negotiated_price) {
+            return $this->admin_final_negotiated_price;
+        }
+        
+        if ($this->modified_base_price) {
+            return $this->modified_base_price;
+        }
+        
+        // For user-negotiated price, show it when negotiation is pending or if no admin response yet
+        if ($this->user_negotiated_price && $this->negotiation_status === 'user_negotiated') {
+            return $this->user_negotiated_price;
+        }
+        
+        return $this->base_price;
+    }
+
+    // Get the effective total price (with GST)
+    public function getEffectiveTotalPrice()
+    {
+        $gstData = $this->calculateGST();
+        return $gstData ? $gstData['total_price'] : $this->total_price;
+    }
+
+    // Update pricing with GST recalculation
+    public function updatePricingWithGST($newBasePrice, $source = 'manual')
+    {
+        $gstData = $this->calculateGST($newBasePrice);
+        
+        if ($gstData) {
+            // Store price history
+            $priceHistory = json_decode($this->price_history, true) ?? [];
+            $priceHistory[] = [
+                'timestamp' => now()->toISOString(),
+                'source' => $source,
+                'old_base_price' => $this->getEffectiveBasePrice(),
+                'old_total_price' => $this->getEffectiveTotalPrice(),
+                'new_base_price' => $gstData['base_price'],
+                'new_total_price' => $gstData['total_price'],
+                'cgst' => $gstData['cgst'],
+                'sgst' => $gstData['sgst'],
+                'igst' => $gstData['igst']
+            ];
+            
+            // Update the model based on source
+            $updateData = [
+                'cgst' => $gstData['cgst'],
+                'sgst' => $gstData['sgst'],
+                'igst' => $gstData['igst'],
+                'price_history' => json_encode($priceHistory)
+            ];
+            
+            switch ($source) {
+                case 'admin_negotiation':
+                    $updateData['admin_final_negotiated_price'] = $gstData['base_price'];
+                    $updateData['negotiation_status'] = 'admin_responded';
+                    break;
+                case 'admin_modification':
+                    $updateData['modified_base_price'] = $gstData['base_price'];
+                    $updateData['modified_total_price'] = $gstData['total_price'];
+                    $updateData['price_modified_by_admin'] = true;
+                    break;
+                case 'user_negotiation':
+                    $updateData['user_negotiated_price'] = $gstData['base_price'];
+                    $updateData['negotiation_status'] = 'user_negotiated';
+                    break;
+                default:
+                    $updateData['base_price'] = $gstData['base_price'];
+                    $updateData['total_price'] = $gstData['total_price'];
+            }
+            
+            $this->update($updateData);
+            
+            return $gstData;
+        }
+        
+        return null;
     }
 
     // Scopes
@@ -200,17 +303,106 @@ class AdditionalService extends Model
 
     public function getFinalPriceAttribute()
     {
-        // Only use admin-approved prices
+        // Determine the base price to use
+        $basePrice = null;
+        
+        // Priority 1: Admin responded with final negotiated price
+        if ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
+            $basePrice = $this->admin_final_negotiated_price;
+        }
+        // Priority 2: Admin modified the price
+        elseif ($this->price_modified_by_admin && $this->modified_base_price) {
+            $basePrice = $this->modified_base_price;
+        }
+        // Priority 3: Original base price
+        else {
+            $basePrice = $this->base_price;
+        }
+        
+        // Calculate final price including GST (18% = 9% CGST + 9% SGST)
+        $finalPrice = $basePrice * 1.18;
+        
+        return round($finalPrice, 2);
+    }
+
+    /**
+     * Get the effective base price (without GST) based on current state
+     */
+    public function getEffectiveBasePriceAttribute()
+    {
+        // Priority 1: Admin responded with final negotiated price
         if ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
             return $this->admin_final_negotiated_price;
         }
-        
-        if ($this->price_modified_by_admin && $this->modified_total_price) {
-            return $this->modified_total_price;
+        // Priority 2: Admin modified the price
+        elseif ($this->price_modified_by_admin && $this->modified_base_price) {
+            return $this->modified_base_price;
+        }
+        // Priority 3: Original base price
+        else {
+            return $this->base_price;
+        }
+    }
+
+    /**
+     * Get the original professional's base price (never changes)
+     * This should always show what the professional originally quoted
+     */
+    public function getOriginalProfessionalPriceAttribute()
+    {
+        // Use the new column if available
+        if ($this->attributes['original_professional_price']) {
+            return $this->attributes['original_professional_price'];
         }
         
-        // Don't use user negotiated price until admin responds
-        return $this->total_price;
+        // Fallback logic for backward compatibility
+        return $this->getCalculatedOriginalPrice();
+    }
+    
+    /**
+     * Calculate the original professional price when the column doesn't exist
+     */
+    public function getCalculatedOriginalPrice()
+    {
+        // Strategy to recover original professional price
+        $originalPrice = null;
+        
+        if ($this->negotiation_status === 'user_negotiated' && $this->user_negotiated_price) {
+            // If user negotiated and base_price equals negotiated price, estimate original
+            if ($this->base_price == $this->user_negotiated_price) {
+                // Assume user got ~10% discount, reverse calculate
+                $originalPrice = round($this->user_negotiated_price / 0.9, 2);
+            } else {
+                $originalPrice = $this->base_price;
+            }
+        } elseif ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
+            // If admin responded and base_price was corrupted
+            if ($this->base_price == $this->admin_final_negotiated_price) {
+                // Try to estimate from user's original offer
+                if ($this->user_negotiated_price) {
+                    $originalPrice = round($this->user_negotiated_price / 0.9, 2);
+                } else {
+                    $originalPrice = round($this->admin_final_negotiated_price / 0.9, 2);
+                }
+            } else {
+                $originalPrice = $this->base_price;
+            }
+        } else {
+            // No negotiation - use current base_price
+            $originalPrice = $this->base_price;
+        }
+        
+        // Ensure original price is not less than current base_price
+        if ($originalPrice < $this->base_price) {
+            $originalPrice = $this->base_price;
+        }
+        
+        // Set a reasonable minimum
+        if ($originalPrice < 1000) {
+            $originalPrice = max($originalPrice, $this->base_price, 8000);
+        }
+        
+        return $originalPrice;
     }
 
     /**

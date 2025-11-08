@@ -16,7 +16,6 @@ class AdminProfessionalChatMessage extends Model
         'sender_type',
         'sender_id',
         'message',
-        'message_type',
         'is_read',
         'read_at',
         'metadata'

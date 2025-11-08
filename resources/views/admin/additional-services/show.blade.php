@@ -66,26 +66,43 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Base Price:</label>
-                                <p class="mb-0">₹{{ number_format($additionalService->base_price, 2) }}</p>
-                                @if($additionalService->price_modified_by_admin && $additionalService->modified_base_price)
-                                    <small class="text-warning">
-                                        <i class="fe fe-edit"></i> Modified to: ₹{{ number_format($additionalService->modified_base_price, 2) }}
-                                    </small>
+                                @php
+                                    $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
+                                    $originalBasePrice = $additionalService->base_price;
+                                @endphp
+                                <p class="mb-0">₹{{ number_format($effectiveBasePrice, 2) }}</p>
+                                @if($effectiveBasePrice != $originalBasePrice)
+                                    <small class="text-muted">Original: ₹{{ number_format($originalBasePrice, 2) }}</small>
+                                    @if($additionalService->user_negotiated_price)
+                                        <br><small class="text-warning">User negotiated: ₹{{ number_format($additionalService->user_negotiated_price, 2) }}</small>
+                                    @endif
+                                    @if($additionalService->admin_final_negotiated_price)
+                                        <br><small class="text-info">Admin final: ₹{{ number_format($additionalService->admin_final_negotiated_price, 2) }}</small>
+                                    @endif
+                                    @if($additionalService->modified_base_price)
+                                        <br><small class="text-warning">Admin modified: ₹{{ number_format($additionalService->modified_base_price, 2) }}</small>
+                                    @endif
                                 @endif
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">GST (18%):</label>
                                 @php
-                                    $basePrice = $additionalService->price_modified_by_admin && $additionalService->modified_base_price 
-                                        ? $additionalService->modified_base_price 
-                                        : $additionalService->base_price;
-                                    $gst = $basePrice * 0.18;
+                                    $cgst = $additionalService->cgst ?? ($effectiveBasePrice * 0.09);
+                                    $sgst = $additionalService->sgst ?? ($effectiveBasePrice * 0.09);
+                                    $totalGst = $cgst + $sgst;
                                 @endphp
-                                <p class="mb-0">₹{{ number_format($gst, 2) }}</p>
+                                <p class="mb-0">₹{{ number_format($totalGst, 2) }}</p>
+                                <small class="text-muted">(CGST: ₹{{ number_format($cgst, 2) }} + SGST: ₹{{ number_format($sgst, 2) }})</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Final Price:</label>
-                                <p class="mb-0 text-success fw-bold">₹{{ number_format($additionalService->final_price, 2) }}</p>
+                                @php
+                                    $effectiveTotalPrice = $additionalService->getEffectiveTotalPrice();
+                                @endphp
+                                <p class="mb-0 text-success fw-bold">₹{{ number_format($effectiveTotalPrice, 2) }}</p>
+                                @if($additionalService->negotiation_status !== 'none')
+                                    <small class="text-info">✅ Updated after negotiation</small>
+                                @endif
                             </div>
                         </div>
 
@@ -329,6 +346,17 @@
                                     Customer confirmed: {{ \Carbon\Carbon::parse($additionalService->customer_confirmed_at)->format('M d, Y h:i A') }}
                                 </small>
                             @endif
+                            
+                            @if($additionalService->admin_completed_at)
+                                <br><small class="text-info">
+                                    <i class="fe fe-shield"></i> Admin marked as completed: {{ \Carbon\Carbon::parse($additionalService->admin_completed_at)->format('M d, Y h:i A') }}
+                                </small>
+                                @if($additionalService->admin_completion_note)
+                                    <br><small class="text-muted fst-italic">
+                                        Note: {{ $additionalService->admin_completion_note }}
+                                    </small>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -487,9 +515,12 @@
                         <div class="card-title">Quick Actions</div>
                     </div>
                     <div class="card-body d-grid gap-2">
+                        {{-- Only show price modification if consultation is not completed --}}
+                        @if($additionalService->consulting_status !== 'done')
                         <button class="btn btn-warning btn-sm modify-price" data-id="{{ $additionalService->id }}">
                             <i class="fe fe-edit"></i> Modify Price
                         </button>
+                        @endif
 
                         @if($additionalService->negotiation_status === 'user_negotiated')
                         <button class="btn btn-warning btn-sm respond-negotiation pulse-btn" data-id="{{ $additionalService->id }}" style="animation: pulse 2s infinite;">
@@ -497,20 +528,37 @@
                         </button>
                         @endif
 
+                        {{-- Only show delivery date update if consultation is not completed --}}
+                        @if($additionalService->consulting_status !== 'done')
                         <button class="btn btn-primary btn-sm update-delivery-date" data-id="{{ $additionalService->id }}">
                             <i class="fe fe-calendar"></i> Update Delivery Date
                         </button>
+                        @endif
 
-                        @if($additionalService->payment_status === 'paid' && $additionalService->professional_payment_status === 'pending')
+                        {{-- Release payment only after consultation is completed and payment is received --}}
+                        @if($additionalService->consulting_status === 'done' && $additionalService->payment_status === 'paid' && $additionalService->professional_payment_status === 'pending')
                         <button class="btn btn-success btn-sm release-payment" data-id="{{ $additionalService->id }}">
                             <i class="fe fe-dollar-sign"></i> Release Payment
                         </button>
                         @endif
 
-                        @if($additionalService->payment_status === 'paid' && ($additionalService->consulting_status === 'in_progress' || $additionalService->consulting_status === 'pending'))
+                        {{-- Admin can mark as completed only when payment is received --}}
+                        @if($additionalService->consulting_status !== 'done' && $additionalService->payment_status === 'paid')
                         <button class="btn btn-info btn-sm mark-completed" data-id="{{ $additionalService->id }}">
                             <i class="fe fe-check-circle"></i> Mark as Completed
                         </button>
+                        @endif
+
+                        @if($additionalService->consulting_status === 'done' && $additionalService->payment_status === 'paid')
+                        <hr class="my-2">
+                        <div class="d-grid gap-2">
+                            <a href="{{ route('admin.additional-services.invoice', $additionalService->id) }}" class="btn btn-success btn-sm">
+                                <i class="fe fe-file-text"></i> View Invoice
+                            </a>
+                            <a href="{{ route('admin.additional-services.invoice.pdf', $additionalService->id) }}" class="btn btn-outline-success btn-sm" target="_blank">
+                                <i class="fe fe-download"></i> Download PDF Invoice
+                            </a>
+                        </div>
                         @endif
 
                         <a href="{{ route('admin.additional-services.index') }}" class="btn btn-outline-secondary btn-sm">
@@ -645,26 +693,54 @@
                 <h5 class="modal-title" id="releasePaymentModalLabel">Release Payment</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="alert alert-warning">
-                    <strong>Important:</strong> This action will release the payment to the professional and cannot be undone.
-                </div>
-                <p>Are you sure you want to release the payment for this additional service?</p>
-                <div class="row">
-                    <div class="col-6">
-                        <strong>Professional:</strong><br>
-                        {{ $additionalService->professional->name }}
+            <form id="releasePaymentForm">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> This action will release the payment to the professional and cannot be undone.
                     </div>
-                    <div class="col-6">
-                        <strong>Amount:</strong><br>
-                        ₹{{ number_format($additionalService->final_price, 2) }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Professional:</strong><br>
+                            {{ $additionalService->professional->name }}
+                        </div>
+                        <div class="col-6">
+                            <strong>Amount:</strong><br>
+                            ₹{{ number_format($additionalService->final_price, 2) }}
+                        </div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="payment_transaction_id" class="form-label">Payment Transaction ID *</label>
+                        <input type="text" class="form-control" id="payment_transaction_id" name="payment_transaction_id" 
+                               required placeholder="Enter payment transaction ID (e.g., TXN123456789)">
+                        <small class="form-text text-muted">This ID will be shown to the professional as payment reference</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Payment Method</label>
+                        <select class="form-control" id="payment_method" name="payment_method">
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="upi">UPI</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="cash">Cash</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="payment_notes" class="form-label">Payment Notes (Optional)</label>
+                        <textarea class="form-control" id="payment_notes" name="payment_notes" rows="2" 
+                                  placeholder="Any additional notes about the payment..."></textarea>
+                    </div>
+                    
+                    <p><strong>Are you sure you want to release this payment?</strong></p>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="confirmReleasePayment">Release Payment</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="confirmReleasePayment">Release Payment</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -682,8 +758,11 @@
                     <i class="fe fe-info"></i>
                     <strong>Mark as Completed</strong><br>
                     This will mark the consultation as completed and notify both the user and professional.
+                    Payment has been received and will be available for release after completion.
                 </div>
-                <p>Are you sure you want to mark this service as completed?</p>
+                
+                <p><strong>Are you sure you want to mark this service as completed?</strong></p>
+                
                 <div class="row text-center">
                     <div class="col-6">
                         <strong>Service:</strong><br>
@@ -694,10 +773,25 @@
                         {{ $additionalService->professional->name }}
                     </div>
                 </div>
+                
+                <div class="row text-center mt-2">
+                    <div class="col-6">
+                        <strong>Current Status:</strong><br>
+                        <span class="badge bg-{{ $additionalService->consulting_status === 'pending' ? 'warning' : ($additionalService->consulting_status === 'in_progress' ? 'info' : 'success') }}">
+                            {{ ucfirst(str_replace('_', ' ', $additionalService->consulting_status)) }}
+                        </span>
+                    </div>
+                    <div class="col-6">
+                        <strong>Payment Status:</strong><br>
+                        <span class="badge bg-success">Paid</span>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-info" id="confirmMarkCompleted">Mark as Completed</button>
+                <button type="button" class="btn btn-info" id="confirmMarkCompleted">
+                    <i class="fe fe-check-circle"></i> Mark as Completed
+                </button>
             </div>
         </div>
     </div>
@@ -840,34 +934,81 @@ $(document).ready(function() {
         $('#releasePaymentModal').modal('show');
     });
 
-    $('#confirmReleasePayment').click(function() {
+    $('#releasePaymentForm').submit(function(e) {
+        e.preventDefault();
+        
+        // Basic frontend validation
+        const transactionId = $('#payment_transaction_id').val().trim();
+        const paymentMethod = $('#payment_method').val();
+        
+        if (!transactionId) {
+            toastr.error('Payment Transaction ID is required');
+            return;
+        }
+        
+        if (!paymentMethod) {
+            toastr.error('Payment Method is required');
+            return;
+        }
+        
+        const $submitBtn = $('#confirmReleasePayment');
+        const originalText = $submitBtn.html();
+        
+        $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+        
         $.ajax({
             url: `/admin/additional-services/${currentServiceId}/release-payment`,
             type: 'POST',
             data: {
-                _token: '{{ csrf_token() }}'
+                _token: '{{ csrf_token() }}',
+                payment_transaction_id: $('#payment_transaction_id').val(),
+                payment_method: $('#payment_method').val(),
+                payment_notes: $('#payment_notes').val()
             },
             success: function(response) {
                 if (response.success) {
                     $('#releasePaymentModal').modal('hide');
                     toastr.success(response.message);
-                    location.reload();
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     toastr.error(response.message);
                 }
             },
             error: function(xhr) {
-                toastr.error('An error occurred. Please try again.');
+                const errors = xhr.responseJSON?.errors;
+                if (errors) {
+                    Object.values(errors).forEach(function(error) {
+                        toastr.error(error[0]);
+                    });
+                } else {
+                    toastr.error('An error occurred. Please try again.');
+                }
+            },
+            complete: function() {
+                $submitBtn.prop('disabled', false).html(originalText);
             }
         });
     });
 
+    // Reset form when modal is closed
+    $('#releasePaymentModal').on('hidden.bs.modal', function() {
+        $('#releasePaymentForm')[0].reset();
+    });
+
     // Mark as Completed
     $('.mark-completed').click(function() {
+        console.log('Mark completed button clicked');
         $('#markCompletedModal').modal('show');
     });
 
     $('#confirmMarkCompleted').click(function() {
+        console.log('Confirm mark completed clicked');
+        
+        const $btn = $(this);
+        const originalText = $btn.html();
+        
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+        
         $.ajax({
             url: `/admin/additional-services/${currentServiceId}/mark-completed`,
             type: 'POST',
@@ -875,16 +1016,22 @@ $(document).ready(function() {
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
+                console.log('Success response:', response);
                 if (response.success) {
                     $('#markCompletedModal').modal('hide');
                     toastr.success(response.message);
-                    location.reload();
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     toastr.error(response.message);
                 }
             },
             error: function(xhr) {
-                toastr.error('An error occurred. Please try again.');
+                console.error('Error response:', xhr);
+                const errorMessage = xhr.responseJSON?.message || 'An error occurred. Please try again.';
+                toastr.error(errorMessage);
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html(originalText);
             }
         });
     });

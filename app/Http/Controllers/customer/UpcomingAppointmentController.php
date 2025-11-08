@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingTimedate;
-use App\Models\Availability;
 use App\Models\Professional;
 use App\Models\Admin;
-use App\Notifications\AppointmentRescheduled;
+use App\Models\Availability;
+use App\Models\AvailabilitySlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -305,308 +305,6 @@ class UpcomingAppointmentController extends Controller
         }
     }
 
-    /**
-     * Get professional availability data for calendar
-     */
-    public function getProfessionalAvailability($professionalId)
-    {
-        try {
-            Log::info('Getting professional availability', [
-                'professional_id' => $professionalId,
-                'user_id' => Auth::guard('user')->id()
-            ]);
-            $availabilities = Availability::where('professional_id', $professionalId)
-                ->with('slots')
-                ->get();
-
-            Log::info('Found availabilities', [
-                'count' => $availabilities->count(),
-                'data' => $availabilities->toArray()
-            ]);
-            $availabilityData = [];
-            $monthMap = [
-                'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4,
-                'may' => 5, 'jun' => 6, 'jul' => 7, 'aug' => 8,
-                'sep' => 9, 'oct' => 10, 'nov' => 11, 'dec' => 12
-            ];
-            
-            foreach ($availabilities as $availability) {
-                $weekdays = $availability->weekdays;
-                if (is_string($weekdays)) {
-                    $weekdays = json_decode($weekdays, true);
-                }
-                $normalizedWeekdays = array_map(function($day) {
-                    $dayMap = [
-                        'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 
-                        'wednesday' => 'wed', 'thursday' => 'thu', 'friday' => 'fri', 'saturday' => 'sat'
-                    ];
-                    $lowerDay = strtolower($day);
-                    return $dayMap[$lowerDay] ?? $lowerDay;
-                }, $weekdays ?: []);
-                $monthNum = $monthMap[strtolower($availability->month)] ?? null;
-                
-                if ($monthNum && $availability->slots->count() > 0) {
-                    $availabilityData[] = [
-                        'month' => $availability->month,
-                        'month_number' => $monthNum,
-                        'weekdays' => $normalizedWeekdays,
-                        'original_weekdays' => $weekdays,
-                        'slots' => $availability->slots->map(function ($slot) {
-                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A');
-                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
-                            $formattedTimeSlot = $startTime . ' - ' . $endTime;
-                            
-                            return [
-                                'time' => $formattedTimeSlot,
-                                'start_time' => $slot->start_time,
-                                'end_time' => $slot->end_time,
-                                'id' => $slot->id
-                            ];
-                        })->toArray()
-                    ];
-                }
-            }
-            $bookedTimeSlots = BookingTimedate::whereHas('booking', function ($query) use ($professionalId) {
-                $query->where('professional_id', $professionalId)
-                    ->whereIn('status', ['pending', 'confirmed']);
-            })->where('date', '>=', Carbon::today()->format('Y-m-d'))
-              ->where('date', '<=', Carbon::today()->addMonths(12)->format('Y-m-d'))
-              ->get();
-
-            $bookedSlots = [];
-            foreach ($bookedTimeSlots as $slot) {
-                $date = $slot->date;
-                if (!isset($bookedSlots[$date])) {
-                    $bookedSlots[$date] = [];
-                }
-                $timeSlot = $slot->time_slot;
-                $normalizedTimeSlot = str_replace(' to ', ' - ', $timeSlot);
-                
-                $bookedSlots[$date][] = $normalizedTimeSlot;
-            }
-
-            Log::info('Processed booked slots', [
-                'original_count' => $bookedTimeSlots->count(),
-                'normalized_slots' => $bookedSlots
-            ]);
-
-            Log::info('Final availability data', [
-                'availability_count' => count($availabilityData),
-                'booked_slots_count' => count($bookedSlots),
-                'availability_data' => $availabilityData
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'availability' => $availabilityData,
-                'bookedSlots' => $bookedSlots
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error getting professional availability: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error loading availability data: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Reschedule an appointment
-     */
-    public function reschedule(Request $request)
-    {
-        try {
-            Log::info('Reschedule request received', [
-                'all_data' => $request->all(),
-                'user_id' => Auth::guard('user')->id()
-            ]);
-            
-            $request->validate([
-                'booking_id' => 'required|exists:bookings,id',
-                'timedate_id' => 'required|exists:booking_timedates,id',
-                'professional_id' => 'required|exists:professionals,id',
-                'new_date' => 'required|date|after_or_equal:today',
-                'new_time_slot' => 'required|string'
-            ]);
-
-            $booking = Booking::findOrFail($request->booking_id);
-            if ($booking->user_id !== Auth::guard('user')->id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to this booking'
-                ], 403);
-            }
-
-            $timedate = BookingTimedate::findOrFail($request->timedate_id);
-            
-            Log::info('Current timedate before update', [
-                'timedate_id' => $timedate->id,
-                'current_date' => $timedate->date,
-                'current_time_slot' => $timedate->time_slot,
-                'requested_date' => $request->new_date,
-                'requested_time_slot' => $request->new_time_slot
-            ]);
-            if ($timedate->booking_id !== $booking->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid timedate for this booking'
-                ], 400);
-            }
-            if ($timedate->date === $request->new_date && $timedate->time_slot === $request->new_time_slot) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please select a different date or time for rescheduling'
-                ], 400);
-            }
-            $isSlotTaken = BookingTimedate::isSlotBooked($request->professional_id, $request->new_date, $request->new_time_slot);
-
-            if ($isSlotTaken) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'The selected time slot is no longer available'
-                ], 400);
-            }
-            $newDate = Carbon::parse($request->new_date);
-            $dayName = strtolower($newDate->format('D')); // mon, tue, etc.
-            $monthName = strtolower($newDate->format('M')); // jan, feb, etc.
-            $monthNumber = $newDate->format('n'); // 1-12
-
-            Log::info('Checking availability for', [
-                'date' => $request->new_date,
-                'day_name' => $dayName,
-                'month_name' => $monthName,
-                'month_number' => $monthNumber,
-                'time_slot' => $request->new_time_slot
-            ]);
-
-            $availability = Availability::where('professional_id', $request->professional_id)
-                ->where('month', $monthName)
-                ->whereHas('slots', function ($query) use ($request) {
-                    $timeParts = explode(' - ', $request->new_time_slot);
-                    if (count($timeParts) === 2) {
-                        $startTime = \Carbon\Carbon::createFromFormat('h:i A', trim($timeParts[0]))->format('H:i:s');
-                        $query->where('start_time', $startTime);
-                    } else {
-                        $query->where('start_time', $request->new_time_slot);
-                    }
-                })
-                ->first();
-
-            if (!$availability) {
-                Log::warning('No availability found for month and time', [
-                    'professional_id' => $request->professional_id,
-                    'month' => $monthName,
-                    'time_slot' => $request->new_time_slot
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Professional is not available at the selected time'
-                ], 400);
-            }
-            $weekdays = $availability->weekdays;
-            if (is_string($weekdays)) {
-                $weekdays = json_decode($weekdays, true);
-            }
-            $normalizedWeekdays = array_map(function($day) {
-                $dayMap = [
-                    'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 
-                    'wednesday' => 'wed', 'thursday' => 'thu', 'friday' => 'fri', 'saturday' => 'sat'
-                ];
-                $lowerDay = strtolower($day);
-                return $dayMap[$lowerDay] ?? $lowerDay;
-            }, $weekdays);
-            
-            Log::info('Day availability check', [
-                'requested_day' => $dayName,
-                'available_days' => $weekdays,
-                'normalized_days' => $normalizedWeekdays
-            ]);
-            
-            if (!in_array($dayName, $normalizedWeekdays)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Professional is not available on the selected day'
-                ], 400);
-            }
-            $oldDate = $timedate->date;
-            $oldTimeSlot = $timedate->time_slot;
-            
-            $timedate->date = $request->new_date;
-            $timedate->time_slot = $request->new_time_slot;
-            $saved = $timedate->save();
-            $timedate->refresh();
-            
-            Log::info('Appointment rescheduled successfully', [
-                'booking_id' => $request->booking_id,
-                'timedate_id' => $request->timedate_id,
-                'old_date' => $oldDate,
-                'old_time' => $oldTimeSlot,
-                'new_date' => $timedate->date,
-                'new_time' => $timedate->time_slot,
-                'save_result' => $saved,
-                'user_id' => Auth::guard('user')->id()
-            ]);
-            try {
-                $customer = Auth::guard('user')->user();
-                $professional = Professional::find($request->professional_id);
-                $admins = Admin::all();
-                if ($professional) {
-                    $professional->notify(new AppointmentRescheduled(
-                        $booking, 
-                        $timedate, 
-                        $customer, 
-                        $oldDate, 
-                        $oldTimeSlot, 
-                        $timedate->date, 
-                        $timedate->time_slot
-                    ));
-                    Log::info('Notification sent to professional', ['professional_id' => $professional->id]);
-                }
-                foreach ($admins as $admin) {
-                    $admin->notify(new AppointmentRescheduled(
-                        $booking, 
-                        $timedate, 
-                        $customer, 
-                        $oldDate, 
-                        $oldTimeSlot, 
-                        $timedate->date, 
-                        $timedate->time_slot
-                    ));
-                }
-                Log::info('Notifications sent to admins', ['admin_count' => $admins->count()]);
-} catch (\Exception $e) {
-                Log::error('Error sending reschedule notifications: ' . $e->getMessage(), [
-                    'booking_id' => $booking->id,
-                    'professional_id' => $request->professional_id
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment rescheduled successfully!',
-                'data' => [
-                    'old_date' => $oldDate,
-                    'old_time' => $oldTimeSlot,
-                    'new_date' => $timedate->date,
-                    'new_time' => $timedate->time_slot
-                ]
-            ]);
-} catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Error rescheduling appointment: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error rescheduling appointment. Please try again.'
-            ], 500);
-        }
-    }
-
     public function cancelAppointment(Request $request)
     {
         try {
@@ -634,6 +332,217 @@ class UpcomingAppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error canceling appointment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get professional availability for reschedule calendar
+     */
+    public function getProfessionalAvailability(Booking $booking)
+    {
+        try {
+            // Verify booking belongs to authenticated user
+            if ($booking->user_id !== Auth::guard('user')->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
+            // Check if reschedule is allowed
+            if ($booking->reschedule_count >= $booking->max_reschedules_allowed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maximum reschedule limit reached'
+                ], 400);
+            }
+
+            $professionalId = $booking->professional_id;
+            
+            // Get availability for next 6 months
+            $months = [];
+            for ($i = 0; $i < 6; $i++) {
+                $months[] = Carbon::now()->addMonths($i)->format('Y-m');
+            }
+
+            // Get availability for the next 6 months
+            $availabilities = Availability::with('availabilitySlots')
+                ->where('professional_id', $professionalId)
+                ->whereIn('month', $months)
+                ->get();
+
+            $availabilityData = [];
+            foreach ($availabilities as $availability) {
+                $weeklySlots = [];
+                foreach ($availability->availabilitySlots as $slot) {
+                    $weekday = $slot->weekday;
+                    if (!isset($weeklySlots[$weekday])) {
+                        $weeklySlots[$weekday] = [];
+                    }
+                    
+                    $weeklySlots[$weekday][] = [
+                        'start_time' => Carbon::parse($slot->start_time)->format('H:i'),
+                        'end_time' => Carbon::parse($slot->end_time)->format('H:i'),
+                    ];
+                }
+
+                $availabilityData[] = [
+                    'month' => $availability->month,
+                    'session_duration' => $availability->session_duration,
+                    'weekly_slots' => $weeklySlots
+                ];
+            }
+
+            // Get existing bookings for this professional (excluding current booking)
+            $existingBookings = BookingTimedate::whereHas('booking', function($query) use ($professionalId, $booking) {
+                    $query->where('professional_id', $professionalId)
+                          ->where('id', '!=', $booking->id)
+                          ->whereIn('status', ['pending', 'confirmed']);
+                })
+                ->where('date', '>=', Carbon::today())
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->get(['date', 'time_slot'])
+                ->groupBy('date')
+                ->map(function($timedates) {
+                    return $timedates->pluck('time_slot')->toArray();
+                })
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'data' => $availabilityData,
+                'existing_bookings' => $existingBookings,
+                'professional' => [
+                    'id' => $booking->professional->id,
+                    'name' => $booking->professional->name
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting professional availability: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading availability'
+            ], 500);
+        }
+    }
+
+    /**
+     * Process reschedule request
+     */
+    public function reschedule(Request $request, Booking $booking)
+    {
+        try {
+            // Verify booking belongs to authenticated user
+            if ($booking->user_id !== Auth::guard('user')->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
+            // Validate request
+            $request->validate([
+                'new_date' => 'required|date|after:today',
+                'new_time_slot' => 'required|string',
+                'reschedule_reason' => 'required|string|max:500'
+            ]);
+
+            // Check if reschedule is allowed
+            if ($booking->reschedule_count >= $booking->max_reschedules_allowed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maximum reschedule limit reached'
+                ], 400);
+            }
+
+            $newDate = Carbon::parse($request->new_date);
+            $newTimeSlot = $request->new_time_slot;
+
+            // Check if the new slot is available
+            $conflictingTimedate = BookingTimedate::where('booking_id', '!=', $booking->id)
+                ->whereHas('booking', function($query) use ($booking) {
+                    $query->where('professional_id', $booking->professional_id)
+                          ->where('status', '!=', 'cancelled');
+                })
+                ->where('date', $newDate->format('Y-m-d'))
+                ->where('time_slot', $newTimeSlot)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->exists();
+
+            if ($conflictingTimedate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected time slot is no longer available'
+                ], 400);
+            }
+
+            // Get the upcoming timedate to reschedule
+            $upcomingTimedate = BookingTimedate::where('booking_id', $booking->id)
+                ->where('date', '>=', Carbon::today()->format('Y-m-d'))
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->orderBy('date', 'asc')
+                ->first();
+
+            if (!$upcomingTimedate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No upcoming appointment found to reschedule'
+                ], 404);
+            }
+
+            // Store original booking details if this is the first reschedule
+            if ($booking->reschedule_count === 0) {
+                $booking->original_date = $upcomingTimedate->date;
+                $booking->original_time_slot = $upcomingTimedate->time_slot;
+            }
+
+            // Update booking reschedule info
+            $booking->reschedule_count += 1;
+            $booking->reschedule_reason = $request->reschedule_reason;
+            $booking->reschedule_requested_at = Carbon::now();
+            $booking->reschedule_approved_at = Carbon::now(); // Auto-approve for now
+            $booking->save();
+
+            // Update the timedate
+            $upcomingTimedate->date = $newDate->format('Y-m-d');
+            $upcomingTimedate->time_slot = $newTimeSlot;
+            $upcomingTimedate->status = 'confirmed'; // Confirm the new slot
+            $upcomingTimedate->save();
+
+            // Log the reschedule action
+            Log::info('Appointment rescheduled', [
+                'booking_id' => $booking->id,
+                'user_id' => Auth::guard('user')->id(),
+                'old_date' => $booking->original_date ?? 'unknown',
+                'old_time' => $booking->original_time_slot ?? 'unknown',
+                'new_date' => $newDate->format('Y-m-d'),
+                'new_time' => $newTimeSlot,
+                'reason' => $request->reschedule_reason
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment rescheduled successfully',
+                'data' => [
+                    'new_date' => $newDate->format('M d, Y'),
+                    'new_time_slot' => $newTimeSlot,
+                    'reschedules_remaining' => $booking->max_reschedules_allowed - $booking->reschedule_count
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error rescheduling appointment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error rescheduling appointment'
             ], 500);
         }
     }

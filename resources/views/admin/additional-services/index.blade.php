@@ -298,6 +298,19 @@
                                                 </a>
                                             </li>
                                             
+                                            @if($service->consulting_status === 'done' && $service->payment_status === 'paid')
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a href="{{ route('admin.additional-services.invoice', $service->id) }}" class="dropdown-item">
+                                                    <i class="fa fa-file-text"></i> View Invoice
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('admin.additional-services.invoice.pdf', $service->id) }}" class="dropdown-item" target="_blank">
+                                                    <i class="fa fa-download"></i> Download PDF Invoice
+                                                </a>
+                                            </li>
+                                            @endif
 
                                         </ul>
                                     </div>

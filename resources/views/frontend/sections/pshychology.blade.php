@@ -200,7 +200,7 @@
                  </div>
                 <div class="col-lg-5 text-center">
                     <figure>
-                        <img src="img/professionals_photos/Physcologist 360.jpg" data-src="img/professionals_photos/Physcologist 360.jpg" alt="" class="img-fluid lazy" width="360" height="380">
+                        <img src="{{ asset('frontend/assets/img/professionals_photos/Physcologist 360.jpg') }}" data-src="{{ asset('frontend/assets/img/professionals_photos/Physcologist 360.jpg') }}" alt="" class="img-fluid lazy" width="360" height="380">
                     </figure>
                 </div>
                 
@@ -247,7 +247,7 @@
         </div>
      
     </div> -->
-    <section class="services-counter-section-info py-5" style="background-image: url('img/professionals_photos/psycology-counciler.jpg');">
+    <section class="services-counter-section-info py-5" style="background-image: url('{{ asset('frontend/assets/img/professionals_photos/psycology-counciler.jpg') }}');">
         <div class="container my-5">
             <div class="row heading">
                 <div class="col ">
@@ -331,8 +331,8 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="img/event/astrologer event.jpg"
-                                data-src="img/event/astrologer event.jpg" class="img-fluid lazy" alt="">
+                            <img src="{{ asset('frontend/assets/img/event/astrologer event.jpg') }}"
+                                data-src="{{ asset('frontend/assets/img/event/astrologer event.jpg') }}" class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
                                     <h3>Dr. Maria Cornfield</h3>
@@ -358,7 +358,7 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="img/event/fitness yoga event.jpg" data-src="img/event/fitness yoga event.jpg"
+                            <img src="{{ asset('frontend/assets/img/event/fitness yoga event.jpg') }}" data-src="{{ asset('frontend/assets/img/event/fitness yoga event.jpg') }}"
                                 class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
@@ -383,8 +383,8 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                         <img src="img/event/influencer event.jpg" data-src="img/event/influencer event.jpg"
-                                class="img-fluid lazy" alt="">
+                <img src="{{ asset('frontend/assets/img/event/influencer event.jpg') }}" data-src="{{ asset('frontend/assets/img/event/influencer event.jpg') }}"
+                    class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
                                     <h3>Prof. Luke Lachinet</h3>
@@ -408,7 +408,7 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="img/event/interior designer event.jpg" data-src="img/event/interior designer event.jpg"
+                            <img src="{{ asset('frontend/assets/img/event/interior designer event.jpg') }}" data-src="{{ asset('frontend/assets/img/event/interior designer event.jpg') }}"
                                 class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
@@ -433,7 +433,7 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="img/event/job career business event.jpg" data-src="img/event/job career business event.jpg"
+                            <img src="{{ asset('frontend/assets/img/event/job career business event.jpg') }}" data-src="{{ asset('frontend/assets/img/event/job career business event.jpg') }}"
                                 class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
@@ -458,7 +458,7 @@
                     <div class="strip">
                         <figure>
                             <a href="" class="wish_bt"><i class="icon_heart"></i></a>
-                            <img src="img/event/psychologist event.jpg" data-src="img/event/psychologist event.jpg"
+                            <img src="{{ asset('frontend/assets/img/event/psychologist event.jpg') }}" data-src="{{ asset('frontend/assets/img/event/psychologist event.jpg') }}"
                                 class="img-fluid lazy" alt="">
                             <a href="all-event.html" class="strip_info">
                                 <div class="item_title">
@@ -681,14 +681,14 @@
                             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                         </div>
                         <div class="testimonial-img bg-blue">
-                            <img src="assets/images/testimonial/1.png">
+                            <img src="{{ asset('frontend/assets/img/1.png') }}">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
                     <div class="testimonial-box ">
                         <div class="testimonial-img bg-pink mb-15">
-                            <img src="assets/images/testimonial/2.png">
+                            <img src="{{ asset('frontend/assets/img/2.png') }}">
                         </div>
                         <div class="testimonial-content bg-green">
                             Excepteur sint occaecat cupidatat non
@@ -703,14 +703,14 @@
                             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                         </div>
                         <div class="testimonial-img">
-                            <img src="assets/images/testimonial/3.png">
+                            <img src="{{ asset('frontend/assets/img/3.png') }}">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
                     <div class="testimonial-box ">
                         <div class="testimonial-img bg-green mb-15">
-                            <img src="assets/images/testimonial/4.png">
+                            <img src="{{ asset('frontend/assets/img/4.png') }}">
                         </div>
                         <div class="testimonial-content bg-pink">
                             Excepteur sint occaecat cupidatat non
@@ -725,14 +725,14 @@
                             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                         </div> 
                           <div class="testimonial-img bg-blue">
-                            <img src="assets/images/testimonial/5.png">
+                            <img src="{{ asset('frontend/assets/img/5.png') }}">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 ttm-box-col-wrapper">
                     <div class="testimonial-box">
                           <div class="testimonial-img mb-15 bg-green">
-                            <img src="assets/images/testimonial/3.png">
+                            <img src="{{ asset('frontend/assets/img/3.png') }}">
                         </div>
                         <div class="testimonial-content bg-pink">
                             Excepteur sint occaecat cupidatat non
@@ -749,7 +749,7 @@
             <div class="container clearfix">
                 <div class="row">
                     <div class=" col-md-6  wow">
-                        <img src="img/are-you-pro.png" alt="">
+                        <img src="{{ asset('frontend/assets/img/are-you-pro.png') }}" alt="">
                       </div>
                       <div class=" col-md-6  wow">
                           <div class="box_1">

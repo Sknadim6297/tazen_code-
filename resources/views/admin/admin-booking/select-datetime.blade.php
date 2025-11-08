@@ -71,6 +71,20 @@
             border-color: #28a745;
         }
 
+        .slot-option.disabled-limit {
+            border-color: #ffc107 !important;
+            background: #fff3cd !important;
+            color: #856404 !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        .slot-option.disabled-limit:hover {
+            background: #fff3cd !important;
+            border-color: #ffc107 !important;
+            transform: none !important;
+        }
+
         .selected-bookings {
             background: #e3f2fd;
             border-radius: 8px;
@@ -198,9 +212,15 @@
                         <div class="col-md-6">
                             <h6 class="mb-1">{{ $selectedRate->session_type ?? 'Session' }}</h6>
                             <p class="mb-0 text-muted">{{ $selectedRate->num_sessions ?? 1 }} session(s) • {{ $selectedRate->duration ?? '60 mins' }}</p>
+                            <div class="mt-2">
+                                <small class="text-info" id="session-counter">
+                                    <i class="ri-information-line"></i> 
+                                    You can select <span id="remaining-sessions">{{ $selectedRate->num_sessions ?? 1 }}</span> session(s)
+                                </small>
+                            </div>
                         </div>
                         <div class="col-md-6 text-end">
-                            <h5 class="text-primary mb-0">Rs. {{ number_format($selectedRate->final_rate ?? 0, 2) }}</h5>
+                            <h5 class="text-primary mb-0">₹{{ number_format($selectedRate->final_rate ?? 0) }}</h5>
                         </div>
                     </div>
                 </div>
@@ -237,7 +257,7 @@
                                     <div class="mt-2">
                                         <small class="text-info">
                                             <i class="ri-information-line me-1"></i>
-                                            Calendar shows all dates from today to 2050. Only dates with available booking slots are highlighted in green.
+                                            Calendar shows all dates from today to 1 year ahead. Only dates with available booking slots are highlighted in green.
                                         </small>
                                     </div>
                                 </div>
@@ -299,6 +319,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         let selectedBookings = [];
         const professionalId = {{ $professional->id ?? 'null' }};
+        const maxSessions = {{ $selectedRate->num_sessions ?? 1 }}; // Maximum number of sessions allowed
         const nextBtn = document.getElementById('next_btn');
         const selectedBookingsCard = document.getElementById('selected-bookings-card');
         const selectedBookingsContainer = document.getElementById('selected-bookings');
@@ -328,12 +349,13 @@
             
             console.log('Enabled dates for calendar:', normalizedEnabledDates);
             
-            // Create date boundaries - today to 2050
+            // Create date boundaries - today to 1 year ahead
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const maxDate = new Date(2050, 11, 31); // December 31, 2050
+            const maxDate = new Date();
+            maxDate.setFullYear(today.getFullYear() + 1); // 1 year from today
 
-            // Flatpickr config with extended date range
+            // Flatpickr config with 1-year date range
             const fp = flatpickr("#calendar", {
                 inline: true,
                 minDate: today,
@@ -383,7 +405,7 @@
             if (calendarElement) {
                 calendarElement.type = 'date';
                 calendarElement.min = new Date().toISOString().split('T')[0];
-                calendarElement.max = '2050-12-31'; // Extended to 2050
+                calendarElement.max = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]; // 1 year from today
                 
                 calendarElement.addEventListener('change', function() {
                     if (this.value) {
@@ -391,7 +413,7 @@
                     }
                 });
                 
-                console.log('Fallback date input initialized with extended range');
+                console.log('Fallback date input initialized with 1-year range');
             }
         }
 
@@ -491,6 +513,11 @@
             // Check if already selected
             const existingIndex = selectedBookings.findIndex(b => b.date === date && b.time_slot === slot);
             if (existingIndex === -1) {
+                // Check if maximum sessions limit is reached
+                if (selectedBookings.length >= maxSessions) {
+                    alert(`You can only select ${maxSessions} session(s) for this booking type.`);
+                    return;
+                }
                 addBooking(date, slot);
             }
         };
@@ -514,32 +541,91 @@
             if (selectedBookings.length === 0) {
                 selectedBookingsCard.style.display = 'none';
                 nextBtn.disabled = true;
-                return;
+            } else {
+                selectedBookingsCard.style.display = 'block';
+                nextBtn.disabled = false;
+
+                let html = '';
+                selectedBookings.forEach((booking, index) => {
+                    const formattedDate = new Date(booking.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    html += `
+                        <div class="booking-item">
+                            <span>${formattedDate} at ${booking.time_slot}</span>
+                            <button type="button" class="remove-booking" onclick="removeBooking(${index})">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                selectedBookingsContainer.innerHTML = html;
             }
 
-            selectedBookingsCard.style.display = 'block';
-            nextBtn.disabled = false;
+            // Update slot displays to reflect current selection state
+            updateSlotAvailability();
+            
+            // Update session counter
+            updateSessionCounter();
+        }
 
-            let html = '';
-            selectedBookings.forEach((booking, index) => {
-                const formattedDate = new Date(booking.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+        // Update session counter display
+        function updateSessionCounter() {
+            const remaining = maxSessions - selectedBookings.length;
+            const counterElement = document.getElementById('remaining-sessions');
+            const sessionCounterElement = document.getElementById('session-counter');
+            
+            if (counterElement) {
+                counterElement.textContent = remaining;
                 
-                html += `
-                    <div class="booking-item">
-                        <span>${formattedDate} at ${booking.time_slot}</span>
-                        <button type="button" class="remove-booking" onclick="removeBooking(${index})">
-                            <i class="ri-close-line"></i>
-                        </button>
-                    </div>
-                `;
-            });
+                if (remaining === 0) {
+                    sessionCounterElement.className = 'text-warning';
+                    sessionCounterElement.innerHTML = `
+                        <i class="ri-check-line"></i> 
+                        Session limit reached (${selectedBookings.length}/${maxSessions})
+                    `;
+                } else {
+                    sessionCounterElement.className = 'text-info';
+                    sessionCounterElement.innerHTML = `
+                        <i class="ri-information-line"></i> 
+                        You can select <span id="remaining-sessions">${remaining}</span> more session(s)
+                    `;
+                }
+            }
+        }
 
-            selectedBookingsContainer.innerHTML = html;
+        // Update slot availability display based on current selections
+        function updateSlotAvailability() {
+            const isLimitReached = selectedBookings.length >= maxSessions;
+            
+            document.querySelectorAll('.slot-option').forEach(slotElement => {
+                const date = slotElement.getAttribute('data-date');
+                const slot = slotElement.getAttribute('data-slot');
+                const isSelected = selectedBookings.some(b => b.date === date && b.time_slot === slot);
+                
+                // Remove previous states
+                slotElement.classList.remove('selected', 'disabled-limit');
+                
+                // Add selected state
+                if (isSelected) {
+                    slotElement.classList.add('selected');
+                }
+                
+                // Disable slots if limit reached and not already selected
+                if (isLimitReached && !isSelected && slotElement.classList.contains('available')) {
+                    slotElement.classList.add('disabled-limit');
+                    slotElement.style.pointerEvents = 'none';
+                    slotElement.style.opacity = '0.5';
+                } else if (slotElement.classList.contains('available')) {
+                    slotElement.style.pointerEvents = 'auto';
+                    slotElement.style.opacity = '1';
+                }
+            });
         }
 
         // Update form data
@@ -557,6 +643,9 @@
                 alert('Please select at least one date and time slot');
             }
         });
+
+        // Initialize session counter display
+        updateSessionCounter();
     });
     </script>
     @endsection

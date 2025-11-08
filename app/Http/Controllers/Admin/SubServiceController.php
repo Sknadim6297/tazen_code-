@@ -36,7 +36,7 @@ class SubServiceController extends Controller
         $subServices = $query->latest()->paginate(10);
         $services = Service::where('status', 'active')->get();
 
-        return view('admin.sub-service.index', compact('subServices', 'services'));
+    return view('sub-service.index', compact('subServices', 'services'));
     }
 
     /**
@@ -45,7 +45,7 @@ class SubServiceController extends Controller
     public function create()
     {
         $services = Service::where('status', 'active')->get();
-        return view('admin.sub-service.create', compact('services'));
+    return view('sub-service.create', compact('services'));
     }
 
     /**
@@ -90,7 +90,7 @@ class SubServiceController extends Controller
     public function show(SubService $subService)
     {
         $subService->load('service');
-        return view('admin.sub-service.show', compact('subService'));
+    return view('sub-service.show', compact('subService'));
     }
 
     /**
@@ -99,7 +99,7 @@ class SubServiceController extends Controller
     public function edit(SubService $subService)
     {
         $services = Service::where('status', 'active')->get();
-        return view('admin.sub-service.edit', compact('subService', 'services'));
+    return view('sub-service.edit', compact('subService', 'services'));
     }
 
     /**

@@ -847,6 +847,20 @@
                                             </span>
                                         @endif
                                     @endif
+                                    
+                                    <!-- Invoice Download - For Completed & Paid Services -->
+                                    @if($service->consulting_status === 'done' && $service->payment_status === 'paid')
+                                        <div class="mt-2 pt-2 border-top">
+                                            <a href="{{ route('user.additional-services.invoice', $service->id) }}" 
+                                               class="btn btn-sm btn-success mb-1" title="View Invoice">
+                                                <i class="fas fa-file-text"></i> View Invoice
+                                            </a>
+                                            <a href="{{ route('user.additional-services.invoice.pdf', $service->id) }}" 
+                                               class="btn btn-sm btn-outline-success mb-1" target="_blank" title="Download PDF Invoice">
+                                                <i class="fas fa-download"></i> Download PDF
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

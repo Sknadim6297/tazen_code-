@@ -7,12 +7,15 @@ use App\Models\AdditionalService;
 use App\Models\Professional;
 use App\Models\User;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of all additional services
      */
@@ -388,8 +391,14 @@ class AdditionalServiceController extends Controller
     /**
      * Release payment to professional
      */
-    public function releasePayment($id)
+    public function releasePayment(Request $request, $id)
     {
+        $request->validate([
+            'payment_transaction_id' => 'required|string|max:255',
+            'payment_method' => 'required|in:bank_transfer,upi,cheque,cash,other',
+            'payment_notes' => 'nullable|string|max:1000'
+        ]);
+
         $additionalService = AdditionalService::findOrFail($id);
 
         if ($additionalService->payment_status !== 'paid') {
@@ -411,7 +420,10 @@ class AdditionalServiceController extends Controller
 
             $additionalService->update([
                 'professional_payment_status' => 'processed',
-                'professional_payment_processed_at' => now()
+                'professional_payment_processed_at' => now(),
+                'payment_transaction_id' => $request->payment_transaction_id,
+                'payment_method' => $request->payment_method,
+                'payment_notes' => $request->payment_notes
             ]);
 
             // Notify professional
@@ -425,7 +437,7 @@ class AdditionalServiceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment released to professional successfully.'
+                'message' => 'Payment released to professional successfully with transaction ID: ' . $request->payment_transaction_id
             ]);
 
         } catch (\Exception $e) {
@@ -560,21 +572,25 @@ class AdditionalServiceController extends Controller
             ], 400);
         }
 
+        // Admin can mark as completed when payment is received (no other restrictions)
         if ($additionalService->payment_status !== 'paid') {
             return response()->json([
                 'success' => false,
                 'message' => 'Payment must be completed before marking service as done.'
             ], 400);
         }
-
+        
         try {
             DB::beginTransaction();
 
-            $additionalService->update([
+            $updateData = [
                 'consulting_status' => 'done',
-                'professional_completed_at' => now(),
-                'customer_confirmed_at' => now() // Auto-confirm when admin marks as completed
-            ]);
+                'admin_completed_at' => now(), // Track that admin completed it
+                'professional_completed_at' => $additionalService->professional_completed_at ?? now(),
+                'customer_confirmed_at' => $additionalService->customer_confirmed_at ?? now()
+            ];
+
+            $additionalService->update($updateData);
 
             // Notify user and professional
             $user = $additionalService->user;
@@ -605,5 +621,155 @@ class AdditionalServiceController extends Controller
                 'message' => 'An error occurred: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Respond to user's price negotiation
+     */
+    public function respondNegotiation(Request $request, $id)
+    {
+        $request->validate([
+            'admin_final_negotiated_price' => 'required|numeric|min:0',
+            'admin_negotiation_response' => 'required|string|max:1000'
+        ]);
+
+        $additionalService = AdditionalService::findOrFail($id);
+
+        if ($additionalService->negotiation_status !== 'user_negotiated') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active negotiation found.'
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Update pricing with GST calculation
+            $newPrice = $request->admin_final_negotiated_price;
+            $gstData = $additionalService->updatePricingWithGST($newPrice, 'admin_negotiation');
+
+            $additionalService->update([
+                'admin_negotiation_response' => $request->admin_negotiation_response,
+                'admin_reviewed_at' => now()
+            ]);
+
+            // Notify user about negotiation response
+            $user = $additionalService->user;
+            $message = "Admin responded to your negotiation. New price: ₹{$gstData['total_price']} (including GST). Response: {$request->admin_negotiation_response}";
+
+            $user->notify(new AdditionalServiceNotification(
+                $additionalService, 
+                'negotiation_responded',
+                $message
+            ));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Negotiation response sent successfully.',
+                'data' => [
+                    'final_base_price' => $gstData['base_price'],
+                    'cgst' => $gstData['cgst'],
+                    'sgst' => $gstData['sgst'],
+                    'final_total_price' => $gstData['total_price']
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate invoice for completed additional service
+     */
+    public function generateInvoice($id)
+    {
+        $additionalService = AdditionalService::with(['professional', 'user', 'booking'])
+            ->findOrFail($id);
+
+        // Check if service is completed and paid
+        if ($additionalService->payment_status !== 'paid' || 
+            $additionalService->consulting_status !== 'done') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice can only be generated for completed and paid services.'
+            ], 400);
+        }
+
+        // Get effective pricing
+        $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
+        $gstData = $additionalService->calculateGST($effectiveBasePrice);
+
+        $invoiceData = [
+            'invoice_number' => 'INV-AS-' . str_pad($additionalService->id, 6, '0', STR_PAD_LEFT),
+            'invoice_date' => now()->format('Y-m-d'),
+            'service' => $additionalService,
+            'customer' => $additionalService->user,
+            'professional' => $additionalService->professional,
+            'pricing' => [
+                'base_price' => $effectiveBasePrice,
+                'cgst' => $gstData['cgst'],
+                'sgst' => $gstData['sgst'],
+                'igst' => $gstData['igst'],
+                'total_price' => $gstData['total_price']
+            ],
+            'price_history' => json_decode($additionalService->price_history, true) ?? [],
+            'negotiation_details' => [
+                'original_price' => $additionalService->base_price,
+                'user_negotiated_price' => $additionalService->user_negotiated_price,
+                'admin_final_price' => $additionalService->admin_final_negotiated_price,
+                'negotiation_status' => $additionalService->negotiation_status
+            ]
+        ];
+
+        return view('admin.additional-services.invoice', $invoiceData);
+    }
+
+    /**
+     * Generate PDF invoice
+     */
+    public function generatePdfInvoice($id)
+    {
+        $additionalService = AdditionalService::with(['professional', 'user', 'booking'])
+            ->findOrFail($id);
+
+        if ($additionalService->payment_status !== 'paid' || 
+            $additionalService->consulting_status !== 'done') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice can only be generated for completed and paid services.'
+            ], 400);
+        }
+
+        // Get effective pricing
+        $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
+        $gstData = $additionalService->calculateGST($effectiveBasePrice);
+
+        $invoiceData = [
+            'invoice_number' => 'INV-AS-' . str_pad($additionalService->id, 6, '0', STR_PAD_LEFT),
+            'invoice_date' => now()->format('Y-m-d'),
+            'service' => $additionalService,
+            'customer' => $additionalService->user,
+            'professional' => $additionalService->professional,
+            'pricing' => [
+                'base_price' => $effectiveBasePrice,
+                'cgst' => $gstData['cgst'],
+                'sgst' => $gstData['sgst'],
+                'igst' => $gstData['igst'],
+                'total_price' => $gstData['total_price']
+            ]
+        ];
+
+        $pdf = Pdf::loadView('admin.additional-services.invoice-pdf', $invoiceData);
+        
+        return $pdf->download('additional-service-invoice-' . $additionalService->id . '.pdf');
     }
 }

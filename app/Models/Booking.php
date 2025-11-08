@@ -46,7 +46,15 @@ class Booking extends Model
         'remarks',
         'remarks_for_professional',
         'customer_document',
-        'professional_documents'
+        'professional_documents',
+        // Reschedule fields
+        'reschedule_count',
+        'original_date',
+        'original_time_slot',
+        'reschedule_reason',
+        'reschedule_requested_at',
+        'reschedule_approved_at',
+        'max_reschedules_allowed'
     ];
 
     /**
@@ -105,5 +113,44 @@ class Booking extends Model
     public function additionalServices()
     {
         return $this->hasMany(AdditionalService::class);
+    }
+    
+    /**
+     * Check if this booking can be rescheduled
+     */
+    public function canBeRescheduled()
+    {
+        return $this->reschedule_count < $this->max_reschedules_allowed;
+    }
+    
+    /**
+     * Get remaining reschedule attempts
+     */
+    public function getRemainingReschedules()
+    {
+        return max(0, $this->max_reschedules_allowed - $this->reschedule_count);
+    }
+    
+    /**
+     * Check if booking has been rescheduled
+     */
+    public function hasBeenRescheduled()
+    {
+        return $this->reschedule_count > 0;
+    }
+    
+    /**
+     * Get reschedule history summary
+     */
+    public function getRescheduleHistory()
+    {
+        return [
+            'count' => $this->reschedule_count,
+            'remaining' => $this->getRemainingReschedules(),
+            'original_date' => $this->original_date,
+            'original_time_slot' => $this->original_time_slot,
+            'last_reason' => $this->reschedule_reason,
+            'last_rescheduled_at' => $this->reschedule_approved_at
+        ];
     }
 }

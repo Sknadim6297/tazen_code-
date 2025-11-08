@@ -45,11 +45,10 @@
             <i class="fas fa-list"></i>
             <span>All Bookings</span>
         </a>
-        {{-- TEMPORARILY DISABLED - Additional Services Functionality --}}
-        {{-- <a href="{{ route('professional.additional-services.index') }}" class="menu-item {{ Route::is('professional.additional-services.*') ? 'active' : '' }}">
+        <a href="{{ route('professional.additional-services.index') }}" class="menu-item {{ Route::is('professional.additional-services.*') ? 'active' : '' }}">
             <i class="fas fa-plus-square"></i>
             <span>Additional Services</span>
-        </a> --}}
+        </a>
  <div class="menu-title">Events</div>
         <a href="{{ route('professional.events.index') }}" class="menu-item {{ Route::is('professional.events.*') ? 'active' : '' }}">
             <i class="fas fa-calendar-alt"></i>

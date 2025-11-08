@@ -2070,28 +2070,32 @@
                 </div>
                 
                 <div class="col-xl-4 col-lg-5">
-                    <!-- Service Context Indicator -->
-                    @if($requestedSubServiceId && $services && $services->subServices)
-                        @php $currentSubService = $services->subServices->where('id', $requestedSubServiceId)->first(); @endphp
-                        @if($currentSubService)
-                            <div class="box_booking mb-3">
-                                <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px;">
-                                    <small style="color: #1976d2; font-weight: 600;">
-                                        <i class="fas fa-info-circle"></i> Showing rates for: {{ $currentSubService->name }}
-                                    </small>
-                                </div>
+                    <!-- Service Selection Dropdown -->
+                    @if($services && $services->subServices && count($services->subServices) > 0)
+                        <div class="box_booking mb-3">
+                            <div style="padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+                                <label style="margin: 0 0 10px 0; color: #333; font-weight: 600; font-size: 14px;">
+                                    <i class="fas fa-layer-group"></i> Select Service
+                                </label>
+                                
+                                <select id="service-selector-dropdown" 
+                                        onchange="handleServiceSelection(this.value)"
+                                        style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 14px; font-weight: 500; cursor: pointer;">
+                                    <option value="" {{ !$requestedSubServiceId ? 'selected' : '' }}>
+                                        {{ $services->name }} (Main Service)
+                                    </option>
+                                    @foreach($services->subServices as $subService)
+                                        <option value="{{ $subService->id }}" {{ $requestedSubServiceId == $subService->id ? 'selected' : '' }}>
+                                            {{ $subService->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                
+                                <small style="color: #6c757d; font-style: italic; margin-top: 8px; display: block;">
+                                    <i class="fas fa-info-circle"></i> Choose a service to see rates and availability
+                                </small>
                             </div>
-                        @endif
-                    @else
-                        @if($services && $services->subServices && count($services->subServices) > 0)
-                            <div class="box_booking mb-3">
-                                <div style="padding: 15px; background: #f3e5f5; border-left: 4px solid #9c27b0; border-radius: 8px;">
-                                    <small style="color: #7b1fa2; font-weight: 600;">
-                                        <i class="fas fa-info-circle"></i> Showing general service rates for: {{ $services->name }}
-                                    </small>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     @endif
 
                     <!-- Appointment Type Tabs -->
@@ -2193,18 +2197,7 @@
                             <a href="#0" class="close_panel_mobile"><i class="icon_close"></i></a>
                         </div>
                         <div class="main">
-                            @guest('user')
-                                <div class="auth-required-booking" style="text-align: center; padding: 40px 20px;">
-                                    <i class="fas fa-calendar-times" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-                                    <h4 style="color: #666; margin-bottom: 15px; font-weight: 600;">Login Required</h4>
-                                    <p style="color: #888; margin-bottom: 20px;">You need to be logged in to select dates, times, and book appointments.</p>
-                                    <a href="javascript:void(0);" onclick="openLoginModal()" 
-                                       class="btn_1" 
-                                       style="background: #2563eb; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">
-                                        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Login to Book
-                                    </a>
-                                </div>
-                            @else
+                            
                                 <div id="selected-plan-display" style="display:none;">
                                     <strong>Selected Plan: </strong><span id="selected-plan-text">None</span>
                                     <input type="hidden" id="selected_plan" name="selected_plan" value="">
@@ -2226,6 +2219,10 @@
                                         Select <span id="required-dates">0</span> date(s) for your booking 
                                         <span style="color: #2563eb;">(<span id="selected-dates-count">0</span> selected)</span>
                                     </p>
+                                    <div id="session-limit-warning" style="display: none; margin-top: 8px; padding: 6px 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404; font-size: 0.9rem;">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
+                                        <span id="session-limit-text">Session limit reached</span>
+                                    </div>
                                 </div>
                                 
                                 <div style="display: flex; justify-content: center; margin-top: 20px;">
@@ -2324,7 +2321,7 @@
                                 </ul>
                                 
                                 <a href="javascript:void(0);" class="btn_1 full-width booking" id="bookNowBtn">Book Now</a>
-                            @endguest
+                            
                         </div>
                     </div>
                     
@@ -2684,7 +2681,7 @@
                 // Show date selection info and update required dates
                 const dateSelectionInfo = document.getElementById('date-selection-info');
                 const requiredDatesSpan = document.getElementById('required-dates');
-                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                selectedDatesCountSpan = document.getElementById('selected-dates-count');
                 
                 if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
                     requiredDatesSpan.textContent = sessionCount;
@@ -2869,6 +2866,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            // Update service context indicator
+                            updateServiceContext(subServiceId, data.sub_service_name);
+                            
                             // Update rates tabs
                             updateRatesTabs(data.rates);
                             
@@ -2886,6 +2886,43 @@
                     .finally(() => {
                         loadingOverlay.remove();
                     });
+            }
+
+            // Handle dropdown service selection
+            function handleServiceSelection(subServiceId) {
+                if (subServiceId === '') {
+                    // Main service selected
+                    updateRatesAndAvailability(null);
+                } else {
+                    // Sub-service selected
+                    updateRatesAndAvailability(subServiceId);
+                }
+            }
+
+            // Function to update service context indicator (now simplified)
+            function updateServiceContext(subServiceId, subServiceName) {
+                // Context display removed for cleaner UI
+                console.log('Service context updated:', subServiceId ? subServiceName : 'Main Service');
+            }
+
+            // Function to switch to main service (simplified)
+            function switchToMainService() {
+                // Update dropdown selection
+                const dropdown = document.getElementById('service-selector-dropdown');
+                if (dropdown) dropdown.value = '';
+                
+                // Update rates and availability for main service
+                updateRatesAndAvailability(null);
+            }
+
+            // Function to switch to sub-service (simplified)
+            function switchToSubService(subServiceId, subServiceName) {
+                // Update dropdown selection
+                const dropdown = document.getElementById('service-selector-dropdown');
+                if (dropdown) dropdown.value = subServiceId;
+                
+                // Update rates and availability for sub-service
+                updateRatesAndAvailability(subServiceId);
             }
 
             // Function to update rates tabs
@@ -2940,13 +2977,27 @@
                         'quarterly': 'per 3 months'
                     }[rate.session_type.toLowerCase()] || 'per session';
                     
+                       // Build features list
+                       let featuresHTML = '';
+                       if (rate.features && Array.isArray(rate.features) && rate.features.length > 0) {
+                           featuresHTML = rate.features.map(feature => {
+                               if (feature && feature.trim()) {
+                                   return `<li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${feature}</span></li>`;
+                               }
+                               return '';
+                           }).join('');
+                       }
+                   
+                       // Add default features
+                       featuresHTML += `<li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${rate.num_sessions} sessions</span></li>`;
+                       featuresHTML += `<li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>`;
+                   
                     tabPane.innerHTML = `
                         <div class="appointment-details" style="max-width:500px; margin:auto;">
                             <h4 style="font-weight:700; color:#222; margin-bottom:10px;">${rate.session_type.charAt(0).toUpperCase() + rate.session_type.slice(1)} Consultation</h4>
                             <p style="color:#555; margin-bottom:18px;">Professional consultation service</p>
                             <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
-                                <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">${rate.num_sessions} sessions</span></li>
-                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                   ${featuresHTML}
                             </ul>
                             <div class="price" style="margin-bottom:18px;">
                                 <strong style="font-size:2rem; color:#2563eb; font-weight:700;">Rs. ${Number(rate.final_rate).toFixed(2)}</strong><br>
@@ -3021,6 +3072,9 @@
                 // Existing bookings and enabled dates are available for internal use
                 
                 window.selectedBookings = {};
+                
+                // Declare variables that will be used throughout the scope
+                let selectedDatesCountSpan;
 
                 // Helper function to format the date to local date string
                 function formatLocalDate(date) {
@@ -3145,7 +3199,7 @@
                     });
 
                     // Update selected dates counter
-                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    let selectedDatesCountSpan = document.getElementById('selected-dates-count');
                     if (selectedDatesCountSpan) {
                         selectedDatesCountSpan.textContent = selectedDates.length;
                         
@@ -3237,6 +3291,11 @@
                         }
                         if (typeof updateSelectedTimeList === 'function') {
                             updateSelectedTimeList();
+                        }
+                        
+                        // Update slot availability based on session limits
+                        if (typeof updateSlotAvailabilityFrontend === 'function') {
+                            updateSlotAvailabilityFrontend();
                         }
                     } else {
                         // No dates selected, show the message
@@ -3346,6 +3405,26 @@
                             return;
                         }
 
+                        // Check session limit before allowing selection
+                        const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                        const currentSelectedCount = Object.keys(selectedBookings).length;
+                        
+                        if (this.checked && currentSelectedCount >= currentSessionCount && currentSessionCount > 0) {
+                            // User is trying to select more than allowed
+                            this.checked = false;
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Session Limit Reached',
+                                    text: `You can only select ${currentSessionCount} session(s) for this booking type.`,
+                                    confirmButtonColor: '#2563eb'
+                                });
+                            } else {
+                                alert(`You can only select ${currentSessionCount} session(s) for this booking type.`);
+                            }
+                            return;
+                        }
+
                         if (currentDate && selectedTime) {
                             if (!selectedBookings[currentDate]) {
                                 selectedBookings[currentDate] = [];
@@ -3358,24 +3437,26 @@
                             updateSelectedTimeList();
                             
                             // Update selected dates counter when a time slot is selected
-                            const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                            selectedDatesCountSpan = document.getElementById('selected-dates-count');
                             if (selectedDatesCountSpan) {
-                                const currentDateCount = Object.keys(selectedBookings).length;
-                                selectedDatesCountSpan.textContent = currentDateCount;
+                                const updatedDateCount = Object.keys(selectedBookings).length;
+                                selectedDatesCountSpan.textContent = updatedDateCount;
                                 
                                 // Update color based on requirement
                                 const parentElement = selectedDatesCountSpan.parentElement;
-                                const currentSessionCount = sessionCount || window.currentSessionCount || 0;
                                 if (currentSessionCount > 0) {
-                                    if (currentDateCount === currentSessionCount) {
+                                    if (updatedDateCount === currentSessionCount) {
                                         parentElement.style.color = '#28a745'; // Green when correct
-                                    } else if (currentDateCount > currentSessionCount) {
+                                    } else if (updatedDateCount > currentSessionCount) {
                                         parentElement.style.color = '#dc3545'; // Red when too many
                                     } else {
                                         parentElement.style.color = '#2563eb'; // Blue when need more
                                     }
                                 }
                             }
+                            
+                            // Update slot availability based on session limit
+                            updateSlotAvailabilityFrontend();
                         }
                     });
                 });
@@ -3401,8 +3482,64 @@
                         white-space: nowrap;
                         z-index: 2;
                     }
+                    
+                    /* Session limit disabled states */
+                    .flatpickr-day.session-limit-disabled {
+                        color: #ccc !important;
+                        background: #f5f5f5 !important;
+                        cursor: not-allowed !important;
+                        pointer-events: none !important;
+                    }
+                    
+                    .slot-box.session-limit-disabled {
+                        opacity: 0.5;
+                        pointer-events: none;
+                    }
+                    
+                    .slot-box.session-limit-disabled label {
+                        background: #f8f9fa !important;
+                        color: #6c757d !important;
+                        cursor: not-allowed !important;
+                    }
                 `;
                 document.head.appendChild(style);
+
+                // Function to update slot availability based on session limits
+                function updateSlotAvailabilityFrontend() {
+                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                    const currentSelectedCount = Object.keys(selectedBookings).length;
+                    const isLimitReached = currentSelectedCount >= currentSessionCount && currentSessionCount > 0;
+                    
+                    // Update session limit warning
+                    const sessionLimitWarning = document.getElementById('session-limit-warning');
+                    const sessionLimitText = document.getElementById('session-limit-text');
+                    
+                    if (sessionLimitWarning && sessionLimitText) {
+                        if (isLimitReached) {
+                            sessionLimitWarning.style.display = 'block';
+                            sessionLimitText.textContent = `Session limit reached (${currentSelectedCount}/${currentSessionCount})`;
+                        } else {
+                            sessionLimitWarning.style.display = 'none';
+                        }
+                    }
+                    
+                    // If limit is reached, disable date selection in calendar
+                    if (isLimitReached) {
+                        // Disable calendar date selection
+                        const flatpickrInstance = document.getElementById('calendarDiv')._flatpickr;
+                        if (flatpickrInstance) {
+                            // Update enable function to only allow already selected dates
+                            const selectedDates = Object.keys(selectedBookings);
+                            flatpickrInstance.set('enable', selectedDates.map(date => new Date(date)));
+                        }
+                    } else {
+                        // Re-enable all available dates
+                        const flatpickrInstance = document.getElementById('calendarDiv')._flatpickr;
+                        if (flatpickrInstance && window.enabledDates) {
+                            flatpickrInstance.set('enable', window.enabledDates.map(date => new Date(date)));
+                        }
+                    }
+                }
 
                 // Function to update selected time display
                 function updateSelectedTimeDisplay() {
@@ -3476,8 +3613,31 @@
                                 }
                                 updateSelectedTimeList(); // Re-render the list
                                 
+                                // Update selected dates counter when an item is removed
+                                selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                                if (selectedDatesCountSpan) {
+                                    const updatedDateCount = Object.keys(selectedBookings).length;
+                                    selectedDatesCountSpan.textContent = updatedDateCount;
+                                    
+                                    // Update color based on requirement
+                                    const parentElement = selectedDatesCountSpan.parentElement;
+                                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                                    if (currentSessionCount > 0) {
+                                        if (updatedDateCount === currentSessionCount) {
+                                            parentElement.style.color = '#28a745'; // Green when correct
+                                        } else if (updatedDateCount > currentSessionCount) {
+                                            parentElement.style.color = '#dc3545'; // Red when too many
+                                        } else {
+                                            parentElement.style.color = '#2563eb'; // Blue when need more
+                                        }
+                                    }
+                                }
+                                
+                                // Update slot availability when item is removed
+                                updateSlotAvailabilityFrontend();
+                                
                                 // Update selected dates counter
-                                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                                selectedDatesCountSpan = document.getElementById('selected-dates-count');
                                 if (selectedDatesCountSpan) {
                                     const currentDateCount = Object.keys(selectedBookings).length;
                                     selectedDatesCountSpan.textContent = currentDateCount;
@@ -3598,7 +3758,7 @@
                     // Show date selection info and update required dates
                     const dateSelectionInfo = document.getElementById('date-selection-info');
                     const requiredDatesSpan = document.getElementById('required-dates');
-                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    selectedDatesCountSpan = document.getElementById('selected-dates-count');
                     
                     if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
                         requiredDatesSpan.textContent = sessionCount;

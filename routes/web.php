@@ -83,8 +83,14 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
 
 // Professional details page - public viewing but requires auth for booking
+Route::get("professionals/details/{id}/{professional_name?}/{sub_service_slug?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+
+// AJAX routes for dynamic filtering
+Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
+Route::get('/get-professional-rates-availability', [HomeController::class, 'getProfessionalRatesAvailability'])->name('get.professional.rates.availability');
 Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
-Route::get('professionals/get-rates-by-sub-service', [HomeController::class, 'getProfessionalRatesBySubService'])->name('get.professional.rates.availability');
+// Removed conflicting duplicate route name to ensure JSON endpoint resolves correctly
+// Route::get('professionals/get-rates-by-sub-service', [HomeController::class, 'getProfessionalRatesBySubService'])->name('get.professional.rates.availability');
 
 Route::get('about', function () {
     $about_us = AboutUs::latest()->get();
@@ -106,9 +112,7 @@ Route::get('/eventlist', function (Request $request) {
     $event_mode = $request->query('event_mode');
 
     // Get admin events
-    $adminEvents = EventDetail::with('event'); // Eager load event relation
-
-    $adminEvents = $adminEvents->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+    $adminEvents = EventDetail::with('event')->whereHas('event', function ($query) use ($filter, $category, $price_range) {
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
@@ -228,6 +232,11 @@ Route::get('/eventlist', function (Request $request) {
     return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range', 'cities', 'city', 'event_modes', 'event_mode'));
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
+    $event = Event::with('eventDetails')->findOrFail($id);
+    $services = Service::all();
+    $eventfaqs = EventFAQ::latest()->get();
+
+    return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
     // First try to find in AllEvent (for professional events)
     $allEvent = AllEvent::find($id);
 
@@ -288,32 +297,26 @@ Route::get('blog', function (Request $request) {
     return view('frontend.sections.blog', compact('blogbanners', 'blogPosts', 'services', 'latestBlogs', 'categoryCounts', 'search', 'category'));
 })->name('blog.index');
 Route::get('/blog-post/{identifier}', function ($identifier) {
-    // identifier can be numeric ID or slugified title
+    $blogPost = null;
+
     if (is_numeric($identifier)) {
         // Handle numeric ID
-        $blogPost = DB::table('blog_posts')->where('id', $identifier)->first();
+        $blogPost = App\Models\BlogPost::with('blog')->find($identifier);
+        if ($blogPost) {
+            // Redirect to slug URL for SEO consistency
+            $slug = \Illuminate\Support\Str::slug($blogPost->blog->title ?? '');
+            if ($slug && $slug !== (string) $identifier) {
+                return redirect()->route('blog.show', $slug);
+            }
+        }
     } else {
         // Handle slug - find by matching slugified title
-        $allBlogPosts = BlogPost::with('blog')->get();
-        $blogPost = null;
+        $allBlogPosts = App\Models\BlogPost::with('blog')->get();
         foreach ($allBlogPosts as $bp) {
-            if (\Illuminate\Support\Str::slug($bp->blog->title) === $identifier) {
+            if (\Illuminate\Support\Str::slug($bp->blog->title ?? '') === $identifier) {
                 $blogPost = $bp;
                 break;
             }
-        }
-        // Convert to compatible format if found via Eloquent
-        if ($blogPost) {
-            $blogPost = (object) [
-                'id' => $blogPost->id,
-                'title' => $blogPost->blog->title,
-                'image' => $blogPost->image,
-                'content' => $blogPost->content,
-                'category' => $blogPost->category,
-                'published_at' => $blogPost->published_at,
-                'author_name' => $blogPost->author_name,
-                'blog_id' => $blogPost->blog_id,
-            ];
         }
     }
 
@@ -323,8 +326,8 @@ Route::get('/blog-post/{identifier}', function ($identifier) {
     }
 
     $relatedBlog = DB::table('blogs')->where('id', $blogPost->blog_id)->first();
-    $latestBlogs = BlogPost::latest()->take(3)->get();
-    $categoryCounts = BlogPost::select('category', DB::raw('count(*) as post_count'))
+    $latestBlogs = App\Models\BlogPost::latest()->take(3)->get();
+    $categoryCounts = App\Models\BlogPost::select('category', DB::raw('count(*) as post_count'))
         ->groupBy('category')
         ->get();
     $comments = \App\Models\Comment::where('blog_post_id', $blogPost->id)
@@ -334,7 +337,7 @@ Route::get('/blog-post/{identifier}', function ($identifier) {
         ->get();
 
     // Fetch latest services
-    $services = Service::latest()->get();
+    $services = App\Models\Service::latest()->get();
 
     return view('frontend.sections.blog-post', compact('blogPost', 'services', 'relatedBlog', 'latestBlogs', 'categoryCounts', 'comments'));
 })->name('blog.show');
@@ -389,6 +392,7 @@ Route::get('register', [LoginController::class, 'showRegisterForm'])->name('regi
 Route::post('login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('register', [LoginController::class, 'register'])->name('register.submit');
 Route::post('/register/send-otp', [App\Http\Controllers\Frontend\LoginController::class, 'sendOtp'])->name('register.send-otp');
+Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
 Route::post('/register/save-lead', [App\Http\Controllers\Frontend\LoginController::class, 'saveCustomerLead'])->name('register.save-lead');
 Route::post('/register/verify-otp', [App\Http\Controllers\Frontend\LoginController::class, 'verifyOtp'])->name('register.verify-otp');
 Route::post('/register/create-incomplete', [App\Http\Controllers\Frontend\LoginController::class, 'createIncompleteUser'])->name('register.create-incomplete');
