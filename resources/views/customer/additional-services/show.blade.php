@@ -4,15 +4,21 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/appointment.css') }}" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+    /* Global Font */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
     /* Modern Page Header */
     .page-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
         position: relative;
         overflow: hidden;
     }
@@ -28,149 +34,220 @@
         transform: rotate(45deg);
         border-radius: 50px;
     }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
     
     .page-title h3 {
-        font-size: 2.2rem;
-        font-weight: 700;
+        font-size: 2.5rem;
+        font-weight: 800;
         margin: 0;
         color: #fff;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         position: relative;
         z-index: 2;
+        letter-spacing: -0.5px;
     }
     
     .breadcrumb {
         background: none;
         padding: 0;
-        margin: 0.5rem 0 0 0;
+        margin: 1rem 0 0 0;
         list-style: none;
         display: flex;
         gap: 0.5rem;
         font-size: 0.95rem;
         position: relative;
         z-index: 2;
+        font-weight: 500;
     }
     
     .breadcrumb li a {
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        transition: color 0.3s ease;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
     }
     
     .breadcrumb li a:hover {
         color: #fff;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
     }
     
     .breadcrumb li.active {
         font-weight: 600;
         color: #fff;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
     }
 
     /* Content Wrapper */
     .content-wrapper {
-        padding: 20px;
+        padding: 30px;
         min-height: 100vh;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
 
     /* Enhanced Card Styling */
     .card {
         border: none;
-        border-radius: 20px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         overflow: hidden;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         background: #fff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+        transform: translateY(-8px);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
 
     .card-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 1px solid #dee2e6;
-        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 2rem 2.5rem;
         position: relative;
     }
 
-    .card-header::before {
+    .card-header::after {
         content: '';
         position: absolute;
         bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #007bff, #6610f2, #6f42c1);
+        left: 2.5rem;
+        right: 2.5rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
     }
 
     .card-header h4, .card-header h5 {
         margin: 0;
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #2c3e50;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
     .card-body {
-        padding: 2rem;
-
+        padding: 2.5rem;
     }
 
-    /* Badge Styling */
+    /* Enhanced Badge Styling */
     .badge {
-        padding: 0.6rem 1.2rem;
-        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.875rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .badge:hover::before {
+        left: 100%;
     }
 
     .badge-pending {
-        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
-        color: #856404;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
     }
 
     .badge-approved {
-        background: linear-gradient(135deg, #55a3ff, #667eea);
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
         color: #fff;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
 
     .badge-paid {
-        background: linear-gradient(135deg, #00b894, #00cec9);
+        background: linear-gradient(135deg, #10b981, #059669);
         color: #fff;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
 
     .badge-in-progress {
-        background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         color: #fff;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
     }
 
     .badge-completed {
-        background: linear-gradient(135deg, #00b894, #55a3ff);
+        background: linear-gradient(135deg, #10b981, #3b82f6);
         color: #fff;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
 
     /* Enhanced Button Styling */
     .btn {
-        padding: 0.8rem 1.5rem;
-        border-radius: 12px;
+        padding: 1rem 2rem;
+        border-radius: 16px;
         font-weight: 600;
-        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         cursor: pointer;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(10px);
     }
 
     .btn::before {
@@ -180,115 +257,126 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
     }
 
     .btn:hover::before {
         left: 100%;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #00b894, #55a3ff);
-        color: #fff;
-        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+    .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
-    /* Pay Now Button - Special Styling */
+    .btn:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
+        color: #fff;
+    }
+
+    /* Special Pay Now Button */
     .pay-now-btn {
-        background: linear-gradient(135deg, #00b894, #55a3ff) !important;
+        background: linear-gradient(135deg, #10b981, #3b82f6) !important;
         color: white !important;
         border: none !important;
-        padding: 12px 24px !important;
+        padding: 1.25rem 2.5rem !important;
         font-size: 1.1rem !important;
-        font-weight: 600 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4) !important;
-        transition: all 0.3s ease !important;
+        font-weight: 700 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4) !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
         position: relative !important;
         overflow: hidden !important;
-        animation: pulse-pay 2s infinite !important;
+        animation: pulse-glow 3s infinite !important;
     }
 
     .pay-now-btn:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.6) !important;
-        background: linear-gradient(135deg, #55a3ff, #00b894) !important;
+        transform: translateY(-4px) !important;
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6) !important;
+        background: linear-gradient(135deg, #3b82f6, #10b981) !important;
     }
 
     .pay-now-btn:focus {
         outline: none !important;
-        box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.3) !important;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3) !important;
     }
 
-    /* Pulse animation for Pay Now button */
-    @keyframes pulse-pay {
-        0% {
-            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
         }
         50% {
-            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.8);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.8);
         }
-        100% {
-            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
-        }
-    }
-
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.6);
-        color: #fff;
     }
 
     .btn-warning {
-        background: linear-gradient(135deg, #fdcb6e, #e17055);
+        background: linear-gradient(135deg, #f59e0b, #d97706);
         color: #fff;
-        box-shadow: 0 4px 15px rgba(253, 203, 110, 0.4);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
     .btn-warning:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(253, 203, 110, 0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(245, 158, 11, 0.6);
         color: #fff;
+        background: linear-gradient(135deg, #d97706, #b45309);
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
         color: #fff;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
     }
 
     .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6);
         color: #fff;
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
     }
 
     .btn-outline-secondary {
-        background: transparent;
-        color: #6c757d;
-        border: 2px solid #6c757d;
-        box-shadow: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
     }
 
     .btn-outline-secondary:hover {
-        background: #6c757d;
+        background: #64748b;
         color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(100, 116, 139, 0.4);
+        border-color: #64748b;
     }
 
-    /* Alert Styling */
+    /* Enhanced Alert Styling */
     .alert {
         border: none;
-        border-radius: 15px;
-        padding: 1.5rem;
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
         font-weight: 500;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
     }
 
     .alert::before {
@@ -300,34 +388,60 @@
         height: 100%;
     }
 
+    .alert::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        opacity: 0.1;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
     .alert-warning {
-        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-        color: #856404;
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.15));
+        color: #92400e;
+        border: 1px solid rgba(251, 191, 36, 0.2);
     }
 
     .alert-warning::before {
-        background: #ffc107;
+        background: linear-gradient(180deg, #fbbf24, #f59e0b);
     }
 
     .alert-danger {
-        background: linear-gradient(135deg, #f8d7da, #fd79a8);
-        color: #721c24;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.15));
+        color: #991b1b;
+        border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
     .alert-danger::before {
-        background: #dc3545;
+        background: linear-gradient(180deg, #ef4444, #dc2626);
     }
 
     .alert-info {
-        background: linear-gradient(135deg, #d1ecf1, #74b9ff);
-        color: #0c5460;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.15));
+        color: #1e40af;
+        border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
     .alert-info::before {
-        background: #17a2b8;
+        background: linear-gradient(180deg, #3b82f6, #1d4ed8);
     }
 
-    /* Custom Modal Styling */
+    .alert-success {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.15));
+        color: #065f46;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .alert-success::before {
+        background: linear-gradient(180deg, #10b981, #059669);
+    }
+
+    /* Enhanced Modal Styling */
     .custom-modal {
         display: none;
         position: fixed;
@@ -336,9 +450,9 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
-        animation: fadeIn 0.3s ease;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.4s ease;
     }
 
     .custom-modal.show {
@@ -349,39 +463,56 @@
 
     .modal-content {
         background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 500px;
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
         width: 90%;
         max-height: 90vh;
         overflow-y: auto;
         position: relative;
-        animation: slideInUp 0.4s ease;
+        animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .modal-header {
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: #fff;
-        padding: 1.5rem 2rem;
-        border-radius: 20px 20px 0 0;
+        padding: 2rem 2.5rem;
+        border-radius: 24px 24px 0 0;
         position: relative;
+        overflow: hidden;
+    }
+
+    .modal-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ffffff33, #ffffff66, #ffffff33);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
     }
 
     .modal-title {
         margin: 0;
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.4rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
     .modal-close {
         position: absolute;
-        top: 1rem;
-        right: 1.5rem;
+        top: 1.5rem;
+        right: 2rem;
         background: rgba(255, 255, 255, 0.2);
         border: none;
         color: #fff;
-        width: 35px;
-        height: 35px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         cursor: pointer;
         font-size: 1.2rem;
@@ -389,23 +520,25 @@
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
     }
 
     .modal-close:hover {
         background: rgba(255, 255, 255, 0.3);
-        transform: rotate(90deg);
+        transform: rotate(90deg) scale(1.1);
     }
 
     .modal-body {
-        padding: 2rem;
+        padding: 2.5rem;
     }
 
     .modal-footer {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid #e9ecef;
+        padding: 2rem 2.5rem;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         gap: 1rem;
         justify-content: flex-end;
+        background: #f8fafc;
     }
 
     /* Form Styling */
@@ -433,6 +566,134 @@
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
+    }
+    /* Enhanced Form Styling */
+    .form-label {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+        outline: none;
+        background: #fff;
+    }
+
+    .form-control:hover {
+        border-color: #cbd5e1;
+    }
+
+    /* Enhanced Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+        from {
+            transform: translateY(60px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Enhanced Responsive Design */
+    @media (max-width: 768px) {
+        .page-title h3 {
+            font-size: 2rem;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .modal-content {
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .pay-now-btn {
+            padding: 1rem 2rem !important;
+            font-size: 1rem !important;
+        }
+
+        .content-wrapper {
+            padding: 20px;
+        }
+
+        .page-header {
+            padding: 2rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-header h4, .card-header h5 {
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Additional Utility Classes */
+    .text-gradient {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+        transition: transform 0.3s ease;
     }
 
     @keyframes slideInUp {
@@ -472,42 +733,114 @@
         }
     }
 
-    /* Info Cards */
-    .info-card {
-        background: linear-gradient(135deg, #74b9ff, #0984e3);
-        color: #fff;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 6px 20px rgba(116, 185, 255, 0.3);
-    }
-
-    .info-card h6 {
-        margin: 0 0 1rem 0;
-        font-weight: 600;
-        opacity: 0.9;
-    }
-
-    /* Price Breakdown Card */
+    /* Modern Price Breakdown Cards */
     .price-breakdown {
-        background: linear-gradient(135deg, #00cec9, #00b894);
+        background: linear-gradient(135deg, #10b981, #059669);
         color: #fff;
-        border-radius: 15px;
+        border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 6px 20px rgba(0, 206, 201, 0.3);
+        box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .price-breakdown::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ffffff33, #ffffff66, #ffffff33);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
     }
 
     .price-breakdown .card-header {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
     }
 
-    .price-breakdown .card-header::before {
+    .price-breakdown .card-header::after {
         display: none;
     }
 
     .price-breakdown h6 {
         color: #fff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Negotiated Price Card */
+    .negotiated-price-card {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .negotiated-price-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ffffff33, #ffffff66, #ffffff33);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+
+    .negotiated-price-card .card-header {
+        background: rgba(255, 255, 255, 0.15);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    /* Enhanced Info Cards */
+    .info-card {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .info-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -25%;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .info-card h6 {
+        margin: 0 0 1rem 0;
+        font-weight: 700;
+        opacity: 0.95;
+        font-size: 1.1rem;
+    }
+
+    .info-card p {
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 </style>
 @endsection
@@ -529,7 +862,10 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="mb-0">Service Information</h4>
+                    <h4 class="mb-0">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        Service Information
+                    </h4>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -548,74 +884,139 @@
                         <p class="mb-0">{{ $additionalService->reason }}</p>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="d-block"><strong>Base Price:</strong></label>
-                            @php
-                                $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
-                                $originalBasePrice = $additionalService->base_price;
-                            @endphp
-                            <p class="mb-0">₹{{ number_format($effectiveBasePrice, 2) }}</p>
-                            @if($effectiveBasePrice != $originalBasePrice)
-                                <small class="text-muted">Original: ₹{{ number_format($originalBasePrice, 2) }}</small>
-                                @if($additionalService->negotiation_status !== 'none')
-                                    <br><small class="text-success">✅ Negotiated price applied</small>
-                                @endif
-                            @endif
+                    @php
+                        // Get the original professional price using the model method
+                        $originalProfessionalBasePrice = $additionalService->original_professional_price;
+                        
+                        // For Professional's Price Breakdown - always use original
+                        $originalCGST = $originalProfessionalBasePrice * 0.09;
+                        $originalSGST = $originalProfessionalBasePrice * 0.09;
+                        $originalTotalGST = $originalCGST + $originalSGST;
+                        $originalFinalPrice = $originalProfessionalBasePrice + $originalTotalGST;
+                        
+                        // Check if customer has negotiated
+                        $hasNegotiation = in_array($additionalService->negotiation_status, ['user_negotiated', 'admin_responded']);
+                        
+                        if ($hasNegotiation) {
+                            // For Negotiated Price Breakdown - show the negotiated amount
+                            if ($additionalService->negotiation_status === 'admin_responded') {
+                                // Professional accepted - show final negotiated price
+                                $negotiatedBasePrice = $additionalService->admin_final_negotiated_price;
+                            } else {
+                                // Still pending - show customer's offer
+                                $negotiatedBasePrice = $additionalService->user_negotiated_price;
+                            }
+                            
+                            // Calculate discount and new price based on ORIGINAL price
+                            $discountAmount = $originalProfessionalBasePrice - $negotiatedBasePrice;
+                            $discountPercent = ($originalProfessionalBasePrice > 0) ? (($discountAmount / $originalProfessionalBasePrice) * 100) : 0;
+                            
+                            $negotiatedCGST = $negotiatedBasePrice * 0.09;
+                            $negotiatedSGST = $negotiatedBasePrice * 0.09;
+                            $negotiatedTotalGST = $negotiatedCGST + $negotiatedSGST;
+                            $negotiatedFinalPrice = $negotiatedBasePrice + $negotiatedTotalGST;
+                        }
+                    @endphp
+
+                    <!-- Professional's Price Breakdown -->
+                    <div class="card mb-3 price-breakdown">
+                        <div class="card-header">
+                            <h6 class="mb-0">� Professional's Initial Price Breakdown</h6>
                         </div>
-                        <div class="col-md-6">
-                            <label class="d-block"><strong>Total Price (inc. GST):</strong></label>
-                            @php
-                                $effectiveTotalPrice = $additionalService->getEffectiveTotalPrice();
-                            @endphp
-                            <p class="text-success mb-0"><strong>₹{{ number_format($effectiveTotalPrice, 2) }}</strong></p>
-                            @if($additionalService->negotiation_status !== 'none')
-                                <small class="text-success">✅ Final amount after negotiation</small>
-                            @endif
+                        <div class="card-body">
+                            <table class="table table-borderless mb-0" style="color: #fff;">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Description</strong></td>
+                                        <td class="text-end"><strong>Amount</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Base Price</strong></td>
+                                        <td class="text-end"><strong>₹{{ number_format($originalProfessionalBasePrice, 2) }}</strong></td>
+                                    </tr>
+                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
+                                        <td colspan="2"><strong>Tax Breakdown</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>CGST 9%</td>
+                                        <td class="text-end">₹{{ number_format($originalCGST, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SGST 9%</td>
+                                        <td class="text-end">₹{{ number_format($originalSGST, 2) }}</td>
+                                    </tr>
+                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
+                                        <td><strong>Total GST (18%)</strong></td>
+                                        <td class="text-end"><strong>₹{{ number_format($originalTotalGST, 2) }}</strong></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid rgba(255,255,255,0.3);">
+                                        <td><strong>Final Amount</strong></td>
+                                        <td class="text-end"><h5 class="mb-0"><strong>₹{{ number_format($originalFinalPrice, 2) }}</strong></h5></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <div class="card mb-3 price-breakdown">
+                    @if($hasNegotiation)
+                    <!-- Negotiated Price Breakdown -->
+                    <div class="card mb-4 negotiated-price-card hover-scale">
                         <div class="card-header">
-                            <h6 class="mb-0">💰 Price Breakdown</h6>
+                            <h6 class="mb-0">
+                                <i class="fas fa-handshake"></i>
+                                Negotiated Price Breakdown
+                                @if($additionalService->negotiation_status === 'admin_responded')
+                                    <span class="badge badge-paid ms-2">✅ Accepted</span>
+                                @else
+                                    <span class="badge badge-pending ms-2">⏳ Pending</span>
+                                @endif
+                            </h6>
                         </div>
                         <div class="card-body">
-                            @php
-                                $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
-                                $cgst = $additionalService->cgst ?? ($effectiveBasePrice * 0.09);
-                                $sgst = $additionalService->sgst ?? ($effectiveBasePrice * 0.09);
-                                $effectiveTotalPrice = $additionalService->getEffectiveTotalPrice();
-                            @endphp
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-2">
-                                        <small class="d-block opacity-75">Base Price</small>
-                                        <strong>₹{{ number_format($effectiveBasePrice, 2) }}</strong>
-                                        @if($additionalService->negotiation_status !== 'none')
-                                            <br><small class="text-success">After negotiation</small>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <small class="d-block opacity-75">CGST (9%)</small>
-                                        <strong>₹{{ number_format($cgst, 2) }}</strong>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-2">
-                                        <small class="d-block opacity-75">SGST (9%)</small>
-                                        <strong>₹{{ number_format($sgst, 2) }}</strong>
-                                    </div>
-                                    <div class="p-3 bg-white bg-opacity-20 rounded">
-                                        <small class="d-block opacity-75">Total Amount</small>
-                                        <h5 class="mb-0">₹{{ number_format($effectiveTotalPrice, 2) }}</h5>
-                                        @if($additionalService->negotiation_status !== 'none')
-                                            <small class="text-success d-block">✅ Final negotiated amount</small>
-                                        @endif
-                                    </div>
-                                </div>
+                            <table class="table table-borderless mb-0" style="color: #fff;">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Description</strong></td>
+                                        <td class="text-end"><strong>Amount</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Base Price</td>
+                                        <td class="text-end">₹{{ number_format($originalProfessionalBasePrice, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Negotiation Discount ({{ number_format($discountPercent, 1) }}%)</td>
+                                        <td class="text-end text-warning">− ₹{{ number_format($discountAmount, 2) }}</td>
+                                    </tr>
+                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
+                                        <td><strong>New Price After Discount</strong></td>
+                                        <td class="text-end"><strong>₹{{ number_format($negotiatedBasePrice, 2) }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>GST 18% (9%+9%)</td>
+                                        <td class="text-end">₹{{ number_format($negotiatedTotalGST, 2) }}</td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid rgba(255,255,255,0.3);">
+                                        <td><strong>Final Price Customer Pays</strong></td>
+                                        <td class="text-end"><h5 class="mb-0 text-warning"><strong>₹{{ number_format($negotiatedFinalPrice, 2) }}</strong></h5></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="mt-3 text-center">
+                                @if($additionalService->negotiation_status === 'admin_responded')
+                                    @php
+                                        $totalSavings = $originalFinalPrice - $negotiatedFinalPrice;
+                                    @endphp
+                                    <small class="text-success d-block">✅ Negotiated price accepted - Ready for payment</small>
+                                    <small class="text-success"><i class="fas fa-piggy-bank"></i> You save: <strong>₹{{ number_format($totalSavings, 2) }}</strong> total</small>
+                                @else
+                                    <small class="text-warning d-block">⏳ Your negotiated offer is pending professional review</small>
+                                    <small class="d-block mt-1">Once accepted, you'll pay ₹{{ number_format($negotiatedFinalPrice, 2) }}</small>
+                                @endif
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     @if($additionalService->delivery_date)
                     <div class="mb-3">
@@ -626,33 +1027,51 @@
 
                     @if($additionalService->negotiation_status !== 'none')
                     <div class="alert {{ $additionalService->negotiation_status === 'user_negotiated' ? 'alert-warning' : 'alert-info' }}">
-                        <h5 class="mb-2">
+                        <h5 class="mb-3">
                             @if($additionalService->negotiation_status === 'user_negotiated')
-                                ⏳ Negotiation Pending Admin Review
+                                ⏳ Negotiation Pending Review
                             @else
-                                Negotiation Status
+                                ✅ Negotiation Accepted
                             @endif
                         </h5>
                         @if($additionalService->negotiation_status === 'user_negotiated')
                             @php
-                                // Determine who handles the negotiation based on who created the service
                                 $negotiationHandler = $additionalService->professional_id ? 'professional' : 'admin';
                                 $handlerLabel = $negotiationHandler === 'professional' ? 'Professional' : 'Admin';
                             @endphp
-                            <p class="mb-1"><strong>Your Negotiated Price:</strong> ₹{{ number_format($additionalService->user_negotiated_price, 2) }}</p>
-                            <p class="mb-1"><strong>Your Reason:</strong> {{ $additionalService->user_negotiation_reason }}</p>
+                            
+                            <div class="mb-2">
+                                <strong>Your Negotiated Offer:</strong> 
+                                <span class="text-success">₹{{ number_format($additionalService->user_negotiated_price, 2) }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Your Reason:</strong> 
+                                <p class="mb-0 text-muted">{{ $additionalService->user_negotiation_reason }}</p>
+                            </div>
                             <p class="text-info mb-0">
                                 <i class="fas fa-clock"></i> 
                                 <strong>Status:</strong> Waiting for {{ strtolower($handlerLabel) }} response... We'll notify you once {{ strtolower($handlerLabel) }} reviews your negotiation.
                             </p>
                         @elseif($additionalService->negotiation_status === 'admin_responded')
                             @php
-                                // Determine who handled the negotiation based on who created the service
                                 $modifierLabel = $additionalService->professional_id ? 'Professional' : 'Admin';
+                                $originalBasePriceForSavings = $additionalService->base_price; // Use the same original price
+                                $finalNegotiatedPrice = $additionalService->admin_final_negotiated_price;
+                                $totalSavings = ($originalBasePriceForSavings - $finalNegotiatedPrice) * 1.18;
+                                $savingsPercent = ($originalBasePriceForSavings > 0) ? (($originalBasePriceForSavings - $finalNegotiatedPrice) / $originalBasePriceForSavings * 100) : 0;
                             @endphp
-                            <p class="mb-1"><strong>Your Negotiated Price:</strong> ₹{{ number_format($additionalService->user_negotiated_price, 2) }}</p>
-                            <p class="mb-1"><strong>{{ $modifierLabel }}'s Final Price:</strong> <span class="text-success">₹{{ number_format($additionalService->admin_final_negotiated_price, 2) }}</span></p>
-                            <p class="mb-0"><strong>{{ $modifierLabel }}'s Response:</strong> {{ $additionalService->admin_negotiation_response }}</p>
+                            
+                            <div class="mb-2">
+                                <strong>Your Base Price Offer:</strong> ₹{{ number_format($additionalService->user_negotiated_price, 2) }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>{{ $modifierLabel }}'s Base Price Final Offer:</strong> 
+                                <span class="text-success">₹{{ number_format($finalNegotiatedPrice, 2) }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>{{ $modifierLabel }}'s Response:</strong> 
+                                <p class="mb-0 text-muted">{{ $additionalService->admin_negotiation_response }}</p>
+                            </div>
                             <div class="mt-2">
                                 <small class="text-success">✅ <strong>Good news!</strong> {{ $modifierLabel }} has responded to your negotiation. You can now proceed with payment at the updated price.</small>
                             </div>
@@ -774,25 +1193,28 @@
         </div>
         <form id="negotiationForm">
             <div class="modal-body">
+                @php
+                    $professional = $additionalService->professional;
+                    // Use professional->service_request_offset (percentage) for negotiation limit; default to 10%
+                    $maxDiscountPercent = $professional->service_request_offset ?? 10;
+                    // Effective base price (before GST)
+                    $basePrice = $additionalService->getEffectiveBasePrice();
+                    // Minimum allowed base price (e.g., 10% discount)
+                    $minBasePrice = $minPrice ?? round($basePrice * (1 - ($maxDiscountPercent / 100)), 2);
+                    // Final amounts including GST (18%) for display
+                    $minFinal = round($minBasePrice * 1.18, 2);
+                    $currentFinal = round($basePrice * 1.18, 2);
+                @endphp
+                
                 <div class="alert alert-info">
                     <div class="row">
                         <div class="col-6">
-                            <small class="d-block opacity-75">Current Price</small>
-                            <strong>₹{{ number_format($additionalService->final_price, 2) }}</strong>
+                            <small class="d-block opacity-75">Current Base Price</small>
+                            <strong>₹{{ number_format($basePrice, 2) }}</strong>
+                            <small class="d-block text-muted">+ GST (18%): ₹{{ number_format($basePrice * 0.18, 2) }}</small>
+                            <small class="d-block"><strong>Total: ₹{{ number_format($currentFinal, 2) }}</strong></small>
                         </div>
                         <div class="col-6">
-                            @php
-                                $professional = $additionalService->professional;
-                                // Use professional->service_request_offset (percentage) for negotiation limit; default to 10%
-                                $maxDiscountPercent = $professional->service_request_offset ?? 10;
-                                // Effective base price (before GST)
-                                $basePrice = $additionalService->getEffectiveBasePrice();
-                                // Minimum allowed base price (e.g., 10% discount)
-                                $minBasePrice = $minPrice ?? round($basePrice * (1 - ($maxDiscountPercent / 100)), 2);
-                                // Final amounts including GST (18%) for display
-                                $minFinal = round($minBasePrice * 1.18, 2);
-                                $currentFinal = round($basePrice * 1.18, 2);
-                            @endphp
                             <small class="d-block opacity-75">You can negotiate this service</small>
                             <strong class="text-success">💬 Make an offer</strong>
                         </div>
@@ -802,45 +1224,21 @@
                 <div class="mb-3">
                     <label for="negotiated_price" class="form-label">
                         <i class="fas fa-tag me-2"></i>Your Proposed Base Price (₹) *
-                        <small class="text-muted">(GST will be added automatically)</small>
+                        <small class="text-muted d-block mt-1">
+                            <i class="fas fa-info-circle"></i> 
+                            You are negotiating the <strong>base price</strong> (currently ₹{{ number_format($basePrice, 2) }}). 
+                            GST (18%) will be calculated on your negotiated price.
+                        </small>
                     </label>
-                    <input type="number" class="form-control" id="negotiated_price" name="negotiated_price" 
-                           data-min-price="{{ $minBasePrice }}" max="{{ $basePrice }}" step="0.01" required
-                           placeholder="Enter your proposed base price...">
+                    <input type="number" class="form-control form-control-lg" id="negotiated_price" name="negotiated_price" 
+                           data-min-price="{{ $minBasePrice }}" 
+                           data-max-price="{{ $basePrice }}"
+                           min="{{ $minBasePrice }}"
+                           max="{{ $basePrice }}" 
+                           step="0.01" 
+                           required
+                           placeholder="Enter amount between ₹{{ number_format($minBasePrice, 2) }} - ₹{{ number_format($basePrice, 2) }}">
                     
-                    <!-- Visible Price Guide Box -->
-                    <div class="alert alert-info mt-3 mb-3" style="border-left: 4px solid #0d6efd;">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted d-block">Minimum you can offer (Base)</small>
-                                    <strong class="text-warning" style="font-size: 1.2em;">₹{{ number_format($minBasePrice, 2) }}</strong>
-                                    <small class="d-block text-success">(saves ₹{{ number_format($basePrice - $minBasePrice, 2) }})</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted d-block">Current price (Base)</small>
-                                    <strong style="font-size: 1.2em;">₹{{ number_format($basePrice, 2) }}</strong>
-                                    <small class="d-block text-muted">{{ $maxDiscountPercent }}% discount limit</small>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="my-2">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <small class="text-muted d-block">Best possible final amount (with GST)</small>
-                                <strong class="text-success" style="font-size: 1.3em;">₹{{ number_format($minFinal, 2) }}</strong>
-                                <small class="d-block text-success">
-                                    <i class="fas fa-info-circle"></i> This is what you'll pay if you negotiate to the minimum price
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="invalid-feedback" id="price-error" style="display: none;">
-                        You can't negotiate below ₹{{ number_format($minBasePrice, 2) }} (base price)
-                    </div>
                 </div>
                 
                 <div class="mb-3">
@@ -1086,28 +1484,12 @@ $(document).ready(function() {
                 // Handle validation errors
                 const serverMessage = xhr.responseJSON?.message;
                 const errors = xhr.responseJSON?.errors;
-                const minPrice = $('#negotiated_price').data('min-price');
                 
-                if (errors && errors.negotiated_price) {
-                    toastr.error(`You can't negotiate below ₹${parseFloat(minPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-                } else if (serverMessage) {
-                    // Show server message if it's about negotiation limits
-                    if (serverMessage.includes('Minimum allowed price')) {
-                        toastr.error(serverMessage);
-                    } else if (serverMessage.includes('₹') || serverMessage.includes('minimum') || serverMessage.includes('below')) {
-                        toastr.error(`You can't negotiate below ₹${parseFloat(minPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-                    } else {
-                        toastr.error(serverMessage);
-                    }
+                if (serverMessage) {
+                    toastr.error(serverMessage);
                 } else if (errors) {
                     Object.values(errors).forEach(function(error) {
-                        // Filter price-related errors
-                        const errorMsg = error[0];
-                        if (errorMsg.includes('₹') || errorMsg.includes('minimum') || errorMsg.includes('below')) {
-                            toastr.error(`You can't negotiate below ₹${parseFloat(minPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-                        } else {
-                            toastr.error(errorMsg);
-                        }
+                        toastr.error(error[0]);
                     });
                 } else {
                     toastr.error('An error occurred. Please try again.');
@@ -1208,17 +1590,6 @@ $(document).ready(function() {
             } else {
                 $display.hide();
             }
-        }
-        
-        if (value && value < minPrice) {
-            $(this).addClass('is-invalid');
-            $errorDiv.show();
-        } else if (value > max) {
-            $(this).addClass('is-invalid');
-            $errorDiv.text('Price cannot exceed current base price').show();
-        } else {
-            $(this).removeClass('is-invalid');
-            $errorDiv.hide();
         }
     });
 });

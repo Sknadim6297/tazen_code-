@@ -113,7 +113,7 @@
   
 
 
-                    {{-- @if($isMenuAccessible('bank_accounts'))
+                    @if($isMenuAccessible('bank_accounts'))
                     <li class="slide">
                         <a href="{{ route('admin.bank-accounts.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@
                             <span class="side-menu__label">Bank Accounts</span>
                         </a>
                     </li>
-                    @endif --}}
+                    @endif
 
                     @if($isMenuAccessible('admin_booking'))
                     <li class="slide">

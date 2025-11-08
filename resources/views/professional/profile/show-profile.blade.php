@@ -99,11 +99,29 @@
                                 <span class="detail-value">{{ $profile->education ?? 'N/A' }}</span>
                                 @if(!$profile->education) <span class="warning-badge">Required</span> @endif
                             </div>
-                              <div class="detail-item">
-                                <span class="detail-label">Margin (%)</span>
-                                <span class="detail-value">{{ $profile->professional->margin ?? 'N/A' }}</span>
-                                @if(!$profile->professional->margin) <span class="warning-badge">Required</span> @endif
+                            
+                            {{-- Commission & Fees Section --}}
+                            @php
+                                $serviceRequestMargin = $profile->professional->service_request_margin ?? 10.00; // Dynamic service request margin
+                                $negotiationOffset = $profile->professional->service_request_offset ?? 20.00; // Dynamic negotiation offset  
+                                $mainMargin = $profile->professional->margin ?? 20.00; // Dynamic main margin
+                            @endphp
+                            <div class="detail-item" style="border-top: 2px solid #e9ecef; padding-top: 16px; margin-top: 16px;">
+                                <span class="detail-label" style="font-weight: 600; color: #3498db;">Service Request Margin</span>
+                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #3498db;">{{ number_format($serviceRequestMargin, 2) }}%</span>
+                                <small style="display: block; color: #6c757d; margin-top: 4px;">Commission for additional service requests</small>
                             </div>
+                            <div class="detail-item">
+                                <span class="detail-label" style="font-weight: 600; color: #e74c3c;">Negotiation Offset</span>
+                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #e74c3c;">{{ number_format($negotiationOffset, 2) }}%</span>
+                                <small style="display: block; color: #6c757d; margin-top: 4px;">Maximum negotiation limit for customers</small>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label" style="font-weight: 600; color: #28a745;">Main Margin</span>
+                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #28a745;">{{ number_format($mainMargin, 2) }}%</span>
+                                <small style="display: block; color: #6c757d; margin-top: 4px;">Platform commission on completed bookings</small>
+                            </div>
+                            
                             @if($profile->gst_number)
                             <div class="detail-item">
                                 <span class="detail-label">GST Number</span>
@@ -283,7 +301,17 @@
                 @if ($gallery && is_array($gallery))
                     @foreach ($gallery as $img)
                         <div class="gallery-item">
-                            <img src="{{ asset('storage/'.$img) }}" alt="Gallery Image">
+                            @php
+                                // Handle different image path formats
+                                if (str_starts_with($img, 'gallery/')) {
+                                    $imagePath = asset('storage/'.$img);
+                                } elseif (str_starts_with($img, 'uploads/')) {
+                                    $imagePath = asset($img);
+                                } else {
+                                    $imagePath = asset('uploads/professionals/gallery/'.$img);
+                                }
+                            @endphp
+                            <img src="{{ $imagePath }}" alt="Gallery Image">
                             <div class="gallery-overlay">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 16 16">
                             <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>

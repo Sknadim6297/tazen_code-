@@ -45,7 +45,6 @@ use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\HeaderController;
 use App\Http\Controllers\frontend\HomeController;
 
-
 Route::get('/run-migrate-seed', function () {
     Artisan::call('migrate', ['--force' => true]);
     Artisan::call('db:seed', ['--force' => true]);
@@ -342,6 +341,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/verify-payment', [App\Http\Controllers\Admin\AdminBookingController::class, 'verifyPayment'])->name('verify-payment');
         Route::get('/{id}/details', [App\Http\Controllers\Admin\AdminBookingController::class, 'getBookingDetails'])->name('details');
         Route::post('/{id}/mark-paid', [App\Http\Controllers\Admin\AdminBookingController::class, 'markAsPaid'])->name('mark-paid');
+    });
         Route::get('/debug-payment', function () {
             return response()->json([
                 'route_exists' => true,
@@ -423,4 +423,3 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::post('/mark-as-read/{chatId}', [App\Http\Controllers\Admin\CustomerChatController::class, 'markAsRead'])->name('mark-as-read');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Admin\CustomerChatController::class, 'downloadAttachment'])->name('attachment.download');
     });
-});

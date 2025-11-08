@@ -9,6 +9,7 @@ use App\Models\Professional;
 use App\Models\User;
 use App\Models\Admin;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Notification;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of additional services for the professional
      */
@@ -93,6 +95,7 @@ class AdditionalServiceController extends Controller
             $additionalService->service_name = $request->service_name;
             $additionalService->reason = $request->reason;
             $additionalService->base_price = $request->base_price;
+            $additionalService->original_professional_price = $request->base_price; // Store original price
             
             // Calculate GST and total price
             $basePrice = $request->base_price;
@@ -107,29 +110,26 @@ class AdditionalServiceController extends Controller
             
             $additionalService->save();
 
-            // Send notifications to User and Admin
-            $user = User::find($booking->user_id);
-            $admins = Admin::all();
-
-            if ($user) {
-                $user->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'new_service'
-                ));
-            }
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'new_service'
-                ));
-            }
+            // Send enhanced notifications using the trait
+            $this->sendNotificationWithLogging(
+                $additionalService, 
+                'new_service',
+                "Professional {$additionalService->professional->name} has created a new additional service '{$additionalService->service_name}' for booking #{$additionalService->booking_id}. Amount: ₹" . number_format($additionalService->total_price, 2),
+                [
+                    'action' => 'service_created',
+                    'booking_id' => $booking->id,
+                    'base_price' => $additionalService->base_price,
+                    'total_price' => $additionalService->total_price,
+                    'cgst' => $additionalService->cgst,
+                    'sgst' => $additionalService->sgst,
+                ]
+            );
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Additional service created successfully and notifications sent.',
+                'message' => 'Additional service created successfully and notifications sent to all parties.',
                 'redirect' => route('professional.additional-services.index')
             ]);
 
@@ -271,27 +271,24 @@ class AdditionalServiceController extends Controller
                 'can_complete_consultation' => false, // Will be updated when date passes
             ]);
 
-            // Notify admin and user
-            $admins = Admin::all();
-            $user = $additionalService->user;
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'delivery_date_set'
-                ));
-            }
-
-            $user->notify(new AdditionalServiceNotification(
-                $additionalService, 
-                'delivery_date_set'
-            ));
+            // Send enhanced notification
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'delivery_date_set',
+                "Professional has set delivery date to " . \Carbon\Carbon::parse($request->delivery_date)->format('M d, Y') . " for '{$additionalService->service_name}'",
+                [
+                    'action' => 'delivery_date_set',
+                    'delivery_date' => $request->delivery_date,
+                    'set_by' => 'professional',
+                    'professional_name' => $additionalService->professional->name,
+                ]
+            );
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Delivery date set successfully. Admin and customer have been notified.'
+                'message' => 'Delivery date set successfully. All parties have been notified.'
             ]);
 
         } catch (\Exception $e) {
@@ -665,5 +662,39 @@ class AdditionalServiceController extends Controller
         ]);
 
         return $pdf->download('invoice-' . $invoiceNumber . '.pdf');
+    }
+
+    /**
+     * Mark a notification as read for professional
+     */
+    public function markNotificationAsRead(Request $request, $notificationId)
+    {
+        try {
+            $professional = Auth::guard('professional')->user();
+            
+            // Find the notification for this professional
+            $notification = $professional->notifications()->where('id', $notificationId)->first();
+            
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found'
+                ], 404);
+            }
+            
+            // Mark as read
+            $notification->markAsRead();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while marking notification as read'
+            ], 500);
+        }
     }
 }

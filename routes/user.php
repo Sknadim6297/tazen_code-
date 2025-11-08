@@ -57,10 +57,12 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::resource('all-appointment', AppointmentController::class);
     Route::resource('upcoming-appointment', UpcomingAppointmentController::class);
-    Route::post('/upcoming-appointment/reschedule', [UpcomingAppointmentController::class, 'reschedule'])->name('upcoming-appointment.reschedule');
-    Route::get('/get-professional-availability/{professionalId}', [UpcomingAppointmentController::class, 'getProfessionalAvailability']);
     Route::post('/upload-document', [UpcomingAppointmentController::class, 'uploadDocument'])->name('upload.document');
     Route::get('/document-info/{id}', [UpcomingAppointmentController::class, 'getDocumentInfo'])->name('document.info');
+    
+    // Reschedule routes
+    Route::post('/upcoming-appointment/{booking}/reschedule', [UpcomingAppointmentController::class, 'reschedule'])->name('upcoming-appointment.reschedule');
+    Route::get('/upcoming-appointment/{booking}/professional-availability', [UpcomingAppointmentController::class, 'getProfessionalAvailability'])->name('upcoming-appointment.professional-availability');
 
     Route::get('appointments/{id}/details', [AppointmentController::class, 'showDetails'])->name('appointment.details');
 
@@ -84,6 +86,7 @@ Route::middleware(['auth:user'])->group(function () {
         Route::post('/{id}/confirm-consultation', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'confirmConsultation'])->name('confirm-consultation');
         Route::post('/{id}/create-payment-order', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'createPaymentOrder'])->name('create-payment-order');
         Route::post('/{id}/payment-success', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'handlePaymentSuccess'])->name('payment-success');
+        Route::post('/{id}/payment-failed', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'handlePaymentFailure'])->name('payment-failed');
         
         // Invoice Generation Routes
         Route::get('/{id}/invoice', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'generateInvoice'])->name('invoice');
@@ -112,4 +115,7 @@ Route::middleware(['auth:user'])->group(function () {
         Route::get('/unread-count', [App\Http\Controllers\Customer\ChatController::class, 'getUnreadCount'])->name('unread-count');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Customer\ChatController::class, 'downloadAttachment'])->name('attachment.download');
     });
+
+    // Notification Routes
+    Route::post('/notifications/{notificationId}/mark-as-read', [App\Http\Controllers\Customer\AdditionalServiceController::class, 'markNotificationAsRead'])->name('notifications.mark-as-read');
 });

@@ -338,6 +338,70 @@
                 </div>
             </div>
 
+            <!-- Gallery Images -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-images"></i>
+                    Gallery Images
+                </h3>
+                
+                <!-- Current Gallery Images -->
+                @if(optional($professional->profile)->gallery_array && count(optional($professional->profile)->gallery_array) > 0)
+                    <div class="mb-4">
+                        <label class="form-label">Current Gallery Images</label>
+                        <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            @foreach(optional($professional->profile)->gallery_array as $index => $image)
+                                <div class="gallery-item" style="position: relative; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                                    @php
+                                        // Handle different image path formats
+                                        if (str_starts_with($image, 'gallery/')) {
+                                            $imagePath = asset('storage/'.$image);
+                                        } elseif (str_starts_with($image, 'uploads/')) {
+                                            $imagePath = asset($image);
+                                        } else {
+                                            $imagePath = asset('uploads/professionals/gallery/'.$image);
+                                        }
+                                    @endphp
+                                    <img src="{{ $imagePath }}" 
+                                         style="width: 100%; height: 150px; object-fit: cover;" 
+                                         alt="Gallery Image {{ $index + 1 }}">
+                                    <div style="position: absolute; top: 5px; right: 5px;">
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                onclick="removeGalleryImage('{{ $image }}', this)" 
+                                                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div style="padding: 0.5rem; background: #f9fafb; font-size: 0.75rem; color: #6b7280;">
+                                        Image {{ $index + 1 }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="mb-4">
+                        <div style="text-align: center; padding: 2rem; background: #f9fafb; border-radius: 8px; color: #6b7280;">
+                            <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p style="margin: 0; font-size: 1.1rem;">No gallery images have been uploaded yet.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Upload New Gallery Images -->
+                <div class="form-group">
+                    <label for="gallery_images" class="form-label">Upload New Gallery Images</label>
+                    <input type="file" class="form-control" id="gallery_images" name="gallery_images[]" 
+                           accept="image/*" multiple>
+                    <small class="text-muted">
+                        You can select multiple images. Supported formats: JPG, JPEG, PNG. Max 5 images at once.
+                    </small>
+                </div>
+
+                <!-- Hidden field for removed images -->
+                <input type="hidden" id="removed_images" name="removed_images" value="">
+            </div>
+
             <!-- Form Actions -->
             <div class="actions">
                 <button type="submit" class="btn btn-primary">
@@ -357,5 +421,43 @@
 function confirmUpdate() {
     return confirm("Are you sure you want to edit this professional's details?");
 }
+
+// Gallery image removal functionality
+let removedImages = [];
+
+function removeGalleryImage(imagePath, button) {
+    if (confirm('Are you sure you want to remove this image?')) {
+        // Add to removed images list
+        removedImages.push(imagePath);
+        document.getElementById('removed_images').value = JSON.stringify(removedImages);
+        
+        // Remove the gallery item from DOM
+        button.closest('.gallery-item').remove();
+        
+        // Show message if no images left
+        const galleryGrid = document.querySelector('.gallery-grid');
+        if (galleryGrid && galleryGrid.children.length === 0) {
+            galleryGrid.parentElement.innerHTML = `
+                <div style="text-align: center; padding: 2rem; background: #f9fafb; border-radius: 8px; color: #6b7280;">
+                    <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="margin: 0; font-size: 1.1rem;">No gallery images have been uploaded yet.</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// File upload preview (optional enhancement)
+document.getElementById('gallery_images').addEventListener('change', function(e) {
+    const files = e.target.files;
+    if (files.length > 5) {
+        alert('You can upload maximum 5 images at once.');
+        e.target.value = '';
+        return;
+    }
+    
+    // Optional: Show preview of selected files
+    console.log(`Selected ${files.length} images for upload`);
+});
 </script>
 @endsection

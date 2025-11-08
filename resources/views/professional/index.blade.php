@@ -1383,14 +1383,38 @@
         $professionalId = Auth::guard('professional')->id();
         $professional = \App\Models\Professional::find($professionalId);
         $marginRate = $professional->margin ?? 20; // Default to 20% if not set
+        $serviceRequestMargin = $professional->service_request_margin ?? 10.00; // Dynamic service request margin
+        $negotiationOffset = $professional->service_request_offset ?? 20.00; // Dynamic negotiation offset
     @endphp
     <div class="content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); margin-bottom: 30px; overflow: hidden;">
         <div style="padding: 24px;">
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
                 <i class="fas fa-percentage" style="font-size: 24px; margin-right: 16px; color: #3498db;"></i>
                 <div>
-                    <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 18px;">Platform Fee Information</h4>
-                    <p style="margin: 0; color: #34495e; font-size: 16px;">Platform commission rate: <strong style="color: #3498db;">{{ $marginRate }}%</strong> on all completed bookings</p>
+                    <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 18px;">Commission & Fees</h4>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Service Request Margin</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #3498db;">{{ number_format($serviceRequestMargin, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Commission for additional service requests</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Negotiation Offset</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #e74c3c;">{{ number_format($negotiationOffset, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Maximum negotiation limit for customers</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Main Margin</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #28a745;">{{ number_format($marginRate, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Platform commission on completed bookings</p>
                 </div>
             </div>
         </div>

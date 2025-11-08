@@ -16,6 +16,7 @@ class AdditionalService extends Model
         'service_name',
         'reason',
         'base_price',
+        'original_professional_price',
         'cgst',
         'sgst',
         'igst',
@@ -63,6 +64,7 @@ class AdditionalService extends Model
 
     protected $casts = [
         'base_price' => 'decimal:2',
+        'original_professional_price' => 'decimal:2',
         'cgst' => 'decimal:2',
         'sgst' => 'decimal:2',
         'igst' => 'decimal:2',
@@ -301,17 +303,106 @@ class AdditionalService extends Model
 
     public function getFinalPriceAttribute()
     {
-        // Only use admin-approved prices
+        // Determine the base price to use
+        $basePrice = null;
+        
+        // Priority 1: Admin responded with final negotiated price
+        if ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
+            $basePrice = $this->admin_final_negotiated_price;
+        }
+        // Priority 2: Admin modified the price
+        elseif ($this->price_modified_by_admin && $this->modified_base_price) {
+            $basePrice = $this->modified_base_price;
+        }
+        // Priority 3: Original base price
+        else {
+            $basePrice = $this->base_price;
+        }
+        
+        // Calculate final price including GST (18% = 9% CGST + 9% SGST)
+        $finalPrice = $basePrice * 1.18;
+        
+        return round($finalPrice, 2);
+    }
+
+    /**
+     * Get the effective base price (without GST) based on current state
+     */
+    public function getEffectiveBasePriceAttribute()
+    {
+        // Priority 1: Admin responded with final negotiated price
         if ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
             return $this->admin_final_negotiated_price;
         }
-        
-        if ($this->price_modified_by_admin && $this->modified_total_price) {
-            return $this->modified_total_price;
+        // Priority 2: Admin modified the price
+        elseif ($this->price_modified_by_admin && $this->modified_base_price) {
+            return $this->modified_base_price;
+        }
+        // Priority 3: Original base price
+        else {
+            return $this->base_price;
+        }
+    }
+
+    /**
+     * Get the original professional's base price (never changes)
+     * This should always show what the professional originally quoted
+     */
+    public function getOriginalProfessionalPriceAttribute()
+    {
+        // Use the new column if available
+        if ($this->attributes['original_professional_price']) {
+            return $this->attributes['original_professional_price'];
         }
         
-        // Don't use user negotiated price until admin responds
-        return $this->total_price;
+        // Fallback logic for backward compatibility
+        return $this->getCalculatedOriginalPrice();
+    }
+    
+    /**
+     * Calculate the original professional price when the column doesn't exist
+     */
+    public function getCalculatedOriginalPrice()
+    {
+        // Strategy to recover original professional price
+        $originalPrice = null;
+        
+        if ($this->negotiation_status === 'user_negotiated' && $this->user_negotiated_price) {
+            // If user negotiated and base_price equals negotiated price, estimate original
+            if ($this->base_price == $this->user_negotiated_price) {
+                // Assume user got ~10% discount, reverse calculate
+                $originalPrice = round($this->user_negotiated_price / 0.9, 2);
+            } else {
+                $originalPrice = $this->base_price;
+            }
+        } elseif ($this->negotiation_status === 'admin_responded' && $this->admin_final_negotiated_price) {
+            // If admin responded and base_price was corrupted
+            if ($this->base_price == $this->admin_final_negotiated_price) {
+                // Try to estimate from user's original offer
+                if ($this->user_negotiated_price) {
+                    $originalPrice = round($this->user_negotiated_price / 0.9, 2);
+                } else {
+                    $originalPrice = round($this->admin_final_negotiated_price / 0.9, 2);
+                }
+            } else {
+                $originalPrice = $this->base_price;
+            }
+        } else {
+            // No negotiation - use current base_price
+            $originalPrice = $this->base_price;
+        }
+        
+        // Ensure original price is not less than current base_price
+        if ($originalPrice < $this->base_price) {
+            $originalPrice = $this->base_price;
+        }
+        
+        // Set a reasonable minimum
+        if ($originalPrice < 1000) {
+            $originalPrice = max($originalPrice, $this->base_price, 8000);
+        }
+        
+        return $originalPrice;
     }
 
     /**

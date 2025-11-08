@@ -90,6 +90,9 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         Route::get('/{id}/invoice/pdf', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'generatePdfInvoice'])->name('invoice.pdf');
     });
 
+    // Notification Routes
+    Route::post('/notifications/{notificationId}/mark-as-read', [App\Http\Controllers\Professional\AdditionalServiceController::class, 'markNotificationAsRead'])->name('notifications.mark-as-read');
+
     // Notification routes
     Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
         $professional = Auth::guard('professional')->user();

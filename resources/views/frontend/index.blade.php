@@ -3775,12 +3775,28 @@
 						<div class="row justify-content-center g-3">
 							@foreach($categoryBox->subCategories as $subCategory)
 								@php
-									// Find matching SubService by name for filtering
-									$subService = $subCategory->service_id 
-										? \App\Models\SubService::where('service_id', $subCategory->service_id)
-											->where('name', 'LIKE', '%' . $subCategory->name . '%')
-											->first()
-										: null;
+									// Find matching SubService by name for filtering with flexible matching
+									$subService = null;
+									if ($subCategory->service_id) {
+										// Try exact match first
+										$subService = \App\Models\SubService::where('service_id', $subCategory->service_id)
+											->where('name', $subCategory->name)
+											->first();
+										
+										// If no exact match, try LIKE match
+										if (!$subService) {
+											$subService = \App\Models\SubService::where('service_id', $subCategory->service_id)
+												->where('name', 'LIKE', '%' . $subCategory->name . '%')
+												->first();
+										}
+										
+										// If still no match, try reverse matching (subservice name contains category name)
+										if (!$subService) {
+											$subService = \App\Models\SubService::where('service_id', $subCategory->service_id)
+												->whereRaw('? LIKE CONCAT("%", name, "%")', [$subCategory->name])
+												->first();
+										}
+									}
 									
 									// Build URL with filters
 									$urlParams = [];

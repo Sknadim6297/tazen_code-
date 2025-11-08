@@ -307,9 +307,6 @@
                                     <h3 class="service-name">{{ $service->service->name ?? $service->service_name }}</h3>
                                     <div class="service-meta">
                                         <span class="service-badge">{{ $service->service->name ?? 'General' }}</span>
-                                        @if($service->duration)
-                                            <span class="service-badge duration-badge">{{ $service->duration }} mins</span>
-                                        @endif
                                         @if($service->price)
                                             <span class="service-badge price-badge">₹{{ number_format($service->price, 2) }}</span>
                                         @endif
@@ -426,10 +423,6 @@
                             <p class="text-muted">Please select a service category first to see available sub-services.</p>
                         </div>
                         <small class="text-muted">Select one or more sub-services for this professional. You can select multiple sub-services.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Service Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe this service in detail"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tags">Tags</label>
@@ -565,6 +558,19 @@ function updateServiceFeatures(modalType) {
         return;
     }
     
+    // For add modal, only show "Online Sessions" feature
+    if (modalType === 'add') {
+        const html = `
+            <label class="checkbox-item">
+                <input type="checkbox" name="features[]" value="online_sessions" checked>
+                <span>Online Sessions</span>
+            </label>
+        `;
+        container.innerHTML = html;
+        return;
+    }
+    
+    // For edit modal, show existing logic for flexibility
     // Get features from data attribute first
     let features = [];
     try {
@@ -599,7 +605,7 @@ function updateServiceFeatures(modalType) {
     
     console.log('Final features for', selectedOption.textContent, ':', features);
     
-    // Always show a comprehensive set of features
+    // Always show a comprehensive set of features for edit
     if (!features || features.length <= 2) {
         // If we only have very few features, show a more comprehensive default set
         features = [
@@ -616,15 +622,18 @@ function updateServiceFeatures(modalType) {
         ];
     }
     
-    // Generate checkboxes
+    // Generate checkboxes for edit modal
     let html = '';
     features.forEach((feature, index) => {
         const featureKey = feature.toLowerCase().replace(/\s+/g, '_');
         const featureLabel = featureLabels[featureKey] || feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         
+        // Auto-check "online_sessions" by default
+        const isDefaultChecked = featureKey === 'online_sessions' ? 'checked' : '';
+        
         html += `
             <label class="checkbox-item">
-                <input type="checkbox" name="features[]" value="${featureKey}">
+                <input type="checkbox" name="features[]" value="${featureKey}" ${isDefaultChecked}>
                 <span>${featureLabel}</span>
             </label>
         `;
@@ -709,7 +718,12 @@ function editService(serviceId) {
             const featuresCheckboxes = document.querySelectorAll('#editFeaturesContainer input[type="checkbox"]');
             featuresCheckboxes.forEach(checkbox => {
                 checkbox.checked = false;
-                if (serviceFeatures.includes(checkbox.value)) {
+                // Always check "online_sessions" by default
+                if (checkbox.value === 'online_sessions') {
+                    checkbox.checked = true;
+                }
+                // Check other features from service data
+                else if (serviceFeatures.includes(checkbox.value)) {
                     checkbox.checked = true;
                 }
             });

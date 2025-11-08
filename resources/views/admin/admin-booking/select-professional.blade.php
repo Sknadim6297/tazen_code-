@@ -294,7 +294,10 @@
                                     $serviceId = session('admin_booking_service_id');
                                     $subServiceId = session('admin_booking_sub_service_id');
                                     
-                                    // First try to get rates for exact service/sub-service match
+                                    // Debug info
+                                    $debugInfo = "Looking for: Service ID={$serviceId}, Sub-service ID=" . ($subServiceId ?? 'NULL');
+                                    
+                                    // Fetch rates for this professional and service - EXACT MATCH ONLY
                                     $professionalRates = \App\Models\Rate::where('professional_id', $prof->id)
                                         ->where('service_id', $serviceId);
                                     
@@ -306,20 +309,19 @@
                                     
                                     $rates = $professionalRates->get();
                                     
-                                    // If no exact match found, try to get rates for the main service only
-                                    if ($rates->isEmpty()) {
+                                    // If no exact service match found and we're looking for sub-service, try broader search
+                                    if ($rates->isEmpty() && $subServiceId) {
+                                        // Look for any rate with this sub-service ID for this professional
                                         $rates = \App\Models\Rate::where('professional_id', $prof->id)
-                                            ->where('service_id', $serviceId)
+                                            ->where('sub_service_id', $subServiceId)
                                             ->get();
                                     }
                                     
-                                    // If still no rates found, get ANY rates for this professional to show something
-                                    if ($rates->isEmpty()) {
-                                        $rates = \App\Models\Rate::where('professional_id', $prof->id)->get();
-                                    }
+                                    // Debug: Also get ALL rates for this professional to see what's available
+                                    $allRates = \App\Models\Rate::where('professional_id', $prof->id)->get();
                                     
                                     // Get the minimum rate for display
-                                    $minRate = $rates->min('final_rate') ?? 1000;
+                                    $minRate = $rates->min('final_rate') ?? ($allRates->min('final_rate') ?? 1000);
                                     
                                     // Collect session packages
                                     $sessionPackages = [];
@@ -395,7 +397,7 @@
                                 @if($prof->specialization)
                                     <p class="mb-2"><small class="text-muted">{{ $prof->specialization }}</small></p>
                                 @endif
-
+                                
                                 <!-- Session Types -->
                                 @if($rates->count() > 0)
                                     <div class="mb-2">

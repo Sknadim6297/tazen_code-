@@ -2219,6 +2219,10 @@
                                         Select <span id="required-dates">0</span> date(s) for your booking 
                                         <span style="color: #2563eb;">(<span id="selected-dates-count">0</span> selected)</span>
                                     </p>
+                                    <div id="session-limit-warning" style="display: none; margin-top: 8px; padding: 6px 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404; font-size: 0.9rem;">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
+                                        <span id="session-limit-text">Session limit reached</span>
+                                    </div>
                                 </div>
                                 
                                 <div style="display: flex; justify-content: center; margin-top: 20px;">
@@ -2677,7 +2681,7 @@
                 // Show date selection info and update required dates
                 const dateSelectionInfo = document.getElementById('date-selection-info');
                 const requiredDatesSpan = document.getElementById('required-dates');
-                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                selectedDatesCountSpan = document.getElementById('selected-dates-count');
                 
                 if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
                     requiredDatesSpan.textContent = sessionCount;
@@ -3068,6 +3072,9 @@
                 // Existing bookings and enabled dates are available for internal use
                 
                 window.selectedBookings = {};
+                
+                // Declare variables that will be used throughout the scope
+                let selectedDatesCountSpan;
 
                 // Helper function to format the date to local date string
                 function formatLocalDate(date) {
@@ -3192,7 +3199,7 @@
                     });
 
                     // Update selected dates counter
-                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    let selectedDatesCountSpan = document.getElementById('selected-dates-count');
                     if (selectedDatesCountSpan) {
                         selectedDatesCountSpan.textContent = selectedDates.length;
                         
@@ -3284,6 +3291,11 @@
                         }
                         if (typeof updateSelectedTimeList === 'function') {
                             updateSelectedTimeList();
+                        }
+                        
+                        // Update slot availability based on session limits
+                        if (typeof updateSlotAvailabilityFrontend === 'function') {
+                            updateSlotAvailabilityFrontend();
                         }
                     } else {
                         // No dates selected, show the message
@@ -3393,6 +3405,26 @@
                             return;
                         }
 
+                        // Check session limit before allowing selection
+                        const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                        const currentSelectedCount = Object.keys(selectedBookings).length;
+                        
+                        if (this.checked && currentSelectedCount >= currentSessionCount && currentSessionCount > 0) {
+                            // User is trying to select more than allowed
+                            this.checked = false;
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Session Limit Reached',
+                                    text: `You can only select ${currentSessionCount} session(s) for this booking type.`,
+                                    confirmButtonColor: '#2563eb'
+                                });
+                            } else {
+                                alert(`You can only select ${currentSessionCount} session(s) for this booking type.`);
+                            }
+                            return;
+                        }
+
                         if (currentDate && selectedTime) {
                             if (!selectedBookings[currentDate]) {
                                 selectedBookings[currentDate] = [];
@@ -3405,24 +3437,26 @@
                             updateSelectedTimeList();
                             
                             // Update selected dates counter when a time slot is selected
-                            const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                            selectedDatesCountSpan = document.getElementById('selected-dates-count');
                             if (selectedDatesCountSpan) {
-                                const currentDateCount = Object.keys(selectedBookings).length;
-                                selectedDatesCountSpan.textContent = currentDateCount;
+                                const updatedDateCount = Object.keys(selectedBookings).length;
+                                selectedDatesCountSpan.textContent = updatedDateCount;
                                 
                                 // Update color based on requirement
                                 const parentElement = selectedDatesCountSpan.parentElement;
-                                const currentSessionCount = sessionCount || window.currentSessionCount || 0;
                                 if (currentSessionCount > 0) {
-                                    if (currentDateCount === currentSessionCount) {
+                                    if (updatedDateCount === currentSessionCount) {
                                         parentElement.style.color = '#28a745'; // Green when correct
-                                    } else if (currentDateCount > currentSessionCount) {
+                                    } else if (updatedDateCount > currentSessionCount) {
                                         parentElement.style.color = '#dc3545'; // Red when too many
                                     } else {
                                         parentElement.style.color = '#2563eb'; // Blue when need more
                                     }
                                 }
                             }
+                            
+                            // Update slot availability based on session limit
+                            updateSlotAvailabilityFrontend();
                         }
                     });
                 });
@@ -3448,8 +3482,64 @@
                         white-space: nowrap;
                         z-index: 2;
                     }
+                    
+                    /* Session limit disabled states */
+                    .flatpickr-day.session-limit-disabled {
+                        color: #ccc !important;
+                        background: #f5f5f5 !important;
+                        cursor: not-allowed !important;
+                        pointer-events: none !important;
+                    }
+                    
+                    .slot-box.session-limit-disabled {
+                        opacity: 0.5;
+                        pointer-events: none;
+                    }
+                    
+                    .slot-box.session-limit-disabled label {
+                        background: #f8f9fa !important;
+                        color: #6c757d !important;
+                        cursor: not-allowed !important;
+                    }
                 `;
                 document.head.appendChild(style);
+
+                // Function to update slot availability based on session limits
+                function updateSlotAvailabilityFrontend() {
+                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                    const currentSelectedCount = Object.keys(selectedBookings).length;
+                    const isLimitReached = currentSelectedCount >= currentSessionCount && currentSessionCount > 0;
+                    
+                    // Update session limit warning
+                    const sessionLimitWarning = document.getElementById('session-limit-warning');
+                    const sessionLimitText = document.getElementById('session-limit-text');
+                    
+                    if (sessionLimitWarning && sessionLimitText) {
+                        if (isLimitReached) {
+                            sessionLimitWarning.style.display = 'block';
+                            sessionLimitText.textContent = `Session limit reached (${currentSelectedCount}/${currentSessionCount})`;
+                        } else {
+                            sessionLimitWarning.style.display = 'none';
+                        }
+                    }
+                    
+                    // If limit is reached, disable date selection in calendar
+                    if (isLimitReached) {
+                        // Disable calendar date selection
+                        const flatpickrInstance = document.getElementById('calendarDiv')._flatpickr;
+                        if (flatpickrInstance) {
+                            // Update enable function to only allow already selected dates
+                            const selectedDates = Object.keys(selectedBookings);
+                            flatpickrInstance.set('enable', selectedDates.map(date => new Date(date)));
+                        }
+                    } else {
+                        // Re-enable all available dates
+                        const flatpickrInstance = document.getElementById('calendarDiv')._flatpickr;
+                        if (flatpickrInstance && window.enabledDates) {
+                            flatpickrInstance.set('enable', window.enabledDates.map(date => new Date(date)));
+                        }
+                    }
+                }
 
                 // Function to update selected time display
                 function updateSelectedTimeDisplay() {
@@ -3523,8 +3613,31 @@
                                 }
                                 updateSelectedTimeList(); // Re-render the list
                                 
+                                // Update selected dates counter when an item is removed
+                                selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                                if (selectedDatesCountSpan) {
+                                    const updatedDateCount = Object.keys(selectedBookings).length;
+                                    selectedDatesCountSpan.textContent = updatedDateCount;
+                                    
+                                    // Update color based on requirement
+                                    const parentElement = selectedDatesCountSpan.parentElement;
+                                    const currentSessionCount = sessionCount || window.currentSessionCount || 0;
+                                    if (currentSessionCount > 0) {
+                                        if (updatedDateCount === currentSessionCount) {
+                                            parentElement.style.color = '#28a745'; // Green when correct
+                                        } else if (updatedDateCount > currentSessionCount) {
+                                            parentElement.style.color = '#dc3545'; // Red when too many
+                                        } else {
+                                            parentElement.style.color = '#2563eb'; // Blue when need more
+                                        }
+                                    }
+                                }
+                                
+                                // Update slot availability when item is removed
+                                updateSlotAvailabilityFrontend();
+                                
                                 // Update selected dates counter
-                                const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                                selectedDatesCountSpan = document.getElementById('selected-dates-count');
                                 if (selectedDatesCountSpan) {
                                     const currentDateCount = Object.keys(selectedBookings).length;
                                     selectedDatesCountSpan.textContent = currentDateCount;
@@ -3645,7 +3758,7 @@
                     // Show date selection info and update required dates
                     const dateSelectionInfo = document.getElementById('date-selection-info');
                     const requiredDatesSpan = document.getElementById('required-dates');
-                    const selectedDatesCountSpan = document.getElementById('selected-dates-count');
+                    selectedDatesCountSpan = document.getElementById('selected-dates-count');
                     
                     if (dateSelectionInfo && requiredDatesSpan && selectedDatesCountSpan) {
                         requiredDatesSpan.textContent = sessionCount;

@@ -129,15 +129,6 @@
         font-size: 10px !important;
     }
     
-    .reschedule-btn {
-        padding: 6px 8px !important;
-        font-size: 10px !important;
-    }
-    
-    .reschedule-btn i {
-        margin-right: 3px !important;
-    }
-    
     /* Section header mobile fix */
     .section-header h4 {
         font-size: 14px !important;
@@ -181,554 +172,520 @@
         padding: 3px 5px !important;
         font-size: 12px !important;
     }
-    
-    .reschedule-btn {
-        padding: 4px 6px !important;
-        font-size: 12px !important;
-    }
 }
         
-        /* Make table container scrollable horizontally */
-        .table-wrapper {
-            overflow-x: auto;
-            max-width: 100%;
-            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-        }
-        
-        /* Ensure the table takes full width of container */
-        .data-table {
-            width: 100%;
-            table-layout: auto;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Optional: Make some table columns width-responsive */
-        .data-table th,
-        .data-table td {
-            white-space: nowrap;
-        }
-     .search-container {
-        background: #f5f7fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
+/* Make table container scrollable horizontally */
+.table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+}
 
-    .search-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        align-items: flex-end;
-    }
+/* Ensure the table takes full width of container */
+.data-table {
+    width: 100%;
+    table-layout: auto;
+}
 
-    .search-form .form-group {
-        flex: 1;
-        min-width: 200px;
-        display: flex;
-        flex-direction: column;
-    }
+/* Fix the search container from overflowing */
+.search-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 
-    .search-form label {
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #333;
-    }
+/* Ensure content wrapper doesn't cause horizontal scroll */
+.content-wrapper {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    padding: 20px 10px;
+}
 
-    .search-form input[type="text"],
-    .search-form input[type="date"],
-    .search-form select {
+/* Fix card width */
+.card {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ensure the card body doesn't cause overflow */
+.card-body {
+    padding: 10px 5px;
+}
+
+/* Optional: Make some table columns width-responsive */
+.data-table th,
+.data-table td {
+    white-space: nowrap;
+}
+
+.search-container {
+    background: #f5f7fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.search-form .form-group {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-form label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+.search-form input[type="text"],
+.search-form input[type="date"],
+.search-form select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.search-buttons button,
+.search-buttons a {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Highlight row for filtered service */
+.service-highlight {
+    background-color: #e7f3ff;
+}
+
+/* Highlight row for filtered plan type */
+.plan-highlight {
+    background-color: #f0fff0;
+}
+
+/* Plan Type Badge Styles */
+.plan-type-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #bbdefb;
+}
+
+.plan-type-premium {
+    background-color: #fce4ec;
+    color: #c2185b;
+    border-color: #f8bbd0;
+}
+
+.plan-type-standard {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-color: #c8e6c9;
+}
+
+.plan-type-basic {
+    background-color: #ede7f6;
+    color: #4527a0;
+    border-color: #d1c4e9;
+}
+
+.plan-type-corporate {
+    background-color: #fff3e0;
+    color: #e65100;
+    border-color: #ffe0b2;
+}
+
+.plan-type-one-time {
+    background-color: #e1f5fe;
+    color: #0277bd;
+    border-color: #b3e5fc;
+}
+
+@media screen and (max-width: 767px) {
+    /* Mobile responsive fixes - enhanced */
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    .page-header {
+        padding: 8px 10px;
+        margin: 0;
+    }
+    
+    .page-title h3 {
+        font-size: 22px;
+        margin: 0;
+    }
+    
+    .breadcrumb {
+        font-size: 16px;
+        margin: 5px 0 0 0;
+    }
+    
+    .content-wrapper {
+        padding: 10px 5px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    .search-container {
         padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 14px;
+        margin-bottom: 10px;
     }
-
-    .search-buttons {
-        display: flex;
+    
+    .search-form {
+        flex-direction: column;
         gap: 10px;
     }
-
+    
+    .search-form .form-group {
+        min-width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .search-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
     .search-buttons button,
     .search-buttons a {
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        text-decoration: none;
-        border: none;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-
-    /* Highlight row for filtered service */
-    .service-highlight {
-        background-color: #e7f3ff;
-    }
-    
-    /* Highlight row for filtered plan type */
-    .plan-highlight {
-        background-color: #f0fff0;
-    }
-    
-    /* Plan Type Badge Styles */
-    .plan-type-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 600;
-        background-color: #e3f2fd;
-        color: #0d47a1;
-        border: 1px solid #bbdefb;
-    }
-
-    .plan-type-premium {
-        background-color: #fce4ec;
-        color: #c2185b;
-        border-color: #f8bbd0;
-    }
-
-    .plan-type-standard {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border-color: #c8e6c9;
-    }
-
-    .plan-type-basic {
-        background-color: #ede7f6;
-        color: #4527a0;
-        border-color: #d1c4e9;
-    }
-
-    .plan-type-corporate {
-        background-color: #fff3e0;
-        color: #e65100;
-        border-color: #ffe0b2;
-    }
-    
-    .plan-type-one-time {
-        background-color: #e1f5fe;
-        color: #0277bd;
-        border-color: #b3e5fc;
-    }
-
-    @media screen and (max-width: 767px) {
-        /* Mobile responsive fixes - enhanced */
-        .main-content {
-            margin-left: 0 !important;
-            width: 100% !important;
-        }
-        
-        .page-header {
-            padding: 8px 10px;
-            margin: 0;
-        }
-        
-        .page-title h3 {
-            font-size: 22px;
-            margin: 0;
-        }
-        
-        .breadcrumb {
-            font-size: 16px;
-            margin: 5px 0 0 0;
-        }
-        
-        .content-wrapper {
-            padding: 10px 5px;
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        .search-container {
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .search-form {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .search-form .form-group {
-            min-width: 100%;
-            margin-bottom: 10px;
-        }
-        
-        .search-buttons {
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .search-buttons button,
-        .search-buttons a {
-            width: 100%;
-            text-align: center;
-        }
-        
-        /* Enhanced table responsive */
-        .table-wrapper {
-            overflow-x: auto;
-            max-width: 100%;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .data-table {
-            min-width: 800px;
-            font-size: 12px;
-        }
-        
-        .data-table th,
-        .data-table td {
-            padding: 6px 4px;
-            white-space: nowrap;
-            vertical-align: middle;
-            font-size: 12px;
-        }
-        
-        .data-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            font-size: 13px;
-        }
-        
-        /* Button improvements */
-        .btn-sm {
-            padding: 4px 6px;
-            font-size: 12px;
-        }
-        
-        .reschedule-btn {
-            padding: 6px 8px;
-            font-size: 12px;
-        }
-        
-        .reschedule-btn i {
-            margin-right: 3px;
-        }
-        
-        /* Section header fix */
-        .section-header h4 {
-            font-size: 14px;
-            line-height: 1.3;
-        }
-        
-        .section-header small {
-            font-size: 11px;
-        }
-    }
-
-    /* Modal Styles */
-    .custom-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1050;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 20px 0;
+        text-align: center;
     }
-
-    .custom-modal.show {
-        opacity: 1;
-    }
-
-    .custom-modal-content {
-        position: relative;
-        background-color: #fff;
-        margin: 20px auto;
-        padding: 0;
-        width: 90%;
-        max-width: 500px;
+    
+    /* Enhanced table responsive */
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
         border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        transform: translateY(-30px) scale(0.95);
-        transition: transform 0.3s ease-in-out;
-        max-height: calc(100vh - 40px);
-        display: flex;
-        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+    
+    .data-table {
+        min-width: 800px;
+        font-size: 12px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 6px 4px;
+        white-space: nowrap;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+    
+    .data-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 13px;
+    }
+    
+    /* Button improvements */
+    .btn-sm {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    /* Section header fix */
+    .section-header h4 {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+    
+    .section-header small {
+        font-size: 11px;
+    }
+}
 
-    .custom-modal.show .custom-modal-content {
+/* Modal Styles */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 0;
+}
+
+.custom-modal.show {
+    opacity: 1;
+}
+
+.custom-modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 20px auto;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-30px) scale(0.95);
+    transition: transform 0.3s ease-in-out;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-modal.show .custom-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.custom-modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.custom-modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.custom-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.custom-modal-close:hover {
+    color: #333;
+}
+
+.custom-modal-body {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.custom-modal-footer {
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    background: white;
+}
+
+.file-preview {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.file-preview h6 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: 1px solid #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Animation Classes */
+.modal-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
 
-    .custom-modal-header {
-        padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-shrink: 0;
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
+    to {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+}
 
-    .custom-modal-title {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: #333;
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+    /* Tablet responsive fixes */
+    .main-content {
+        margin-left: var(--sidebar-width, 250px) !important;
+        width: calc(100% - var(--sidebar-width, 250px)) !important;
     }
-
-    .custom-modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #666;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
+    
+    .page-header {
+        padding: 8px 15px;
     }
-
-    .custom-modal-close:hover {
-        color: #333;
+    
+    .content-wrapper {
+        padding: 15px 10px;
     }
-
-    .custom-modal-body {
-        padding: 1.5rem;
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
+    
+    .search-container {
+        padding: 15px;
+        margin-bottom: 15px;
     }
-
-    .custom-modal-footer {
-        padding: 1rem;
-        border-top: 1px solid #dee2e6;
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        flex-shrink: 0;
-        background: white;
+    
+    .search-form {
+        gap: 12px;
     }
-
-    .file-preview {
-        margin-top: 1rem;
-        padding: 0.75rem;
-        background-color: #f8f9fa;
-        border-radius: 4px;
+    
+    .search-form .form-group {
+        min-width: 180px;
     }
-
-    .file-preview h6 {
-        margin-bottom: 0.5rem;
-        color: #495057;
+    
+    /* Make table container scrollable horizontally */
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-
-    /* Form Styles */
-    .form-label {
-        font-weight: 500;
-        color: #495057;
-        margin-bottom: 0.5rem;
+    
+    /* Ensure the table takes full width of container */
+    .data-table {
+        min-width: 800px;
+        font-size: 13px;
     }
-
-    .form-control {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 0.5rem;
-        width: 100%;
+    
+    /* Make table columns width-responsive */
+    .data-table th,
+    .data-table td {
+        padding: 8px 6px;
+        white-space: nowrap;
     }
-
-    .form-text {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
+    
+    /* Adjust button sizes for tablet */
+    .btn-sm {
+        padding: 5px 8px;
+        font-size: 11px;
     }
-
-    /* Button Styles */
-    .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
+    
+    /* Ensure modal content is properly sized on tablet */
+    .custom-modal-content {
+        width: 90%;
+        max-width: 700px;
     }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: 1px solid #007bff;
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        border: 1px solid #6c757d;
-        color: #fff;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-
-    /* Animation Classes */
-    .modal-fade-in {
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .modal-fade-out {
-        animation: fadeOut 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-30px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(-30px) scale(0.95);
-        }
-    }
-
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-        /* Tablet responsive fixes */
-        .main-content {
-            margin-left: var(--sidebar-width, 250px) !important;
-            width: calc(100% - var(--sidebar-width, 250px)) !important;
-        }
-        
-        .page-header {
-            padding: 8px 15px;
-        }
-        
-        .content-wrapper {
-            padding: 15px 10px;
-        }
-        
-        .search-container {
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .search-form {
-            gap: 12px;
-        }
-        
-        .search-form .form-group {
-            min-width: 180px;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-wrapper {
-            overflow-x: auto;
-            max-width: 100%;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        /* Ensure the table takes full width of container */
-        .data-table {
-            min-width: 800px;
-            font-size: 13px;
-        }
-        
-        /* Make table columns width-responsive */
-        .data-table th,
-        .data-table td {
-            padding: 8px 6px;
-            white-space: nowrap;
-        }
-        
-        /* Adjust button sizes for tablet */
-        .btn-sm {
-            padding: 5px 8px;
-            font-size: 11px;
-        }
-        
-        .reschedule-btn {
-            padding: 6px 10px;
-            font-size: 11px;
-        }
-        
-        /* Ensure modal content is properly sized on tablet */
-        .custom-modal-content {
-            width: 90%;
-            max-width: 700px;
-        }
-        
-        .calendar-container,
-        .time-slots-container {
-            max-height: 300px;
-        }
-        
-        .calendar th, .calendar td {
-            padding: 6px 3px;
-            font-size: 11px;
-        }
-        
-        .time-slot {
-            padding: 6px 12px;
-            font-size: 12px;
-            min-width: 75px;
-        }
-    }
+}
 
 /* Mobile Responsive Styles */
 @media (max-width: 576px) {
@@ -764,306 +721,206 @@
         width: 100%;
         margin: 0;
     }
-    
-    .calendar-container,
-    .time-slots-container {
-        max-height: 250px;
-        padding: 10px;
-    }
-    
-    .calendar th, .calendar td {
-        padding: 3px 1px;
-        font-size: 12px;
-    }
-    
-    .time-slot {
-        padding: 4px 8px;
-        font-size: 12px;
-        min-width: 60px;
-        margin: 2px;
-    }
-    
-    /* Stack calendar and time slots vertically on mobile */
-    .reschedule-modal .row {
-        flex-direction: column;
-    }
-    
-    .row .col-md-5,
-    .row .col-md-7 {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 0 5px;
-    }
-    
-    /* Calendar navigation mobile fix */
-    .calendar-navigation {
-        padding: 5px;
-        margin-bottom: 10px;
-    }
-    
-    .calendar-navigation h5 {
-        font-size: 14px;
-    }
-    
-    .calendar-navigation button {
-        width: 30px;
-        height: 30px;
-    }
-    
-    /* Alert mobile fix */
-    .alert {
-        padding: 8px;
-        font-size: 12px;
-        margin-bottom: 10px;
-    }
-    
-    /* Form elements mobile fix */
-    .form-control {
-        font-size: 14px;
-        padding: 8px;
-    }
-    
-    .form-label {
-        font-size: 13px;
-        margin-bottom: 4px;
-    }
-    
-    .form-text {
-        font-size: 11px;
-    }
 }
 
-/* Reschedule Modal Specific Improvements */
-.reschedule-modal .custom-modal-content {
-    max-width: 950px;
-    width: 95%;
+/* Reschedule Specific Styles */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
 }
 
-.reschedule-modal .custom-modal-body {
-    max-height: calc(100vh - 160px);
-    overflow-y: auto;
-}
-
-.reschedule-modal .row {
-    margin: 0;
-}
-
-.reschedule-modal .col-md-5,
-.reschedule-modal .col-md-7 {
-    padding: 0 15px;
-}
-
-@media (max-width: 768px) {
-    .reschedule-modal .col-md-5,
-    .reschedule-modal .col-md-7 {
-        padding: 0 5px;
-        margin-bottom: 15px;
-    }
-}
-
-/* Reschedule Modal Specific Styles */
-.calendar-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    max-height: 350px;
+.time-slots-container {
+    max-height: 200px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px;
 }
 
-.calendar {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 0;
+.time-slot-option {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 12px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
 }
 
-.calendar th, .calendar td {
+.time-slot-option:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.time-slot-option.selected {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.time-slot-option.disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.loading-slots {
     text-align: center;
-    padding: 8px 4px;
-    border: 1px solid #e9ecef;
-    vertical-align: middle;
+    padding: 20px;
+    color: #6c757d;
 }
 
-.calendar th {
+.no-slots-available {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+}
+
+@media (max-width: 576px) {
+    .time-slot-option {
+        width: 100%;
+        margin: 3px 0;
+        text-align: center;
+    }
+}
+
+/* Calendar Styles */
+.reschedule-calendar {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.calendar-nav {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #007bff;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.calendar-nav:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-nav:disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.calendar-month-year {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.calendar-day-header {
+    background-color: #f8f9fa;
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #495057;
+}
+
+.calendar-day {
+    background-color: white;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    min-height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background-color: #e3f2fd;
+}
+
+.calendar-day.other-month {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+}
+
+.calendar-day.past-date {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+.calendar-day.available {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: 600;
+}
+
+.calendar-day.available:hover {
+    background-color: #c3e6cb;
+}
+
+.calendar-day.selected {
     background-color: #007bff;
     color: white;
     font-weight: 600;
-    font-size: 12px;
 }
 
-.calendar td {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    height: 35px;
-    font-size: 13px;
-}
-
-.calendar td:hover:not(.disabled):not(.other-month) {
-    background-color: #e3f2fd;
-    transform: scale(1.05);
-}
-
-.calendar td.disabled {
+.calendar-day.unavailable {
     background-color: #f8f9fa;
     color: #6c757d;
     cursor: not-allowed;
 }
 
-.calendar td.other-month {
-    color: #ccc;
-    background-color: #fafafa;
-}
-
-.calendar td.selected {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-}
-
-.calendar td.today {
-    background-color: #28a745;
-    color: white;
-    font-weight: bold;
-}
-
-.calendar td.available {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.calendar td.booked {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-}
-
-.time-slots-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    max-height: 350px;
-    overflow-y: auto;
-    border: 1px solid #dee2e6;
-}
-
-.time-slots-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: flex-start;
-}
-
-.time-slot {
-    display: inline-block;
-    margin: 0;
-    padding: 8px 16px;
-    border: 2px solid #007bff;
-    border-radius: 25px;
-    background-color: white;
-    color: #007bff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    font-weight: 500;
-    min-width: 80px;
+.calendar-loading {
     text-align: center;
+    padding: 40px;
+    color: #6c757d;
 }
 
-.time-slot:hover {
-    background-color: #007bff;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.time-slot.selected {
-    background-color: #007bff;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.time-slot.booked {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: white;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.time-slot.booked:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-.calendar-navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
-
-.calendar-navigation button {
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.calendar-navigation button:hover {
-    background: #0056b3;
-    transform: scale(1.1);
-}
-
-.calendar-navigation h5 {
-    margin: 0;
-    color: #495057;
-    font-weight: 600;
-}
-
-.alert {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid;
-    margin-bottom: 15px;
-}
-
-.alert-info {
-    background-color: #d1ecf1;
-    border-color: #bee5eb;
-    color: #0c5460;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .calendar th, .calendar td {
-        padding: 6px 2px;
-        font-size: 11px;
+@media (max-width: 576px) {
+    .reschedule-calendar {
+        padding: 10px;
     }
     
-    .time-slot {
-        padding: 6px 12px;
+    .calendar-day {
+        min-height: 30px;
         font-size: 12px;
-        margin: 3px;
     }
     
-    .calendar-navigation {
-        padding: 8px;
-    }
-    
-    .calendar-navigation h5 {
-        font-size: 16px;
+    .calendar-day-header {
+        font-size: 10px;
+        padding: 6px 2px;
     }
 }
 </style>
@@ -1162,7 +1019,7 @@
                         <th>Meet Link</th>
                         <th>Upload document</th>
                         <th>Professional document</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1197,10 +1054,17 @@
                         @if($upcomingTimedate)
                             <tr class="{{ $isFilteredService ? 'service-highlight' : '' }} {{ $isFilteredPlan ? 'plan-highlight' : '' }}">
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('d-m-Y') }}</td>
+                                <td>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('M d, Y') }}</p>
+                                        <p class="mb-0 text-muted fs-12">{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('l') }}</p>
+                                    </div>
+                                </td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('F') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($upcomingTimedate->date)->format('D') }}</td>
-                                <td>{{ $upcomingTimedate->time_slot }}</td>
+                                <td>
+                                    <p class="mb-0 fw-semibold">{{ $upcomingTimedate->time_slot }}</p>
+                                </td>
                                 <td>{{ $booking->professional->name ?? 'Not Assigned' }}</td>
                                 <td>
                                     @if($isFilteredService)
@@ -1265,23 +1129,31 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-warning reschedule-btn" 
-                                            data-booking-id="{{ $booking->id }}"
-                                            data-timedate-id="{{ $upcomingTimedate->id }}"
-                                            data-professional-id="{{ $booking->professional_id }}"
-                                            data-professional-name="{{ $booking->professional->name ?? 'Not Assigned' }}"
-                                            data-current-date="{{ $upcomingTimedate->date }}"
-                                            data-current-time="{{ $upcomingTimedate->time_slot }}"
-                                            title="Reschedule Appointment">
-                                        <i class="fas fa-calendar-alt"></i> Reschedule
-                                    </button>
+                                    <div class="action-buttons">
+                                        @php
+                                            $rescheduleEnabled = $booking->reschedule_count < $booking->max_reschedules_allowed;
+                                            $remainingReschedules = $booking->max_reschedules_allowed - $booking->reschedule_count;
+                                        @endphp
+                                        
+                                        @if($rescheduleEnabled)
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-warning reschedule-btn" 
+                                                    data-booking-id="{{ $booking->id }}"
+                                                    title="Reschedule Appointment ({{ $remainingReschedules }} remaining)">
+                                                <i class="fas fa-calendar-alt"></i>
+                                            </button>
+                                        @else
+                                            <span class="text-muted small" title="Maximum reschedules reached">
+                                                <i class="fas fa-ban"></i>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endif
                     @empty
                         <tr>
-                            <td colspan="14" class="text-center">No upcoming appointments found</td>
+                            <td colspan="15" class="text-center">No upcoming appointments found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -1319,48 +1191,57 @@
     </div>
 </div>
 
-<!-- Reschedule Modal -->
-<div id="rescheduleModal" class="custom-modal reschedule-modal">
-    <div class="custom-modal-content">
+<!-- Custom Reschedule Modal -->
+<div id="rescheduleModal" class="custom-modal">
+    <div class="custom-modal-content" style="max-width: 600px;">
         <div class="custom-modal-header">
             <h5 class="custom-modal-title">Reschedule Appointment</h5>
             <button type="button" class="custom-modal-close" onclick="closeModal('rescheduleModal')">&times;</button>
         </div>
         <div class="custom-modal-body">
-            <div id="rescheduleInfo" class="mb-3">
-                <div class="alert alert-info">
-                    <strong>Current Appointment:</strong><br>
-                    <span id="currentAppointmentDetails"></span>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-5 col-12 mb-3">
-                    <h6>Select New Date</h6>
-                    <div id="rescheduleCalendar" class="calendar-container">
-                        <!-- Calendar will be dynamically generated here -->
-                    </div>
-                </div>
-                <div class="col-md-7 col-12">
-                    <h6>Available Time Slots</h6>
-                    <div id="rescheduleTimeSlots" class="time-slots-container">
-                        <p class="text-muted">Please select a date to view available time slots.</p>
-                    </div>
-                </div>
-            </div>
-            
             <form id="rescheduleForm">
                 @csrf
                 <input type="hidden" name="booking_id" id="rescheduleBookingId">
-                <input type="hidden" name="timedate_id" id="rescheduleTimedateId">
-                <input type="hidden" name="professional_id" id="rescheduleProfessionalId">
-                <input type="hidden" name="new_date" id="rescheduleNewDate">
-                <input type="hidden" name="new_time_slot" id="rescheduleNewTimeSlot">
+                
+                <div class="mb-3">
+                    <label class="form-label">Current Appointment</label>
+                    <div class="alert alert-info">
+                        <div id="currentAppointmentInfo"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="rescheduleCalendar" class="form-label">Select New Date</label>
+                    <div id="rescheduleCalendar" class="reschedule-calendar"></div>
+                    <input type="hidden" id="selectedDate" name="new_date" required>
+                    <div class="form-text">
+                        <span class="text-success">● Available dates</span> | 
+                        <span class="text-muted">● Unavailable dates</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Available Time Slots</label>
+                    <div id="rescheduleTimeSlots" class="time-slots-container">
+                        <div class="text-muted text-center p-3">Please select a date first</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="rescheduleReason" class="form-label">Reason for Reschedule <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="rescheduleReason" name="reschedule_reason" rows="3" required placeholder="Please provide a reason for rescheduling..."></textarea>
+                </div>
+                
+                <div id="rescheduleInfo" class="alert alert-warning small" style="display: none;">
+                    <i class="fas fa-info-circle"></i> <span id="rescheduleInfoText"></span>
+                </div>
             </form>
         </div>
         <div class="custom-modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeModal('rescheduleModal')">Cancel</button>
-            <button type="button" class="btn btn-primary" id="confirmRescheduleBtn" disabled>Confirm Reschedule</button>
+            <button type="button" class="btn btn-warning" id="rescheduleBtn" disabled>
+                <i class="fas fa-calendar-alt"></i> Reschedule Appointment
+            </button>
         </div>
     </div>
 </div>
@@ -1507,496 +1388,466 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Reschedule functionality
-    let currentSelectedDate = null;
-    let currentSelectedTimeSlot = null;
-    let availabilityData = {};
-    let bookedSlotsData = {};
+    let selectedTimeSlot = null;
+    let currentBookingData = null;
+    let availableDates = [];
+    let currentCalendarDate = new Date();
+    let professionalAvailabilityData = [];
+    let existingBookings = {};
 
     // Handle reschedule button click
     document.querySelectorAll('.reschedule-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const bookingId = this.dataset.bookingId;
-            const timedateId = this.dataset.timedateId;
-            const professionalId = this.dataset.professionalId;
-            const professionalName = this.dataset.professionalName;
-            const currentDate = this.dataset.currentDate;
-            const currentTime = this.dataset.currentTime;
-
-            // Reset selection
-            currentSelectedDate = null;
-            currentSelectedTimeSlot = null;
-            
-            // Store current appointment details for validation
-            window.currentAppointment = {
-                date: currentDate,
-                time: currentTime
-            };
-            
-            // Set form data
-            document.getElementById('rescheduleBookingId').value = bookingId;
-            document.getElementById('rescheduleTimedateId').value = timedateId;
-            document.getElementById('rescheduleProfessionalId').value = professionalId;
-            
-            // Update current appointment details
-            const formattedDate = new Date(currentDate).toLocaleDateString('en-GB', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            document.getElementById('currentAppointmentDetails').innerHTML = 
-                `<strong>Professional:</strong> ${professionalName}<br>
-                 <strong>Date:</strong> ${formattedDate}<br>
-                 <strong>Time:</strong> ${currentTime}`;
-            
-            // Load availability data
-            loadProfessionalAvailability(professionalId);
-            
-            // Reset confirm button
-            document.getElementById('confirmRescheduleBtn').disabled = true;
-            
-            openModal('rescheduleModal');
+            openRescheduleModal(bookingId);
         });
     });
 
-    // Load professional availability
-    function loadProfessionalAvailability(professionalId) {
-        console.log('Loading availability for professional ID:', professionalId);
+    // Open reschedule modal
+    function openRescheduleModal(bookingId) {
+        // Find booking data from the current page
+        const row = document.querySelector(`[data-booking-id="${bookingId}"]`).closest('tr');
+        const cells = row.querySelectorAll('td');
         
-        // Validate professional ID
-        if (!professionalId || professionalId === 'undefined' || professionalId === 'null') {
-            console.error('Invalid professional ID:', professionalId);
-            document.getElementById('rescheduleCalendar').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Invalid professional ID. Please try again.
-                </div>
-            `;
-            toastr.error('Invalid professional ID');
-            return;
-        }
+        // Extract current appointment info
+        const currentDate = cells[1].textContent.trim();
+        const currentTime = cells[4].textContent.trim();
+        const professionalName = cells[5].textContent.trim();
+        const serviceName = cells[6].textContent.trim();
         
-        // Show loading state
-        document.getElementById('rescheduleCalendar').innerHTML = `
-            <div class="text-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <p class="mt-2 text-muted">Loading availability...</p>
-            </div>
+        currentBookingData = {
+            id: bookingId,
+            currentDate: currentDate,
+            currentTime: currentTime,
+            professionalName: professionalName,
+            serviceName: serviceName
+        };
+
+        // Set booking ID in form
+        document.getElementById('rescheduleBookingId').value = bookingId;
+
+        // Set current appointment info
+        document.getElementById('currentAppointmentInfo').innerHTML = `
+            <strong>Service:</strong> ${serviceName}<br>
+            <strong>Professional:</strong> ${professionalName}<br>
+            <strong>Current Date:</strong> ${currentDate}<br>
+            <strong>Current Time:</strong> ${currentTime}
         `;
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
-                         || document.querySelector('input[name="_token"]')?.value 
-                         || '{{ csrf_token() }}';
-        
-        console.log('Professional ID:', professionalId);
-        console.log('CSRF Token available:', !!csrfToken);
-        
-        fetch(`/user/get-professional-availability/${professionalId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
+
+        // Reset form
+        document.getElementById('rescheduleForm').reset();
+        document.getElementById('rescheduleBookingId').value = bookingId; // Set again after reset
+        document.getElementById('rescheduleTimeSlots').innerHTML = '<div class="text-muted text-center p-3">Please select a date first</div>';
+        document.getElementById('rescheduleBtn').disabled = true;
+        selectedTimeSlot = null;
+        currentCalendarDate = new Date();
+
+        // Load professional availability and render calendar
+        loadProfessionalAvailability(bookingId);
+
+        openModal('rescheduleModal');
+    }
+
+    // Load professional availability data
+    function loadProfessionalAvailability(bookingId) {
+        const calendarContainer = document.getElementById('rescheduleCalendar');
+        calendarContainer.innerHTML = '<div class="calendar-loading"><i class="fas fa-spinner fa-spin"></i> Loading calendar...</div>';
+
+        console.log('Loading availability for booking ID:', bookingId);
+
+        fetch(`{{ url('/user/upcoming-appointment') }}/${bookingId}/professional-availability`)
             .then(response => {
                 console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 return response.json();
             })
             .then(data => {
-                console.log('Availability API response:', data);
-                console.log('Availability data type:', typeof data.availability);
-                console.log('Availability data length:', data.availability ? data.availability.length : 'undefined');
-                console.log('Booked slots data:', data.bookedSlots);
-                
+                console.log('Received availability data:', data);
                 if (data.success) {
-                    availabilityData = data.availability;
-                    bookedSlotsData = data.bookedSlots;
-                    
-                    console.log('Set availabilityData:', availabilityData);
-                    console.log('Set bookedSlotsData:', bookedSlotsData);
-                    
-                    try {
-                        generateCalendar(new Date());
-                        console.log('Calendar generated successfully');
-                    } catch (calendarError) {
-                        console.error('Error generating calendar:', calendarError);
-                        document.getElementById('rescheduleCalendar').innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Error generating calendar: ${calendarError.message}
-                            </div>
-                        `;
-                    }
+                    professionalAvailabilityData = data.data;
+                    existingBookings = data.existing_bookings || {};
+                    console.log('Professional availability data:', professionalAvailabilityData);
+                    console.log('Existing bookings:', existingBookings);
+                    generateAvailableDates();
+                    renderCalendar();
                 } else {
                     console.error('API returned error:', data.message);
-                    document.getElementById('rescheduleCalendar').innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            ${data.message || 'Failed to load availability data'}
-                        </div>
-                    `;
-                    toastr.error(data.message || 'Failed to load availability data');
+                    calendarContainer.innerHTML = `<div class="text-danger text-center p-3">${data.message}</div>`;
                 }
             })
             .catch(error => {
-                console.error('Fetch error:', error);
-                console.error('Error details:', {
-                    message: error.message,
-                    stack: error.stack
-                });
-                
-                let errorMessage = 'Error loading availability data';
-                if (error.message.includes('403')) {
-                    errorMessage = 'Access denied. Please make sure you are logged in.';
-                } else if (error.message.includes('404')) {
-                    errorMessage = 'Professional availability data not found.';
-                } else if (error.message.includes('500')) {
-                    errorMessage = 'Server error occurred while loading availability.';
-                }
-                
-                document.getElementById('rescheduleCalendar').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        ${errorMessage}
-                        <br><small class="text-muted">${error.message}</small>
-                    </div>
-                `;
-                toastr.error(errorMessage);
+                console.error('Error loading professional availability:', error);
+                calendarContainer.innerHTML = '<div class="text-danger text-center p-3">Error loading calendar. Please try again.</div>';
             });
     }
 
-    // Generate calendar
-    function generateCalendar(date) {
-        try {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            const today = new Date();
+    // Generate available dates from professional availability
+    function generateAvailableDates() {
+        availableDates = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        professionalAvailabilityData.forEach(availability => {
+            const monthYear = availability.month; // Format: "2025-11"
+            const [year, month] = monthYear.split('-').map(Number);
+            const weeklySlots = availability.weekly_slots;
+
+            // Generate dates for the entire month
+            const daysInMonth = new Date(year, month, 0).getDate();
             
-            const calendarContainer = document.getElementById('rescheduleCalendar');
-            
-            // Create navigation
-            const navigation = document.createElement('div');
-            navigation.className = 'calendar-navigation';
-            navigation.innerHTML = `
-                <button type="button" onclick="changeMonth(-1)">
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month - 1, day);
+                
+                // Skip past dates (only allow future dates)
+                if (date < today) continue;
+
+                // Get weekday name
+                const weekdayMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                const weekday = weekdayMap[date.getDay()];
+
+                // Check if professional has slots for this weekday
+                if (weeklySlots && weeklySlots[weekday] && weeklySlots[weekday].length > 0) {
+                    availableDates.push(date.toISOString().split('T')[0]);
+                }
+            }
+        });
+        
+        console.log('Generated available dates:', availableDates);
+    }
+
+    // Render calendar
+    function renderCalendar() {
+        const calendarContainer = document.getElementById('rescheduleCalendar');
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        // Calculate first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+        let calendarHtml = `
+            <div class="calendar-header">
+                <button type="button" class="calendar-nav" onclick="navigateMonth(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <h5>${date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h5>
-                <button type="button" onclick="changeMonth(1)">
+                <div class="calendar-month-year">
+                    ${monthNames[month]} ${year}
+                </div>
+                <button type="button" class="calendar-nav" onclick="navigateMonth(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-            `;
-            
-            // Create calendar table
-            const table = document.createElement('table');
-            table.className = 'calendar';
-            
-            // Create header
-            const header = table.createTHead();
-            const headerRow = header.insertRow();
-            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(dayName => {
-                const th = document.createElement('th');
-                th.textContent = dayName;
-                headerRow.appendChild(th);
-            });
-            
-            // Create body
-            const tbody = table.createTBody();
-            
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
-            
-            for (let week = 0; week < 6; week++) {
-                const row = tbody.insertRow();
-                
-                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                    const cellDate = new Date(startDate);
-                    cellDate.setDate(startDate.getDate() + (week * 7) + dayIndex);
-                    
-                    const cell = row.insertCell();
-                    cell.textContent = cellDate.getDate();
-                    // Use local date string to avoid timezone issues
-                    const cellYear = cellDate.getFullYear();
-                    const cellMonth = String(cellDate.getMonth() + 1).padStart(2, '0');
-                    const cellDay = String(cellDate.getDate()).padStart(2, '0');
-                    cell.dataset.date = `${cellYear}-${cellMonth}-${cellDay}`;
-                    
-                    // Add classes based on date properties
-                    if (cellDate.getMonth() !== month) {
-                        cell.classList.add('other-month');
-                    } else if (cellDate.toDateString() === today.toDateString()) {
-                        cell.classList.add('today');
-                    } else if (cellDate < today) {
-                        cell.classList.add('disabled');
-                    } else if (isDateAvailable(cellDate)) {
-                        cell.classList.add('available');
-                    } else {
-                        cell.classList.add('disabled');
-                    }
-                    
-                    // Add click event for available dates
-                    if (!cell.classList.contains('disabled') && !cell.classList.contains('other-month')) {
-                        cell.style.cursor = 'pointer';
-                        cell.addEventListener('click', function() {
-                            selectDate(cellDate, this);
-                        });
-                    }
-                }
-            }
-            
-            // Clear and add to container
-            calendarContainer.innerHTML = '';
-            calendarContainer.appendChild(navigation);
-            calendarContainer.appendChild(table);
-            
-            // Store current date for navigation
-            window.currentCalendarDate = date;
-            
-        } catch (error) {
-            console.error('Error generating calendar:', error);
-            document.getElementById('rescheduleCalendar').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Error generating calendar: ${error.message}
-                </div>
-            `;
+            </div>
+            <div class="calendar-grid">
+        `;
+
+        // Add day headers
+        dayNames.forEach(day => {
+            calendarHtml += `<div class="calendar-day-header">${day}</div>`;
+        });
+
+        // Add empty cells for days before month starts
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const day = daysInPrevMonth - i;
+            calendarHtml += `<div class="calendar-day other-month">${day}</div>`;
         }
-    }
 
-    // Check if date is available
-    function isDateAvailable(date) {
-        try {
-            // Use local date string to avoid timezone issues
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            // Get day name in 3-letter format to match database storage
-            const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const dayName = dayNames[date.getDay()]; // 0 = Sunday, 1 = Monday, etc.
-            const monthNumber = date.getMonth() + 1; // 1-12
+        // Add days of current month
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateString = date.toISOString().split('T')[0];
             
-            console.log('Checking availability for date:', {
-                date: date,
-                dateStr: dateStr,
-                dayName: dayName,
-                monthNumber: monthNumber,
-                availabilityDataLength: availabilityData.length
-            });
-            
-            if (!availabilityData || availabilityData.length === 0) {
-                console.log('No availability data available');
-                return false;
+            let dayClass = 'calendar-day';
+            let clickHandler = '';
+
+            if (date < today) {
+                dayClass += ' past-date';
+            } else if (availableDates.includes(dateString)) {
+                dayClass += ' available';
+                clickHandler = `onclick="selectCalendarDate('${dateString}')"`;
+            } else {
+                dayClass += ' unavailable';
             }
-            
-            // Check if professional has availability for this day and month
-            const isAvailable = availabilityData.some(availability => {
-                const availableMonth = availability.month_number;
-                const availableDays = availability.weekdays || [];
-                
-                const monthMatch = availableMonth === monthNumber;
-                const dayMatch = availableDays.includes(dayName);
-                const hasSlots = availability.slots && availability.slots.length > 0;
-                
-                console.log('Checking availability record:', {
-                    availableMonth: availableMonth,
-                    availableDays: availableDays,
-                    monthMatch: monthMatch,
-                    dayMatch: dayMatch,
-                    hasSlots: hasSlots
-                });
-                
-                return monthMatch && dayMatch && hasSlots;
-            });
-            
-            console.log('Date availability result:', isAvailable);
-            return isAvailable;
-        } catch (error) {
-            console.error('Error in isDateAvailable:', error);
-            return false;
+
+            calendarHtml += `<div class="${dayClass}" ${clickHandler}>${day}</div>`;
         }
+
+        // Add empty cells for days after month ends
+        const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+        const remainingCells = totalCells - (firstDay + daysInMonth);
+        for (let day = 1; day <= remainingCells; day++) {
+            calendarHtml += `<div class="calendar-day other-month">${day}</div>`;
+        }
+
+        calendarHtml += '</div>';
+        calendarContainer.innerHTML = calendarHtml;
     }
 
-    // Select date
-    function selectDate(date, cell) {
-        // Remove previous selection
-        document.querySelectorAll('.calendar td.selected').forEach(td => {
-            td.classList.remove('selected');
-        });
+    // Navigate calendar months
+    window.navigateMonth = function(direction) {
+        const today = new Date();
+        const newDate = new Date(currentCalendarDate);
+        newDate.setMonth(newDate.getMonth() + direction);
         
-        // Add selection to clicked cell
-        cell.classList.add('selected');
+        // Allow navigation from current month to 6 months ahead
+        const maxDate = new Date(today);
+        maxDate.setMonth(maxDate.getMonth() + 6);
         
-        // Format date safely without timezone issues
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        currentSelectedDate = `${year}-${month}-${day}`;
-        
-        console.log('Selected date:', {
-            originalDate: date,
-            formattedDate: currentSelectedDate,
-            dateDisplay: date.toDateString()
-        });
-        
-        // Load time slots for selected date
-        loadTimeSlots(date);
-        
-        // Update form
-        document.getElementById('rescheduleNewDate').value = currentSelectedDate;
-        
-        // Reset time slot selection
-        currentSelectedTimeSlot = null;
-        document.getElementById('rescheduleNewTimeSlot').value = '';
-        document.getElementById('confirmRescheduleBtn').disabled = true;
-    }
-
-    // Load time slots for selected date
-    function loadTimeSlots(date) {
-        const container = document.getElementById('rescheduleTimeSlots');
-        // Use same day name format as isDateAvailable function
-        const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-        const dayName = dayNames[date.getDay()];
-        const monthNumber = date.getMonth() + 1; // 1-12
-        // Use local date string to avoid timezone issues
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
-        
-        console.log('Loading time slots for:', {
-            selectedDate: date,
-            dayName: dayName,
-            monthNumber: monthNumber,
-            dateStr: dateStr
-        });
-        
-        // Find availability for this day and month
-        const relevantAvailability = availabilityData.find(availability => {
-            const availableMonth = availability.month_number;
-            const availableDays = availability.weekdays || [];
-            
-            return availableMonth === monthNumber && availableDays.includes(dayName);
-        });
-        
-        console.log('Found availability:', relevantAvailability);
-        
-        if (!relevantAvailability || !relevantAvailability.slots || relevantAvailability.slots.length === 0) {
-            container.innerHTML = '<p class="text-muted">No time slots available for this date.</p>';
+        // Don't allow navigation to past months or more than 6 months ahead
+        if (newDate < new Date(today.getFullYear(), today.getMonth(), 1) || newDate > maxDate) {
             return;
         }
         
-        const bookedSlots = bookedSlotsData[dateStr] || [];
+        currentCalendarDate = newDate;
+        renderCalendar();
+    };
+
+    // Select calendar date
+    window.selectCalendarDate = function(dateString) {
+        // Remove previous selection
+        document.querySelectorAll('.calendar-day').forEach(day => {
+            day.classList.remove('selected');
+        });
+
+        // Select current date
+        event.target.classList.add('selected');
+        document.getElementById('selectedDate').value = dateString;
+
+        // Load time slots for selected date
+        loadAvailableTimeSlots(currentBookingData.id, dateString);
+    };
+
+    // Load available time slots for selected date
+    function loadAvailableTimeSlots(bookingId, date) {
+        const slotsContainer = document.getElementById('rescheduleTimeSlots');
+        slotsContainer.innerHTML = '<div class="loading-slots"><i class="fas fa-spinner fa-spin"></i> Loading available time slots...</div>';
+
+        displayTimeSlots(professionalAvailabilityData, date);
+    }
+
+    // Display time slots
+    function displayTimeSlots(availabilityData, selectedDate) {
+        const slotsContainer = document.getElementById('rescheduleTimeSlots');
+        const dateObj = new Date(selectedDate);
         
-        let slotsHtml = '<div class="time-slots-grid">';
-        relevantAvailability.slots.forEach(slot => {
-            const isBooked = bookedSlots.includes(slot.time);
-            const slotClass = isBooked ? 'time-slot booked' : 'time-slot';
-            const disabled = isBooked ? 'disabled' : '';
+        // Get day name (convert to lowercase 3-letter format expected by backend)
+        const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const dayName = dayNames[dateObj.getDay()];
+        
+        let availableSlots = [];
+        let bookedSlots = existingBookings[selectedDate] || [];
+        
+        console.log('=== TIME SLOT GENERATION DEBUG ===');
+        console.log('Selected date:', selectedDate);
+        console.log('Date object:', dateObj);
+        console.log('Day name:', dayName);
+        console.log('Availability data:', availabilityData);
+        console.log('Booked slots for this date:', bookedSlots);
+        
+        // Find slots for the selected day
+        availabilityData.forEach((availability, index) => {
+            console.log(`Processing availability ${index}:`, availability);
+            
+            if (availability.weekly_slots && availability.weekly_slots[dayName]) {
+                console.log(`Found slots for ${dayName}:`, availability.weekly_slots[dayName]);
+                
+                availability.weekly_slots[dayName].forEach((slot, slotIndex) => {
+                    console.log(`Processing slot ${slotIndex}:`, slot);
+                    
+                    // Generate time slots based on session duration
+                    const sessionDuration = availability.session_duration || 60;
+                    const startTime = slot.start_time;
+                    const endTime = slot.end_time;
+                    
+                    console.log(`Slot details - Start: ${startTime}, End: ${endTime}, Duration: ${sessionDuration} mins`);
+                    
+                    const start = new Date(`2023-01-01 ${startTime}`);
+                    const end = new Date(`2023-01-01 ${endTime}`);
+                    
+                    console.log('Start date object:', start);
+                    console.log('End date object:', end);
+                    
+                    let slotCounter = 0;
+                    while (start < end && slotCounter < 20) { // Safety limit
+                        const slotStart = start.toTimeString().substr(0, 5);
+                        const slotEnd = new Date(start.getTime() + sessionDuration * 60000).toTimeString().substr(0, 5);
+                        
+                        console.log(`Generated slot ${slotCounter}: ${slotStart} - ${slotEnd}`);
+                        
+                        // Skip if end time exceeds availability end time
+                        if (new Date(`2023-01-01 ${slotEnd}`) > end) {
+                            console.log('Slot end time exceeds availability, breaking');
+                            break;
+                        }
+                        
+                        // Convert to 12-hour format
+                        const slotStart12 = formatTo12Hour(slotStart);
+                        const slotEnd12 = formatTo12Hour(slotEnd);
+                        const timeSlot = `${slotStart12} - ${slotEnd12}`;
+                        
+                        console.log(`Formatted slot: ${timeSlot}`);
+                        
+                        availableSlots.push(timeSlot);
+                        start.setMinutes(start.getMinutes() + sessionDuration);
+                        slotCounter++;
+                    }
+                });
+            } else {
+                console.log(`No slots found for ${dayName} in availability:`, availability.weekly_slots);
+            }
+        });
+
+        console.log('Final generated available slots:', availableSlots);
+
+        if (availableSlots.length === 0) {
+            console.log('No available slots found, showing message');
+            slotsContainer.innerHTML = '<div class="no-slots-available">No available time slots for this date</div>';
+            return;
+        }
+
+        // Remove duplicates and sort
+        availableSlots = [...new Set(availableSlots)];
+        console.log('After removing duplicates:', availableSlots);
+        
+        availableSlots.sort((a, b) => {
+            const timeA = a.split(' - ')[0];
+            const timeB = b.split(' - ')[0];
+            return convertTo24Hour(timeA).localeCompare(convertTo24Hour(timeB));
+        });
+
+        console.log('After sorting:', availableSlots);
+
+        // Display slots
+        let slotsHtml = '';
+        availableSlots.forEach(slot => {
+            const isBooked = bookedSlots.includes(slot);
+            const slotClass = isBooked ? 'time-slot-option disabled' : 'time-slot-option';
+            const clickHandler = isBooked ? '' : `onclick="selectTimeSlot('${slot}')"`;
+            const statusText = isBooked ? '<small class="d-block text-danger">Booked</small>' : '';
             
             slotsHtml += `
-                <button type="button" 
-                        class="${slotClass}" 
-                        data-time="${slot.time}"
-                        ${disabled}
-                        onclick="selectTimeSlot('${slot.time}', this)">
-                    ${slot.time}
-                </button>
+                <div class="${slotClass}" ${clickHandler}>
+                    ${slot}
+                    ${statusText}
+                </div>
             `;
         });
-        slotsHtml += '</div>';
-        
-        container.innerHTML = slotsHtml;
+
+        console.log('Generated HTML:', slotsHtml);
+        slotsContainer.innerHTML = slotsHtml;
+        console.log('=== END TIME SLOT DEBUG ===');
+    }
+                </div>
+            `;
+        });
+
+        slotsContainer.innerHTML = slotsHtml;
+    }
+
+    // Convert 12-hour to 24-hour format for sorting
+    function convertTo24Hour(time12) {
+        const [time, modifier] = time12.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') {
+            hours = '00';
+        }
+        if (modifier === 'PM') {
+            hours = parseInt(hours, 10) + 12;
+        }
+        return `${hours}:${minutes}`;
+    }
+
+    // Convert 24-hour to 12-hour format
+    function formatTo12Hour(time24) {
+        const [hours, minutes] = time24.split(':');
+        const hour12 = hours % 12 || 12;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        return `${hour12}:${minutes} ${ampm}`;
     }
 
     // Select time slot
-    window.selectTimeSlot = function(timeSlot, button) {
-        if (button.classList.contains('booked')) {
+    window.selectTimeSlot = function(timeSlot) {
+        // Don't select if slot is disabled
+        if (event.target.classList.contains('disabled')) {
             return;
         }
-        
+
         // Remove previous selection
-        document.querySelectorAll('.time-slot.selected').forEach(slot => {
-            slot.classList.remove('selected');
+        document.querySelectorAll('.time-slot-option').forEach(option => {
+            option.classList.remove('selected');
         });
-        
-        // Add selection to clicked slot
-        button.classList.add('selected');
-        currentSelectedTimeSlot = timeSlot;
-        
-        // Update form
-        document.getElementById('rescheduleNewTimeSlot').value = timeSlot;
-        
-        // Enable confirm button
-        document.getElementById('confirmRescheduleBtn').disabled = false;
+
+        // Select current option
+        event.target.classList.add('selected');
+        selectedTimeSlot = timeSlot;
+
+        // Enable reschedule button if all required fields are filled
+        checkRescheduleFormValidity();
     };
 
-    // Change month navigation
-    window.changeMonth = function(direction) {
-        const currentDate = window.currentCalendarDate || new Date();
-        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + direction, 1);
-        generateCalendar(newDate);
-    };
+    // Check if reschedule form is valid
+    function checkRescheduleFormValidity() {
+        const date = document.getElementById('selectedDate').value;
+        const reason = document.getElementById('rescheduleReason').value.trim();
+        const rescheduleBtn = document.getElementById('rescheduleBtn');
 
-    // Handle confirm reschedule
-    document.getElementById('confirmRescheduleBtn').addEventListener('click', function() {
-        if (!currentSelectedDate || !currentSelectedTimeSlot) {
-            toastr.error('Please select both date and time slot');
+        rescheduleBtn.disabled = !(date && selectedTimeSlot && reason);
+    }
+
+    // Handle reason textarea change
+    document.getElementById('rescheduleReason').addEventListener('input', checkRescheduleFormValidity);
+
+    // Handle reschedule submission
+    document.getElementById('rescheduleBtn').addEventListener('click', function() {
+        if (!selectedTimeSlot || !currentBookingData) {
+            toastr.error('Please select a time slot');
             return;
         }
-        
-        // Check if user is trying to reschedule to the same date and time
-        if (window.currentAppointment && 
-            currentSelectedDate === window.currentAppointment.date && 
-            currentSelectedTimeSlot === window.currentAppointment.time) {
-            toastr.warning('Please select a different date or time for rescheduling');
-            return;
-        }
-        
-        const formData = new FormData(document.getElementById('rescheduleForm'));
-        
-        // Debug: Log what's being sent
-        console.log('Reschedule data being sent:', {
-            booking_id: formData.get('booking_id'),
-            timedate_id: formData.get('timedate_id'),
-            professional_id: formData.get('professional_id'),
-            new_date: formData.get('new_date'),
-            new_time_slot: formData.get('new_time_slot'),
-            current_appointment: window.currentAppointment
-        });
-        
-        // Disable button and show loading state
+
+        const formData = new FormData();
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('new_date', document.getElementById('selectedDate').value);
+        formData.append('new_time_slot', selectedTimeSlot);
+        formData.append('reschedule_reason', document.getElementById('rescheduleReason').value);
+
+        // Disable button and show loading
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Rescheduling...';
-        
-        fetch('{{ route("user.upcoming-appointment.reschedule") }}', {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rescheduling...';
+
+        fetch(`{{ url('/user/upcoming-appointment') }}/${currentBookingData.id}/reschedule`, {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Reschedule response:', data);
             if (data.success) {
                 toastr.success(data.message);
-                if (data.data) {
-                    console.log('Update details:', data.data);
-                }
+                closeModal('rescheduleModal');
+                // Reload page after short delay
                 setTimeout(() => {
                     window.location.reload();
-                }, 1500);
+                }, 2000);
             } else {
-                toastr.error(data.message || 'Failed to reschedule appointment');
+                if (data.errors) {
+                    Object.values(data.errors).forEach(msgArr => {
+                        if (Array.isArray(msgArr)) {
+                            msgArr.forEach(msg => toastr.error(msg));
+                        } else {
+                            toastr.error(msgArr);
+                        }
+                    });
+                } else {
+                    toastr.error(data.message);
+                }
             }
         })
         .catch(error => {
@@ -2004,16 +1855,10 @@ document.addEventListener('DOMContentLoaded', function() {
             toastr.error('Error rescheduling appointment');
         })
         .finally(() => {
+            // Re-enable button
             this.disabled = false;
-            this.innerHTML = 'Confirm Reschedule';
+            this.innerHTML = '<i class="fas fa-calendar-alt"></i> Reschedule Appointment';
         });
-    });
-
-    // Close reschedule modal when clicking outside
-    document.getElementById('rescheduleModal').addEventListener('click', function(event) {
-        if (event.target === this) {
-            closeModal('rescheduleModal');
-        }
     });
 });
 </script>

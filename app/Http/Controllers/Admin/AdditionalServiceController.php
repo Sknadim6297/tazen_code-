@@ -7,6 +7,7 @@ use App\Models\AdditionalService;
 use App\Models\Professional;
 use App\Models\User;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of all additional services
      */

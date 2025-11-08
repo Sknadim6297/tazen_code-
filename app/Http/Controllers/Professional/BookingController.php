@@ -211,8 +211,13 @@ class BookingController extends Controller
     public function getQuestionnaireAnswers($bookingId)
     {
         try {
-            $booking = Booking::with(['customer', 'mcqAnswers.question'])->findOrFail($bookingId);
-            $answers = $booking->mcqAnswers;
+            $booking = Booking::with(['customer'])->findOrFail($bookingId);
+            
+            // Get all answers for this user and service, not just those linked to this specific booking
+            $answers = McqAnswer::with('serviceMcq')
+                ->where('user_id', $booking->user_id)
+                ->where('service_id', $booking->service_id)
+                ->get();
             
             if ($answers->isEmpty()) {
                 return response()->json([
@@ -225,14 +230,16 @@ class BookingController extends Controller
                     ]
                 ]);
             }
+            
             $formattedAnswers = $answers->map(function ($answer) {
                 return [
-                    'question' => $answer->question ? $answer->question->question : 'Question not found',
+                    'question' => $answer->serviceMcq ? $answer->serviceMcq->question : 'Question not found',
                     'answer' => $answer->answer,
                     'service_id' => $answer->service_id,
                     'user_id' => $answer->user_id
                 ];
             });
+            
             $serviceName = $booking->service_name ?? 'Unknown Service';
             $customerName = $booking->customer ? $booking->customer->name : 'Unknown Customer';
             

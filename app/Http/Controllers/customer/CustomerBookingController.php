@@ -536,7 +536,7 @@ class CustomerBookingController extends Controller
                 }
 
                 // Create or update the answer
-                \App\Models\UserMCQAnswer::updateOrCreate(
+                \App\Models\McqAnswer::updateOrCreate(
                     [
                         'user_id' => $userId,
                         'service_mcq_id' => $mcqId,

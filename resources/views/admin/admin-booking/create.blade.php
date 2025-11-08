@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sendOtpBtn.innerHTML = '<i class="ri-loader-line me-1 fa-spin"></i>Sending...';
 
         // Send OTP request
-        fetch('{{ route("admin.admin-booking.send-otp") }}', {
+        fetch('{{ route("admin.send-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyOtpBtn.disabled = true;
         verifyOtpBtn.innerHTML = '<i class="ri-loader-line me-1 fa-spin"></i>Verifying...';
 
-        fetch('{{ route("admin.admin-booking.verify-otp") }}', {
+        fetch('{{ route("admin.verify-otp") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Set password
             const password = document.getElementById('password').value;
-            fetch('{{ route("admin.admin-booking.set-password") }}', {
+            fetch('{{ route("admin.set-password") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             searchTimeout = setTimeout(() => {
                 console.log('Starting search for:', query); // Debug log
-                fetch(`{{ route('admin.admin-booking.search-customers') }}?query=${encodeURIComponent(query)}`, {
+                fetch(`{{ route('admin.search-customers') }}?query=${encodeURIComponent(query)}`, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',

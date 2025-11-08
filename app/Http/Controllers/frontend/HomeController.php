@@ -382,6 +382,23 @@ class HomeController extends Controller
         
         $rates = $ratesQuery->get();
         $availabilities = $availabilitiesQuery->get();
+        
+        // If no availabilities found with sub-service filter, try to get general availabilities
+        if ($availabilities->isEmpty()) {
+            $availabilities = Availability::where('professional_id', $id)
+                ->with('slots')
+                ->whereNull('sub_service_id')
+                ->get();
+        }
+
+        // Debug: Log what we found
+        Log::info('Frontend Professional Details Debug', [
+            'professional_id' => $id,
+            'requested_sub_service_id' => $requestedSubServiceId,
+            'availabilities_count' => $availabilities->count(),
+            'availabilities_data' => $availabilities->toArray(),
+            'total_availabilities_for_professional' => Availability::where('professional_id', $id)->count()
+        ]);
 
         $enabledDates = [];
         $dayMap = [
@@ -395,45 +412,85 @@ class HomeController extends Controller
         ];
 
         foreach ($availabilities as $availability) {
+            $availabilityMonth = $availability->month; // e.g., "2026-05"
             
-            // Handle both numeric months (9, 11) and month names (sep, nov)
+            // Parse the month to get year and month
             try {
-                if (is_numeric($availability->month)) {
-                    $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                // Check if month is in "YYYY-MM" format (new format)
+                if (preg_match('/^\d{4}-\d{2}$/', $availabilityMonth)) {
+                    $monthDate = Carbon::createFromFormat('Y-m', $availabilityMonth)->startOfMonth();
+                    $monthStart = $monthDate->copy();
+                    $monthEnd = $monthDate->copy()->endOfMonth();
+                    
+                    // Make sure we don't go before today
+                    $startDate = Carbon::today()->max($monthStart);
+                    $endDate = $monthEnd;
+                    
                 } else {
-                    $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
+                    // Legacy format handling - numeric months or month names
+                    if (is_numeric($availability->month)) {
+                        $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                    } else {
+                        $monthNumber = Carbon::parse("1 " . $availability->month)->format('m');
+                    }
+
+                    $currentYear = Carbon::now()->year;
+                    $currentMonth = Carbon::now()->month;
+                    
+                    // Determine the correct year - if the availability month is before or equal to current month, use next year
+                    $year = $currentYear;
+                    if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && Carbon::now()->day > 15)) {
+                        $year = $currentYear + 1;
+                    }
+                    
+                    $startDate = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
+                    $endDate = $startDate->copy()->endOfMonth();
                 }
+                
             } catch (\Exception $e) {
                 Log::error('Failed to parse month: ' . $availability->month, ['error' => $e->getMessage()]);
                 continue;
             }
-
-            $currentYear = Carbon::now()->year;
-            $currentMonth = Carbon::now()->month;
             
-            // Determine the correct year - if the availability month is before or equal to current month, use next year
-            $year = $currentYear;
-            if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && Carbon::now()->day > 15)) {
-                $year = $currentYear + 1;
+            // Skip if the entire month is in the past
+            if ($endDate->isPast()) {
+                continue;
             }
             
-            // Date calculation completed for availability
+            $period = CarbonPeriod::create($startDate, $endDate);
             
-            $start = Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
-            $end = $start->copy()->endOfMonth();
-            $period = CarbonPeriod::create($start, $end);
+            // Get weekdays available for this month from slots (new structure)
+            $availableWeekdays = collect();
             
-            // Handle weekdays - check if it's already an array (due to cast) or JSON string
-            $decoded = $availability->weekdays;
-            if (is_string($decoded)) {
-                $decoded = json_decode($decoded);
+            if ($availability->slots && $availability->slots->count() > 0) {
+                foreach ($availability->slots as $slot) {
+                    if ($slot->weekday) {
+                        $weekday = strtolower($slot->weekday);
+                        if (isset($dayMap[$weekday])) {
+                            $availableWeekdays->push($dayMap[$weekday]);
+                        }
+                    }
+                }
+            } else {
+                // Fallback to old weekdays field if no slots
+                $decoded = $availability->weekdays;
                 if (is_string($decoded)) {
                     $decoded = json_decode($decoded);
+                    if (is_string($decoded)) {
+                        $decoded = json_decode($decoded);
+                    }
+                }
+                
+                if (is_array($decoded)) {
+                    foreach ($decoded as $day) {
+                        if (isset($dayMap[strtolower($day)])) {
+                            $availableWeekdays->push($dayMap[strtolower($day)]);
+                        }
+                    }
                 }
             }
-
-            $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
-            $isoDays = array_filter($isoDays);
+            
+            $isoDays = $availableWeekdays->unique()->toArray();
 
             foreach ($period as $date) {
                 if (in_array($date->dayOfWeekIso, $isoDays)) {
@@ -510,8 +567,25 @@ class HomeController extends Controller
             $availabilityQuery->whereNull('sub_service_id');
         }
         $availabilities = $availabilityQuery->get();
+        
+        // If no availabilities found with sub-service filter, try to get general availabilities
+        if ($availabilities->isEmpty()) {
+            $availabilities = Availability::where('professional_id', $professionalId)
+                ->with('slots')
+                ->whereNull('sub_service_id')
+                ->get();
+        }
 
         // AJAX availability request received
+        
+        // Debug: Log what we found in AJAX
+        Log::info('AJAX Professional Availability Debug', [
+            'professional_id' => $professionalId,
+            'professional_service_id' => $professionalServiceId,
+            'sub_service_id' => $subServiceId,
+            'availabilities_count' => $availabilities->count(),
+            'availabilities_data' => $availabilities->toArray()
+        ]);
 
         // Process availability dates
         $enabledDates = [];
@@ -521,41 +595,82 @@ class HomeController extends Controller
         ];
 
         foreach ($availabilities as $availability) {
-            // processing availability
+            $availabilityMonth = $availability->month; // e.g., "2026-05"
             
-            // Handle both numeric months (9, 11) and month names (sep, nov)
+            // Parse the month to get year and month
             try {
-                if (is_numeric($availability->month)) {
-                    $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                // Check if month is in "YYYY-MM" format (new format)
+                if (preg_match('/^\d{4}-\d{2}$/', $availabilityMonth)) {
+                    $monthDate = \Carbon\Carbon::createFromFormat('Y-m', $availabilityMonth)->startOfMonth();
+                    $monthStart = $monthDate->copy();
+                    $monthEnd = $monthDate->copy()->endOfMonth();
+                    
+                    // Make sure we don't go before today
+                    $startDate = \Carbon\Carbon::today()->max($monthStart);
+                    $endDate = $monthEnd;
+                    
                 } else {
-                    $monthNumber = \Carbon\Carbon::parse("1 " . $availability->month)->format('m');
+                    // Legacy format handling - numeric months or month names
+                    if (is_numeric($availability->month)) {
+                        $monthNumber = str_pad($availability->month, 2, '0', STR_PAD_LEFT);
+                    } else {
+                        $monthNumber = \Carbon\Carbon::parse("1 " . $availability->month)->format('m');
+                    }
+
+                    $currentYear = \Carbon\Carbon::now()->year;
+                    $currentMonth = \Carbon\Carbon::now()->month;
+                    
+                    // Determine the correct year - if the availability month is before or equal to current month, use next year
+                    $year = $currentYear;
+                    if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && \Carbon\Carbon::now()->day > 15)) {
+                        $year = $currentYear + 1;
+                    }
+                    
+                    $startDate = \Carbon\Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
+                    $endDate = $startDate->copy()->endOfMonth();
                 }
+                
             } catch (\Exception $e) {
                 Log::error('AJAX Failed to parse month: ' . $availability->month, ['error' => $e->getMessage()]);
                 continue;
             }
-
-            $currentYear = \Carbon\Carbon::now()->year;
-            $currentMonth = \Carbon\Carbon::now()->month;
             
-            // Determine the correct year - if the availability month is before or equal to current month, use next year
-            $year = $currentYear;
-            if ($monthNumber < $currentMonth || ($monthNumber == $currentMonth && \Carbon\Carbon::now()->day > 15)) {
-                $year = $currentYear + 1;
+            // Skip if the entire month is in the past
+            if ($endDate->isPast()) {
+                continue;
             }
             
-            // AJAX date calculation completed
+            $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
             
-            $start = \Carbon\Carbon::createFromFormat('Y-m-d', "$year-$monthNumber-01");
-            $end = $start->copy()->endOfMonth();
-            $period = \Carbon\CarbonPeriod::create($start, $end);
-            $decoded = json_decode($availability->weekdays);
-            if (is_string($decoded)) {
-                $decoded = json_decode($decoded);
+            // Get weekdays available for this month from slots (new structure)
+            $availableWeekdays = collect();
+            
+            if ($availability->slots && $availability->slots->count() > 0) {
+                foreach ($availability->slots as $slot) {
+                    if ($slot->weekday) {
+                        $weekday = strtolower($slot->weekday);
+                        if (isset($dayMap[$weekday])) {
+                            $availableWeekdays->push($dayMap[$weekday]);
+                        }
+                    }
+                }
+            } else {
+                // Fallback to old weekdays field if no slots
+                $decoded = json_decode($availability->weekdays);
+                if (is_string($decoded)) {
+                    $decoded = json_decode($decoded);
+                }
+                
+                if (is_array($decoded)) {
+                    foreach ($decoded as $day) {
+                        if (isset($dayMap[strtolower($day)])) {
+                            $availableWeekdays->push($dayMap[strtolower($day)]);
+                        }
+                    }
+                }
             }
-
-            $isoDays = array_map(fn($day) => $dayMap[strtolower($day)] ?? null, $decoded);
-            $isoDays = array_filter($isoDays);
+            
+            $isoDays = $availableWeekdays->unique()->toArray();
 
             // AJAX weekdays processed
 

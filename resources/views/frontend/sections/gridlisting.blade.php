@@ -790,12 +790,28 @@
       <div class="page_header">
         <div class="breadcrumbs">
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Professionals</a></li>
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('gridlisting') }}">Professionals</a></li>
+                @if(session('selected_service_name'))
+                    <li><a href="{{ route('gridlisting', ['service_id' => session('selected_service_id')]) }}">{{ session('selected_service_name') }}</a></li>
+                @endif
+                @if(request('sub_service_id'))
+                    @php
+                        $selectedSubService = collect($subServices)->firstWhere('id', request('sub_service_id'));
+                    @endphp
+                    @if($selectedSubService)
+                        <li>{{ $selectedSubService->name }}</li>
+                    @endif
+                @endif
             </ul>
         </div>
         
-        <h1>{{ session('selected_service_name', 'Professionals') }}</h1>
+        <h1>
+            {{ session('selected_service_name', 'Professionals') }}
+            @if(request('sub_service_id') && isset($selectedSubService))
+                <span style="color: #74767e; font-size: 0.7em; font-weight: 400;"> • {{ $selectedSubService->name }}</span>
+            @endif
+        </h1>
         
         <div class="category-description">
             Find the perfect professional for your project needs. Connect with skilled experts who deliver quality results.

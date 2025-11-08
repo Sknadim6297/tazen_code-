@@ -31,7 +31,7 @@ class McqAnswer extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function question()
+    public function serviceMcq()
     {
         return $this->belongsTo(ServiceMCQ::class, 'service_mcq_id');
     }

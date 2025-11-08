@@ -7,6 +7,7 @@ use App\Models\AdditionalService;
 use App\Models\Professional;
 use App\Models\Admin;
 use App\Notifications\AdditionalServiceNotification;
+use App\Traits\AdditionalServiceNotificationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ use Razorpay\Api\Api;
 
 class AdditionalServiceController extends Controller
 {
+    use AdditionalServiceNotificationTrait;
     /**
      * Display a listing of additional services for the user
      */
@@ -97,21 +99,27 @@ class AdditionalServiceController extends Controller
                 'user_responded_at' => now()
             ]);
 
-            // Notify professional and admin
-            $professional = $additionalService->professional;
-            $admins = Admin::all();
+            // Send enhanced notification
+            $originalPrice = $additionalService->original_professional_price;
+            $negotiatedPrice = $request->negotiated_price;
+            $discountAmount = $originalPrice - $negotiatedPrice;
+            $discountPercent = ($originalPrice > 0) ? (($discountAmount / $originalPrice) * 100) : 0;
 
-            $professional->notify(new AdditionalServiceNotification(
-                $additionalService, 
-                'negotiation_started'
-            ));
-
-            foreach ($admins as $admin) {
-                $admin->notify(new AdditionalServiceNotification(
-                    $additionalService, 
-                    'negotiation_started'
-                ));
-            }
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'negotiation_started',
+                "Customer {$additionalService->user->name} has started price negotiation for '{$additionalService->service_name}'. Original: ₹" . number_format($originalPrice, 2) . " → Offered: ₹" . number_format($negotiatedPrice, 2) . " (" . number_format($discountPercent, 1) . "% discount). Reason: {$request->negotiation_reason}",
+                [
+                    'action' => 'negotiation_started',
+                    'original_price' => $originalPrice,
+                    'negotiated_price' => $negotiatedPrice,
+                    'discount_amount' => $discountAmount,
+                    'discount_percent' => $discountPercent,
+                    'negotiation_reason' => $request->negotiation_reason,
+                    'customer_name' => $additionalService->user->name,
+                    'professional_name' => $additionalService->professional->name,
+                ]
+            );
 
             DB::commit();
 
@@ -307,6 +315,51 @@ class AdditionalServiceController extends Controller
     }
 
     /**
+     * Handle payment failure for additional services
+     */
+    public function handlePaymentFailure(Request $request, $id)
+    {
+        try {
+            $additionalService = AdditionalService::where('id', $id)
+                ->where('user_id', Auth::guard('user')->id())
+                ->firstOrFail();
+
+            // Update payment status to failed
+            $additionalService->update([
+                'payment_status' => 'failed',
+                'payment_failure_reason' => $request->error_description ?? 'Payment failed',
+                'updated_at' => now()
+            ]);
+
+            // Send failure notifications using the trait
+            $this->sendNotificationWithLogging(
+                $additionalService,
+                'payment_failed',
+                "Payment failed for additional service '{$additionalService->service_name}'. Amount: ₹" . number_format($additionalService->getEffectiveTotalPrice(), 2) . ". Customer can retry payment.",
+                [
+                    'action' => 'payment_failed',
+                    'amount' => $additionalService->getEffectiveTotalPrice(),
+                    'failure_reason' => $request->error_description ?? 'Payment failed',
+                    'order_id' => $request->order_id ?? null,
+                    'payment_id' => $request->payment_id ?? null,
+                ]
+            );
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment failed. You can retry the payment anytime.',
+                'redirect' => route('user.additional-services.show', $id)
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing payment failure: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Calculate professional earnings
      */
     private function calculateProfessionalEarnings(AdditionalService $additionalService)
@@ -428,5 +481,39 @@ class AdditionalServiceController extends Controller
         ]);
 
         return $pdf->download('invoice-' . $invoiceNumber . '.pdf');
+    }
+
+    /**
+     * Mark a notification as read
+     */
+    public function markNotificationAsRead(Request $request, $notificationId)
+    {
+        try {
+            $user = Auth::guard('user')->user();
+            
+            // Find the notification for this user
+            $notification = $user->notifications()->where('id', $notificationId)->first();
+            
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found'
+                ], 404);
+            }
+            
+            // Mark as read
+            $notification->markAsRead();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while marking notification as read'
+            ], 500);
+        }
     }
 }

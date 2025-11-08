@@ -9,11 +9,8 @@ class UserMCQAnswer extends Model
 {
     use HasFactory;
 
-<<<<<<< HEAD
-=======
     protected $table = 'user_mcq_answers';
 
->>>>>>> tazen/main
     protected $fillable = [
         'user_id',
         'service_id',
