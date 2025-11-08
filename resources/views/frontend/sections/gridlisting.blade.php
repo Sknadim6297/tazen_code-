@@ -940,13 +940,49 @@
                                 }
                                 
                                 $detailsUrl = route('professionals.details', $routeParams);
+                                
+                                // Determine pricing based on selected service/sub-service
+                                $displayPrice = 'Contact for pricing';
+                                
+                                if(request('sub_service_id')) {
+                                    // Sub-service is selected - show sub-service rate
+                                    $subServiceRate = $professional->professionalServices
+                                        ->where('sub_service_id', request('sub_service_id'))
+                                        ->first();
+                                    if($subServiceRate && $subServiceRate->rate) {
+                                        $displayPrice = number_format((float)$subServiceRate->rate, 0);
+                                    }
+                                } elseif(session('selected_service_id')) {
+                                    // No sub-service selected but main service is selected - show main service rate
+                                    $mainServiceRate = $professional->professionalServices
+                                        ->where('service_id', session('selected_service_id'))
+                                        ->whereNull('sub_service_id')
+                                        ->first();
+                                    if($mainServiceRate && $mainServiceRate->rate) {
+                                        $displayPrice = number_format((float)$mainServiceRate->rate, 0);
+                                    } else {
+                                        // Fallback to any service rate for this professional under the selected service
+                                        $anyServiceRate = $professional->professionalServices
+                                            ->where('service_id', session('selected_service_id'))
+                                            ->where('rate', '>', 0)
+                                            ->first();
+                                        if($anyServiceRate && $anyServiceRate->rate) {
+                                            $displayPrice = number_format((float)$anyServiceRate->rate, 0);
+                                        }
+                                    }
+                                }
+                                
+                                // Final fallback to starting price if no specific service rate found
+                                if($displayPrice === 'Contact for pricing' && $professional->profile && $professional->profile->starting_price) {
+                                    $displayPrice = number_format((float)$professional->profile->starting_price, 0);
+                                }
                             @endphp
                             
                             <a href="{{ $detailsUrl }}" class="strip_info">
                                 <div class="item_title">
                                     <h3>{{ $professional->name }}</h3>
                                     <p class="about">{{ $professional->bio ?: 'Professional service provider with expertise in your field.' }}</p>
-                                    <small>From ₹{{ $professional->profile->starting_price ?? 'Contact for pricing' }}</small>
+                                    <small>From ₹{{ $displayPrice }}</small>
                                     <small>{{ $professional->professionalServices->pluck('tags')->filter()->implode(', ') ?: 'Professional Services' }}</small>
                                 </div>
                             </a>

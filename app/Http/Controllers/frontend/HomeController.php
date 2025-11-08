@@ -56,8 +56,12 @@ class HomeController extends Controller
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
         
-        // Fetch admin events (EventDetail with event relationship)
-        $adminEvents = EventDetail::with('event')->latest()->take(6)->get();
+        // Fetch admin events (EventDetail with event relationship) - ONLY admin created events
+        $adminEvents = EventDetail::with('event')
+            ->where('creator_type', 'admin')
+            ->latest()
+            ->take(6)
+            ->get();
         
         // Fetch approved professional events (AllEvent)
         $professionalEvents = AllEvent::with('professional')
@@ -215,7 +219,7 @@ class HomeController extends Controller
             }
         }
 
-        $professionalsQuery = Professional::with('profile', 'professionalServices.subServices')
+        $professionalsQuery = Professional::with('profile', 'professionalServices.subServices', 'professionalServices.service')
             ->where('status', 'accepted')
             ->where('active', true);
 
@@ -367,7 +371,7 @@ class HomeController extends Controller
         }
         
         // Filter both rates and availabilities by sub-service if specified
-        $ratesQuery = Rate::where('professional_id', $id)->with('professional', 'subService');
+        $ratesQuery = Rate::where('professional_id', $id)->with('professional', 'subService.service');
         $availabilitiesQuery = Availability::where('professional_id', $id)->with('slots');
         
         if ($requestedSubServiceId) {

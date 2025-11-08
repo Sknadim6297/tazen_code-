@@ -111,8 +111,10 @@ Route::get('/eventlist', function (Request $request) {
     $city = $request->query('city');
     $event_mode = $request->query('event_mode');
 
-    // Get admin events
-    $adminEvents = EventDetail::with('event')->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+    // Get admin events - ONLY admin created event details
+    $adminEvents = EventDetail::with('event')
+        ->where('creator_type', 'admin')
+        ->whereHas('event', function ($query) use ($filter, $category, $price_range) {
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
