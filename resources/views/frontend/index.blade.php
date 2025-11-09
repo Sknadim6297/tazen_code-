@@ -4034,7 +4034,7 @@
 													</div>
 												@else
 													<div class="fiverr-meta-item">
-														<span class="badge bg-primary text-white">By Admin</span>
+														<span class="badge bg-primary text-white">By Tazen</span>
 													</div>
 												@endif
 												<div class="fiverr-meta-item fiverr-btn-container">

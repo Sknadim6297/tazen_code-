@@ -36,32 +36,35 @@ class BookingController extends Controller
         try {
             $eventId = $request->input('event_id');
             $eventName = $request->input('event_name', '');
+            
+            // Try to find the event in AllEvent table first
             $allEvent = \App\Models\AllEvent::find($eventId);
+            
+            // If not found by ID and we have an event name, try finding by name
             if (!$allEvent && !empty($eventName)) {
                 $allEvent = \App\Models\AllEvent::where('heading', 'LIKE', "%{$eventName}%")
-                    ->first(); // Remove the query for 'name' column
+                    ->first();
 
                 if ($allEvent) {
                     $eventId = $allEvent->id;
                 }
             }
-            if (!$allEvent && $eventId) {
-                $regularEvent = \App\Models\Event::find($eventId);
-
-                if ($regularEvent) {
-                    $allEvent = new \App\Models\AllEvent();
-                    $allEvent->heading = $regularEvent->name ?? $eventName ?? 'Event'; // Use heading instead of name
-                    $allEvent->city = $regularEvent->city ?? $request->input('location') ?? 'Kolkata';
-                    $allEvent->status = 'active';
-                    $allEvent->save();
-                    $eventId = $allEvent->id;
-                }
+            
+            // Remove automatic AllEvent creation to prevent duplicates
+            // The event should already exist in AllEvent table
+            
+            // If we still don't have an AllEvent, return an error instead of creating one
+            if (!$allEvent) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Event not found. Please contact support.'
+                ], 404);
             }
             session([
                 'event_booking_data' => [
-                    'event_id' => $allEvent ? $allEvent->id : null,
-                    'event_name' => $allEvent ? $allEvent->heading : $eventName, // Use heading since name doesn't exist
-                    'location' => $request->input('location') ?? 'Kolkata',
+                    'event_id' => $allEvent->id,
+                    'event_name' => $allEvent->heading,
+                    'location' => $request->input('location') ?? $allEvent->city ?? 'Kolkata',
                     'type' => $request->input('type') ?? 'offline',
                     'event_date' => $request->input('event_date'),
                     'price' => $request->input('amount'),

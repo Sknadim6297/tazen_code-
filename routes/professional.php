@@ -115,6 +115,17 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
     // Professional Events routes
     Route::resource('events', ProfessionalEventController::class);
 
+    // Professional Event Details routes
+    Route::prefix('event-details')->name('event-details.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\EventDetailController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Professional\EventDetailController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Professional\EventDetailController::class, 'store'])->name('store');
+        Route::get('/{eventDetail}', [App\Http\Controllers\Professional\EventDetailController::class, 'show'])->name('show');
+        Route::get('/{eventDetail}/edit', [App\Http\Controllers\Professional\EventDetailController::class, 'edit'])->name('edit');
+        Route::put('/{eventDetail}', [App\Http\Controllers\Professional\EventDetailController::class, 'update'])->name('update');
+        Route::delete('/{eventDetail}', [App\Http\Controllers\Professional\EventDetailController::class, 'destroy'])->name('destroy');
+    });
+
     // Booking Chat Routes for Professional
     Route::prefix('chat')->name('chat.')->group(function () {
         Route::get('/booking/{bookingId}', [BookingChatController::class, 'openChat'])->name('open');

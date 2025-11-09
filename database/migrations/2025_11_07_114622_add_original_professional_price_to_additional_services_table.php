@@ -12,13 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('additional_services', function (Blueprint $table) {
-            // Add column to preserve original professional price
-            $table->decimal('original_professional_price', 10, 2)->nullable()->after('base_price');
-        });
-        
-        // Migrate existing data
-        $this->migrateExistingData();
+        // Check if the table exists before trying to alter it
+        if (Schema::hasTable('additional_services')) {
+            // Check if column doesn't already exist
+            if (!Schema::hasColumn('additional_services', 'original_professional_price')) {
+                Schema::table('additional_services', function (Blueprint $table) {
+                    // Add column to preserve original professional price
+                    $table->decimal('original_professional_price', 10, 2)->nullable()->after('base_price');
+                });
+                
+                // Migrate existing data
+                $this->migrateExistingData();
+            }
+        }
     }
 
     /**
@@ -26,9 +32,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('additional_services', function (Blueprint $table) {
-            $table->dropColumn('original_professional_price');
-        });
+        if (Schema::hasTable('additional_services') && Schema::hasColumn('additional_services', 'original_professional_price')) {
+            Schema::table('additional_services', function (Blueprint $table) {
+                $table->dropColumn('original_professional_price');
+            });
+        }
     }
     
     /**

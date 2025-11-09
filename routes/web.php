@@ -88,7 +88,7 @@ Route::get("professionals/details/{id}/{professional_name?}/{sub_service_slug?}"
 // AJAX routes for dynamic filtering
 Route::get('/get-sub-services', [HomeController::class, 'getSubServices'])->name('get.sub.services');
 Route::get('/get-professional-rates-availability', [HomeController::class, 'getProfessionalRatesAvailability'])->name('get.professional.rates.availability');
-Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details');
+Route::get("professionals/details/{id}/{professional_name?}", [HomeController::class, 'professionalsDetails'])->name('professionals.details.simple');
 // Removed conflicting duplicate route name to ensure JSON endpoint resolves correctly
 // Route::get('professionals/get-rates-by-sub-service', [HomeController::class, 'getProfessionalRatesBySubService'])->name('get.professional.rates.availability');
 
@@ -111,8 +111,10 @@ Route::get('/eventlist', function (Request $request) {
     $city = $request->query('city');
     $event_mode = $request->query('event_mode');
 
-    // Get admin events
-    $adminEvents = EventDetail::with('event')->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+    // Get admin events - ONLY admin created event details
+    $adminEvents = EventDetail::with('event')
+        ->where('creator_type', 'admin')
+        ->whereHas('event', function ($query) use ($filter, $category, $price_range) {
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
@@ -232,11 +234,6 @@ Route::get('/eventlist', function (Request $request) {
     return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range', 'cities', 'city', 'event_modes', 'event_mode'));
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
-    $event = Event::with('eventDetails')->findOrFail($id);
-    $services = Service::all();
-    $eventfaqs = EventFAQ::latest()->get();
-
-    return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
     // First try to find in AllEvent (for professional events)
     $allEvent = AllEvent::find($id);
 
@@ -244,8 +241,13 @@ Route::get('/allevent/{id}', function ($id) {
         // This is a professional event from AllEvent
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
+        
+        // Try to find related event details for this professional event
+        $eventDetail = EventDetail::where('event_id', $id)
+                                  ->where('creator_type', 'professional')
+                                  ->first();
 
-        return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs'));
+        return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs', 'eventDetail'));
     } else {
         // This is an admin event from Event model
         $event = Event::with('eventDetails')->findOrFail($id);

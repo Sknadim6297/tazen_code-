@@ -151,6 +151,7 @@
                                         <th>Fees</th>
                                         <th>City</th>
                                         <th>Mode</th>
+                                        <th>Creator</th>
                                         <th>Gallery</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
@@ -187,6 +188,20 @@
                                                 <span class="badge {{ $event->event_mode === 'online' ? 'bg-success' : 'bg-primary' }}">
                                                     {{ ucfirst($event->event_mode) }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                @if($event->creator_type === 'admin')
+                                                    <span class="badge bg-primary-transparent">
+                                                        <i class="ri-admin-line me-1"></i>Admin
+                                                    </span>
+                                                @elseif($event->creator_type === 'professional')
+                                                    <span class="badge bg-info-transparent">
+                                                        <i class="ri-user-line me-1"></i>Professional
+                                                    </span>
+                                                    <div class="small text-muted">{{ $event->creator_name }}</div>
+                                                @else
+                                                    <span class="text-muted">Unknown</span>
+                                                @endif
                                             </td>
                                             
                                             <td>

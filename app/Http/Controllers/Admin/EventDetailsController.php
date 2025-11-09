@@ -12,8 +12,13 @@ class EventDetailsController extends Controller
 {
     public function index()
     {
-        $eventdetails = EventDetail::with('event')->latest()->get();
+        // Get all event details with their events
+        $eventdetails = EventDetail::with(['event'])
+            ->latest()
+            ->get();
+            
         $allevents = AllEvent::latest()->get();
+        
         return view('admin.eventdetails.index', compact('eventdetails', 'allevents'));
     }
 
@@ -45,6 +50,11 @@ class EventDetailsController extends Controller
             'city',
             'event_mode'
         ]);
+
+        // Add creator information for admin
+        $data['creator_type'] = 'admin';
+        $data['creator_id'] = auth()->guard('admin')->id();
+
         if ($request->hasFile('banner_image')) {
             $bannerImages = [];
             foreach ($request->file('banner_image') as $image) {

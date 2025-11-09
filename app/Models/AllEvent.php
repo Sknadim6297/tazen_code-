@@ -90,7 +90,7 @@ class AllEvent extends Model
 
     public function eventDetails()
     {
-        return $this->hasMany(Event::class, 'event_id');
+        return $this->hasMany(EventDetail::class, 'event_id');
     }
     
     public function bookings()
