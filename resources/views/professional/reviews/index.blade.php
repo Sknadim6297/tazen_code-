@@ -1,672 +1,487 @@
 @extends('professional.layout.layout')
 
-@section('content')
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-6">
-                    <h1>My Reviews</h1>
-                </div>
-                <div class="col-6 text-right">
-                    <nav class="breadcrumb-container">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">My Reviews</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="content">
-        <div class="container-fluid">
-            <!-- Rating Summary Cards -->
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="card overall-card">
-                        <div class="card-body">
-                            <h4 class="card-title">Overall Rating</h4>
-                            <div class="rating-value">{{ number_format($averageRating, 1) }}</div>
-                            <div class="star-container">
-                                @for($i = 1; $i <= 5; $i++)
-                                    @if($i <= round($averageRating))
-                                        <i class="fas fa-star filled"></i>
-                                    @else
-                                        <i class="far fa-star"></i>
-                                    @endif
-                                @endfor
-                            </div>
-                            <p class="review-count">Based on {{ $totalReviews }} {{ Str::plural('review', $totalReviews) }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Rating Distribution</h4>
-                            @for($i = 5; $i >= 1; $i--)
-                                <div class="rating-row">
-                                    <div class="star-label">{{ $i }} {{ Str::plural('star', $i) }}</div>
-                                    <div class="progress-container">
-                                        @php $percentage = $totalReviews > 0 ? ($ratingCounts[$i] / $totalReviews) * 100 : 0; @endphp
-                                        <div class="progress-bar" style="width: {{ $percentage }}%"></div>
-                                    </div>
-                                    <div class="count-label">{{ $ratingCounts[$i] }}</div>
-                                </div>
-                            @endfor
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Filter Card -->
-            <div class="card filter-card">
-                <div class="card-body">
-                    <form action="{{ route('professional.reviews.index') }}" method="GET" id="filter-form">
-                        <div class="filter-grid">
-                            <div class="filter-item">
-                                <label>Date From</label>
-                                <input type="date" name="start_date" value="{{ request('start_date') }}">
-                            </div>
-                            <div class="filter-item">
-                                <label>Date To</label>
-                                <input type="date" name="end_date" value="{{ request('end_date') }}">
-                            </div>
-                            <div class="filter-item">
-                                <label>Rating</label>
-                                <select name="rating">
-                                    <option value="">All Ratings</option>
-                                    @for($i = 5; $i >= 1; $i--)
-                                        <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} {{ Str::plural('Star', $i) }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="filter-buttons">
-                                <button type="submit" class="btn-primary">Filter</button>
-                                <a href="{{ route('professional.reviews.index') }}" class="btn-secondary">Reset</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Reviews List -->
-            <div class="card reviews-card">
-                <div class="card-body">
-                    <h4 class="card-title">All Reviews</h4>
-                    
-                    @if($reviews->isEmpty())
-                        <div class="empty-state">
-                            <i class="fas fa-star empty-icon"></i>
-                            <h5>No reviews yet</h5>
-                            <p>You haven't received any reviews that match your current filters.</p>
-                        </div>
-                    @else
-                        <div class="reviews-list">
-                            @foreach($reviews as $review)
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <div class="user-info">
-                                            <h5>{{ $review->user->name ?? 'Anonymous' }}</h5>
-                                            <span class="date">{{ $review->created_at->format('F d, Y') }}</span>
-                                        </div>
-                                        <div class="rating">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                @if($i <= $review->rating)
-                                                    <i class="fas fa-star filled"></i>
-                                                @else
-                                                    <i class="far fa-star"></i>
-                                                @endif
-                                            @endfor
-                                        </div>
-                                    </div>
-                                    <p class="review-text">{{ $review->review_text }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <!-- Pagination -->
-                        <div class="pagination-container">
-                            {{ $reviews->links() }}
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@section('styles')
 <style>
-    /* Table horizontal scrolling for mobile */
-    .table-responsive-container {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    }
-    
-    .table {
-        min-width: 600px; /* Minimum width to ensure all columns are visible when scrolling */
-        width: 100%;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
     }
 
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-         /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive-container {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
-        
-        /* Ensure the table takes full width of container */
-        .table {
-            width: 100%;
-            table-layout: auto;
-            white-space: nowrap;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Add scrollbar styling */
-        .table-responsive-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-            .user-profile-wrapper{
-                margin-top: -57px;
-            }
+    body,
+    .app-content {
+        background: var(--page-bg);
     }
-    
-    @media screen and (max-width: 767px) {
-        /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive-container {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
-        
-        /* Ensure the table takes full width of container */
-        .table {
-            width: 100%;
-            table-layout: auto;
-            white-space: nowrap;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Add scrollbar styling */
-        .table-responsive-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+
+    .reviews-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
+
+    .reviews-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .reviews-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
+    }
+
+    .reviews-hero::before,
+    .reviews-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .reviews-hero::before {
+        width: 340px;
+        height: 340px;
+        top: -46%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .reviews-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -42%;
+        left: -10%;
+        background: rgba(14, 165, 233, 0.18);
+    }
+
+    .reviews-hero > * { position: relative; z-index: 1; }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+
+    .hero-breadcrumb li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .rating-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .summary-card,
+    .distribution-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        padding: 1.9rem 2.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+    }
+
+    .summary-card h4,
+    .distribution-card h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .overall-score {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .overall-score .score {
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: #fb923c;
+    }
+
+    .star-row {
+        display: inline-flex;
+        gap: 0.25rem;
+        color: #fbbf24;
+        font-size: 1.2rem;
+    }
+
+    .review-count {
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+
+    .distribution-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .distribution-item {
+        display: grid;
+        grid-template-columns: 80px 1fr 50px;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .distribution-item .progress {
+        height: 10px;
+        background: rgba(226, 232, 240, 0.8);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .distribution-item .progress-bar {
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 999px;
+    }
+
+    .filters-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        padding: 1.9rem 2.1rem;
+    }
+
+    .filters-card form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.2rem;
+        align-items: end;
+    }
+
+    .filters-card label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 0.4rem;
+    }
+
+    .filters-card input,
+    .filters-card select {
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filters-card input:focus,
+    .filters-card select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        outline: none;
+    }
+
+    .filter-actions {
+        display: inline-flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-neutral {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        border: none;
+        padding: 0.8rem 1.6rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 18px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-neutral {
+        background: rgba(148, 163, 184, 0.18);
+        color: #0f172a;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .btn-primary:hover,
+    .btn-neutral:hover { transform: translateY(-1px); }
+
+    .reviews-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        padding: 1.9rem 2.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+    }
+
+    .reviews-card h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .review-item {
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 18px;
+        padding: 1.2rem 1.4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        background: rgba(248, 250, 252, 0.8);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .review-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .user-info h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .user-info .date {
+        font-size: 0.82rem;
+        color: var(--muted);
+    }
+
+    .review-rating { color: #fbbf24; }
+
+    .review-text {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.6;
+        font-size: 0.93rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3.2rem 1.6rem;
+        border-radius: 20px;
+        border: 1px dashed rgba(79, 70, 229, 0.25);
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: center;
+    }
+
+    .empty-state i {
+        font-size: 2.8rem;
+        color: var(--primary);
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.4rem;
+    }
+
+    @media (max-width: 768px) {
+        .reviews-page { padding: 2.2rem 1rem 3.2rem; }
+        .reviews-hero { padding: 1.75rem 1.6rem; }
+        .filters-card { padding: 1.7rem 1.5rem; }
+        .reviews-card { padding: 1.7rem 1.5rem; }
+        .review-item { padding: 1rem 1.1rem; }
     }
 </style>
 @endsection
 
-@section('styles')
-<style>
-    /* Grid System */
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-    }
-    
-    .col-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-    
-    .col-lg-4 {
-        flex: 0 0 33.333333%;
-        max-width: 33.333333%;
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-    
-    .col-lg-8 {
-        flex: 0 0 66.666667%;
-        max-width: 66.666667%;
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-    
-    @media (max-width: 992px) {
-        .col-lg-4, .col-lg-8 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-    
-    .text-right {
-        text-align: right;
-    }
+@section('content')
+<div class="reviews-page">
+    <div class="reviews-shell">
+        <section class="reviews-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-star"></i>Reviews</span>
+                <h1>My Reviews</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                    <li class="active" aria-current="page">My Reviews</li>
+                </ul>
+            </div>
+            <div class="status-pill">
+                <i class="fas fa-user-check"></i>
+                {{ $totalReviews }} {{ Str::plural('Review', $totalReviews) }}
+            </div>
+        </section>
 
-    /* Cards */
-    .card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 0.25rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-    
-    .card-body {
-        flex: 1 1 auto;
-        min-height: 1px;
-        padding: 1.25rem;
-    }
-    
-    .card-title {
-        margin-bottom: 0.75rem;
-        font-size: 1.25rem;
-        font-weight: 500;
-    }
-    
-    /* Breadcrumb */
-    .breadcrumb-container {
-        display: flex;
-        justify-content: flex-end;
-    }
-    
-    .breadcrumb {
-        display: flex;
-        flex-wrap: wrap;
-        padding: 0.5rem 1rem;
-        margin-bottom: 1rem;
-        list-style: none;
-        background-color: #f0f0f0;
-        border-radius: 0.25rem;
-    }
-    
-    .breadcrumb-item {
-        display: flex;
-    }
-    
-    .breadcrumb-item + .breadcrumb-item {
-        padding-left: 0.5rem;
-    }
-    
-    .breadcrumb-item + .breadcrumb-item::before {
-        display: inline-block;
-        padding-right: 0.5rem;
-        color: #6c757d;
-        content: "/";
-    }
-    
-    .breadcrumb-item.active {
-        color: #6c757d;
-    }
+        <section class="rating-summary">
+            <article class="summary-card">
+                <h4>Overall Rating</h4>
+                <div class="overall-score">
+                    <div class="score">{{ number_format($averageRating, 1) }}</div>
+                    <div class="star-row">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star{{ $i <= round($averageRating) ? '' : '-half-alt' }}" style="color: {{ $i <= round($averageRating) ? '#f59e0b' : '#e2e8f0' }};"></i>
+                        @endfor
+                    </div>
+                    <span class="review-count">Based on {{ $totalReviews }} {{ Str::plural('review', $totalReviews) }}</span>
+                </div>
+            </article>
+            <article class="distribution-card">
+                <h4>Rating Breakdown</h4>
+                <div class="distribution-list">
+                    @for($i = 5; $i >= 1; $i--)
+                        @php $percentage = $totalReviews > 0 ? ($ratingCounts[$i] / $totalReviews) * 100 : 0; @endphp
+                        <div class="distribution-item">
+                            <span>{{ $i }} {{ Str::plural('Star', $i) }}</span>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: {{ $percentage }}%"></div>
+                            </div>
+                            <span>{{ $ratingCounts[$i] }}</span>
+                        </div>
+                    @endfor
+                </div>
+            </article>
+        </section>
 
-    /* Overall Rating Card */
-    .overall-card .card-body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-    
-    .rating-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #f8ce0b;
-        margin-bottom: 0.5rem;
-    }
-    
-    .star-container {
-        margin-bottom: 0.75rem;
-    }
-    
-    .star-container i {
-        font-size: 1.5rem;
-        margin: 0 0.1rem;
-        color: #f8ce0b;
-    }
-    
-    .review-count {
-        margin-bottom: 0;
-        color: #6c757d;
-    }
-    
-    /* Rating Distribution */
-    .rating-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-    
-    .star-label {
-        flex: 0 0 60px;
-    }
-    
-    .progress-container {
-        flex: 1;
-        height: 10px;
-        background-color: #f0f0f0;
-        border-radius: 5px;
-        margin: 0 0.75rem;
-        overflow: hidden;
-    }
-    
-    .progress-bar {
-        height: 100%;
-        background-color: #f8ce0b;
-        border-radius: 5px;
-    }
-    
-    .count-label {
-        flex: 0 0 40px;
-        text-align: right;
-    }
-    
-    /* Filter Section */
-    .filter-card {
-        margin-bottom: 1.5rem;
-    }
-    
-    .filter-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-gap: 1rem;
-    }
-    
-    @media (max-width: 992px) {
-        .filter-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .filter-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-    
-    .filter-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .filter-item label {
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
-    
-    .filter-item input,
-    .filter-item select {
-        padding: 0.5rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        width: 100%;
-    }
-    
-    .filter-buttons {
-        display: flex;
-        align-items: flex-end;
-    }
-    
-    .btn-primary,
-    .btn-secondary {
-        display: inline-block;
-        font-weight: 400;
-        text-align: center;
-        vertical-align: middle;
-        user-select: none;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        line-height: 1.5;
-        border-radius: 0.25rem;
-        transition: all 0.15s ease-in-out;
-        cursor: pointer;
-        margin-right: 0.5rem;
-    }
-    
-    .btn-primary {
-        color: #fff;
-        background-color: #007bff;
-        border: 1px solid #007bff;
-    }
-    
-    .btn-primary:hover {
-        background-color: #0069d9;
-        border-color: #0062cc;
-    }
-    
-    .btn-secondary {
-        color: #fff;
-        background-color: #6c757d;
-        border: 1px solid #6c757d;
-        text-decoration: none;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-    
-    /* Reviews List */
-    .reviews-list {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .review-item {
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        transition: all 0.2s ease;
-        background-color: #fff;
-    }
-    
-    .review-item:hover {
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-    
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.75rem;
-    }
-    
-    .user-info h5 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-    
-    .date {
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-    
-    .rating i {
-        color: #f8ce0b;
-        margin-left: 0.1rem;
-    }
-    
-    i.filled {
-        color: #f8ce0b;
-    }
-    
-    .review-text {
-        margin-bottom: 0;
-        line-height: 1.6;
-    }
-    
-    /* Empty State */
-    .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 1rem;
-        text-align: center;
-    }
-    
-    .empty-icon {
-        font-size: 3rem;
-        color: #adb5bd;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-state h5 {
-        margin-bottom: 0.5rem;
-        font-size: 1.25rem;
-        font-weight: 500;
-    }
-    
-    .empty-state p {
-        color: #6c757d;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-    
-    /* Pagination */
-    .pagination-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-    
-    /* Miscellaneous */
-    .content-header {
-        margin-bottom: 1.5rem;
-    }
-    
-    h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .content {
-        padding: 0 1rem;
-    }
-    
-    .container-fluid {
-        width: 100%;
-        padding-right: 15px;
-        padding-left: 15px;
-        margin-right: auto;
-        margin-left: auto;
-    }
-</style>
+        <section class="filters-card">
+            <form action="{{ route('professional.reviews.index') }}" method="GET" id="filter-form">
+                <div class="filter-item">
+                    <label for="start_date">Date From</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}">
+                </div>
+                <div class="filter-item">
+                    <label for="end_date">Date To</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                </div>
+                <div class="filter-item">
+                    <label for="rating">Rating</label>
+                    <select id="rating" name="rating">
+                        <option value="">All Ratings</option>
+                        @for($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} {{ Str::plural('Star', $i) }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                    <a href="{{ route('professional.reviews.index') }}" class="btn-neutral">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <section class="reviews-card">
+            <h4>All Reviews</h4>
+            @if($reviews->isEmpty())
+                <div class="empty-state">
+                    <i class="fas fa-star"></i>
+                    <h5>No reviews yet</h5>
+                    <p>You haven't received any reviews that match your current filters.</p>
+                </div>
+            @else
+                <div class="reviews-list">
+                    @foreach($reviews as $review)
+                        <article class="review-item">
+                            <header class="review-header">
+                                <div class="user-info">
+                                    <h5>{{ $review->user->name ?? 'Anonymous' }}</h5>
+                                    <span class="date">{{ $review->created_at->format('F d, Y') }}</span>
+                                </div>
+                                <div class="review-rating">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="fas fa-star" style="color: {{ $i <= $review->rating ? '#f59e0b' : '#e2e8f0' }};"></i>
+                                    @endfor
+                                </div>
+                            </header>
+                            <p class="review-text">{{ $review->review_text }}</p>
+                        </article>
+                    @endforeach
+                </div>
+                <div class="pagination-container">
+                    {{ $reviews->links() }}
+                </div>
+            @endif
+        </section>
+    </div>
+</div>
 @endsection

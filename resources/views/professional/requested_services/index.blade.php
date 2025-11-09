@@ -1,291 +1,371 @@
 @extends('professional.layout.layout')
 
-@section('style')
+@section('styles')
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+    }
 
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
+
+    .requested-services-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
+
+    .requested-services-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .services-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
+    }
+
+    .services-hero::before,
+    .services-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .services-hero::before {
+        width: 340px;
+        height: 340px;
+        top: -46%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .services-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -42%;
+        left: -10%;
+        background: rgba(14, 165, 233, 0.18);
+    }
+
+    .services-hero > * { position: relative; z-index: 1; }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+
+    .hero-breadcrumb li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .services-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        overflow: hidden;
+    }
+
+    .services-card__head {
+        padding: 1.7rem 2.1rem 1.2rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .services-card__head h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .services-card__head a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        padding: 0.75rem 1.35rem;
+        font-weight: 600;
+        font-size: 0.88rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        text-decoration: none;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
+        transition: transform 0.2s ease;
+    }
+
+    .services-card__head a:hover { transform: translateY(-1px); }
+
+    .services-card__body {
+        padding: 2.1rem 2.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+
+    .table-wrapper {
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.9rem;
+    }
+
+    .data-table thead th {
+        background: rgba(79, 70, 229, 0.08);
+        padding: 0.95rem 1rem;
+        text-align: center;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #0f172a;
+    }
+
+    .data-table tbody td {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        background: #ffffff;
+        color: #0f172a;
+        vertical-align: top;
+    }
+
+    .data-table tbody tr:hover { background: rgba(226, 232, 240, 0.35); }
+    .data-table thead th:first-child,
+    .data-table tbody td:first-child { text-align: left; }
+
+    .service-list { display: flex; flex-direction: column; gap: 0.35rem; }
+    .service-list div { font-size: 0.88rem; color: #0f172a; }
+
+    .price-list { display: flex; flex-direction: column; gap: 0.35rem; color: #0f172a; font-weight: 600; }
+
+    .education-list { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.88rem; color: #0f172a; }
+
+    .actions-cell {
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .actions-cell .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.55rem 0.95rem;
+        border-radius: 12px;
+        border: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .action-btn.edit { background: rgba(14, 165, 233, 0.18); color: #0c4a6e; }
+    .action-btn.delete { background: rgba(248, 113, 113, 0.18); color: #b91c1c; }
+
+    .action-btn:hover { transform: translateY(-1px); }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.6rem;
+        border-radius: 20px;
+        border: 1px dashed rgba(79, 70, 229, 0.24);
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--muted);
+    }
+
+    .empty-state p { margin-top: 0.5rem; }
+
+    @media (max-width: 768px) {
+        .requested-services-page { padding: 2.2rem 1rem 3.2rem; }
+        .services-hero { padding: 1.75rem 1.6rem; }
+        .services-card__body { padding: 1.7rem 1.6rem; }
+        .data-table { min-width: 720px; }
+    }
+</style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Other Information</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Other Information List</h4>
+<div class="requested-services-page">
+    <div class="requested-services-shell">
+        <section class="services-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-clipboard-list"></i>Information</span>
+                <h1>Other Information</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Other Information</li>
+                </ul>
+            </div>
+            <div>
                 @if($serviceCount < 1)
-                <a href="{{ route('professional.requested_services.create') }}" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-plus-circle"></i> Add Information
-                </a>
+                    <a href="{{ route('professional.requested_services.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Add Information
+                    </a>
                 @endif
             </div>
+        </section>
 
-            <div class="table-responsive mt-3">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Heading</th>
-                            <th>Requested Services</th>
-                            <th>Prices</th>
-                            <th>Education Statement</th>
-                            <th>Education</th>
-                            <th class="actions-cell">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($requestedServices as $service)
-                        @php
-                            // Decode the JSON fields properly
-                            $servicesList = json_decode($service->requested_service, true) ?? [];
-                            $pricesList = json_decode($service->price, true) ?? [];
-                            $educationList = json_decode($service->education, true) ?? [];
-                        @endphp
-                        
-                        <tr>
-                            <td>{{ $service->sub_heading }}</td>
-                            <td>
-                                @foreach($servicesList as $index => $item)
-                                    <div>{{ $item ?? '-' }}</div>
-                                @endforeach
-                            </td>
-            
-                            <td>
-                                @foreach($pricesList as $price)
-                                    <div>₹{{ number_format((float) $price, 2) }}</div>
-                                @endforeach
-                            </td>
-                            <td>{{ $service->education_statement }}</td>
-                            <td>
-                                @if(is_array($educationList))
-                                    @foreach($educationList['college_name'] as $index => $college)
-                                        <div>{{ $college ?? '-' }} - {{ $educationList['degree'][$index] ?? '-' }}</div>
-                                    @endforeach
-                                @else
-                                    <div>-</div>
-                                @endif
-                            </td>
-                            <td class="actions-cell">
-                                <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
-                                    <a href="{{ route('professional.requested_services.edit', $service->id) }}" class="btn btn-sm btn-primary">
-                                        Edit
-                                    </a>
-                                    <a href="javascript:void(0);" 
-                                    data-url="{{ route('professional.requested_services.destroy', $service->id) }}"
-                                    data-id="{{ $service->id }}" 
-                                    class="btn btn-sm btn-danger delete-item">Delete</a>                             
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
+        <section class="services-card">
+            <header class="services-card__head">
+                <h2>Other Information List</h2>
+                @if($serviceCount < 1)
+                    <a href="{{ route('professional.requested_services.create') }}">
+                        <i class="fas fa-plus-circle"></i>
+                        Add Information
+                    </a>
+                @endif
+            </header>
+            <div class="services-card__body">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td colspan="6" class="text-center">No data found.</td>
+                                <th>Heading</th>
+                                <th>Requested Services</th>
+                                <th>Prices</th>
+                                <th>Education Statement</th>
+                                <th>Education</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse($requestedServices as $service)
+                                @php
+                                    $servicesList = json_decode($service->requested_service, true) ?? [];
+                                    $pricesList = json_decode($service->price, true) ?? [];
+                                    $educationList = json_decode($service->education, true) ?? [];
+                                @endphp
+                                <tr>
+                                    <td>{{ $service->sub_heading }}</td>
+                                    <td>
+                                        <div class="service-list">
+                                            @foreach($servicesList as $item)
+                                                <div>{{ $item ?? '-' }}</div>
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="price-list">
+                                            @foreach($pricesList as $price)
+                                                <div>₹{{ number_format((float) $price, 2) }}</div>
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                    <td>{{ $service->education_statement }}</td>
+                                    <td>
+                                        <div class="education-list">
+                                            @if(is_array($educationList) && isset($educationList['college_name']))
+                                                @foreach($educationList['college_name'] as $index => $college)
+                                                    <div>{{ $college ?? '-' }} - {{ $educationList['degree'][$index] ?? '-' }}</div>
+                                                @endforeach
+                                            @else
+                                                <div>-</div>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <a href="{{ route('professional.requested_services.edit', $service->id) }}" class="action-btn edit">
+                                            <i class="fas fa-edit"></i>
+                                            Edit
+                                        </a>
+                                        <a href="javascript:void(0);"
+                                           data-url="{{ route('professional.requested_services.destroy', $service->id) }}"
+                                           data-id="{{ $service->id }}"
+                                           class="action-btn delete delete-item">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="fas fa-info-circle"></i>
+                                            <h5>No data found</h5>
+                                            <p>Once you add information, the list will appear here.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
-<style>
-        .badge {
-            display: inline-block;
-            padding: 0.25em 0.5em;
-            background-color: #17a2b8;
-            color: #fff;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            margin-right: 3px;
-        }
-
-        /* Base styles */
-        .content-wrapper {
-            padding: 15px;
-            overflow-x: hidden; /* Prevent horizontal scrolling on page */
-        }
-
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            overflow: hidden; /* Contain table overflow */
-        }
-
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto; /* Enable horizontal scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-
-        table {
-            width: 100%;
-            min-width: 800px; /* Minimum width to force scrolling */
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            vertical-align: top;
-        }
-
-        th {
-            background-color: #f1f1f1;
-            font-weight: 600;
-        }
-
-        .actions-cell {
-            white-space: nowrap; /* Prevent action buttons from wrapping */
-        }
-
-        /* Mobile responsiveness */
-        @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-    }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-    .card-header h4 {
-    font-size: 17px;
-    }
-    .btn{
-            font-size: 10px;
-    }
-}
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-         /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive-container {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
-        
-        /* Ensure the table takes full width of container */
-        .table {
-            width: 100%;
-            table-layout: auto;
-            white-space: nowrap;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Add scrollbar styling */
-        .table-responsive-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-            .user-profile-wrapper{
-                margin-top: -57px;
-            }
-    }
-    </style>
-    
 @endsection

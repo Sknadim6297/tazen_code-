@@ -5,72 +5,123 @@
 @section('styles')
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    /* Global Font */
-    * {
-        font-family: 'Inter', sans-serif;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
     }
 
-    /* Modern Page Header */
-    .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        padding: 3rem 2rem;
-        border-radius: 20px;
-        margin-bottom: 3rem;
-        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
+
+    .additional-service-show {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
+
+    .show-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .show-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.14));
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
         position: relative;
         overflow: hidden;
     }
-    
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 100%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(45deg);
-        border-radius: 50px;
-    }
 
-    .page-header::after {
-        content: '';
+    .show-hero::before,
+    .show-hero::after {
+        content: "";
         position: absolute;
-        bottom: -30px;
-        left: -30px;
-        width: 150px;
-        height: 150px;
-        background: rgba(255, 255, 255, 0.05);
         border-radius: 50%;
+        pointer-events: none;
     }
 
-    .page-title h3 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0;
-        color: #fff;
-        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    .show-hero::before {
+        width: 340px;
+        height: 340px;
+        top: -48%;
+        right: -14%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .show-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -45%;
+        left: -12%;
+        background: rgba(14, 165, 233, 0.16);
+    }
+
+    .show-hero > * {
         position: relative;
-        z-index: 2;
-        letter-spacing: -0.5px;
+        z-index: 1;
     }
 
-    .breadcrumb {
-        background: none;
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.38rem 1.05rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.42);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
         padding: 0;
-        margin: 1rem 0 0 0;
         list-style: none;
         display: flex;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        position: relative;
-        z-index: 2;
-        font-weight: 500;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
     }
 
-    .breadcrumb li a {
-        color: rgba(255, 255, 255, 0.8);
+    .hero-breadcrumb li a {
+        color: var(--primary);
         text-decoration: none;
         transition: all 0.3s ease;
         padding: 0.5rem 1rem;
@@ -84,1545 +135,569 @@
         transform: translateY(-2px);
     }
 
-    .breadcrumb li.active {
+    .status-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #fff;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #0f172a;
+        background: rgba(79, 70, 229, 0.16);
+        border: 1px solid rgba(79, 70, 229, 0.24);
     }
 
-    /* Content Wrapper */
-    .content-wrapper {
-        padding: 30px;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    .status-pill.pending { background: rgba(245, 158, 11, 0.16); border-color: rgba(245, 158, 11, 0.28); color: #b45309; }
+    .status-pill.approved { background: rgba(34, 197, 94, 0.16); border-color: rgba(34, 197, 94, 0.28); color: #047857; }
+    .status-pill.rejected { background: rgba(248, 113, 113, 0.16); border-color: rgba(248, 113, 113, 0.28); color: #b91c1c; }
+    .status-pill.paid { background: rgba(14, 165, 233, 0.16); border-color: rgba(14, 165, 233, 0.28); color: #0c4a6e; }
+
+    .show-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.6rem;
     }
 
-    /* Enhanced Card Styling */
-    .card, .card-box {
-        border: none;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    .show-card {
+        background: var(--card-bg);
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
         overflow: hidden;
-        margin-bottom: 2.5rem;
-        background: #fff;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .card:hover, .card-box:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    .show-card__head {
+        padding: 1.7rem 2.1rem 1.1rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
 
-    .card::before, .card-box::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-        background-size: 200% 100%;
-        animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        padding: 2rem 2.5rem;
-        position: relative;
-    }
-
-    .card-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 2.5rem;
-        right: 2.5rem;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #667eea, transparent);
-    }
-
-    .card-header h4, .card-header h5 {
+    .show-card__head h2 {
         margin: 0;
-        font-size: 1.4rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #0f172a;
+    }
+
+    .show-card__body {
+        padding: 2.1rem 2.1rem;
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
+        flex-direction: column;
+        gap: 1.6rem;
     }
 
-    .card-body {
-        padding: 2.5rem;
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.4rem;
     }
 
-    /* Enhanced Badge Styling */
-    .badge {
-        padding: 0.75rem 1.5rem;
-        border-radius: 50px;
+    .info-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .info-block label {
+        font-size: 0.86rem;
         font-weight: 600;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        position: relative;
-        overflow: hidden;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+        color: var(--muted);
     }
 
-    .badge::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.6s;
-    }
-
-    .badge:hover::before {
-        left: 100%;
-    }
-
-    .badge-pending {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: #fff;
-        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-    }
-
-    .badge-approved {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: #fff;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    }
-
-    .badge-paid {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: #fff;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    .badge-completed {
-        background: linear-gradient(135deg, #10b981, #3b82f6);
-        color: #fff;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Enhanced Button Styling */
-    .btn {
-        padding: 1rem 2rem;
-        border-radius: 16px;
+    .info-block p {
+        margin: 0;
+        font-size: 0.98rem;
         font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(10px);
+        color: #0f172a;
     }
 
-    .btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.6s;
+    .description-card {
+        background: rgba(79, 70, 229, 0.08);
+        border-radius: 18px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        padding: 1.45rem 1.6rem;
+        color: #312e81;
     }
 
-    .btn:hover::before {
-        left: 100%;
-    }
-
-    .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: #fff;
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6);
-        color: #fff;
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: #fff;
-        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-success:hover {
-        background: linear-gradient(135deg, #059669, #047857);
-        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
-        color: #fff;
-    }
-
-    .btn-warning {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: #fff;
-        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-    }
-
-    .btn-warning:hover {
-        background: linear-gradient(135deg, #d97706, #b45309);
-        box-shadow: 0 15px 35px rgba(245, 158, 11, 0.6);
-        color: #fff;
-    }
-
-    .btn-outline-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-    }
-
-    .btn-outline-secondary:hover {
-        background: #64748b;
-        color: #fff;
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(100, 116, 139, 0.4);
-        border-color: #64748b;
-    }
-
-    /* Modern Price Breakdown Cards */
     .price-breakdown {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: #fff;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
-        position: relative;
-        margin-bottom: 2rem;
-    }
-
-    .price-breakdown::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #ffffff33, #ffffff66, #ffffff33);
-        background-size: 200% 100%;
-        animation: shimmer 3s infinite;
-    }
-
-    .price-breakdown .card-header {
-        background: rgba(255, 255, 255, 0.15);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-    }
-
-    .price-breakdown .card-header::after {
-        display: none;
-    }
-
-    .price-breakdown h6 {
-        color: #fff;
-        font-weight: 700;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    /* Negotiated Price Card */
-    .negotiated-price-card {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: #fff;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
-        position: relative;
-        margin-bottom: 2rem;
-    }
-
-    .negotiated-price-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #ffffff33, #ffffff66, #ffffff33);
-        background-size: 200% 100%;
-        animation: shimmer 3s infinite;
-    }
-
-    .negotiated-price-card .card-header {
-        background: rgba(255, 255, 255, 0.15);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-    }
-
-    /* Enhanced Info Cards */
-    .info-card {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: #fff;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(79, 70, 229, 0.16));
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 70, 229, 0.22);
+        padding: 1.5rem 1.6rem;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
     }
 
-    .info-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -25%;
-        width: 100px;
-        height: 100px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .info-card h6 {
-        margin: 0 0 1rem 0;
+    .price-breakdown h3 {
+        margin: 0 0 1.1rem 0;
+        font-size: 1rem;
         font-weight: 700;
-        opacity: 0.95;
-        font-size: 1.1rem;
+        color: #312e81;
     }
 
-    .info-card p {
-        margin-bottom: 0.5rem;
-        opacity: 0.9;
+    .price-row {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.55rem 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.24);
     }
 
-    /* Enhanced Alert Styling */
-    .alert {
-        border: none;
-        border-radius: 20px;
-        padding: 2rem 2.5rem;
-        font-weight: 500;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: blur(10px);
-        margin-bottom: 2rem;
+    .price-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
     }
 
-    .alert::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 100%;
+    .price-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+    .price-value { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+    .price-value.total { font-size: 1.15rem; color: #1d4ed8; }
+
+    .alert-card {
+        border-radius: 18px;
+        border: 1px solid rgba(14, 165, 233, 0.22);
+        background: rgba(14, 165, 233, 0.12);
+        padding: 1.25rem 1.4rem;
+        color: #0c4a6e;
     }
 
-    .alert-warning {
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.15));
-        color: #92400e;
-        border: 1px solid rgba(251, 191, 36, 0.2);
+    .alert-card.danger { border-color: rgba(248, 113, 113, 0.28); background: rgba(248, 113, 113, 0.12); color: #991b1b; }
+    .alert-card.success { border-color: rgba(34, 197, 94, 0.28); background: rgba(34, 197, 94, 0.12); color: #166534; }
+    .alert-card.warning { border-color: rgba(245, 158, 11, 0.28); background: rgba(245, 158, 11, 0.14); color: #854d0e; }
+
+    .form-card {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        padding: 1.6rem 1.7rem;
+        background: rgba(249, 250, 251, 0.86);
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
     }
 
-    .alert-warning::before {
-        background: linear-gradient(180deg, #fbbf24, #f59e0b);
+    .form-card h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
     }
 
-    .alert-info {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.15));
-        color: #1e40af;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-    }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.3rem; }
 
-    .alert-info::before {
-        background: linear-gradient(180deg, #3b82f6, #1d4ed8);
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.15));
-        color: #065f46;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .alert-success::before {
-        background: linear-gradient(180deg, #10b981, #059669);
-    }
-
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: transform 0.3s ease;
-    }
-
-    /* Form Styling */
-    .form-label {
-        font-weight: 600;
-        color: #1e293b;
-        margin-bottom: 0.75rem;
-        font-size: 0.95rem;
-    }
+    .form-group label { font-weight: 600; font-size: 0.88rem; color: var(--muted); }
 
     .form-control {
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-        background: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.65rem 0.85rem;
+        font-size: 0.92rem;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
     }
 
     .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
         outline: none;
-        background: #fff;
     }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .page-title h3 {
-            font-size: 2rem;
-        }
-        
-        .card-body {
-            padding: 2rem;
-        }
-        
-        .btn {
-            padding: 0.8rem 1.5rem;
-            font-size: 0.85rem;
-        }
+    textarea.form-control { min-height: 140px; resize: vertical; }
 
-        .content-wrapper {
-            padding: 20px;
-        }
+    .form-text { font-size: 0.78rem; color: var(--muted); }
 
-        .page-header {
-            padding: 2rem 1.5rem;
-        }
-    }
-    }
-
-    .card-box:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-
-    .card-block {
-        padding: 2rem;
-    }
-
-    .card-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #667eea;
-        display: inline-block;
-    }
-
-    /* Custom Modal System */
-    .custom-modal {
-        display: none;
-        position: fixed;
-        z-index: 1050;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        transition: opacity 0.3s ease;
-        overflow-y: auto;
-    }
-
-    .custom-modal.show {
+    .actions-list {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
-    .modal-content {
-        background: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        max-width: 600px;
-        width: 90%;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        z-index: 1051;
-        margin: 1rem;
-    }
-
-    .modal-header {
-        padding: 1rem 1.25rem;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-        border-radius: 0.5rem 0.5rem 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #333;
-        margin: 0;
-    }
-
-    .modal-close {
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        color: #6c757d;
-        cursor: pointer;
-        padding: 0;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: all 0.2s;
-        flex-shrink: 0;
-    }
-
-    .modal-close:hover {
-        background: #e9ecef;
-        color: #333;
-    }
-
-    .modal-body {
-        padding: 1.25rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .modal-body form {
-        position: relative;
-        z-index: 1;
-    }
-
-    .modal-footer {
-        padding: 1rem 1.25rem;
-        border-top: 1px solid #e9ecef;
-        display: flex;
-        gap: 0.5rem;
-        justify-content: flex-end;
-        background: #fff;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Form Styling in Modals */
-    .modal-body .form-label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-        display: block;
-        font-size: 0.875rem;
-    }
-
-    .modal-body .form-control {
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
-        padding: 0.5rem 0.75rem;
-        transition: all 0.2s ease;
-        font-size: 0.875rem;
-        width: 100%;
-        background: #fff;
-        position: relative;
-        z-index: 1;
-        pointer-events: auto;
-    }
-
-    .modal-body .form-control:focus {
-        border-color: #0d67c7;
-        box-shadow: 0 0 0 3px rgba(13, 103, 199, 0.1);
-        outline: none;
-        background: #fff;
-    }
-
-    .modal-body textarea.form-control {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    .modal-body input[type="text"],
-    .modal-body input[type="number"],
-    .modal-body input[type="date"],
-    .modal-body textarea {
-        pointer-events: auto !important;
-        cursor: text !important;
-        user-select: text !important;
-        -webkit-user-select: text !important;
-        -moz-user-select: text !important;
-        -ms-user-select: text !important;
-    }
-
-    /* Ensure form groups are properly positioned */
-    .modal-body .form-group,
-    .modal-body .mb-3 {
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Prevent any transform from affecting input interaction */
-    .modal-content.modal-ready form,
-    .modal-content.modal-ready input,
-    .modal-content.modal-ready textarea,
-    .modal-content.modal-ready select {
-        transform: none !important;
-        will-change: auto !important;
-    }
-
-    /* Ensure all interactive elements are accessible */
-    .modal-content * {
-        pointer-events: auto;
-    }
-
-    /* Disable transforms once modal is open */
-    .custom-modal.show .modal-content {
-        animation: none !important;
-    }
-
-    /* Complete animation override after modal is ready */
-    .modal-content.modal-ready,
-    .modal-content.modal-ready *,
-    .modal-content.modal-ready input,
-    .modal-content.modal-ready textarea,
-    .modal-content.modal-ready select {
-        animation: none !important;
-        transform: none !important;
-        transition: none !important;
-        will-change: auto !important;
-    }
-
-    /* Force disable all transforms and animations on modal */
-    .custom-modal *,
-    .custom-modal input,
-    .custom-modal textarea,
-    .custom-modal select,
-    .custom-modal button {
-        backface-visibility: visible !important;
-        perspective: none !important;
-    }
-
-    /* Ensure inputs are always accessible */
-    .modal-content input,
-    .modal-content textarea,
-    .modal-content select {
-        pointer-events: auto !important;
-        touch-action: auto !important;
-        -webkit-user-select: text !important;
-        user-select: text !important;
-    }
-
-    /* Modal Alert Styling */
-    .modal-body .alert {
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: none;
-    }
-
-    .modal-body .alert-info {
-        background: linear-gradient(135deg, #d1ecf1 0%, #c3e6ec 100%);
-        border-left: 4px solid #17a2b8;
-        color: #0c5460;
-    }
-
-    .modal-body .alert-success {
-        background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%);
-        border-left: 4px solid #28a745;
-        color: #0f5132;
-    }
-
-    .modal-body .mb-3,
-    .modal-body .mb-4 {
-        margin-bottom: 1rem;
-    }
-
-    .modal-body .text-center {
-        text-align: center;
-    }
-
-    .modal-body .text-success {
-        color: #28a745;
-    }
-
-    .modal-body h6 {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-    }
-
-    /* Modal Buttons */
-    .modal-footer .btn {
-        padding: 0.625rem 1.25rem;
-        border-radius: 0.375rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
+    .action-btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-    }
-
-    .modal-footer .btn-success {
-        background-color: #28a745;
-        color: #fff;
-        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.25);
-    }
-
-    .modal-footer .btn-success:hover {
-        background-color: #218838;
-        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.35);
-        transform: translateY(-1px);
-    }
-
-    .modal-footer .btn-primary {
-        background-color: #0d67c7;
-        color: #fff;
-        box-shadow: 0 2px 6px rgba(13, 103, 199, 0.25);
-    }
-
-    .modal-footer .btn-primary:hover {
-        background-color: #0b5bb5;
-        box-shadow: 0 4px 10px rgba(13, 103, 199, 0.35);
-        transform: translateY(-1px);
-    }
-
-    .modal-footer .btn-warning {
-        background-color: #ffc107;
-        color: #212529;
-        box-shadow: 0 2px 6px rgba(255, 193, 7, 0.25);
-    }
-
-    .modal-footer .btn-warning:hover {
-        background-color: #e0a800;
-        box-shadow: 0 4px 10px rgba(255, 193, 7, 0.35);
-        transform: translateY(-1px);
-    }
-
-    .modal-footer .btn-info {
-        background-color: #17a2b8;
-        color: #fff;
-        box-shadow: 0 2px 6px rgba(23, 162, 184, 0.25);
-    }
-
-    .modal-footer .btn-info:hover {
-        background-color: #138496;
-        box-shadow: 0 4px 10px rgba(23, 162, 184, 0.35);
-        transform: translateY(-1px);
-    }
-
-    .modal-footer .btn-outline-secondary {
-        background: transparent;
-        color: #6c757d;
-        border: 1px solid #6c757d;
-    }
-
-    .modal-footer .btn-outline-secondary:hover {
-        background: #6c757d;
-        color: #fff;
-    }
-
-    /* Modal Utility Classes */
-    .modal-body .bg-success {
-        background-color: #28a745;
-    }
-
-    .modal-body .bg-opacity-10 {
-        opacity: 0.1;
-    }
-
-    .modal-body .rounded-circle {
-        border-radius: 50%;
-    }
-
-    .modal-body .d-inline-flex {
-        display: inline-flex;
-    }
-
-    .modal-body .align-items-center {
-        align-items: center;
-    }
-
-    .modal-body .justify-content-center {
         justify-content: center;
-    }
-
-    /* Price Cards */
-    .price-card {
-        background: linear-gradient(135deg, #00cec9, #00b894);
-        color: #fff;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0, 206, 201, 0.3);
-        animation: fadeIn 0.8s ease;
-    }
-
-    .price-card h6 {
-        margin: 0 0 1.5rem 0;
-        font-weight: 700;
-        font-size: 1.2rem;
-        opacity: 0.95;
-    }
-
-    .price-card label {
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 500;
-    }
-
-    .price-card p {
-        color: #fff;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Info Cards */
-    .info-card {
-        background: linear-gradient(135deg, #74b9ff, #0984e3);
-        color: #fff;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(116, 185, 255, 0.3);
-        animation: fadeIn 1s ease;
-    }
-
-    .info-card h6 {
-        margin: 0 0 1.5rem 0;
-        font-weight: 700;
-        font-size: 1.2rem;
-        opacity: 0.95;
-    }
-
-    .info-card label {
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 500;
-    }
-
-    .info-card p {
-        color: #fff;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Button Enhancements */
-    .btn {
-        border-radius: 12px;
-        padding: 0.8rem 1.5rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
+        gap: 0.45rem;
+        border-radius: 14px;
         border: none;
+        padding: 0.85rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
         cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
         text-decoration: none;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #00b894, #00cec9);
-        color: #fff;
-        box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+    .action-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 18px 36px rgba(79, 70, 229, 0.2); }
+    .action-btn.success { background: linear-gradient(135deg, var(--accent), #16a34a); color: #fff; box-shadow: 0 18px 36px rgba(34, 197, 94, 0.2); }
+    .action-btn.info { background: linear-gradient(135deg, var(--secondary), #0284c7); color: #fff; box-shadow: 0 18px 36px rgba(14, 165, 233, 0.2); }
+    .action-btn.warning { background: linear-gradient(135deg, #fb923c, #f97316); color: #fff; box-shadow: 0 18px 36px rgba(249, 115, 22, 0.2); }
+    .action-btn.outline { background: transparent; color: var(--muted); border: 1px solid rgba(148, 163, 184, 0.4); }
+
+    .action-btn:hover { transform: translateY(-1px); }
+
+    .quick-actions-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
     }
 
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.6);
-        background: linear-gradient(135deg, #00a085, #00b7b3);
+    .invoice-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #0984e3, #74b9ff);
-        color: #fff;
-        box-shadow: 0 5px 15px rgba(9, 132, 227, 0.4);
+    .info-aside-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        padding: 1.8rem 1.9rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(9, 132, 227, 0.6);
-        background: linear-gradient(135deg, #0875d1, #5faef9);
+    .commission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
     }
 
-    .btn-warning {
-        background: linear-gradient(135deg, #fdcb6e, #e17055);
-        color: #fff;
-        box-shadow: 0 5px 15px rgba(253, 203, 110, 0.4);
+    .commission-card {
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        background: rgba(79, 70, 229, 0.08);
+        border: 1px solid rgba(79, 70, 229, 0.16);
     }
 
-    .btn-warning:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(253, 203, 110, 0.6);
-        background: linear-gradient(135deg, #fcbb5a, #df6348);
+    .commission-card.success { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.22); }
+    .commission-card.danger { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.22); }
+    .commission-card.info { background: rgba(14, 165, 233, 0.12); border-color: rgba(14, 165, 233, 0.22); }
+
+    .commission-card span { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+    .commission-card strong { font-size: 1rem; color: #0f172a; }
+
+    .custom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(15, 23, 42, 0.55);
+        align-items: center;
+        justify-content: center;
+        padding: 1.6rem;
     }
 
-    .btn-outline-secondary {
+    .custom-modal.show { display: flex; }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 30px 70px rgba(15, 23, 42, 0.22);
+        width: 100%;
+        max-width: 520px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 1.35rem 1.6rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        background: rgba(241, 245, 249, 0.8);
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .modal-close {
+        border: none;
         background: transparent;
-        color: #6c757d;
-        border: 2px solid #e9ecef;
+        font-size: 1.2rem;
+        color: var(--muted);
+        cursor: pointer;
     }
 
-    .btn-outline-secondary:hover {
-        background: #6c757d;
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    .modal-body {
+        padding: 1.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
     }
 
-    /* Badge Styling */
-    .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .modal-footer {
+        padding: 1.2rem 1.6rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        gap: 0.8rem;
+        justify-content: flex-end;
     }
 
-    .badge-pending {
-        background: linear-gradient(135deg, #fdcb6e, #e17055);
-        color: #fff;
-    }
-
-    .badge-approved {
-        background: linear-gradient(135deg, #00b894, #00cec9);
-        color: #fff;
-    }
-
-    .badge-rejected {
-        background: linear-gradient(135deg, #e17055, #d63031);
-        color: #fff;
-    }
-
-    .badge-paid {
-        background: linear-gradient(135deg, #00b894, #00cec9);
-        color: #fff;
-    }
-
-    /* Alert Styling */
-    .alert {
-        border: none;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .alert-info {
-        background: linear-gradient(135deg, rgba(116, 185, 255, 0.1), rgba(9, 132, 227, 0.1));
-        border-left: 4px solid #74b9ff;
-        color: #0984e3;
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, rgba(0, 184, 148, 0.1), rgba(0, 206, 201, 0.1));
-        border-left: 4px solid #00b894;
-        color: #00b894;
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, rgba(225, 112, 85, 0.1), rgba(214, 48, 49, 0.1));
-        border-left: 4px solid #e17055;
-        color: #e17055;
-    }
-
-    /* Grid Enhancements */
-    .d-grid {
-        display: grid !important;
-    }
-
-    .gap-2 {
-        gap: 1rem !important;
-    }
-
-    /* Text Utilities */
-    .text-success {
-        color: #00b894 !important;
-    }
-
-    .text-muted {
-        color: #74869b !important;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from { 
-            opacity: 0; 
-            transform: translateY(20px);
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideInUp {
-        from {
-            transform: translateY(50px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    /* Responsive Design for Modals */
-    @media (max-width: 768px) {
-        .page-title h3 {
-            font-size: 1.8rem;
-        }
-        
-        .card-block {
-            padding: 1.5rem;
-        }
-        
-        .modal-content {
-            width: calc(100% - 2rem);
-            max-height: calc(100vh - 2rem);
-        }
-        
-        .modal-header {
-            padding: 1rem;
-        }
-
-        .modal-body {
-            padding: 1rem;
-        }
-
-        .modal-footer {
-            padding: 1rem;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .modal-footer .btn {
-            width: 100%;
-        }
-        
-        .btn {
-            padding: 0.7rem 1.2rem;
-            font-size: 0.9rem;
-        }
-
-        .price-card, .info-card {
-            padding: 1.5rem;
-        }
-    }
-
-    /* Price Validation Styles */
-    .price-error {
-        font-size: 0.875rem;
-        font-weight: 500;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .form-control.is-invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
-
-    .bg-warning-light {
-        background-color: #fff3cd !important;
-        border: 1px solid #ffeaa7;
-    }
-
-    .alert {
+    .modal-footer .btn {
         border-radius: 12px;
-        border: none;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .alert-info {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        color: #1565c0;
-    }
-
-    .form-group label {
+        padding: 0.75rem 1.3rem;
         font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-        border: none;
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
+    textarea.is-invalid,
+    input.is-invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
+    .price-error { font-size: 0.78rem; color: var(--danger); }
+
+    @media (max-width: 1024px) {
+        .show-grid { grid-template-columns: 1fr; }
     }
 
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-        border: none;
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 576px) {
-        .page-header {
-            padding: 1.5rem 0;
-            margin-bottom: 1.5rem;
-        }
-        
-        .page-title h3 {
-            font-size: 1.6rem;
-        }
-        
-        .card-box {
-            margin-bottom: 1.5rem;
-        }
+    @media (max-width: 768px) {
+        .additional-service-show { padding: 2.2rem 1rem 3.2rem; }
+        .show-hero { padding: 1.75rem 1.6rem; }
+        .show-card__body { padding: 1.7rem 1.6rem; }
+        .info-grid { grid-template-columns: 1fr; }
+        .actions-list .action-btn { width: 100%; }
+        .modal-footer { flex-direction: column; }
+        .modal-footer .btn { width: 100%; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Additional Service Details</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('professional.additional-services.index') }}">Additional Services</a></li>
-            <li class="active">Details</li>
-        </ul>
-    </div>
+<div class="additional-service-show">
+    <div class="show-shell">
+        <section class="show-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-layer-group"></i>Details</span>
+                <h1>Additional Service Details</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('professional.additional-services.index') }}">Additional Services</a></li>
+                    <li class="active" aria-current="page">Details</li>
+                </ul>
+            </div>
+            <div class="status-pills">
+                @if($additionalService->admin_status === 'pending')
+                    <span class="status-pill pending"><i class="fas fa-hourglass-half"></i>Pending Review</span>
+                @elseif($additionalService->admin_status === 'approved')
+                    <span class="status-pill approved"><i class="fas fa-badge-check"></i>Approved</span>
+                @elseif($additionalService->admin_status === 'rejected')
+                    <span class="status-pill rejected"><i class="fas fa-times-circle"></i>Rejected</span>
+                @endif
+                @if($additionalService->payment_status === 'paid')
+                    <span class="status-pill paid"><i class="fas fa-wallet"></i>Paid</span>
+                @endif
+            </div>
+        </section>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">
-                        <i class="fas fa-info-circle text-primary"></i>
-                        Service Information
-                    </h4>
-                </div>
-                <div class="card-body">
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Service Name:</strong></label>
-                                <p>{{ $additionalService->service_name }}</p>
-                            </div>
+        <div class="show-grid">
+            <article class="show-card">
+                <header class="show-card__head">
+                    <h2><i class="fas fa-clipboard-list"></i> Service Overview</h2>
+                </header>
+                <div class="show-card__body">
+                    <div class="info-grid">
+                        <div class="info-block">
+                            <label>Service Name</label>
+                            <p>{{ $additionalService->service_name }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label><strong>Status:</strong></label>
-                                <p>
-                                    @if($additionalService->admin_status === 'pending')
-                                        <span class="badge badge-pending">Pending Review</span>
-                                    @elseif($additionalService->admin_status === 'approved')
-                                        <span class="badge badge-approved">Approved</span>
-                                    @elseif($additionalService->admin_status === 'rejected')
-                                        <span class="badge badge-rejected">Rejected</span>
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label><strong>Reason:</strong></label>
-                        <p>{{ $additionalService->reason }}</p>
-                    </div>
-
-                    @php
-                        // Get the original professional price using the model method
-                        $originalProfessionalBasePrice = $additionalService->original_professional_price;
-                        
-                        // For Professional's Price Breakdown - always use original
-                        $originalCGST = $originalProfessionalBasePrice * 0.09;
-                        $originalSGST = $originalProfessionalBasePrice * 0.09;
-                        $originalTotalGST = $originalCGST + $originalSGST;
-                        $originalFinalPrice = $originalProfessionalBasePrice + $originalTotalGST;
-                        
-                        // Check if customer has negotiated
-                        $hasNegotiation = in_array($additionalService->negotiation_status, ['user_negotiated', 'admin_responded']);
-                        
-                        if ($hasNegotiation) {
-                            // For Negotiated Price Breakdown - show the negotiated amount
-                            if ($additionalService->negotiation_status === 'admin_responded') {
-                                // Professional accepted - show final negotiated price
-                                $negotiatedBasePrice = $additionalService->admin_final_negotiated_price;
-                            } else {
-                                // Still pending - show customer's offer
-                                $negotiatedBasePrice = $additionalService->user_negotiated_price;
-                            }
-                            
-                            // Calculate discount and new price based on ORIGINAL price
-                            $discountAmount = $originalProfessionalBasePrice - $negotiatedBasePrice;
-                            $discountPercent = ($originalProfessionalBasePrice > 0) ? (($discountAmount / $originalProfessionalBasePrice) * 100) : 0;
-                            
-                            $negotiatedCGST = $negotiatedBasePrice * 0.09;
-                            $negotiatedSGST = $negotiatedBasePrice * 0.09;
-                            $negotiatedTotalGST = $negotiatedCGST + $negotiatedSGST;
-                            $negotiatedFinalPrice = $negotiatedBasePrice + $negotiatedTotalGST;
-                        }
-                    @endphp
-
-                    <!-- Professional's Price Breakdown -->
-                    <div class="card mb-4 price-breakdown hover-scale">
-                        <div class="card-header">
-                            <h6 class="mb-0">
-                                <i class="fas fa-calculator"></i>
-                                Professional's Price Breakdown
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-borderless mb-0" style="color: #fff;">
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Description</strong></td>
-                                        <td class="text-end"><strong>Amount</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Base Price</strong></td>
-                                        <td class="text-end"><strong>₹{{ number_format($originalProfessionalBasePrice, 2) }}</strong></td>
-                                    </tr>
-                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
-                                        <td colspan="2"><strong>Tax Breakdown</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>CGST 9%</td>
-                                        <td class="text-end">₹{{ number_format($originalCGST, 2) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SGST 9%</td>
-                                        <td class="text-end">₹{{ number_format($originalSGST, 2) }}</td>
-                                    </tr>
-                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
-                                        <td><strong>Total GST (18%)</strong></td>
-                                        <td class="text-end"><strong>₹{{ number_format($originalTotalGST, 2) }}</strong></td>
-                                    </tr>
-                                    <tr style="border-top: 2px solid rgba(255,255,255,0.3);">
-                                        <td><strong>Final Amount</strong></td>
-                                        <td class="text-end"><h5 class="mb-0"><strong>₹{{ number_format($originalFinalPrice, 2) }}</strong></h5></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    @if($hasNegotiation)
-                    <!-- Negotiated Price Breakdown -->
-                    <div class="card mb-4 negotiated-price-card hover-scale">
-                        <div class="card-header">
-                            <h6 class="mb-0" style="color: #fff;">
-                                <i class="fas fa-handshake"></i>
-                                Negotiated Price Breakdown
-                                @if($additionalService->negotiation_status === 'admin_responded')
-                                    <span class="badge badge-paid ms-2">✅ Accepted</span>
-                                @else
-                                    <span class="badge badge-pending ms-2">⏳ Pending</span>
+                        <div class="info-block">
+                            <label>Consultation Status</label>
+                            <p>
+                                @if($additionalService->consulting_status === 'pending')
+                                    <span class="status-pill pending">Pending</span>
+                                @elseif($additionalService->consulting_status === 'in_progress')
+                                    <span class="status-pill info">In Progress</span>
+                                @elseif($additionalService->consulting_status === 'done')
+                                    <span class="status-pill approved">Completed</span>
                                 @endif
-                            </h6>
+                            </p>
                         </div>
-                        <div class="card-body">
-                            <table class="table table-borderless mb-0" style="color: #fff;">
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Description</strong></td>
-                                        <td class="text-end"><strong>Amount</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Base Price</td>
-                                        <td class="text-end">₹{{ number_format($originalProfessionalBasePrice, 2) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Negotiation Discount ({{ number_format($discountPercent, 1) }}%)</td>
-                                        <td class="text-end text-warning">− ₹{{ number_format($discountAmount, 2) }}</td>
-                                    </tr>
-                                    <tr style="border-top: 1px solid rgba(255,255,255,0.2);">
-                                        <td><strong>New Price After Discount</strong></td>
-                                        <td class="text-end"><strong>₹{{ number_format($negotiatedBasePrice, 2) }}</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>GST 18% (9%+9%)</td>
-                                        <td class="text-end">₹{{ number_format($negotiatedTotalGST, 2) }}</td>
-                                    </tr>
-                                    <tr style="border-top: 2px solid rgba(255,255,255,0.3);">
-                                        <td><strong>Final Price Customer Pays</strong></td>
-                                        <td class="text-end"><h5 class="mb-0 text-warning"><strong>₹{{ number_format($negotiatedFinalPrice, 2) }}</strong></h5></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            
-                            <div class="mt-3 text-center">
-                                @if($additionalService->negotiation_status === 'admin_responded')
-                                    @php
-                                        $totalSavings = $originalFinalPrice - $negotiatedFinalPrice;
-                                    @endphp
-                                    <small class="text-success d-block">✅ Negotiated price accepted</small>
-                                    <small class="text-success"><i class="fas fa-piggy-bank"></i> Customer saves: <strong>₹{{ number_format($totalSavings, 2) }}</strong> total</small>
-                                @else
-                                    <small class="text-warning d-block">⏳ Customer's negotiated offer is pending your review</small>
-                                    <small class="d-block mt-1">Customer will pay ₹{{ number_format($negotiatedFinalPrice, 2) }} if accepted</small>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    @if($additionalService->delivery_date)
-                    <div class="form-group">
-                        <label><strong>Delivery Date:</strong></label>
-                        <p>
-                            <i class="fas fa-calendar"></i> 
-                            {{ \Carbon\Carbon::parse($additionalService->delivery_date)->format('M d, Y') }}
-                        </p>
-                    </div>
-                    @endif
-
-                    @if($additionalService->negotiation_status !== 'none')
-                    <div class="alert {{ $additionalService->negotiation_status === 'user_negotiated' ? 'alert-warning' : 'alert-success' }}">
-                        <h5>
-                            <i class="fas fa-handshake"></i> 
-                            @if($additionalService->negotiation_status === 'user_negotiated')
-                                Customer Price Negotiation (Pending Your Response)
-                            @elseif($additionalService->negotiation_status === 'admin_responded')
-                                ✅ Negotiation Completed - Price Updated
-                            @endif
-                        </h5>
-                        
-                        @if($additionalService->user_negotiated_price)
-                            <p><strong>Customer's Proposed Price:</strong> ₹{{ number_format($additionalService->user_negotiated_price, 2) }}</p>
-                            <p><strong>Customer's Reason:</strong> {{ $additionalService->user_negotiation_reason }}</p>
-                        @endif
-                        
-                        @if($additionalService->negotiation_status === 'admin_responded' && $additionalService->admin_final_negotiated_price)
-                            @php
-                                // Decide label: if modification reason was from professional, show Professional label
-                                $modifierLabel = 'Admin';
-                                if(stripos($additionalService->price_modification_reason ?? '', 'professional') !== false || stripos($additionalService->price_modification_reason ?? '', 'Professional') !== false) {
-                                    $modifierLabel = 'Professional';
-                                }
-                            @endphp
-                            <div class="mt-3 p-3 bg-light rounded">
-                                <h6 class="text-success">{{ $modifierLabel }}'s Final Decision:</h6>
-                                <p><strong>Approved Price:</strong> <span class="text-success">₹{{ number_format($additionalService->admin_final_negotiated_price, 2) }}</span></p>
-                                <p><strong>{{ $modifierLabel }}'s Response:</strong> {{ $additionalService->admin_negotiation_response }}</p>
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle"></i> 
-                                    The service price has been updated and customer can now proceed with payment.
-                                </small>
-                            </div>
-                        @elseif($additionalService->negotiation_status === 'user_negotiated')
-                            <div class="mt-3 p-3 bg-warning-light rounded">
-                                <p class="mb-3 text-warning">
-                                    <i class="fas fa-clock"></i> 
-                                    <strong>Status:</strong> Customer has requested price negotiation - Please respond below.
-                                </p>
-                                
-                                <!-- Professional Negotiation Response Form -->
-                                <form id="negotiationResponseForm" class="border-top pt-3">
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="professional_final_price"><strong>Your Final Price (₹):</strong></label>
-                                                <input type="number" 
-                                                       id="professional_final_price" 
-                                                       name="professional_final_price" 
-                                                       class="form-control" 
-                                                       step="0.01" 
-                                                       min="{{ $additionalService->base_price * 0.5 }}"
-                                                       value="{{ $additionalService->user_negotiated_price }}"
-                                                       required>
-                                                <small class="text-muted">Minimum enforced</small>
-                                                <div class="price-error text-danger mt-1" style="display: none;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="professional_response"><strong>Your Response:</strong></label>
-                                                <textarea id="professional_response" 
-                                                         name="professional_response" 
-                                                         class="form-control" 
-                                                         rows="3" 
-                                                         maxlength="1000" 
-                                                         placeholder="Explain your final price decision..."
-                                                         required></textarea>
-                                                <small class="text-muted">Max 1000 characters</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-handshake"></i> Send Response to Customer
-                                        </button>
-                                    </div>
-                                </form>
+                        @if($additionalService->delivery_date)
+                            <div class="info-block">
+                                <label>Delivery Date</label>
+                                <p><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($additionalService->delivery_date)->format('M d, Y') }}</p>
                             </div>
                         @endif
+                        <div class="info-block">
+                            <label>Created</label>
+                            <p>{{ $additionalService->created_at->format('M d, Y h:i A') }}</p>
+                        </div>
                     </div>
-                    @endif
 
-                    <!-- Professional Price Update Section -->
-                    @if($additionalService->admin_status === 'approved' && $additionalService->negotiation_status !== 'user_negotiated')
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-edit"></i> Update Service Price</h5>
-                        <p class="mb-3">You can update the service price if needed.</p>
-                        
-                        <form id="priceUpdateForm">
-                            @csrf
-                            <div class="row">
-                                <div class="col-md-6">
+                    <div class="description-card">
+                        <strong><i class="fas fa-align-left"></i> Reason for Additional Service</strong>
+                        <p style="margin: 0.6rem 0 0; font-size: 0.95rem; line-height: 1.6;">{{ $additionalService->reason }}</p>
+                    </div>
+
+                    <div class="price-breakdown">
+                        <h3><i class="fas fa-coins"></i> Price Breakdown</h3>
+                        @php
+                            $effectiveBasePrice = $additionalService->getEffectiveBasePrice();
+                            $cgst = $additionalService->cgst ?? ($effectiveBasePrice * 0.09);
+                            $sgst = $additionalService->sgst ?? ($effectiveBasePrice * 0.09);
+                            $totalGst = $cgst + $sgst;
+                            $effectiveTotalPrice = $additionalService->getEffectiveTotalPrice();
+                        @endphp
+                        <div class="price-row">
+                            <span class="price-label">Base Price</span>
+                            <span class="price-value">₹{{ number_format($effectiveBasePrice, 2) }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">GST (18%)</span>
+                            <span class="price-value">₹{{ number_format($totalGst, 2) }} <small style="display:block; font-size:0.75rem; color:var(--muted);">(CGST {{ number_format($cgst, 2) }}, SGST {{ number_format($sgst, 2) }})</small></span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Negotiation Status</span>
+                            <span class="price-value">
+                                @if($additionalService->negotiation_status === 'none')
+                                    No Negotiation
+                                @elseif($additionalService->negotiation_status === 'user_negotiated')
+                                    Awaiting Response
+                                @else
+                                    Completed
+                                @endif
+                            </span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Negotiated Values</span>
+                            <span class="price-value">
+                                @if($additionalService->user_negotiated_price)
+                                    Customer: ₹{{ number_format($additionalService->user_negotiated_price, 2) }}<br>
+                                @endif
+                                @if($additionalService->admin_final_negotiated_price)
+                                    Final: ₹{{ number_format($additionalService->admin_final_negotiated_price, 2) }}
+                                @else
+                                    <small style="color:var(--muted);">No admin update yet</small>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Final Price</span>
+                            <span class="price-value total">₹{{ number_format($effectiveTotalPrice, 2) }}</span>
+                        </div>
+                    </div>
+
+                    @if($additionalService->negotiation_status === 'admin_responded')
+                        <div class="alert-card success">
+                            <strong><i class="fas fa-handshake"></i> Negotiation Completed</strong>
+                            <p style="margin:0.6rem 0 0;">
+                                Original Price: ₹{{ number_format($additionalService->total_price, 2) }} → New Price: ₹{{ number_format($additionalService->final_price, 2) }}
+                                <br>
+                                <span style="font-size:0.85rem;">{{ $additionalService->admin_negotiation_response }}</span>
+                            </p>
+                        </div>
+                    @elseif($additionalService->negotiation_status === 'user_negotiated')
+                        <div class="alert-card warning">
+                            <strong><i class="fas fa-comments"></i> Customer Price Negotiation Pending</strong>
+                            <p style="margin:0.6rem 0 0;">Requested Price: ₹{{ number_format($additionalService->user_negotiated_price, 2) }}</p>
+                            <p style="margin:0.2rem 0 0; font-size:0.85rem;">{{ $additionalService->user_negotiation_reason }}</p>
+
+                            <form id="negotiationResponseForm" class="form-card" style="margin-top:1rem;">
+                                @csrf
+                                <h4><i class="fas fa-reply"></i> Respond to Negotiation</h4>
+                                <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="new_price"><strong>New Price (₹):</strong></label>
-                                        <input type="number" 
-                                               id="new_price" 
-                                               name="new_price" 
-                                               class="form-control" 
-                                               step="0.01" 
-                                               min="{{ $additionalService->base_price * 0.5 }}"
-                                               value="{{ $additionalService->final_price }}"
-                                               required>
-                                        <small class="text-muted">Minimum enforced</small>
-                                        <div class="price-error text-danger mt-1" style="display: none;"></div>
+                                        <label for="professional_final_price">Your Final Price (₹)</label>
+                                        <input type="number" id="professional_final_price" name="professional_final_price" class="form-control" step="0.01" min="{{ $additionalService->base_price * 0.5 }}" value="{{ $additionalService->user_negotiated_price }}" required>
+                                        <div class="price-error" style="display:none;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="professional_response">Your Response</label>
+                                        <textarea id="professional_response" name="professional_response" class="form-control" rows="4" maxlength="1000" placeholder="Explain your final decision..." required></textarea>
+                                        <small class="form-text">Max 1000 characters</small>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="price_reason"><strong>Reason for Update:</strong></label>
-                                        <textarea id="price_reason" 
-                                                 name="reason" 
-                                                 class="form-control" 
-                                                 rows="3" 
-                                                 maxlength="1000" 
-                                                 placeholder="Explain why you're updating the price..."
-                                                 required></textarea>
-                                        <small class="text-muted">Max 1000 characters</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-save"></i> Update Price
+                                <button type="submit" class="action-btn success" style="align-self:flex-start;">
+                                    <i class="fas fa-paper-plane"></i> Send Response
                                 </button>
+                            </form>
+                        </div>
+                    @endif
+
+                    @if($additionalService->admin_status === 'approved' && $additionalService->negotiation_status !== 'user_negotiated')
+                        <form id="priceUpdateForm" class="form-card">
+                            @csrf
+                            <h4><i class="fas fa-edit"></i> Update Service Price</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="new_price">New Price (₹)</label>
+                                    <input type="number" id="new_price" name="new_price" class="form-control" step="0.01" min="{{ $additionalService->base_price * 0.5 }}" value="{{ $additionalService->final_price }}" required>
+                                    <div class="price-error" style="display:none;"></div>
+                                    <small class="form-text">Minimum price enforced automatically.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="price_reason">Reason for Update</label>
+                                    <textarea id="price_reason" name="reason" class="form-control" rows="4" maxlength="1000" placeholder="Explain why you're updating the price..." required></textarea>
+                                    <small class="form-text">Customers will be notified of your reasoning.</small>
+                                </div>
                             </div>
+                            <button type="submit" class="action-btn primary" style="align-self:flex-start;">
+                                <i class="fas fa-save"></i> Update Price
+                            </button>
                         </form>
-                    </div>
                     @endif
 
                     @if($additionalService->admin_status === 'rejected' && $additionalService->admin_reason)
-                    <div class="alert alert-danger">
-                        <h5><i class="fas fa-times-circle"></i> Rejection Reason</h5>
-                        <p>{{ $additionalService->admin_reason }}</p>
-                    </div>
+                        <div class="alert-card danger">
+                            <strong><i class="fas fa-times-circle"></i> Rejection Reason</strong>
+                            <p style="margin:0.6rem 0 0;">{{ $additionalService->admin_reason }}</p>
+                        </div>
                     @endif
                 </div>
-            </div>
-        </div>
+            </article>
 
-        <div class="col-lg-4">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user text-primary"></i>
-                        Customer Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="info-card">
-                        <div class="form-group">
-                            <label><strong>Customer Name:</strong></label>
+            <div class="show-sidebar" style="display:flex; flex-direction:column; gap:1.6rem;">
+                <section class="info-aside-card">
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700; color:#0f172a;"><i class="fas fa-user-circle"></i> Customer Information</h3>
+                    <div class="info-grid" style="grid-template-columns:1fr;">
+                        <div class="info-block">
+                            <label>Customer Name</label>
                             <p>{{ $additionalService->user->name }}</p>
                         </div>
-                        
-                        <div class="form-group">
-                            <label><strong>Email:</strong></label>
+                        <div class="info-block">
+                            <label>Email</label>
                             <p>{{ $additionalService->user->email }}</p>
                         </div>
-                        
-                        <div class="form-group">
-                            <label><strong>Phone:</strong></label>
+                        <div class="info-block">
+                            <label>Phone</label>
                             <p>{{ $additionalService->user->phone }}</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-credit-card text-success"></i>
-                        Payment & Commission Details
-                    </h5>
-                </div>
-                <div class="card-body">
-                    
-                    <div class="form-group">
-                        <label><strong>Payment Status:</strong></label>
-                        <p>
-                            @if($additionalService->payment_status === 'pending')
-                                <span class="badge badge-pending">Payment Pending</span>
-                            @elseif($additionalService->payment_status === 'paid')
-                                <span class="badge badge-paid">Paid</span>
-                            @elseif($additionalService->payment_status === 'failed')
-                                <span class="badge badge-rejected">Payment Failed</span>
-                            @endif
-                        </p>
+                <section class="info-aside-card">
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700; color:#0f172a;"><i class="fas fa-calculator"></i> Payment & Commission</h3>
+                    <div class="info-grid" style="grid-template-columns:1fr;">
+                        <div class="info-block">
+                            <label>Payment Status</label>
+                            <p>
+                                @if($additionalService->payment_status === 'pending')
+                                    <span class="status-pill pending">Pending</span>
+                                @elseif($additionalService->payment_status === 'paid')
+                                    <span class="status-pill paid">Paid</span>
+                                @elseif($additionalService->payment_status === 'failed')
+                                    <span class="status-pill rejected">Failed</span>
+                                @endif
+                            </p>
+                        </div>
                     </div>
-
                     @php
                         $professional = $additionalService->professional;
                         $finalPrice = $additionalService->final_price;
@@ -1631,174 +706,45 @@
                         $platformCommission = ($finalPrice * $serviceRequestMargin) / 100;
                         $professionalEarning = $finalPrice - $platformCommission;
                     @endphp
-
-                    <!-- Commission Breakdown -->
-                    <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 15px; padding: 1.5rem; margin: 1rem 0;">
-                        <h6 style="margin-bottom: 1rem; color: #495057; font-weight: 600;">
-                            <i class="fas fa-calculator" style="color: #667eea;"></i>
-                            Commission Breakdown
-                        </h6>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div style="background: rgba(102, 126, 234, 0.1); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; border-left: 4px solid #667eea;">
-                                    <div style="font-size: 0.875rem; color: #667eea; font-weight: 600; margin-bottom: 0.25rem;">Service Request Margin</div>
-                                    <div style="font-size: 1.25rem; font-weight: 700; color: #495057;">{{ number_format($serviceRequestMargin, 2) }}%</div>
-                                    <div style="font-size: 0.75rem; color: #6c757d;">Platform commission rate</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div style="background: rgba(40, 167, 69, 0.1); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; border-left: 4px solid #28a745;">
-                                    <div style="font-size: 0.875rem; color: #28a745; font-weight: 600; margin-bottom: 0.25rem;">Negotiation Status</div>
-                                    <div style="font-size: 1.25rem; font-weight: 700; color: #495057;">
-                                        @if($additionalService->negotiation_status === 'none')
-                                            Available
-                                        @elseif($additionalService->negotiation_status === 'user_negotiated')
-                                            Pending
-                                        @else
-                                            Completed
-                                        @endif
-                                    </div>
-                                    <div style="font-size: 0.75rem; color: #6c757d;">Customer negotiation allowed</div>
-                                </div>
-                            </div>
+                    <div class="commission-grid">
+                        <div class="commission-card">
+                            <span>Platform Margin</span>
+                            <strong>{{ number_format($serviceRequestMargin, 2) }}%</strong>
+                            <small style="color:var(--muted);">Applied on service price</small>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div style="background: rgba(220, 53, 69, 0.1); border-radius: 10px; padding: 1rem; border-left: 4px solid #dc3545;">
-                                    <div style="font-size: 0.875rem; color: #dc3545; font-weight: 600; margin-bottom: 0.25rem;">Platform Commission</div>
-                                    <div style="font-size: 1.25rem; font-weight: 700; color: #495057;">₹{{ number_format($platformCommission, 2) }}</div>
-                                    <div style="font-size: 0.75rem; color: #6c757d;">Deducted from service price</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div style="background: rgba(40, 167, 69, 0.1); border-radius: 10px; padding: 1rem; border-left: 4px solid #28a745;">
-                                    <div style="font-size: 0.875rem; color: #28a745; font-weight: 600; margin-bottom: 0.25rem;">Your Earnings</div>
-                                    <div style="font-size: 1.25rem; font-weight: 700; color: #495057;">₹{{ number_format($professionalEarning, 2) }}</div>
-                                    <div style="font-size: 0.75rem; color: #6c757d;">After platform commission</div>
-                                </div>
-                            </div>
+                        <div class="commission-card danger">
+                            <span>Commission Amount</span>
+                            <strong>₹{{ number_format($platformCommission, 2) }}</strong>
+                            <small style="color:var(--muted);">Deducted by platform</small>
+                        </div>
+                        <div class="commission-card success">
+                            <span>Your Earnings</span>
+                            <strong>₹{{ number_format($professionalEarning, 2) }}</strong>
+                            <small style="color:var(--muted);">After commission</small>
                         </div>
                     </div>
-
                     @if($additionalService->payment_status === 'paid')
-                    <div class="alert alert-success" style="border-radius: 12px; border: none; background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(25, 135, 84, 0.1)); border-left: 4px solid #28a745;">
-                        <div style="display: flex; align-items: center;">
-                            <i class="fas fa-check-circle" style="color: #28a745; margin-right: 0.5rem; font-size: 1.25rem;"></i>
-                            <div>
-                                <strong style="color: #155724;">Payment Received</strong>
-                                <div style="font-size: 0.875rem; color: #155724; margin-top: 0.25rem;">
-                                    You'll receive ₹{{ number_format($professionalEarning, 2) }} ({{ number_format(100 - $serviceRequestMargin, 2) }}% of ₹{{ number_format($finalPrice, 2) }})
-                                </div>
-                            </div>
+                        <div class="alert-card success">
+                            <strong><i class="fas fa-check-circle"></i> Payment Received</strong>
+                            <p style="margin:0.6rem 0 0; font-size:0.88rem;">You will receive ₹{{ number_format($professionalEarning, 2) }} ({{ number_format(100 - $serviceRequestMargin, 2) }}% of ₹{{ number_format($finalPrice, 2) }})</p>
                         </div>
-                    </div>
                     @endif
-
                     @if($additionalService->professional_payment_status === 'processed')
-                    <div class="alert alert-info" style="border-radius: 12px; border: none; background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(0, 86, 179, 0.1)); border-left: 4px solid #0d6efd;">
-                        <div style="display: flex; align-items: center;">
-                            <i class="fas fa-money-bill-wave" style="color: #0d6efd; margin-right: 0.5rem; font-size: 1.25rem;"></i>
-                            <div>
-                                <strong style="color: #084298;">Payment Released</strong>
-                                <div style="font-size: 0.875rem; color: #084298; margin-top: 0.25rem;">
-                                    Payment processed on {{ $additionalService->professional_payment_processed_at->format('M d, Y h:i A') }}
-                                </div>
-                                @if($additionalService->payment_transaction_id)
-                                <div style="font-size: 0.875rem; color: #084298; margin-top: 0.25rem;">
-                                    <strong>Transaction ID:</strong> {{ $additionalService->payment_transaction_id }}
-                                </div>
-                                @endif
-                                @if($additionalService->payment_method)
-                                <div style="font-size: 0.875rem; color: #084298; margin-top: 0.25rem;">
-                                    <strong>Payment Method:</strong> {{ ucfirst(str_replace('_', ' ', $additionalService->payment_method)) }}
-                                </div>
-                                @endif
-                                @if($additionalService->payment_notes)
-                                <div style="font-size: 0.875rem; color: #084298; margin-top: 0.25rem;">
-                                    <strong>Notes:</strong> {{ $additionalService->payment_notes }}
-                                </div>
-                                @endif
-                            </div>
+                        <div class="alert-card">
+                            <strong><i class="fas fa-money-bill-wave"></i> Payment Released</strong>
+                            <p style="margin:0.6rem 0 0; font-size:0.88rem;">Processed on {{ $additionalService->professional_payment_processed_at->format('M d, Y h:i A') }}</p>
+                            @if($additionalService->payment_transaction_id)
+                                <p style="margin:0; font-size:0.82rem;">Transaction ID: {{ $additionalService->payment_transaction_id }}</p>
+                            @endif
                         </div>
-                    </div>
                     @endif
-
-                    <div class="form-group">
-                        <label><strong>Created Date:</strong></label>
-                        <p>{{ $additionalService->created_at->format('M d, Y h:i A') }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt text-warning"></i>
-                        Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body d-grid gap-3">
-                        @if($additionalService->canStartConsultation())
-                        <button class="btn btn-success start-consultation" data-id="{{ $additionalService->id }}">
-                            <i class="fas fa-play"></i> Start Consultation
-                        </button>
-                        @endif
-
-                        @if($additionalService->canMarkAsCompleted())
-                        <button class="btn btn-primary mark-completed" data-id="{{ $additionalService->id }}">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </button>
-                        @endif
-
-                        @if($additionalService->canSetDeliveryDate())
-                        <button class="btn btn-info set-delivery-date" data-id="{{ $additionalService->id }}">
-                            <i class="fas fa-calendar-plus"></i> Set Delivery Date
-                        </button>
-                        @endif
-
-                        @if($additionalService->canCompleteConsultation())
-                        <button class="btn btn-success complete-consultation" data-id="{{ $additionalService->id }}">
-                            <i class="fas fa-flag-checkered"></i> Complete Consultation
-                        </button>
-                        @endif
-
-                        @if($additionalService->consulting_status === 'done' && !$additionalService->customer_confirmed_at)
-                        <div class="alert alert-info">
-                            <small><i class="fas fa-clock"></i> Waiting for customer confirmation</small>
-                        </div>
-                        @endif
-
-                        @if($additionalService->canUpdateDeliveryDate())
-                        <button class="btn btn-warning update-delivery" data-id="{{ $additionalService->id }}">
-                            <i class="fas fa-calendar"></i> Update Delivery Date
-                        </button>
-                        @endif
-
-                        @if($additionalService->consulting_status === 'done' && $additionalService->payment_status === 'paid')
-                        <hr class="my-2">
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('professional.additional-services.invoice', $additionalService->id) }}" class="btn btn-success">
-                                <i class="fas fa-file-text"></i> View Invoice
-                            </a>
-                            <a href="{{ route('professional.additional-services.invoice.pdf', $additionalService->id) }}" class="btn btn-outline-success" target="_blank">
-                                <i class="fas fa-download"></i> Download PDF Invoice
-                            </a>
-                        </div>
-                        @endif
-
-                        <a href="{{ route('professional.additional-services.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to List
-                        </a>
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Custom Start Consultation Modal -->
+<!-- Modals -->
 <div class="custom-modal" id="startConsultationModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1809,23 +755,20 @@
         </div>
         <form id="startConsultationForm">
             <div class="modal-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Note:</strong> This will mark the consultation as "In Progress" and notify the customer.
+                <div class="alert-card">
+                    <strong><i class="fas fa-info-circle"></i> Heads up!</strong>
+                    <p style="margin:0.6rem 0 0; font-size:0.88rem;">This will mark the consultation as "In Progress" and notify the customer.</p>
                 </div>
-                <div class="mb-3">
-                    <label for="consultation_notes" class="form-label">
-                        <i class="fas fa-clipboard"></i> Consultation Notes (Optional)
-                    </label>
-                    <textarea class="form-control" id="consultation_notes" name="consultation_notes" 
-                              rows="4" placeholder="Add any initial notes or instructions for the consultation..."></textarea>
+                <div class="form-group">
+                    <label for="consultation_notes">Consultation Notes (Optional)</label>
+                    <textarea class="form-control" id="consultation_notes" name="consultation_notes" rows="4" placeholder="Add any initial notes or instructions..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('startConsultationModal')">
+                <button type="button" class="action-btn outline" onclick="closeModal('startConsultationModal')">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="action-btn success">
                     <i class="fas fa-play"></i> Start Consultation
                 </button>
             </div>
@@ -1833,48 +776,37 @@
     </div>
 </div>
 
-<!-- Custom Mark Completed Modal -->
 <div class="custom-modal" id="markCompletedModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">✅ Mark Consultation as Completed</h5>
+            <h5 class="modal-title">✅ Mark Consultation Completed</h5>
             <button type="button" class="modal-close" onclick="closeModal('markCompletedModal')">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <form id="markCompletedForm">
             <div class="modal-body">
-                <div class="text-center mb-4">
-                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-check-circle text-success" style="font-size: 2.5rem;"></i>
-                    </div>
+                <div class="alert-card success">
+                    <strong><i class="fas fa-check-circle"></i> Confirmation</strong>
+                    <p style="margin:0.6rem 0 0; font-size:0.88rem;">This action notifies the customer to confirm the consultation completion.</p>
                 </div>
-                <h6 class="text-center mb-3">Consultation Completion</h6>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <strong>Important:</strong> This will mark the consultation as completed and notify the customer for confirmation.
-                </div>
-                <div class="mb-3">
-                    <label for="completion_notes" class="form-label">
-                        <i class="fas fa-clipboard-check"></i> Completion Summary *
-                    </label>
-                    <textarea class="form-control" id="completion_notes" name="completion_notes" 
-                              rows="4" required placeholder="Provide a summary of the work completed..."></textarea>
+                <div class="form-group">
+                    <label for="completion_notes">Completion Summary *</label>
+                    <textarea class="form-control" id="completion_notes" name="completion_notes" rows="4" placeholder="Provide a summary of the work completed..." required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('markCompletedModal')">
+                <button type="button" class="action-btn outline" onclick="closeModal('markCompletedModal')">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check-circle"></i> Mark as Completed
+                <button type="submit" class="action-btn success">
+                    <i class="fas fa-check-circle"></i> Mark Completed
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Custom Update Delivery Modal -->
 <div class="custom-modal" id="updateDeliveryModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1886,30 +818,25 @@
         <form id="updateDeliveryForm">
             <div class="modal-body">
                 @if($additionalService->delivery_date)
-                <div class="alert alert-info">
-                    <strong>Current Delivery Date:</strong> {{ \Carbon\Carbon::parse($additionalService->delivery_date)->format('M d, Y') }}
-                </div>
+                    <div class="alert-card">
+                        <strong>Current Delivery Date:</strong>
+                        <p style="margin:0.6rem 0 0;">{{ \Carbon\Carbon::parse($additionalService->delivery_date)->format('M d, Y') }}</p>
+                    </div>
                 @endif
-                <div class="mb-3">
-                    <label for="new_delivery_date" class="form-label">
-                        <i class="fas fa-calendar"></i> New Delivery Date *
-                    </label>
-                    <input type="date" class="form-control" id="new_delivery_date" name="delivery_date" required
-                           min="{{ date('Y-m-d') }}" value="{{ $additionalService->delivery_date }}">
+                <div class="form-group">
+                    <label for="new_delivery_date">New Delivery Date *</label>
+                    <input type="date" class="form-control" id="new_delivery_date" name="delivery_date" min="{{ date('Y-m-d') }}" value="{{ $additionalService->delivery_date }}" required>
                 </div>
-                <div class="mb-3">
-                    <label for="delivery_notes" class="form-label">
-                        <i class="fas fa-comment"></i> Reason for Date Change *
-                    </label>
-                    <textarea class="form-control" id="delivery_notes" name="delivery_notes" 
-                              rows="3" required placeholder="Please explain why the delivery date is being changed..."></textarea>
+                <div class="form-group">
+                    <label for="delivery_notes">Reason for Date Change *</label>
+                    <textarea class="form-control" id="delivery_notes" name="delivery_notes" rows="3" placeholder="Explain why the delivery date is being changed..." required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('updateDeliveryModal')">
+                <button type="button" class="action-btn outline" onclick="closeModal('updateDeliveryModal')">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button type="submit" class="btn btn-warning">
+                <button type="submit" class="action-btn warning">
                     <i class="fas fa-calendar"></i> Update Date
                 </button>
             </div>
@@ -1917,7 +844,6 @@
     </div>
 </div>
 
-<!-- Set Delivery Date Modal -->
 <div class="custom-modal" id="setDeliveryDateModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1928,104 +854,60 @@
         </div>
         <form id="setDeliveryDateForm">
             <div class="modal-body">
-                <div class="alert alert-info">
-                    <strong>Important:</strong> Setting a delivery date will notify the customer and admin about when the consultation will be available for completion.
+                <div class="alert-card">
+                    <strong><i class="fas fa-info-circle"></i> Note</strong>
+                    <p style="margin:0.6rem 0 0; font-size:0.88rem;">Customers and admin will be notified once you set a delivery date.</p>
                 </div>
-                <div class="mb-3">
-                    <label for="delivery_date" class="form-label">
-                        <i class="fas fa-calendar"></i> Delivery Date *
-                    </label>
-                    <input type="date" class="form-control" id="delivery_date" name="delivery_date" required
-                           min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                <div class="form-group">
+                    <label for="delivery_date">Delivery Date *</label>
+                    <input type="date" class="form-control" id="delivery_date" name="delivery_date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
                 </div>
-                <div class="mb-3">
-                    <label for="delivery_reason" class="form-label">
-                        <i class="fas fa-comment"></i> Reason/Notes *
-                    </label>
-                    <textarea class="form-control" id="delivery_reason" name="delivery_reason" 
-                              rows="3" required placeholder="Please explain why this delivery date is needed..."></textarea>
+                <div class="form-group">
+                    <label for="delivery_reason">Reason/Notes *</label>
+                    <textarea class="form-control" id="delivery_reason" name="delivery_reason" rows="3" placeholder="Explain the delivery plan..." required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('setDeliveryDateModal')">
+                <button type="button" class="action-btn outline" onclick="closeModal('setDeliveryDateModal')">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button type="submit" class="btn btn-info">
+                <button type="submit" class="action-btn info">
                     <i class="fas fa-calendar-plus"></i> Set Date
                 </button>
             </div>
         </form>
     </div>
 </div>
-</div>
 @endsection
+
 @section('scripts')
 <script>
 $(document).ready(function() {
     const currentServiceId = {{ $additionalService->id }};
 
-    // Custom Modal Functions
     function openModal(modalId) {
         const $modal = $('#' + modalId);
-        const $modalContent = $modal.find('.modal-content');
-        
-        // Remove any lingering styles
-        $modalContent.removeAttr('style');
-        $modalContent.addClass('modal-ready');
-        
-        // Show modal immediately without animation
         $modal.addClass('show');
         $('body').css('overflow', 'hidden');
-        
-        // Focus first input after a brief delay
-        setTimeout(function() {
-            const $firstInput = $modalContent.find('input:not([type="hidden"]), textarea').first();
-            if ($firstInput.length) {
-                $firstInput.focus();
-            }
-        }, 100);
+        setTimeout(() => {
+            const $firstInput = $modal.find('input:not([type="hidden"]), textarea').first();
+            if ($firstInput.length) $firstInput.focus();
+        }, 120);
     }
 
     function closeModal(modalId) {
-        const $modal = $('#' + modalId);
-        const $modalContent = $modal.find('.modal-content');
-        
-        // Remove modal-ready class
-        $modalContent.removeClass('modal-ready');
-        
-        // Hide modal immediately
-        $modal.removeClass('show');
+        $('#' + modalId).removeClass('show');
         $('body').css('overflow', 'auto');
-        
-        // Reset all styles
-        $modalContent.removeAttr('style');
     }
 
-    // Make closeModal available globally
     window.closeModal = closeModal;
 
-    // Close modal when clicking outside (only on the overlay, not on modal content)
     $('.custom-modal').on('click', function(e) {
         if ($(e.target).hasClass('custom-modal')) {
             closeModal(this.id);
         }
     });
 
-    // Prevent modal from closing when clicking inside modal content
-    $('.modal-content').on('click', function(e) {
-        e.stopPropagation();
-    });
-
-    // Close modal with Escape key
-    $(document).keydown(function(e) {
-        if (e.keyCode === 27) {
-            $('.custom-modal.show').each(function() {
-                closeModal(this.id);
-            });
-        }
-    });
-
-    // Show loading state for buttons
     function showButtonLoading($btn, loadingText) {
         const originalText = $btn.html();
         $btn.data('original-text', originalText);
@@ -2038,7 +920,6 @@ $(document).ready(function() {
         $btn.prop('disabled', false).html(originalText);
     }
 
-    // Start Consultation
     $(document).on('click', '.start-consultation', function(e) {
         e.preventDefault();
         openModal('startConsultationModal');
@@ -2059,31 +940,15 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     closeModal('startConsultationModal');
-                    
-                    // Show success notification
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Consultation started successfully!');
-                    } else {
-                        alert(response.message || 'Consultation started successfully!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
+                    toastr?.success(response.message || 'Consultation started successfully!');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to start consultation');
-                    } else {
-                        alert(response.message || 'Failed to start consultation');
-                    }
+                    toastr?.error(response.message || 'Failed to start consultation');
                 }
             },
             error: function(xhr) {
-                console.error('Start consultation error:', xhr);
                 const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                if (typeof toastr !== 'undefined') {
-                    toastr.error(message);
-                } else {
-                    alert(message);
-                }
+                toastr?.error(message);
             },
             complete: function() {
                 hideButtonLoading($submitBtn);
@@ -2091,7 +956,6 @@ $(document).ready(function() {
         });
     });
 
-    // Mark Completed
     $(document).on('click', '.mark-completed', function(e) {
         e.preventDefault();
         openModal('markCompletedModal');
@@ -2112,43 +976,21 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     closeModal('markCompletedModal');
-                    
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Consultation marked as completed!');
-                    } else {
-                        alert(response.message || 'Consultation marked as completed!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
+                    toastr?.success(response.message || 'Consultation marked as completed!');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to mark consultation as completed');
-                    } else {
-                        alert(response.message || 'Failed to mark consultation as completed');
-                    }
+                    toastr?.error(response.message || 'Failed to mark consultation as completed');
                 }
             },
             error: function(xhr) {
-                console.error('Mark completed error:', xhr);
-                
-                // Handle validation errors
                 const errors = xhr.responseJSON?.errors;
                 if (errors) {
                     Object.values(errors).forEach(function(error) {
                         const message = Array.isArray(error) ? error[0] : error;
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(message);
-                        } else {
-                            alert(message);
-                        }
+                        toastr?.error(message);
                     });
                 } else {
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
                 }
             },
             complete: function() {
@@ -2157,7 +999,6 @@ $(document).ready(function() {
         });
     });
 
-    // Set Delivery Date (initial setting)
     $(document).on('click', '.set-delivery-date', function(e) {
         e.preventDefault();
         openModal('setDeliveryDateModal');
@@ -2168,56 +1009,32 @@ $(document).ready(function() {
         const $submitBtn = $(this).find('button[type="submit"]');
         showButtonLoading($submitBtn, 'Setting...');
 
-        const formData = {
-            _token: '{{ csrf_token() }}',
-            delivery_date: $('#delivery_date').val(),
-            delivery_reason: $('#delivery_reason').val()
-        };
-
         $.ajax({
             url: `/professional/additional-services/${currentServiceId}/set-delivery-date`,
             type: 'POST',
-            data: formData,
+            data: {
+                _token: '{{ csrf_token() }}',
+                delivery_date: $('#delivery_date').val(),
+                delivery_reason: $('#delivery_reason').val()
+            },
             success: function(response) {
                 if (response.success) {
                     closeModal('setDeliveryDateModal');
-                    
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Delivery date set successfully!');
-                    } else {
-                        alert(response.message || 'Delivery date set successfully!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
+                    toastr?.success(response.message || 'Delivery date set successfully!');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to set delivery date');
-                    } else {
-                        alert(response.message || 'Failed to set delivery date');
-                    }
+                    toastr?.error(response.message || 'Failed to set delivery date');
                 }
             },
             error: function(xhr) {
-                console.error('Set delivery date error:', xhr);
-                
-                // Handle validation errors
                 const errors = xhr.responseJSON?.errors;
                 if (errors) {
                     Object.values(errors).forEach(function(error) {
                         const message = Array.isArray(error) ? error[0] : error;
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(message);
-                        } else {
-                            alert(message);
-                        }
+                        toastr?.error(message);
                     });
                 } else {
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
                 }
             },
             complete: function() {
@@ -2226,51 +1043,69 @@ $(document).ready(function() {
         });
     });
 
-    // Update Delivery Date
     $(document).on('click', '.update-delivery', function(e) {
         e.preventDefault();
         openModal('updateDeliveryModal');
     });
 
-    // Complete Consultation (after delivery date passes)
+    $('#updateDeliveryForm').submit(function(e) {
+        e.preventDefault();
+        const $submitBtn = $(this).find('button[type="submit"]');
+        showButtonLoading($submitBtn, 'Updating...');
+
+        $.ajax({
+            url: `/professional/additional-services/${currentServiceId}/update-delivery-date`,
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                delivery_date: $('#new_delivery_date').val(),
+                delivery_notes: $('#delivery_notes').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    closeModal('updateDeliveryModal');
+                    toastr?.success(response.message || 'Delivery date updated successfully!');
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    toastr?.error(response.message || 'Failed to update delivery date');
+                }
+            },
+            error: function(xhr) {
+                const errors = xhr.responseJSON?.errors;
+                if (errors) {
+                    Object.values(errors).forEach(function(error) {
+                        const message = Array.isArray(error) ? error[0] : error;
+                        toastr?.error(message);
+                    });
+                } else {
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
+                }
+            },
+            complete: function() {
+                hideButtonLoading($submitBtn);
+            }
+        });
+    });
+
     $(document).on('click', '.complete-consultation', function(e) {
         e.preventDefault();
         const $btn = $(this);
-        
-        if (confirm('Are you sure you want to mark this consultation as completed? This will notify the customer for final confirmation.')) {
+        if (confirm('Confirm marking this consultation as completed? The customer will be notified.')) {
             showButtonLoading($btn, 'Completing...');
-
             $.ajax({
                 url: `/professional/additional-services/${currentServiceId}/complete-consultation`,
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
+                data: { _token: '{{ csrf_token() }}' },
                 success: function(response) {
                     if (response.success) {
-                        if (typeof toastr !== 'undefined') {
-                            toastr.success(response.message || 'Consultation completed successfully!');
-                        } else {
-                            alert(response.message || 'Consultation completed successfully!');
-                        }
-                        
-                        setTimeout(() => location.reload(), 1500);
+                        toastr?.success(response.message || 'Consultation completed successfully!');
+                        setTimeout(() => location.reload(), 1200);
                     } else {
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(response.message || 'Failed to complete consultation');
-                        } else {
-                            alert(response.message || 'Failed to complete consultation');
-                        }
+                        toastr?.error(response.message || 'Failed to complete consultation');
                     }
                 },
                 error: function(xhr) {
-                    console.error('Complete consultation error:', xhr);
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
                 },
                 complete: function() {
                     hideButtonLoading($btn);
@@ -2279,209 +1114,59 @@ $(document).ready(function() {
         }
     });
 
-    // Update Delivery Date
-    $(document).on('click', '.update-delivery', function(e) {
-        e.preventDefault();
-        openModal('updateDeliveryModal');
-    });
-
-    // Update Delivery Date form submission
-    $('#updateDeliveryForm').submit(function(e) {
-        e.preventDefault();
-        const $submitBtn = $(this).find('button[type="submit"]');
-        showButtonLoading($submitBtn, 'Updating...');
-
-        const formData = {
-            _token: '{{ csrf_token() }}',
-            delivery_date: $('#new_delivery_date').val(),
-            delivery_notes: $('#delivery_notes').val()
-        };
-
-        $.ajax({
-            url: `/professional/additional-services/${currentServiceId}/update-delivery-date`,
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.success) {
-                    closeModal('updateDeliveryModal');
-                    
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Delivery date updated successfully!');
-                    } else {
-                        alert(response.message || 'Delivery date updated successfully!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to update delivery date');
-                    } else {
-                        alert(response.message || 'Failed to update delivery date');
-                    }
-                }
-            },
-            error: function(xhr) {
-                console.error('Update delivery date error:', xhr);
-                
-                // Handle validation errors
-                const errors = xhr.responseJSON?.errors;
-                if (errors) {
-                    Object.values(errors).forEach(function(error) {
-                        const message = Array.isArray(error) ? error[0] : error;
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(message);
-                        } else {
-                            alert(message);
-                        }
-                    });
-                } else {
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
-                }
-            },
-            complete: function() {
-                hideButtonLoading($submitBtn);
-            }
-        });
-    });
-
-    // Add smooth entrance animations to cards
-    $('.card-box').each(function(index) {
-        $(this).css({
-            'animation-delay': (index * 0.1) + 's',
-            'animation-fill-mode': 'both'
-        });
-    });
-
-    // Add hover effects to action buttons
-    $('.btn').hover(
-        function() {
-            $(this).css('transform', 'translateY(-2px)');
-        },
-        function() {
-            $(this).css('transform', 'translateY(0)');
-        }
-    );
-
-    // Initialize tooltips if available
-    if (typeof $().tooltip === 'function') {
-        $('[data-toggle="tooltip"]').tooltip();
-    }
-
-    // Auto-focus first input in modals when opened
-    $('.custom-modal').on('transitionend', function() {
-        if ($(this).hasClass('show')) {
-            $(this).find('input, textarea').first().focus();
-        }
-    });
-
-    // Form validation styling
-    $('form').on('submit', function() {
-        $(this).find('.form-control').each(function() {
-            if ($(this).prop('required') && !$(this).val()) {
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-    });
-
-    // Remove validation styling on input
-    $('.form-control').on('input change', function() {
-        $(this).removeClass('is-invalid');
-    });
-
-    // Price validation for professional negotiation and price update
     function validatePrice(priceInput, minPrice) {
         const price = parseFloat(priceInput.val());
-        const minPriceFloat = parseFloat(minPrice);
+        const minimum = parseFloat(minPrice);
         const errorDiv = priceInput.siblings('.price-error');
-        
-        if (price < minPriceFloat) {
+        if (price < minimum) {
             errorDiv.text('Price cannot be below the allowed minimum').show();
             priceInput.addClass('is-invalid');
             return false;
-        } else {
-            errorDiv.hide();
-            priceInput.removeClass('is-invalid');
-            return true;
         }
+        errorDiv.hide();
+        priceInput.removeClass('is-invalid');
+        return true;
     }
 
-    // Real-time price validation
     $('#professional_final_price, #new_price').on('input change', function() {
         const minPrice = $(this).attr('min');
         validatePrice($(this), minPrice);
     });
 
-    // Professional Negotiation Response Form
     $('#negotiationResponseForm').submit(function(e) {
         e.preventDefault();
-        
         const priceInput = $('#professional_final_price');
         const minPrice = priceInput.attr('min');
-        
-        // Validate price before submission
-        if (!validatePrice(priceInput, minPrice)) {
-            return false;
-        }
-        
+        if (!validatePrice(priceInput, minPrice)) { return false; }
         const $submitBtn = $(this).find('button[type="submit"]');
-        showButtonLoading($submitBtn, 'Sending Response...');
-
-        const formData = {
-            _token: '{{ csrf_token() }}',
-            professional_final_price: priceInput.val(),
-            professional_response: $('#professional_response').val(),
-            min_price: minPrice
-        };
+        showButtonLoading($submitBtn, 'Sending...');
 
         $.ajax({
             url: `/professional/additional-services/${currentServiceId}/respond-negotiation`,
             type: 'POST',
-            data: formData,
+            data: {
+                _token: '{{ csrf_token() }}',
+                professional_final_price: priceInput.val(),
+                professional_response: $('#professional_response').val(),
+                min_price: minPrice
+            },
             success: function(response) {
                 if (response.success) {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Negotiation response sent successfully!');
-                    } else {
-                        alert(response.message || 'Negotiation response sent successfully!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
+                    toastr?.success(response.message || 'Negotiation response sent!');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to send negotiation response');
-                    } else {
-                        alert(response.message || 'Failed to send negotiation response');
-                    }
+                    toastr?.error(response.message || 'Failed to send negotiation response');
                 }
             },
             error: function(xhr) {
-                console.error('Negotiation response error:', xhr);
-                
-                // Handle validation errors
                 const errors = xhr.responseJSON?.errors;
                 if (errors) {
                     Object.values(errors).forEach(function(error) {
                         const message = Array.isArray(error) ? error[0] : error;
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(message);
-                        } else {
-                            alert(message);
-                        }
+                        toastr?.error(message);
                     });
                 } else {
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
                 }
             },
             complete: function() {
@@ -2490,70 +1175,40 @@ $(document).ready(function() {
         });
     });
 
-    // Professional Price Update Form
     $('#priceUpdateForm').submit(function(e) {
         e.preventDefault();
-        
         const priceInput = $('#new_price');
         const minPrice = priceInput.attr('min');
-        
-        // Validate price before submission
-        if (!validatePrice(priceInput, minPrice)) {
-            return false;
-        }
-        
+        if (!validatePrice(priceInput, minPrice)) { return false; }
         const $submitBtn = $(this).find('button[type="submit"]');
-        showButtonLoading($submitBtn, 'Updating Price...');
-
-        const formData = {
-            _token: '{{ csrf_token() }}',
-            new_price: priceInput.val(),
-            reason: $('#price_reason').val(),
-            min_price: minPrice
-        };
+        showButtonLoading($submitBtn, 'Updating...');
 
         $.ajax({
             url: `/professional/additional-services/${currentServiceId}/update-price`,
             type: 'POST',
-            data: formData,
+            data: {
+                _token: '{{ csrf_token() }}',
+                new_price: priceInput.val(),
+                reason: $('#price_reason').val(),
+                min_price: minPrice
+            },
             success: function(response) {
                 if (response.success) {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success(response.message || 'Service price updated successfully!');
-                    } else {
-                        alert(response.message || 'Service price updated successfully!');
-                    }
-                    
-                    setTimeout(() => location.reload(), 1500);
+                    toastr?.success(response.message || 'Service price updated successfully!');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(response.message || 'Failed to update service price');
-                    } else {
-                        alert(response.message || 'Failed to update service price');
-                    }
+                    toastr?.error(response.message || 'Failed to update service price');
                 }
             },
             error: function(xhr) {
-                console.error('Price update error:', xhr);
-                
-                // Handle validation errors
                 const errors = xhr.responseJSON?.errors;
                 if (errors) {
                     Object.values(errors).forEach(function(error) {
                         const message = Array.isArray(error) ? error[0] : error;
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error(message);
-                        } else {
-                            alert(message);
-                        }
+                        toastr?.error(message);
                     });
                 } else {
-                    const message = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error(message);
-                    } else {
-                        alert(message);
-                    }
+                    toastr?.error(xhr.responseJSON?.message || 'An error occurred. Please try again.');
                 }
             },
             complete: function() {
@@ -2561,8 +1216,6 @@ $(document).ready(function() {
             }
         });
     });
-
-    console.log('Professional additional services show page initialized successfully');
 });
 </script>
-@endsection 
+@endsection

@@ -113,26 +113,44 @@
         position: relative;
         margin-bottom: 15px;
     }
-    .form-group input.form-control, .form-group select.form-control, .form-group textarea.form-control {
-        padding-left: 40px;
+    .form-group input.form-control,
+    .form-group select.form-control,
+    .form-group textarea.form-control {
+        padding-left: 52px;
+        border-radius: 12px;
+        border: 1px solid #d1d5db;
+        min-height: 48px;
+        box-shadow: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .form-group input.form-control:focus,
+    .form-group select.form-control:focus,
+    .form-group textarea.form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
     .form-group textarea.form-control {
-        min-height: 80px;
-        padding-top: 12px;
-        padding-bottom: 12px;
+        min-height: 90px;
+        padding-top: 14px;
+        padding-bottom: 14px;
     }
     .form-group i.input-icon {
         position: absolute;
-        left: 15px;
+        left: 18px;
         top: 50%;
         transform: translateY(-50%);
-        color: #aaa;
-        font-size: 18px;
-        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        color: #4f46e5;
+        font-size: 16px;
+        z-index: 3;
         pointer-events: none;
     }
     .form-group textarea + i.input-icon {
-        top: 22px; /* Adjust for textarea vertical alignment if needed */
+        top: 26px;
     }
     .form-group .invalid-feedback {
         display: none;

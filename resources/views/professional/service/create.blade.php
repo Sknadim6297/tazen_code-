@@ -1,201 +1,412 @@
 @extends('professional.layout.layout')
 
 @section('styles')
-   <link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
-
-   <style>
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap; 
-}
-.checkbox-item input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    margin-right: 10px; 
-}
-
-.checkbox-item input[type="checkbox"]:not([disabled]):checked {
-    background-color: green;
-    border-color: green;
-}
-
-
-.checkbox-item input[type="checkbox"]:disabled {
-    background-color: red;
-    border-color: red;
-    cursor: not-allowed; /* Show that it's not clickable */
-}
-
-/* Optional: Add a little fade effect to disabled checkboxes */
-.checkbox-item input[type="checkbox"]:disabled {
-    opacity: 0.5;
-}
-
-/* Label styling */
-.checkbox-item {
-    display: flex;
-    flex-direction: column; /* Added to stack label text below checkbox */
-    font-size: 14px;
-}
-
-   </style>
+<link rel="stylesheet" href="{{ asset('professional/assets/css/service.css') }}" />
 
 <style>
-.sub-service-container {
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    min-height: 60px;
-}
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+    }
 
-.sub-service-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    padding: 8px;
-    background-color: white;
-    border-radius: 5px;
-    border: 1px solid #dee2e6;
-}
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
 
-.sub-service-item:last-child {
-    margin-bottom: 0;
-}
+    .service-create-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
 
-.sub-service-item input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
+    .service-create-shell {
+        max-width: 920px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
 
-.sub-service-item label {
-    margin: 0;
-    cursor: pointer;
-    font-weight: 500;
-}
+    .service-create-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
+    }
 
-.sub-service-loading {
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-}
+    .service-create-hero::before,
+    .service-create-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .service-create-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -45%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .service-create-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -40%;
+        left: -10%;
+        background: rgba(59, 130, 246, 0.18);
+    }
+
+    .service-create-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+
+    .hero-breadcrumb li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .form-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        padding: 2.2rem 2.3rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+    }
+
+    .form-section header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .form-section header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.75rem 0.9rem;
+        font-size: 0.92rem;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .muted-note {
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .sub-service-container {
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 16px;
+        padding: 1.1rem;
+        background: rgba(248, 250, 252, 0.85);
+        min-height: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .sub-service-loading {
+        text-align: center;
+        color: var(--muted);
+        font-style: italic;
+        padding: 0.6rem 0;
+    }
+
+    .sub-service-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.65rem 0.8rem;
+        background-color: #ffffff;
+        border-radius: 10px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .sub-service-item input[type="checkbox"] {
+        transform: scale(1.15);
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .checkbox-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        background: rgba(79, 70, 229, 0.1);
+        color: #312e81;
+        font-weight: 600;
+        font-size: 0.82rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        transform: scale(1.1);
+        accent-color: var(--primary);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 999px;
+        padding: 0.75rem 1.6rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid rgba(148, 163, 184, 0.38);
+    }
+
+    .btn-primary:hover,
+    .btn-outline:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .service-create-page {
+            padding: 2.2rem 1rem 3.2rem;
+        }
+
+        .service-create-hero {
+            padding: 1.75rem 1.6rem;
+        }
+
+        .form-card {
+            padding: 1.8rem 1.7rem;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Add Service</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Add Service</li>
-        </ul>
-    </div>
-    
-    <!-- Add Service Form -->
-    <div class="form-container">
-        <form id="serviceForm" enctype="multipart/form-data">
-            @csrf   
-            
-            <!-- Hidden field for service duration with default value -->
-            <input type="hidden" name="serviceDuration" value="60">
-    
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="serviceCategory">Service Category * <span class="badge bg-primary" style="font-size: 11px; padding: 3px 6px;">Based on Your Registration</span></label>
-                        <select name="serviceId" id="serviceCategory" class="form-control" required>
-                            <option value="">Select Category</option>
-                            @forelse($services as $service)
-                                <option value="{{ $service->id }}" {{ 
-                                    (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' 
-                                }}>{{ $service->name }}</option>
-                            @empty
-                                <option value="" disabled>No service categories available for your specialization</option>
-                            @endforelse
-                        </select>
-                        <!-- Keep the hidden input as backup -->
-                        <input type="hidden" name="serviceIdBackup" value="{{ $matchingServiceId ?? '' }}">
-                        <small class="text-muted">
-                            <strong>Note:</strong> You can only offer services in your registered specialization: {{ $specialization ?? 'Not specified' }}.
-                            If you need to change your specialization, please contact support.
-                        </small>
-                    </div>
+<div class="service-create-page">
+    <div class="service-create-shell">
+        <section class="service-create-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-plus-circle"></i>Add Service</span>
+                <h1>Add Service</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Add Service</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="form-card">
+            <form id="serviceForm" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="serviceDuration" value="60">
+
+                <div class="form-section">
+                    <header>
+                        <h2>Service Details</h2>
+                    </header>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="serviceCategory">Service Category * <span class="badge bg-primary" style="font-size: 11px; padding: 3px 6px;">Based on Your Registration</span></label>
+                            <select name="serviceId" id="serviceCategory" class="form-control" required>
+                                <option value="">Select Category</option>
+                                @forelse($services as $service)
+                                    <option value="{{ $service->id }}" {{ (isset($matchingServiceId) && $matchingServiceId == $service->id) ? 'selected' : '' }}>{{ $service->name }}</option>
+                                @empty
+                                    <option value="" disabled>No service categories available for your specialization</option>
+                                @endforelse
+                            </select>
+                            <input type="hidden" name="serviceIdBackup" value="{{ $matchingServiceId ?? '' }}">
+                            <span class="muted-note"><strong>Note:</strong> You can only offer services in your registered specialization: {{ $specialization ?? 'Not specified' }}. If you need to change your specialization, please contact support.</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Sub-Service Selection -->
-            <div class="form-row">
-                <div class="form-col">
+
+                <div class="form-section">
+                    <header>
+                        <h2>Sub-Services</h2>
+                    </header>
                     <div class="form-group">
                         <label for="subServices">Sub-Services (Optional)</label>
                         <div id="subServiceContainer" class="sub-service-container">
                             <p class="text-muted">Please select a service category first to see available sub-services.</p>
                         </div>
-                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
+                        <span class="muted-note">Select the specific sub-services you offer within your service category.</span>
                     </div>
                 </div>
-            </div>
-    
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label>Service Features</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="features[]" value="online" checked> Online Sessions
-                            </label>
+
+                <div class="form-section">
+                    <header>
+                        <h2>Additional Information</h2>
+                    </header>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Service Features</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="features[]" value="online" checked> Online Sessions
+                                </label>
+                            </div>
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="serviceTags">Tags</label>
+                            <input type="text" name="serviceTags" id="serviceTags" class="form-control" placeholder="Add tags separated by commas">
+                            <span class="muted-note">Example: coaching, business, career</span>
+                        </div>
                     </div>
-                </div>
-    
-                <div class="form-col">
                     <div class="form-group">
-                        <label for="serviceTags">Tags</label>
-                        <input type="text" name="serviceTags" id="serviceTags" class="form-control" placeholder="Add tags separated by commas">
-                        <small class="text-muted">Example: coaching, business, career</small>
+                        <label for="serviceRequirements">Client Requirements</label>
+                        <textarea name="serviceRequirements" id="serviceRequirements" class="form-control" placeholder="List any requirements clients should know before booking" rows="3"></textarea>
                     </div>
                 </div>
-            </div>
-    
-            <div class="form-group">
-                <label for="serviceRequirements">Client Requirements</label>
-                <textarea name="serviceRequirements" id="serviceRequirements" class="form-control" placeholder="List any requirements clients should know before booking" rows="3"></textarea>
-            </div>
-    
-            <div class="form-actions">
-                <button type="button" class="btn btn-outline">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Service</button>
-            </div>
-        </form>
+
+                <div class="form-actions">
+                    <a href="{{ route('professional.service.index') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Service
+                    </button>
+                </div>
+            </form>
+        </section>
     </div>
-    
 </div>
 @endsection
+
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Load sub-services when service category changes
     $('#serviceCategory').change(function() {
         loadSubServices($(this).val());
     });
-    
-    // Load sub-services on page load if a service is pre-selected
+
     var serviceId = $('#serviceCategory').val();
-    console.log('Initial service ID:', serviceId);
     if (serviceId) {
         loadSubServices(serviceId);
     }
@@ -203,22 +414,19 @@ $(document).ready(function() {
 
 function loadSubServices(serviceId) {
     const container = $('#subServiceContainer');
-    
-    console.log('loadSubServices called with serviceId:', serviceId);
-    
+
     if (!serviceId) {
         container.html('<p class="text-muted">Please select a service category first to see available sub-services.</p>');
         return;
     }
-    
+
     container.html('<div class="sub-service-loading">Loading sub-services...</div>');
-    
+
     $.ajax({
         url: "{{ route('professional.service.getSubServices') }}",
         type: "GET",
         data: { service_id: serviceId },
         success: function(response) {
-            console.log('AJAX response:', response);
             if (response.success && response.subServices.length > 0) {
                 let html = '';
                 response.subServices.forEach(function(subService) {
@@ -230,31 +438,27 @@ function loadSubServices(serviceId) {
                     `;
                 });
                 container.html(html);
-                // Attach limit handler after rendering
                 enforceSubServiceLimit(container);
             } else {
                 container.html('<p class="text-muted">No sub-services available for this category.</p>');
             }
         },
         error: function(xhr) {
-            console.error('AJAX error:', xhr);
             container.html('<p class="text-danger">Error loading sub-services. Please try again.</p>');
         }
     });
 }
 
-// No limit on sub-service selection: allow professionals to choose any number of sub-services
 function enforceSubServiceLimit(container) {
-    // Intentionally left blank so checkboxes remain independent and unlimited selection is allowed.
     container.find('input[type="checkbox"]').off('change').on('change', function() {
-        // no-op: selection not limited
+        // selection not limited
     });
 }
 
 $('#serviceForm').submit(function(e) {
     e.preventDefault();
     let form = this;
-    let formData = new FormData(form); 
+    let formData = new FormData(form);
 
     $.ajax({
         url: "{{ route('professional.service.store') }}",

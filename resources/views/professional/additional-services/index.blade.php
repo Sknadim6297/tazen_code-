@@ -5,956 +5,1080 @@
 @section('styles')
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    /* Global Font */
-    * {
-        font-family: 'Inter', sans-serif;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --danger: #ef4444;
+        --warning: #f97316;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+        --shadow-lg: 0 28px 56px rgba(15, 23, 42, 0.14);
     }
 
-    /* Modern Page Header */
-    .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        padding: 3rem 2rem;
-        border-radius: 20px;
-        margin-bottom: 3rem;
-        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-        position: relative;
-        overflow: hidden;
+    body,
+    .app-content {
+        background: var(--page-bg);
     }
-    
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
+
+    .additional-services-page {
         width: 100%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(45deg);
-        border-radius: 50px;
+        padding: 2.6rem 1.45rem 3.6rem;
     }
 
-    .page-title h3 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0;
-        color: #fff;
-        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        position: relative;
-        z-index: 2;
-        letter-spacing: -0.5px;
-    }
-
-    /* Content Wrapper */
-    .content-wrapper {
-        padding: 30px;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
-
-    /* Enhanced Card Styling */
-    .card {
-        border: none;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        margin-bottom: 2.5rem;
-        background: #fff;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-        background-size: 200% 100%;
-        animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        padding: 2rem 2.5rem;
-        position: relative;
-    }
-
-    .card-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 2.5rem;
-        right: 2.5rem;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #667eea, transparent);
-    }
-
-    .card-header h4 {
-        margin: 0;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1e293b;
+    .additional-services-shell {
+        max-width: 1240px;
+        margin: 0 auto;
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
+        flex-direction: column;
+        gap: 2rem;
     }
 
-    .card-body {
-        padding: 2.5rem;
-    }
-
-    /* Table styling */
-    #additional-services-page .table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin-top: 1rem;
-    }
-    
-    #additional-services-page .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
-    }
-    
-    #additional-services-page .data-table th,
-    #additional-services-page .data-table td,
-    #additional-services-page table.dataTable thead th,
-    #additional-services-page table.dataTable tbody td,
-    #additional-services-page table.dataTable.no-footer th,
-    #additional-services-page table.dataTable.no-footer td {
-        padding: 0.875rem 0.75rem !important;
-        border: 1px solid #e9ecef !important;
-        vertical-align: middle !important;
-        text-align: center !important;
-    }
-    
-    #additional-services-page .data-table th,
-    #additional-services-page table.dataTable thead th,
-    #additional-services-page table.dataTable.no-footer th {
-        background-color: #f5f7fa !important;
-        font-weight: 600 !important;
-        color: #495057 !important;
-        white-space: nowrap !important;
-        text-align: center !important;
-        border-bottom: 2px solid #dee2e6 !important;
-    }
-    
-    #additional-services-page .data-table td,
-    #additional-services-page table.dataTable tbody td,
-    #additional-services-page table.dataTable.no-footer td {
-        color: #495057 !important;
-        text-align: center !important;
-    }
-
-    /* DataTables specific overrides */
-    #additional-services-page table.dataTable.no-footer {
-        border-bottom: 1px solid #e9ecef !important;
-    }
-
-    #additional-services-page .dataTables_wrapper {
-        padding: 0 !important;
-    }
-
-    #additional-services-page table.dataTable thead .sorting,
-    #additional-services-page table.dataTable thead .sorting_asc,
-    #additional-services-page table.dataTable thead .sorting_desc {
-        text-align: center !important;
-    }
-
-    /* Column widths - Apply to both custom and DataTables classes */
-    #additional-services-page .data-table th:nth-child(1),
-    #additional-services-page .data-table td:nth-child(1),
-    #additional-services-page table.dataTable th:nth-child(1),
-    #additional-services-page table.dataTable td:nth-child(1) {
-        width: 70px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(2),
-    #additional-services-page .data-table td:nth-child(2),
-    #additional-services-page table.dataTable th:nth-child(2),
-    #additional-services-page table.dataTable td:nth-child(2) {
-        min-width: 180px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(3),
-    #additional-services-page .data-table td:nth-child(3),
-    #additional-services-page table.dataTable th:nth-child(3),
-    #additional-services-page table.dataTable td:nth-child(3) {
-        min-width: 150px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(4),
-    #additional-services-page .data-table td:nth-child(4),
-    #additional-services-page table.dataTable th:nth-child(4),
-    #additional-services-page table.dataTable td:nth-child(4) {
-        width: 110px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(5),
-    #additional-services-page .data-table td:nth-child(5),
-    #additional-services-page table.dataTable th:nth-child(5),
-    #additional-services-page table.dataTable td:nth-child(5) {
-        width: 130px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(6),
-    #additional-services-page .data-table td:nth-child(6),
-    #additional-services-page table.dataTable th:nth-child(6),
-    #additional-services-page table.dataTable td:nth-child(6) {
-        min-width: 160px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(7),
-    #additional-services-page .data-table td:nth-child(7),
-    #additional-services-page table.dataTable th:nth-child(7),
-    #additional-services-page table.dataTable td:nth-child(7) {
-        width: 130px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(8),
-    #additional-services-page .data-table td:nth-child(8),
-    #additional-services-page table.dataTable th:nth-child(8),
-    #additional-services-page table.dataTable td:nth-child(8) {
-        width: 120px !important;
-    }
-
-    #additional-services-page .data-table th:nth-child(9),
-    #additional-services-page .data-table td:nth-child(9),
-    #additional-services-page table.dataTable th:nth-child(9),
-    #additional-services-page table.dataTable td:nth-child(9) {
-        width: 130px !important;
-    }
-
-    #additional-services-page .data-table tbody tr,
-    #additional-services-page table.dataTable tbody tr {
-        transition: background-color 0.2s ease;
-    }
-
-    #additional-services-page .data-table tbody tr:hover,
-    #additional-services-page table.dataTable tbody tr:hover {
-        background-color: #f8f9fa !important;
-    }
-
-    /* Additional DataTables Overrides */
-    #additional-services-page table.dataTable thead th,
-    #additional-services-page table.dataTable thead td {
-        border-top: none !important;
-    }
-
-    #additional-services-page .dataTables_length,
-    #additional-services-page .dataTables_filter,
-    #additional-services-page .dataTables_info,
-    #additional-services-page .dataTables_paginate {
-        font-size: 0.875rem;
-    }
-
-    #additional-services-page .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 0.375rem 0.75rem !important;
-        margin: 0 0.125rem !important;
-        border-radius: 0.25rem !important;
-    }
-
-    /* Badge/Label styling */
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.625rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border-radius: 1rem;
-        text-transform: uppercase;
-    }
-
-    .badge-warning {
-        background-color: #ffc107;
-        color: #212529;
-    }
-
-    .badge-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .badge-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .badge-info {
-        background-color: #17a2b8;
-        color: white;
-    }
-
-    /* Status workflow info box */
-    .status-workflow-info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .status-workflow-info h5 {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .status-workflow-info .workflow-steps {
+    .services-hero {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        font-size: 0.8rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2.2rem 2.5rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.14));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 26px 54px rgba(79, 70, 229, 0.16);
     }
 
-    .status-workflow-info .workflow-step {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.375rem 0.75rem;
-        border-radius: 0.25rem;
-        white-space: nowrap;
+    .services-hero::before,
+    .services-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    /* Buttons */
-    .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
+    .services-hero::before {
+        width: 360px;
+        height: 360px;
+        top: -48%;
+        right: -14%;
+        background: rgba(79, 70, 229, 0.22);
+    }
+
+    .services-hero::after {
+        width: 240px;
+        height: 240px;
+        bottom: -45%;
+        left: -12%;
+        background: rgba(14, 165, 233, 0.18);
+    }
+
+    .services-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
         display: inline-flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.55rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.35);
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+    }
+
+    .hero-breadcrumb li a {
+        color: var(--primary);
         text-decoration: none;
     }
 
-    .btn-primary {
-        background-color: #0d67c7;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: #0b5bb5;
-    }
-
-    .btn-sm {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.8125rem;
-    }
-
-    .btn-outline-primary {
-        background: transparent;
-        color: #0d67c7;
-        border: 1px solid #0d67c7;
-    }
-
-    .btn-outline-primary:hover {
-        background: #0d67c7;
-        color: white;
-    }
-
-    /* Dropdown */
-    #additional-services-page .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-
-    #additional-services-page .dropdown-toggle {
-        white-space: nowrap;
-    }
-
-    #additional-services-page .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        z-index: 1000;
-        display: none;
-        min-width: 180px;
-        padding: 0.5rem 0;
-        margin: 0.25rem 0 0;
-        background-color: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    #additional-services-page .dropdown-menu.show {
-        display: block;
-    }
-
-    #additional-services-page .dropdown-item {
+    .hero-actions {
         display: flex;
         align-items: center;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary-pill {
+        display: inline-flex;
+        align-items: center;
         gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        color: #495057;
+        padding: 0.9rem 1.8rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #ffffff;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        box-shadow: 0 20px 44px rgba(79, 70, 229, 0.22);
         text-decoration: none;
-        cursor: pointer;
-        transition: all 0.2s;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    #additional-services-page .dropdown-item:hover {
-        background-color: #f8f9fa;
-        color: #0d67c7;
+    .btn-primary-pill:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 24px 60px rgba(79, 70, 229, 0.26);
     }
 
-    #additional-services-page .dropdown-item i {
-        font-size: 0.875rem;
-        width: 1rem;
+    .filters-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        padding: 1.9rem 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    /* Empty state */
-    #additional-services-page .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        background: white;
-        border-radius: 0.5rem;
+    .filters-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
 
-    #additional-services-page .empty-state i {
-        font-size: 4rem;
-        color: #dee2e6;
-        margin-bottom: 1rem;
-    }
-
-    #additional-services-page .empty-state h4 {
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-
-    #additional-services-page .empty-state p {
-        color: #6c757d;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Breadcrumb */
-    #additional-services-page .breadcrumb {
-        list-style: none;
-        padding: 0;
+    .filters-card__head h3 {
         margin: 0;
-        font-size: 14px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
     }
 
-    #additional-services-page .breadcrumb li {
-        display: inline;
-        color: #6c757d;
+    .filters-card__head h3 i {
+        color: var(--primary);
     }
 
-    #additional-services-page .breadcrumb li:not(:last-child):after {
-        content: '/';
-        margin: 0 8px;
-        color: #adb5bd;
+    .filters-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(79, 70, 229, 0.28);
+        color: var(--primary);
+        background: rgba(79, 70, 229, 0.1);
+        font-weight: 600;
+        font-size: 0.84rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
     }
 
-    #additional-services-page .breadcrumb li.active {
-        color: #495057;
+    .filters-toggle:hover {
+        transform: translateY(-1px);
+    }
+
+    .filters-content {
+        display: none;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        padding-top: 1.4rem;
+        display: none;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .filters-grid label {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: block;
+        margin-bottom: 0.45rem;
+    }
+
+    .filters-grid select,
+    .filters-grid input[type="date"] {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
+        color: #0f172a;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filters-grid select:focus,
+    .filters-grid input[type="date"]:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        outline: none;
+    }
+
+    .filters-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.7rem;
+        margin-top: 1.2rem;
+    }
+
+    .btn-filter-primary,
+    .btn-filter-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 12px;
+        padding: 0.65rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-filter-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        box-shadow: 0 16px 32px rgba(79, 70, 229, 0.18);
+    }
+
+    .btn-filter-secondary {
+        background: rgba(148, 163, 184, 0.16);
+        color: #0f172a;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .btn-filter-primary:hover,
+    .btn-filter-secondary:hover {
+        transform: translateY(-1px);
+    }
+
+    .filters-count {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-left: auto;
+    }
+
+    .services-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .services-card__head {
+        padding: 1.8rem 2.2rem 1.1rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .services-card__head h2 {
+        margin: 0;
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .services-card__head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+    }
+
+    .services-card__body {
+        padding: 2.1rem 2.2rem;
+    }
+
+    .table-wrapper {
+        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.6);
+        border-radius: 10px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(79, 70, 229, 0.35);
+        border-radius: 10px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(79, 70, 229, 0.55);
+    }
+
+    .data-table,
+    table.dataTable {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        font-size: 0.9rem !important;
+        min-width: 1100px;
+    }
+
+    .data-table thead th,
+    table.dataTable thead th {
+        background: rgba(79, 70, 229, 0.09) !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.28) !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.95rem 1rem !important;
+        white-space: nowrap;
+        text-align: center !important;
+    }
+
+    .data-table tbody td,
+    table.dataTable tbody td {
+        padding: 0.85rem 1rem !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+        color: #0f172a !important;
+        text-align: center !important;
+    }
+
+    .data-table tbody td:first-child,
+    table.dataTable tbody td:first-child,
+    .data-table tbody td:nth-child(2),
+    table.dataTable tbody td:nth-child(2),
+    .data-table tbody td:nth-child(3),
+    table.dataTable tbody td:nth-child(3) {
+        text-align: left !important;
+    }
+
+    .data-table tbody tr,
+    table.dataTable tbody tr {
+        transition: transform 0.16s ease, box-shadow 0.16s ease;
+        background: #ffffff !important;
+    }
+
+    .data-table tbody tr:hover,
+    table.dataTable tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        background: #f8faff !important;
+    }
+
+    #additional-services-table_wrapper .dataTables_length,
+    #additional-services-table_wrapper .dataTables_filter {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1.2rem;
+    }
+
+    #additional-services-table_wrapper .dataTables_length label,
+    #additional-services-table_wrapper .dataTables_filter label {
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+    #additional-services-table_wrapper .dataTables_length select,
+    #additional-services-table_wrapper .dataTables_filter input {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+        color: #0f172a;
+    }
+
+    #additional-services-table_wrapper .dataTables_filter input {
+        width: 240px;
+        max-width: 100%;
+    }
+
+    #additional-services-table_wrapper .dataTables_filter input:focus,
+    #additional-services-table_wrapper .dataTables_length select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    #additional-services-table_wrapper .dataTables_length {
+        justify-content: flex-start;
+    }
+
+    #additional-services-table_wrapper .dataTables_filter {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        border: none;
+        padding: 0.55rem 1.15rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        text-decoration: none;
+    }
+
+    .btn-action.view {
+        background: rgba(79, 70, 229, 0.14);
+        color: var(--primary-dark);
+        box-shadow: 0 12px 24px rgba(79, 70, 229, 0.18);
+    }
+
+    .btn-action.delivery {
+        background: rgba(14, 165, 233, 0.18);
+        color: #0369a1;
+        box-shadow: 0 12px 24px rgba(14, 165, 233, 0.18);
+    }
+
+    .btn-action.complete {
+        background: rgba(34, 197, 94, 0.18);
+        color: #15803d;
+        box-shadow: 0 12px 24px rgba(34, 197, 94, 0.18);
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+    }
+
+    .services-card__body .dropdown {
+        position: relative;
+    }
+
+    .actions-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border: none;
+        border-radius: 999px;
+        padding: 0.58rem 1.35rem;
+        font-size: 0.83rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 18px 34px rgba(79, 70, 229, 0.22);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .actions-trigger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 44px rgba(79, 70, 229, 0.28);
+    }
+
+    .actions-trigger .caret-icon {
+        font-size: 0.68rem;
+        opacity: 0.8;
+    }
+
+    .services-card__body .dropdown-menu {
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.26);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
+        padding: 0.35rem;
+        margin-top: 0.45rem;
+    }
+
+    .services-card__body .dropdown-item {
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
         font-weight: 500;
     }
 
-    #additional-services-page .breadcrumb a {
-        color: #0d67c7;
-        text-decoration: none;
+    .services-card__body .dropdown-item:hover {
+        background: rgba(79, 70, 229, 0.12);
+        color: var(--primary);
     }
 
-    /* Modal styling */
+    .status-pill,
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border: none;
+        color: #0f172a;
+    }
+
+    .badge-warning { background: rgba(250, 204, 21, 0.28); color: #a16207; }
+    .badge-success { background: rgba(34, 197, 94, 0.25); color: #166534; }
+    .badge-danger { background: rgba(248, 113, 113, 0.25); color: #b91c1c; }
+    .badge-info { background: rgba(14, 165, 233, 0.22); color: #0369a1; }
+
+    .status-subtext {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3.4rem 1.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        border-radius: 22px;
+        border: 1px dashed rgba(79, 70, 229, 0.28);
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--muted);
+    }
+
+    .empty-state i {
+        font-size: 3.5rem;
+        color: var(--primary);
+    }
+
+    .empty-state h4 {
+        margin: 0;
+        color: #0f172a;
+    }
+
+    .empty-state a {
+        align-self: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.7rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 20px 44px rgba(79, 70, 229, 0.22);
+        transition: transform 0.2s ease;
+    }
+
+    .empty-state a:hover {
+        transform: translateY(-2px);
+    }
+
     .modal {
         display: none;
         position: fixed;
+        inset: 0;
         z-index: 1050;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
+        background: rgba(15, 23, 42, 0.52);
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
     }
 
     .modal.show {
         display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .modal-dialog {
-        max-width: 500px;
-        margin: 1rem;
+        width: 100%;
+        max-width: 520px;
     }
 
     .modal-content {
-        background-color: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2);
+        overflow: hidden;
     }
 
     .modal-header {
-        padding: 1rem 1.25rem;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-        border-radius: 0.5rem 0.5rem 0 0;
+        padding: 1.3rem 1.6rem;
+        background: rgba(79, 70, 229, 0.08);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
 
     .modal-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #333;
         margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
     }
 
     .btn-close {
-        background: transparent;
         border: none;
-        font-size: 1.5rem;
-        line-height: 1;
-        color: #6c757d;
+        background: transparent;
+        font-size: 1.6rem;
+        color: var(--muted);
         cursor: pointer;
-        padding: 0;
     }
 
     .modal-body {
-        padding: 1.25rem;
+        padding: 1.6rem;
+        color: #0f172a;
+        font-size: 0.96rem;
     }
 
     .modal-footer {
-        padding: 1rem 1.25rem;
-        border-top: 1px solid #e9ecef;
+        padding: 1.2rem 1.6rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
         display: flex;
-        gap: 0.5rem;
+        gap: 0.7rem;
         justify-content: flex-end;
     }
 
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
+    .modal-footer .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 0.65rem 1.3rem;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
     }
 
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
+    .btn-secondary { background: rgba(148, 163, 184, 0.2); color: #0f172a; }
+    .btn-secondary:hover { background: rgba(148, 163, 184, 0.32); }
+    .btn-success { background: var(--accent); color: #fff; }
+    .btn-success:hover { background: #16a34a; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+    .btn-primary:hover { transform: translateY(-1px); }
 
     .form-label {
         font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
+        color: #0f172a;
+        margin-bottom: 0.45rem;
         display: block;
     }
 
-    .form-control {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
-        font-size: 0.875rem;
+    .modal-body .form-control {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
     }
 
-    .form-control:focus {
-        border-color: #0d67c7;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(13, 103, 199, 0.1);
+    .modal-body .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
     }
 
-    /* Text utilities */
-    .text-primary {
-        color: #0d67c7 !important;
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 10px !important;
+        padding: 0.45rem 0.85rem !important;
+        border: none !important;
+        background: rgba(148, 163, 184, 0.18) !important;
+        color: #0f172a !important;
+        margin: 0 0.15rem !important;
     }
 
-    .text-warning {
-        color: #ffc107 !important;
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+        color: #fff !important;
     }
 
-    .text-success {
-        color: #28a745 !important;
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.4rem 0.65rem;
     }
 
-    .text-muted {
-        color: #6c757d !important;
+    .dataTables_wrapper .dataTables_info {
+        color: var(--muted);
+        font-size: 0.85rem;
     }
 
-    .text-right {
-        text-align: right;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    /* Spacing utilities */
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .py-5 {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-    }
-
-    /* Responsive */
-    @media screen and (max-width: 767px) {
-        #additional-services-page .table-wrapper {
-            overflow-x: auto;
+    @media (max-width: 1024px) {
+        .additional-services-page {
+            padding: 2.3rem 1.1rem 3.2rem;
         }
 
-        #additional-services-page .data-table {
-            min-width: 1000px;
+        .services-card__body {
+            padding: 1.8rem 1.75rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .services-hero {
+            padding: 1.75rem 1.6rem;
         }
 
-        #additional-services-page .card-header {
+        .hero-actions {
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .btn-primary-pill {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .filters-card {
+            padding: 1.6rem 1.5rem;
+        }
+
+        .filters-actions {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
+            align-items: stretch;
         }
 
-        #additional-services-page .text-right {
-            text-align: center;
+        .btn-filter-primary,
+        .btn-filter-secondary {
+            width: 100%;
+            justify-content: center;
         }
-    }
 
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        #additional-services-page .table-wrapper {
-            overflow-x: auto;
+        .filters-count {
+            margin-left: 0;
+        }
+
+        .services-card__body {
+            padding: 1.6rem 1.4rem;
         }
     }
 </style>
 @endsection
 
 @section('content')
-<div id="additional-services-page">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Additional Services</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
-            <li class="active">Additional Services</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="card-header">
-                <h4>Additional Services List</h4>
-                <a href="{{ route('professional.additional-services.create') }}" style="background-color: #0d67c7; color: white; padding: 7px 15px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem;">
-                    <i class="fas fa-plus"></i> Add New Service
+<div id="additional-services-page" class="additional-services-page">
+    <div class="additional-services-shell">
+        <section class="services-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-layer-group"></i>Additional Services</span>
+                <h1>Manage Additional Services</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Additional Services</li>
+                </ul>
+            </div>
+            <div class="hero-actions">
+                <a href="{{ route('professional.additional-services.create') }}" class="btn-primary-pill">
+                    <i class="fas fa-plus"></i>
+                    Add New Service
                 </a>
             </div>
+        </section>
 
-            <!-- Filters Section -->
-            <div class="filters-section" style="background: #f8f9fa; padding: 1rem; border-radius: 0.375rem; margin: 1rem 0;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                    <h6 style="margin: 0; font-weight: 600; color: #495057; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-filter"></i> Filter Services
-                    </h6>
-                    <button type="button" id="toggleFiltersBtn" class="btn btn-sm btn-outline-primary" style="padding: 0.25rem 0.75rem;">
-                        <i class="fas fa-chevron-down" id="filterIcon"></i> Toggle
-                    </button>
+        <section class="filters-card">
+            <div class="filters-card__head">
+                <h3><i class="fas fa-filter"></i>Filter Services</h3>
+                <button type="button" id="toggleFiltersBtn" class="filters-toggle">
+                    <i class="fas fa-chevron-down" id="filterIcon"></i>
+                    Toggle Filters
+                </button>
+            </div>
+
+            <div id="filtersContent" class="filters-content">
+                <div class="filters-grid">
+                    <div>
+                        <label for="filterCustomer"><i class="fas fa-user"></i> Customer</label>
+                        <select id="filterCustomer">
+                            <option value="">All Customers</option>
+                            @php
+                                $customers = $additionalServices->unique('user_id')->pluck('user')->sortBy('name');
+                            @endphp
+                            @foreach($customers as $customer)
+                                @if($customer)
+                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="filterPaymentStatus"><i class="fas fa-credit-card"></i> Payment Status</label>
+                        <select id="filterPaymentStatus">
+                            <option value="">All Payment Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="filterServiceStatus"><i class="fas fa-tasks"></i> Service Status</label>
+                        <select id="filterServiceStatus">
+                            <option value="">All Status</option>
+                            <option value="completed">Completed</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="ready_to_start">Ready to Start</option>
+                            <option value="awaiting_delivery_date">Awaiting Delivery Date</option>
+                            <option value="awaiting_payment">Awaiting Payment</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="under_negotiation">Under Negotiation</option>
+                            <option value="price_updated">Price Updated</option>
+                            <option value="pending_review">Pending Review</option>
+                            <option value="awaiting_admin">Awaiting Admin</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="filterDateRange"><i class="fas fa-calendar"></i> Date Range</label>
+                        <select id="filterDateRange">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
                 </div>
-                
-                <div id="filtersContent" style="display: none;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                        <!-- Customer Filter -->
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                <i class="fas fa-user"></i> Customer
-                            </label>
-                            <select id="filterCustomer" class="form-control" style="font-size: 0.875rem;">
-                                <option value="">All Customers</option>
-                                @php
-                                    $customers = $additionalServices->unique('user_id')->pluck('user')->sortBy('name');
-                                @endphp
-                                @foreach($customers as $customer)
-                                    @if($customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
 
-                        <!-- Payment Status Filter -->
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                <i class="fas fa-credit-card"></i> Payment Status
-                            </label>
-                            <select id="filterPaymentStatus" class="form-control" style="font-size: 0.875rem;">
-                                <option value="">All Payment Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="paid">Paid</option>
-                                <option value="failed">Failed</option>
-                            </select>
-                        </div>
-
-                        <!-- Service Status Filter -->
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                <i class="fas fa-tasks"></i> Service Status
-                            </label>
-                            <select id="filterServiceStatus" class="form-control" style="font-size: 0.875rem;">
-                                <option value="">All Status</option>
-                                <option value="completed">Completed</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="ready_to_start">Ready to Start</option>
-                                <option value="awaiting_delivery_date">Awaiting Delivery Date</option>
-                                <option value="awaiting_payment">Awaiting Payment</option>
-                                <option value="rejected">Rejected</option>
-                                <option value="under_negotiation">Under Negotiation</option>
-                                <option value="price_updated">Price Updated</option>
-                                <option value="pending_review">Pending Review</option>
-                                <option value="awaiting_admin">Awaiting Admin</option>
-                                <option value="pending">Pending</option>
-                            </select>
-                        </div>
-
-                        <!-- Date Range Filter -->
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                <i class="fas fa-calendar"></i> Date Range
-                            </label>
-                            <select id="filterDateRange" class="form-control" style="font-size: 0.875rem;">
-                                <option value="">All Time</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="custom">Custom Range</option>
-                            </select>
-                        </div>
+                <div id="customDateRange" class="filters-grid" style="display: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                    <div>
+                        <label for="filterDateFrom">From Date</label>
+                        <input type="date" id="filterDateFrom">
                     </div>
-
-                    <!-- Custom Date Range -->
-                    <div id="customDateRange" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                From Date
-                            </label>
-                            <input type="date" id="filterDateFrom" class="form-control" style="font-size: 0.875rem;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.875rem; font-weight: 600; color: #495057; margin-bottom: 0.375rem; display: block;">
-                                To Date
-                            </label>
-                            <input type="date" id="filterDateTo" class="form-control" style="font-size: 0.875rem;">
-                        </div>
+                    <div>
+                        <label for="filterDateTo">To Date</label>
+                        <input type="date" id="filterDateTo">
                     </div>
+                </div>
 
-                    <!-- Filter Actions -->
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; align-items: center;">
-                        <button type="button" id="applyFilters" class="btn btn-primary btn-sm">
-                            <i class="fas fa-check"></i> Apply Filters
-                        </button>
-                        <button type="button" id="clearFilters" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-times"></i> Clear All
-                        </button>
-                        <span id="filterResultsCount" style="font-size: 0.875rem; color: #6c757d; margin-left: 1rem;"></span>
-                    </div>
+                <div class="filters-actions">
+                    <button type="button" id="applyFilters" class="btn-filter-primary">
+                        <i class="fas fa-check"></i>
+                        Apply Filters
+                    </button>
+                    <button type="button" id="clearFilters" class="btn-filter-secondary">
+                        <i class="fas fa-times"></i>
+                        Clear All
+                    </button>
+                    <span id="filterResultsCount" class="filters-count"></span>
                 </div>
             </div>
-                
+        </section>
+
+        <section class="services-card">
+            <header class="services-card__head">
+                <h2>Additional Services List</h2>
+                <p>Monitor service requests, update delivery schedules, and manage consultation status without changing any underlying logic.</p>
+            </header>
+            <div class="services-card__body">
                 @if($additionalServices->count() > 0)
-                <div class="table-wrapper">
-                    <table class="data-table" id="additional-services-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Service Name</th>
-                                <th>Customer</th>
-                                <th>Booking Ref</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Payment Status</th>
-                                <th>Created Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($additionalServices as $service)
-                            <tr>
-                                <td>#{{ $service->id }}</td>
-                                <td><strong>{{ $service->service_name }}</strong></td>
-                                <td>{{ $service->user->name }}</td>
-                                <td>
-                                    <a href="#" class="text-primary" style="font-weight: 600;">
-                                        #{{ $service->booking_id }}
-                                    </a>
-                                </td>
-                                <td style="font-weight: 600;">₹{{ number_format($service->final_price, 2) }}</td>
-                                <td>
-                                    @php
-                                        // Determine the current status in the workflow
-                                        $statusBadge = '';
-                                        $statusText = '';
-                                        $subStatusText = '';
-                                        
-                                        // Check consulting status first (highest priority)
-                                        if ($service->consulting_status === 'done' && $service->customer_confirmed_at) {
-                                            $statusBadge = 'badge-success';
-                                            $statusText = 'Completed';
-                                        } elseif ($service->consulting_status === 'in_progress') {
-                                            $statusBadge = 'badge-success';
-                                            $statusText = 'In Progress';
-                                        } elseif ($service->admin_status === 'approved') {
-                                            // Service approved by admin
-                                            if ($service->payment_status === 'paid') {
-                                                if ($service->delivery_date_set) {
+                    <div class="table-wrapper">
+                        <table class="data-table" id="additional-services-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Service Name</th>
+                                    <th>Customer</th>
+                                    <th>Booking Ref</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Payment Status</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($additionalServices as $service)
+                                    <tr>
+                                        <td>#{{ $service->id }}</td>
+                                        <td><strong>{{ $service->service_name }}</strong></td>
+                                        <td>{{ $service->user->name }}</td>
+                                        <td>
+                                            <a href="#" class="text-primary" style="font-weight: 600;">
+                                                #{{ $service->booking_id }}
+                                            </a>
+                                        </td>
+                                        <td style="font-weight: 600;">₹{{ number_format($service->final_price, 2) }}</td>
+                                        <td>
+                                            @php
+                                                $statusBadge = '';
+                                                $statusText = '';
+                                                $subStatusText = '';
+
+                                                if ($service->consulting_status === 'done' && $service->customer_confirmed_at) {
                                                     $statusBadge = 'badge-success';
-                                                    $statusText = 'Ready to Start';
-                                                    $subStatusText = '📅 Delivery Date Set';
-                                                } else {
-                                                    $statusBadge = 'badge-warning';
-                                                    $statusText = 'Awaiting Delivery Date';
-                                                    $subStatusText = '⏰ Set delivery date to proceed';
-                                                }
-                                            } else {
-                                                $statusBadge = 'badge-warning';
-                                                $statusText = 'Awaiting Payment';
-                                                $subStatusText = '💳 Customer needs to pay';
-                                            }
-                                        } elseif ($service->admin_status === 'rejected') {
-                                            $statusBadge = 'badge-danger';
-                                            $statusText = 'Rejected';
-                                            if ($service->admin_reason) {
-                                                $subStatusText = '❌ ' . $service->admin_reason;
-                                            }
-                                        } elseif ($service->admin_status === 'pending') {
-                                            // Check negotiation status
-                                            if ($service->negotiation_status === 'user_negotiated') {
-                                                $statusBadge = 'badge-warning';
-                                                $statusText = 'Under Negotiation';
-                                                $subStatusText = '💬 Awaiting admin review';
-                                            } elseif ($service->negotiation_status === 'admin_responded') {
-                                                $statusBadge = 'badge-warning';
-                                                $statusText = 'Price Updated';
-                                                $subStatusText = '✅ Awaiting customer response';
-                                            } else {
-                                                // Check professional status
-                                                if ($service->professional_status === 'pending') {
-                                                    $statusBadge = 'badge-warning';
-                                                    $statusText = 'Pending Review';
-                                                    $subStatusText = '⏳ Awaiting admin approval';
-                                                } elseif ($service->professional_status === 'accepted') {
-                                                    $statusBadge = 'badge-warning';
-                                                    $statusText = 'Awaiting Admin';
-                                                    $subStatusText = '👨‍💼 Under admin review';
+                                                    $statusText = 'Completed';
+                                                } elseif ($service->consulting_status === 'in_progress') {
+                                                    $statusBadge = 'badge-success';
+                                                    $statusText = 'In Progress';
+                                                } elseif ($service->admin_status === 'approved') {
+                                                    if ($service->payment_status === 'paid') {
+                                                        if ($service->delivery_date_set) {
+                                                            $statusBadge = 'badge-success';
+                                                            $statusText = 'Ready to Start';
+                                                            $subStatusText = '📅 Delivery Date Set';
+                                                        } else {
+                                                            $statusBadge = 'badge-warning';
+                                                            $statusText = 'Awaiting Delivery Date';
+                                                            $subStatusText = '⏰ Set delivery date to proceed';
+                                                        }
+                                                    } else {
+                                                        $statusBadge = 'badge-warning';
+                                                        $statusText = 'Awaiting Payment';
+                                                        $subStatusText = '💳 Customer needs to pay';
+                                                    }
+                                                } elseif ($service->admin_status === 'rejected') {
+                                                    $statusBadge = 'badge-danger';
+                                                    $statusText = 'Rejected';
+                                                    if ($service->admin_reason) {
+                                                        $subStatusText = '❌ ' . $service->admin_reason;
+                                                    }
+                                                } elseif ($service->admin_status === 'pending') {
+                                                    if ($service->negotiation_status === 'user_negotiated') {
+                                                        $statusBadge = 'badge-warning';
+                                                        $statusText = 'Under Negotiation';
+                                                        $subStatusText = '💬 Awaiting admin review';
+                                                    } elseif ($service->negotiation_status === 'admin_responded') {
+                                                        $statusBadge = 'badge-warning';
+                                                        $statusText = 'Price Updated';
+                                                        $subStatusText = '✅ Awaiting customer response';
+                                                    } else {
+                                                        if ($service->professional_status === 'pending') {
+                                                            $statusBadge = 'badge-warning';
+                                                            $statusText = 'Pending Review';
+                                                            $subStatusText = '⏳ Awaiting admin approval';
+                                                        } elseif ($service->professional_status === 'accepted') {
+                                                            $statusBadge = 'badge-warning';
+                                                            $statusText = 'Awaiting Admin';
+                                                            $subStatusText = '👨‍💼 Under admin review';
+                                                        } else {
+                                                            $statusBadge = 'badge-warning';
+                                                            $statusText = 'Pending';
+                                                        }
+                                                    }
                                                 } else {
                                                     $statusBadge = 'badge-warning';
                                                     $statusText = 'Pending';
                                                 }
-                                            }
-                                        } else {
-                                            $statusBadge = 'badge-warning';
-                                            $statusText = 'Pending';
-                                        }
-                                    @endphp
-                                    
-                                    <span class="badge {{ $statusBadge }}">{{ $statusText }}</span>
-                                    
-                                    @if($subStatusText)
-                                        <br><small class="text-muted" style="font-size: 0.70rem; display: block; margin-top: 4px;">{{ $subStatusText }}</small>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($service->payment_status === 'pending')
-                                        <span class="badge badge-warning">Pending</span>
-                                    @elseif($service->payment_status === 'paid')
-                                        <span class="badge badge-success">Paid</span>
-                                    @elseif($service->payment_status === 'failed')
-                                        <span class="badge badge-danger">Failed</span>
-                                    @endif
-                                </td>
-                                <td>{{ $service->created_at->format('M d, Y') }}</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" onclick="toggleDropdown(this)">
-                                            <i class="fas fa-cog"></i> Actions
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a href="{{ route('professional.additional-services.show', $service->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-eye"></i> View Details
-                                                </a>
-                                            </li>
-                                            @if($service->canBeCompletedByProfessional())
-                                            <li>
-                                                <a href="javascript:void(0)" class="dropdown-item mark-completed" data-id="{{ $service->id }}">
-                                                    <i class="fas fa-check"></i> Mark Completed
-                                                </a>
-                                            </li>
+                                            @endphp
+
+                                            <span class="status-pill {{ $statusBadge }}">{{ $statusText }}</span>
+
+                                            @if($subStatusText)
+                                                <small class="status-subtext">{{ $subStatusText }}</small>
                                             @endif
-                                            @if(!$service->delivery_date_set)
-                                            <li>
-                                                <a href="javascript:void(0)" class="dropdown-item set-delivery-date" data-id="{{ $service->id }}">
-                                                    <i class="fas fa-calendar"></i> Set Delivery Date
-                                                </a>
-                                            </li>
+                                        </td>
+                                        <td>
+                                            @if($service->payment_status === 'pending')
+                                                <span class="badge badge-warning">Pending</span>
+                                            @elseif($service->payment_status === 'paid')
+                                                <span class="badge badge-success">Paid</span>
+                                            @elseif($service->payment_status === 'failed')
+                                                <span class="badge badge-danger">Failed</span>
                                             @endif
-                                            
+                                        </td>
+                                        <td>{{ $service->created_at->format('M d, Y') }}</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="{{ route('professional.additional-services.show', $service->id) }}" class="btn-action view">
+                                                    <i class="fas fa-eye"></i>
+                                                    View
+                                                </a>
+                                                @if(!$service->delivery_date_set)
+                                                    <button type="button" class="btn-action delivery set-delivery-date" data-id="{{ $service->id }}">
+                                                        <i class="fas fa-calendar-plus"></i>
+                                                        Set Delivery
+                                                    </button>
+                                                @endif
+                                                @if($service->canBeCompletedByProfessional())
+                                                    <button type="button" class="btn-action complete mark-completed" data-id="{{ $service->id }}">
+                                                        <i class="fas fa-check"></i>
+                                                        Mark Completed
+                                                    </button>
+                                                @endif
+                                            </div>
                                             @if($service->consulting_status === 'done' && $service->payment_status === 'paid')
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <a href="{{ route('professional.additional-services.invoice', $service->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-file-text"></i> View Invoice
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('professional.additional-services.invoice.pdf', $service->id) }}" class="dropdown-item" target="_blank">
-                                                    <i class="fas fa-download"></i> Download PDF Invoice
-                                                </a>
-                                            </li>
+                                                <div class="dropdown">
+                                                    <button class="actions-trigger" type="button" onclick="toggleDropdown(this)">
+                                                        <i class="fas fa-file-invoice"></i>
+                                                        Invoice
+                                                        <i class="fas fa-chevron-down caret-icon"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a href="{{ route('professional.additional-services.invoice', $service->id) }}" class="dropdown-item">
+                                                                <i class="fas fa-file-alt"></i> View Invoice
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('professional.additional-services.invoice.pdf', $service->id) }}" class="dropdown-item" target="_blank">
+                                                                <i class="fas fa-download"></i> Download PDF Invoice
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             @endif
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                
-                        <!-- Pagination -->
-                <div style="margin-top: 1.5rem; text-align: center;">
-                            {{ $additionalServices->links() }}
-                        </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 1.6rem; text-align: center;">
+                        {{ $additionalServices->links() }}
+                    </div>
                 @else
-                <div class="empty-state">
-                    <i class="fas fa-plus-circle"></i>
-                    <h4>No Additional Services Found</h4>
-                    <p>You haven't created any additional services yet.</p>
-                    <a href="{{ route('professional.additional-services.create') }}" style="background-color: #0d67c7; color: white; padding: 12px 24px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 600;">
-                                <i class="fas fa-plus"></i> Create Your First Additional Service
-                            </a>
-                        </div>
-            @endif
-        </div>
+                    <div class="empty-state">
+                        <i class="fas fa-plus-circle"></i>
+                        <h4>No Additional Services Found</h4>
+                        <p>You haven't created any additional services yet.</p>
+                        <a href="{{ route('professional.additional-services.create') }}">
+                            <i class="fas fa-plus"></i>
+                            Create Your First Additional Service
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </section>
     </div>
-</div><!-- End #additional-services-page -->
+</div>
 
 <!-- Mark Completed Modal -->
 <div class="modal" id="markCompletedModal">
@@ -965,7 +1089,7 @@
                 <button type="button" class="btn-close" onclick="closeModal('markCompletedModal')">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="margin: 0; line-height: 1.6;">Are you sure you want to mark this consultation as completed? The customer will be notified to confirm the completion.</p>
+                Are you sure you want to mark this consultation as completed? The customer will be notified to confirm the completion.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('markCompletedModal')">
@@ -991,8 +1115,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="delivery_date" class="form-label">Delivery Date *</label>
-                        <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
-                               min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
+                        <input type="date" class="form-control" id="delivery_date" name="delivery_date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1010,29 +1133,24 @@
 @endsection
 
 @section('scripts')
-<!-- DataTables CSS and JS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 <script>
 let currentServiceId = null;
 
-// Dropdown toggle function
 function toggleDropdown(button) {
     const dropdown = button.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
-    
-    // Close all other dropdowns
+
     document.querySelectorAll('.dropdown-menu.show').forEach(otherMenu => {
         if (otherMenu !== menu) {
             otherMenu.classList.remove('show');
         }
     });
-    
-    // Toggle current dropdown
+
     menu.classList.toggle('show');
-    
-    // Close dropdown when clicking outside
+
     if (menu.classList.contains('show')) {
         setTimeout(() => {
             document.addEventListener('click', function closeDropdown(e) {
@@ -1045,7 +1163,6 @@ function toggleDropdown(button) {
     }
 }
 
-// Modal functions
 function showModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -1062,7 +1179,6 @@ function closeModal(modalId) {
     }
 }
 
-// Close modal when clicking outside
 document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', function(e) {
         if (e.target === this) {
@@ -1071,9 +1187,7 @@ document.querySelectorAll('.modal').forEach(modal => {
     });
 });
 
-// Initialize DataTable
 $(document).ready(function() {
-    // Check if DataTable is available
     if (typeof $.fn.DataTable === 'undefined') {
         console.error('DataTables library not loaded');
         return;
@@ -1093,11 +1207,10 @@ $(document).ready(function() {
         }
     });
 
-    // Toggle filters - Using vanilla JavaScript
-    $('#toggleFiltersBtn').on('click', function() {
+    $('#toggle_filters_btn, #toggleFiltersBtn').on('click', function() {
         var content = document.getElementById('filtersContent');
         var icon = document.getElementById('filterIcon');
-        
+
         if (content.style.display === 'none' || content.style.display === '') {
             content.style.display = 'block';
             icon.classList.remove('fa-chevron-down');
@@ -1109,7 +1222,6 @@ $(document).ready(function() {
         }
     });
 
-    // Show/hide custom date range
     $('#filterDateRange').on('change', function() {
         var customRange = document.getElementById('customDateRange');
         if ($(this).val() === 'custom') {
@@ -1119,12 +1231,10 @@ $(document).ready(function() {
         }
     });
 
-    // Apply Filters
     $('#applyFilters').on('click', function() {
         applyFilters();
     });
 
-    // Clear Filters
     $('#clearFilters').on('click', function() {
         $('#filterCustomer').val('');
         $('#filterPaymentStatus').val('');
@@ -1133,24 +1243,20 @@ $(document).ready(function() {
         $('#filterDateFrom').val('');
         $('#filterDateTo').val('');
         document.getElementById('customDateRange').style.display = 'none';
-        
-        // Clear all DataTables search functions
+
         $.fn.dataTable.ext.search = [];
-        
-        // Clear all column filters
+
         table.columns().search('').draw();
-        
-        // Reset DataTable search
+
         table.search('').draw();
-        
+
         updateFilterCount();
-        
+
         if (typeof toastr !== 'undefined') {
             toastr.success('All filters cleared');
         }
     });
 
-    // Function to apply filters
     function applyFilters() {
         var customerId = $('#filterCustomer').val();
         var paymentStatus = $('#filterPaymentStatus').val();
@@ -1159,23 +1265,19 @@ $(document).ready(function() {
         var dateFrom = $('#filterDateFrom').val();
         var dateTo = $('#filterDateTo').val();
 
-        // Clear previous filters
         $.fn.dataTable.ext.search = [];
         table.columns().search('');
 
-        // Apply Customer filter (column 2)
         if (customerId) {
             var customerName = $('#filterCustomer option:selected').text();
             table.column(2).search(customerName, false, false);
         }
 
-        // Apply Payment Status filter (column 6)
         if (paymentStatus) {
             var paymentText = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
             table.column(6).search(paymentText, false, false);
         }
 
-        // Apply Service Status filter (column 5)
         if (serviceStatus) {
             var statusMapping = {
                 'completed': 'Completed',
@@ -1194,11 +1296,10 @@ $(document).ready(function() {
             table.column(5).search(statusText, false, false);
         }
 
-        // Apply Date Range filter (column 7)
         if (dateRange && dateRange !== 'custom') {
             var today = new Date();
             var filterDate = new Date();
-            
+
             switch(dateRange) {
                 case 'today':
                     filterDate.setHours(0, 0, 0, 0);
@@ -1210,15 +1311,14 @@ $(document).ready(function() {
                     filterDate.setMonth(today.getMonth() - 1);
                     break;
             }
-            
-            // Custom search function for date
+
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    var dateStr = data[7]; // Created Date column
+                    var dateStr = data[7];
                     if (!dateStr) return true;
-                    
+
                     var rowDate = new Date(dateStr);
-                    
+
                     if (dateRange === 'today') {
                         return rowDate.toDateString() === today.toDateString();
                     } else {
@@ -1230,57 +1330,52 @@ $(document).ready(function() {
             var fromDate = new Date(dateFrom);
             var toDate = new Date(dateTo);
             toDate.setHours(23, 59, 59, 999);
-            
+
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
                     var dateStr = data[7];
                     if (!dateStr) return true;
-                    
+
                     var rowDate = new Date(dateStr);
                     return rowDate >= fromDate && rowDate <= toDate;
                 }
             );
         }
 
-        // Redraw table with filters
         table.draw();
-        
+
         updateFilterCount();
-        
+
         var activeFilters = 0;
         if (customerId) activeFilters++;
         if (paymentStatus) activeFilters++;
         if (serviceStatus) activeFilters++;
         if (dateRange) activeFilters++;
-        
+
         if (activeFilters > 0 && typeof toastr !== 'undefined') {
             toastr.success(activeFilters + ' filter(s) applied');
         }
     }
 
-    // Update filter count
     function updateFilterCount() {
         var info = table.page.info();
         var countText = '';
-        
+
         if (info.recordsDisplay < info.recordsTotal) {
             countText = 'Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal + ' services';
         } else {
             countText = 'Showing all ' + info.recordsTotal + ' services';
         }
-        
+
         $('#filterResultsCount').text(countText);
     }
 
-    // Initial count
     updateFilterCount();
 
-    // Update count after each draw
     table.on('draw', function() {
         updateFilterCount();
     });
 
-    // Mark Completed
     $(document).on('click', '.mark-completed', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1304,7 +1399,7 @@ $(document).ready(function() {
                         toastr.error(response.message);
                     }
                 },
-                error: function(xhr) {
+                error: function() {
                     toastr.error('An error occurred. Please try again.');
                 }
             });
@@ -1312,7 +1407,6 @@ $(document).ready(function() {
         closeModal('markCompletedModal');
     });
 
-    // Set Delivery Date
     $(document).on('click', '.set-delivery-date', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1322,7 +1416,7 @@ $(document).ready(function() {
 
     $('#deliveryDateForm').submit(function(e) {
         e.preventDefault();
-        
+
         if (currentServiceId) {
             $.ajax({
                 url: `/professional/additional-services/${currentServiceId}/set-delivery-date`,

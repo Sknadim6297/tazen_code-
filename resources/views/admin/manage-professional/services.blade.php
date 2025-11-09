@@ -390,53 +390,57 @@
 
 <!-- Add Service Modal -->
 <div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-labelledby="addServiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog" role="document" style="max-width:640px;margin:2.5rem auto;">
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;box-shadow:0 18px 45px rgba(15,23,42,0.2);">
+            <div class="modal-header" style="padding:22px 26px;border-bottom:1px solid #e5e7eb;background:#f9fafb;align-items:center;">
+                <h5 class="modal-title" id="addServiceModalLabel" style="margin:0;font-size:1.1rem;font-weight:600;color:#111827;">Add New Service</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('admin.professional.services.store', $professional->id) }}" method="POST">
+            <form action="{{ route('admin.professional.services.store', $professional->id) }}" method="POST" style="margin:0;">
                 @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="service_id">Service Category</label>
-                        <select class="form-control" id="service_id" name="service_id" required onchange="updateServiceFeatures('add'); loadSubServices(this.value, 'add');">
+                <div class="modal-body" style="padding:26px 28px;background:#ffffff;">
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="service_id" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Service Category</label>
+                        <select class="form-control" id="service_id" name="service_id" required onchange="updateServiceFeatures('add'); loadSubServices(this.value, 'add');" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;box-shadow:none;">
                             <option value="">Select a service</option>
                             @foreach(\App\Models\Service::all() as $service)
                                 <option value="{{ $service->id }}" data-features='@json($service->features ?? [])'>{{ $service->name }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Choose a service category to see relevant features</small>
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Choose a service category to see relevant features</small>
                     </div>
-                    <div class="form-group">
-                        <label>Service Features</label>
-                        <div class="checkbox-group" id="addFeaturesContainer">
-                            <div class="text-muted">Please select a service category first</div>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Service Features</label>
+                        <div class="checkbox-group" id="addFeaturesContainer" style="display:flex;flex-wrap:wrap;gap:0.75rem;padding:10px;border:1px dashed #d1d5db;border-radius:12px;background:#f9fafb;">
+                            <div class="text-muted" style="color:#6b7280;">Please select a service category first</div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Sub-Services</label>
-                        <div id="addSubServiceContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 5px; background-color: #f8f9fa;">
-                            <p class="text-muted">Please select a service category first to see available sub-services.</p>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Sub-Services</label>
+                        <div id="addSubServiceContainer" style="max-height:220px;overflow-y:auto;border:1px solid #d1d5db;padding:12px 14px;border-radius:12px;background-color:#f9fafb;">
+                            <p class="text-muted" style="margin:0;color:#6b7280;">Please select a service category first to see available sub-services.</p>
                         </div>
-                        <small class="text-muted">Select one or more sub-services for this professional. You can select multiple sub-services.</small>
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Select one or more sub-services for this professional. You can select multiple sub-services.</small>
                     </div>
-                    <div class="form-group">
-                        <label for="tags">Tags</label>
-                        <input type="text" class="form-control" id="tags" name="tags" placeholder="Add tags separated by commas">
-                        <small class="text-muted">Example: coaching, business, career</small>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="description" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Service Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe this service in detail" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;resize:vertical;"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="requirements">Client Requirements</label>
-                        <textarea class="form-control" id="requirements" name="requirements" rows="3" placeholder="List any requirements clients should know before booking"></textarea>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="tags" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Tags</label>
+                        <input type="text" class="form-control" id="tags" name="tags" placeholder="Add tags separated by commas" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;">
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Example: coaching, business, career</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label for="requirements" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Client Requirements</label>
+                        <textarea class="form-control" id="requirements" name="requirements" rows="3" placeholder="List any requirements clients should know before booking" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;resize:vertical;"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Service</button>
+                <div class="modal-footer" style="padding:18px 26px;border-top:1px solid #e5e7eb;background:#f9fafb;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;font-weight:600;">Add Service</button>
                 </div>
             </form>
         </div>
@@ -445,55 +449,55 @@
 
 <!-- Edit Service Modal -->
 <div class="modal fade" id="editServiceModal" tabindex="-1" role="dialog" aria-labelledby="editServiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editServiceModalLabel">Edit Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog" role="document" style="max-width:640px;margin:2.5rem auto;">
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;box-shadow:0 18px 45px rgba(15,23,42,0.2);">
+            <div class="modal-header" style="padding:22px 26px;border-bottom:1px solid #e5e7eb;background:#f9fafb;align-items:center;">
+                <h5 class="modal-title" id="editServiceModalLabel" style="margin:0;font-size:1.1rem;font-weight:600;color:#111827;">Edit Service</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="editServiceForm" method="POST">
+            <form id="editServiceForm" method="POST" style="margin:0;">
                 @csrf
                 @method('PUT')
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="edit_service_id">Service Category *</label>
-                        <select class="form-control" id="edit_service_id" name="service_id" required onchange="updateServiceFeatures('edit'); loadSubServices(this.value, 'edit');">
+                <div class="modal-body" style="padding:26px 28px;background:#ffffff;">
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="edit_service_id" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Service Category *</label>
+                        <select class="form-control" id="edit_service_id" name="service_id" required onchange="updateServiceFeatures('edit'); loadSubServices(this.value, 'edit');" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;box-shadow:none;">
                             <option value="">Select a service</option>
                             @foreach(\App\Models\Service::all() as $service)
                                 <option value="{{ $service->id }}" data-features='@json($service->features ?? [])'>{{ $service->name }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Choose a service category to see relevant features and sub-services</small>
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Choose a service category to see relevant features and sub-services</small>
                     </div>
                     
                     <!-- Sub-Service Selection -->
-                    <div class="form-group">
-                        <label for="edit_subServices">Sub-Services (Optional)</label>
-                        <div id="editSubServiceContainer" class="checkbox-group" style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; background-color: #f8f9fa; min-height: 60px;">
-                            <div class="text-muted">Loading sub-services...</div>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="edit_subServices" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Sub-Services (Optional)</label>
+                        <div id="editSubServiceContainer" class="checkbox-group" style="border:1px solid #d1d5db;border-radius:12px;padding:15px;background-color:#f9fafb;min-height:60px;display:flex;flex-wrap:wrap;gap:0.75rem;">
+                            <div class="text-muted" style="color:#6b7280;">Loading sub-services...</div>
                         </div>
-                        <small class="text-muted">Select the specific sub-services you offer within your service category.</small>
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Select the specific sub-services you offer within your service category.</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="edit_description">Service Description</label>
-                        <textarea class="form-control" id="edit_description" name="description" rows="3" placeholder="Describe this service in detail"></textarea>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="edit_description" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Service Description</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3" placeholder="Describe this service in detail" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;resize:vertical;"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="edit_tags">Tags</label>
-                        <input type="text" class="form-control" id="edit_tags" name="tags" placeholder="Add tags separated by commas">
-                        <small class="text-muted">Example: coaching, business, career</small>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label for="edit_tags" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Tags</label>
+                        <input type="text" class="form-control" id="edit_tags" name="tags" placeholder="Add tags separated by commas" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;">
+                        <small class="text-muted" style="color:#6b7280;display:block;margin-top:6px;">Example: coaching, business, career</small>
                     </div>
-                    <div class="form-group">
-                        <label for="edit_requirements">Client Requirements</label>
-                        <textarea class="form-control" id="edit_requirements" name="requirements" rows="3" placeholder="List any requirements clients should know before booking"></textarea>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label for="edit_requirements" style="font-weight:600;color:#1f2937;margin-bottom:8px;display:block;">Client Requirements</label>
+                        <textarea class="form-control" id="edit_requirements" name="requirements" rows="3" placeholder="List any requirements clients should know before booking" style="width:100%;border-radius:12px;padding:12px 14px;border:1px solid #d1d5db;resize:vertical;"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Service</button>
+                <div class="modal-footer" style="padding:18px 26px;border-top:1px solid #e5e7eb;background:#f9fafb;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;font-weight:600;">Update Service</button>
                 </div>
             </form>
         </div>
