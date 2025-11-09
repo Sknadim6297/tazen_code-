@@ -195,15 +195,15 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if($event->meet_link)
-                                                        <a href="{{ $event->meet_link }}" target="_blank" class="btn btn-sm btn-success me-2" title="Join Meeting">
-                                                            <i class="ri-video-line"></i>
+                                                        <a href="{{ $event->meet_link }}" target="_blank" class="table-action-btn table-action-join me-2" title="Join Meeting">
+                                                            <i class="ri-video-line"></i> Join
                                                         </a>
                                                     @else
                                                         <span class="text-muted small">Not set</span>
                                                     @endif
                                                     @if($event->status === 'approved')
-                                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openMeetLinkModal({{ $event->id }}, '{{ $event->meet_link ?? '' }}')">
-                                                            <i class="ri-add-line"></i>
+                                                        <button type="button" class="table-action-btn table-action-link" onclick="openMeetLinkModal({{ $event->id }}, '{{ $event->meet_link ?? '' }}')">
+                                                            <i class="ri-link"></i> Update Link
                                                         </button>
                                                     @endif
                                                 </div>
@@ -278,36 +278,34 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <div class="btn-group" role="group">
+                                                <div class="table-action-group" role="group">
                                                     @if($event->isProfessionalEvent() && $event->status == 'pending')
-                                                        <!-- Accept/Reject buttons for pending professional events -->
                                                         <form action="{{ route('admin.allevents.approve', $event->id) }}" method="POST" class="d-inline">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this event?')" title="Approve Event">
+                                                            <button type="submit" class="table-action-btn table-action-accept" onclick="return confirm('Are you sure you want to approve this event?')" title="Approve Event">
                                                                 <i class="ri-check-line"></i> Accept
                                                             </button>
                                                         </form>
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="openRejectModal({{ $event->id }})" title="Reject Event">
+                                                        <button type="button" class="table-action-btn table-action-reject" onclick="openRejectModal({{ $event->id }})" title="Reject Event">
                                                             <i class="ri-close-line"></i> Reject
                                                         </button>
                                                     @endif
-                                                    
-                                                    <!-- View/Edit/Delete buttons -->
-                                                    <a href="{{ route('admin.allevents.show', $event->id) }}" class="btn btn-info btn-sm" title="View Details">
-                                                        <i class="ri-eye-line"></i>
+
+                                                    <a href="{{ route('admin.allevents.show', $event->id) }}" class="table-action-btn table-action-view" title="View Details">
+                                                        <i class="ri-eye-line"></i> View
                                                     </a>
-                                                    
+
                                                     @if($event->isAdminEvent() || $event->status != 'pending')
-                                                        <a href="{{ route('admin.allevents.edit', $event->id) }}" class="btn btn-warning btn-sm" title="Edit Event">
-                                                            <i class="ri-edit-line"></i>
+                                                        <a href="{{ route('admin.allevents.edit', $event->id) }}" class="table-action-btn table-action-edit" title="Edit Event">
+                                                            <i class="ri-edit-line"></i> Edit
                                                         </a>
                                                     @endif
-                                                    
+
                                                     <form action="{{ route('admin.allevents.destroy', $event->id) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this event?')" title="Delete Event">
-                                                            <i class="ri-delete-bin-line"></i>
+                                                        <button type="submit" class="table-action-btn table-action-delete" onclick="return confirm('Are you sure you want to delete this event?')" title="Delete Event">
+                                                            <i class="ri-delete-bin-line"></i> Delete
                                                         </button>
                                                     </form>
                                                 </div>
@@ -367,11 +365,82 @@
 
 @section('scripts')
 <style>
-    .btn-group .btn {
-        margin-right: 2px;
-    }
     .table td {
         vertical-align: middle;
+    }
+
+    .table-action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .table-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.95rem;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+        background: rgba(148, 163, 184, 0.16);
+        color: #0f172a;
+    }
+
+    .table-action-btn i {
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .table-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+    }
+
+    .table-action-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .table-action-join {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #ffffff;
+        box-shadow: 0 14px 28px rgba(34, 197, 94, 0.22);
+    }
+
+    .table-action-link {
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        color: #ffffff;
+        box-shadow: 0 14px 28px rgba(14, 165, 233, 0.22);
+    }
+
+    .table-action-accept {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: #0f172a;
+    }
+
+    .table-action-reject {
+        background: linear-gradient(135deg, #f97316, #ef4444);
+        color: #ffffff;
+    }
+
+    .table-action-view {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: #ffffff;
+    }
+
+    .table-action-edit {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #0f172a;
+    }
+
+    .table-action-delete {
+        background: linear-gradient(135deg, #f97316, #dc2626);
+        color: #ffffff;
     }
 </style>
 

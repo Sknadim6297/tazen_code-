@@ -1,456 +1,383 @@
 @extends('professional.layout.layout')
 
-@section('style')
+@section('styles')
 <style>
-    @media screen and (max-width: 767px) {
-        /* Fix header size and layout */
-        .page-header {
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            background: #fff;
-            border-bottom: 1px solid #eee;
-        }
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+    }
 
-        .page-header .page-title h3 {
-            font-size: 18px;
-            margin: 0;
-            padding: 0;
-        }
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
 
-        .page-header .breadcrumb {
-            margin: 5px 0 0;
-            padding: 0;
-            font-size: 12px;
-        }
+    .services-index-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
 
-        .page-header .breadcrumb li {
-            display: inline-block;
-            margin-right: 5px;
-        }
+    .services-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
 
-        .page-header .breadcrumb li:after {
-            content: '/';
-            margin-left: 5px;
-            color: #999;
-        }
+    .services-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
+    }
 
-        .page-header .breadcrumb li:last-child:after {
-            display: none;
-        }
+    .services-hero::before,
+    .services-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
 
-        /* Card header adjustments */
-        .card-header {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .services-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -45%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
 
-        .card-header h4 {
-            font-size: 16px;
-            margin: 0;
-        }
+    .services-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -40%;
+        left: -10%;
+        background: rgba(59, 130, 246, 0.18);
+    }
 
-        .card-actions a {
-            font-size: 13px;
-            padding: 6px 12px;
-        }
+    .services-hero > * { position: relative; z-index: 1; }
 
-        /* Prevent page scrolling */
-        body {
-            overflow: hidden !important;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--muted);
+    }
 
-        /* Allow content wrapper to scroll vertically only */
-        .content-wrapper {
-            overflow-y: auto !important;
-            overflow-x: hidden !important;
-            height: 100%;
-            position: relative;
-        }
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
+    }
 
-        /* Make table container scrollable horizontally */
-        .table-responsive {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-        }
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
 
-        /* Set table width to enable horizontal scroll */
-        .data-table {
-            min-width: 1000px;
-        }
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
 
-        /* Keep table cells from wrapping */
-        .data-table th,
-        .data-table td {
-            white-space: nowrap;
-        }
+    .hero-breadcrumb li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
 
-        /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* Set table width to enable horizontal scroll */
-        .data-table {
-            min-width: 1000px;
-            width: 100%;
-        }
-        
-        /* Keep table cells from wrapping */
-        .data-table th,
-        .data-table td {
-            white-space: nowrap;
-            padding: 8px;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-            overflow-x: hidden;
-        }
+    .services-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        overflow: hidden;
+    }
+
+    .services-card__head {
+        padding: 1.7rem 2.1rem 1.2rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .services-card__head h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .services-card__head a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        padding: 0.75rem 1.35rem;
+        font-weight: 600;
+        font-size: 0.88rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        text-decoration: none;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
+        transition: transform 0.2s ease;
+    }
+
+    .services-card__head a:hover { transform: translateY(-1px); }
+
+    .services-card__body {
+        padding: 2.1rem 2.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+
+    .table-wrapper {
+        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.92rem;
+    }
+
+    .data-table thead th {
+        background: rgba(79, 70, 229, 0.08);
+        padding: 0.95rem 1rem;
+        text-align: center;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #0f172a;
+    }
+
+    .data-table tbody td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        background: #ffffff;
+        color: #0f172a;
+        vertical-align: top;
+    }
+
+    .data-table tbody tr:hover { background: rgba(226, 232, 240, 0.35); }
+    .data-table thead th:first-child,
+    .data-table tbody td:first-child { text-align: left; }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+
+    .badge-info { background: rgba(79, 70, 229, 0.16); color: #4338ca; }
+    .badge-success { background: rgba(34, 197, 94, 0.18); color: #15803d; }
+
+    .actions-cell { white-space: nowrap; text-align: center; }
+    .actions-cell .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.55rem 1rem;
+        border-radius: 12px;
+        border: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .action-btn.edit { background: rgba(14, 165, 233, 0.18); color: #0c4a6e; }
+    .action-btn.delete { background: rgba(248, 113, 113, 0.18); color: #b91c1c; }
+    .action-btn:hover { transform: translateY(-1px); }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.6rem;
+        border-radius: 20px;
+        border: 1px dashed rgba(79, 70, 229, 0.24);
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+        .services-index-page { padding: 2.2rem 1rem 3.2rem; }
+        .services-hero { padding: 1.75rem 1.6rem; }
+        .services-card__body { padding: 1.7rem 1.6rem; }
+        .data-table { min-width: 720px; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">All Services</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="card-header">
-                <h4>Service List</h4>
-                <div class="card-actions">
-                    @if(count($services) == 0)
-                        <a href="{{ route('professional.service.create') }}" class="btn btn-success">Add Service</a>
-                    @endif
-                </div>
+<div class="services-index-page">
+    <div class="services-shell">
+        <section class="services-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-briefcase"></i>Services</span>
+                <h1>All Services</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">All Services</li>
+                </ul>
             </div>
-            <div class="table-responsive">
-                <table class="table table-bordered data-table">
-                    <thead>
-                        <tr>
-                            <th>Service Category</th>
-                            <th>Sub-Services</th>
-                            <th>Session Type</th>
-                            <th>Tags</th>
-                            <th>Client Requirements</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($services as $service)
+            <a href="{{ route('professional.service.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Add Service
+            </a>
+        </section>
+
+        <section class="services-card">
+            <header class="services-card__head">
+                <h2>Service List</h2>
+                @if(count($services) == 0)
+                    <a href="{{ route('professional.service.create') }}">
+                        <i class="fas fa-plus-circle"></i>
+                        Add Service
+                    </a>
+                @endif
+            </header>
+            <div class="services-card__body">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td data-label="Service Category">{{ $service->service->name }}</td>
-                                <td data-label="Sub-Services">
-                                    @if($service->subServices->count() > 0)
-                                        @foreach($service->subServices as $subService)
-                                            <span class="badge badge-info" style="background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; margin: 2px;">
-                                                {{ $subService->name }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="text-muted" style="font-style: italic;">No specific sub-services</span>
-                                    @endif
-                                </td>
-                                <td data-label="Session Type">
-                                    <span class="badge badge-success" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
-                                        Online Session
-                                    </span>
-                                </td>
-                                <td data-label="Tags">{{ $service->tags }}</td>
-                                <td data-label="Client Requirements">{{ $service->requirements }}</td>
-                                <td data-label="Actions">
-                                    <div style="display: flex; gap: 10px;">
-
-                                        <a href="{{ route('professional.service.edit', $service->id) }}" 
-                                           class="btn btn-outline-success rate-button">
-                                            <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
-                                        </a>
-
-                                        <a href="javascript:void(0)" 
-                                           class="btn btn-outline-danger delete-item"
-                                           data-url="{{ route('professional.service.destroy', $service->id) }}">
-                                            <i class="far fa-trash-alt" style="margin-right: 6px;"></i> Delete
-                                        </a>
-
-                                    </div>
-                                </td>
+                                <th>Service Category</th>
+                                <th>Sub-Services</th>
+                                <th>Session Type</th>
+                                <th>Tags</th>
+                                <th>Client Requirements</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            
-            @if(count($services) == 0)
-                <div class="text-center mt-4 p-3 bg-light rounded">
-                    <p class="mb-0">No services added yet. Click "Add Service" to create your first service.</p>
+                        </thead>
+                        <tbody>
+                            @forelse($services as $service)
+                                <tr>
+                                    <td data-label="Service Category">{{ $service->service->name }}</td>
+                                    <td data-label="Sub-Services">
+                                        @if($service->subServices->count() > 0)
+                                            @foreach($service->subServices as $subService)
+                                                <span class="badge badge-info">{{ $subService->name }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted" style="font-style:italic;">No specific sub-services</span>
+                                        @endif
+                                    </td>
+                                    <td data-label="Session Type">
+                                        <span class="badge badge-success">Online Session</span>
+                                    </td>
+                                    <td data-label="Tags">{{ $service->tags }}</td>
+                                    <td data-label="Client Requirements">{{ $service->requirements }}</td>
+                                    <td data-label="Actions" class="actions-cell">
+                                        <div style="display:flex; gap:0.6rem; justify-content:center;">
+                                            <a href="{{ route('professional.service.edit', $service->id) }}" class="action-btn edit" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-url="{{ route('professional.service.destroy', $service->id) }}" class="action-btn delete delete-item" title="Delete">
+                                                <i class="far fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="fas fa-info-circle"></i>
+                                            <p>No services added yet. Click "Add Service" to create your first service.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-            @endif
-        </div>
+            </div>
+        </section>
     </div>
 </div>
-<style>
-        @media only screen and (min-width: 768px) and (max-width: 1024px) {
-         /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive-container {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
-        
-        /* Ensure the table takes full width of container */
-        .table {
-            width: 100%;
-            table-layout: auto;
-            white-space: nowrap;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Add scrollbar styling */
-        .table-responsive-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-            .user-profile-wrapper{
-                margin-top: -57px;
-            }
-    }
-    @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-    }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-}
-</style>
-<style>
-    /* Scoped overrides to ensure outline buttons are visible despite any global .btn background */
-    .btn-outline-success, .btn-outline-danger, .rate-button, .delete-item {
-        background: transparent !important;
-        color: inherit !important;
-        border: 1px solid rgba(0,0,0,0.08) !important;
-        padding: 8px 14px !important;
-        border-radius: 8px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        text-decoration: none !important;
-    }
-
-    .btn-outline-success:hover { background-color: rgba(40,167,69,0.08) !important; }
-    .btn-outline-danger:hover { background-color: rgba(220,53,69,0.08) !important; }
-
-    /* Stacked-card responsive table for small screens */
-    @media screen and (max-width: 767px) {
-        .data-table thead { display: none; }
-        .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
-        .data-table tr { margin-bottom: 12px; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
-        .data-table td { text-align: left; padding: 6px 10px; border: none; }
-        .data-table td:before { content: attr(data-label); display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
-        .card-actions { margin-top: 8px; }
-    }
-</style>
 @endsection
 
 @section('scripts')
 <script>
-    // Delete confirmation with SweetAlert
-    $(document).on('click', '.delete-item', function(e) {
-        e.preventDefault();
-        const url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire(
-                                'Deleted!',
-                                response.message || 'Service has been deleted.',
-                                'success'
-                            ).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                response.message || 'Failed to delete service.',
-                                'error'
-                            );
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire(
-                            'Error!',
-                            xhr.responseJSON?.message || 'An error occurred while deleting the service.',
-                            'error'
-                        );
+$(document).on('click', '.delete-item', function(e) {
+    e.preventDefault();
+    const url = $(this).data('url');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Deleted!', response.message || 'Service has been deleted.', 'success')
+                            .then(() => window.location.reload());
+                    } else {
+                        Swal.fire('Error!', response.message || 'Failed to delete service.', 'error');
                     }
-                });
-            }
-        });
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', xhr.responseJSON?.message || 'An error occurred while deleting the service.', 'error');
+                }
+            });
+        }
     });
+});
 </script>
 @endsection

@@ -2,247 +2,424 @@
 
 @section('styles')
 <style>
-    /* Weekly Scheduler Styles */
-    .weekly-scheduler-container {
-        background: #f8f9fa;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --accent: #22c55e;
+        --background: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: #e5e7eb;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+    }
+
+    body,
+    .app-content {
+        background: var(--background);
+    }
+
+    .availability-page {
+        width: 100%;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .availability-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+
+    .availability-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 2rem 2.4rem;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(59, 130, 246, 0.08));
+        border-radius: 22px;
+        border: 1px solid rgba(79, 70, 229, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .availability-header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.2), transparent 55%);
+        pointer-events: none;
+    }
+
+    .availability-header > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .availability-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .availability-header .breadcrumb {
+        margin: 0.4rem 0 0;
+        padding: 0;
+        background: transparent;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .availability-header .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .header-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.8rem 1.45rem;
+        border-radius: 999px;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        color: #fff;
+        box-shadow: 0 14px 30px rgba(79, 70, 229, 0.25);
+    }
+
+    .header-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 40px rgba(79, 70, 229, 0.3);
+    }
+
+    .alert {
         border-radius: 12px;
-        padding: 20px;
-        border: 1px solid #e9ecef;
-        margin-bottom: 20px;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+        box-shadow: 0 10px 24px rgba(248, 113, 113, 0.12);
+    }
+
+    .availability-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+
+    .form-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
+        padding: 1.9rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+    }
+
+    .form-card header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--text-dark);
+    }
+
+    .form-card header i {
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+
+    .form-card p.description {
+        margin: 0;
+        color: var(--text-muted);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.92rem;
+    }
+
+    .form-control,
+    select.form-control {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus,
+    select.form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .months-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 1rem;
+    }
+
+    .month-card {
+        position: relative;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .month-card:hover {
+        border-color: rgba(79, 70, 229, 0.45);
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.15);
+    }
+
+    .month-card.selected {
+        border-color: var(--primary);
+        background: rgba(79, 70, 229, 0.08);
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.18);
+    }
+
+    .month-card input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+    }
+
+    .month-card label {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-dark);
+        cursor: pointer;
     }
 
     .weekly-scheduler {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 15px;
-        margin-top: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.25rem;
     }
 
     .day-column {
-        background: white;
-        border-radius: 8px;
-        padding: 15px;
-        border: 1px solid #dee2e6;
-        min-height: 200px;
+        background: rgba(248, 250, 252, 0.95);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-height: 220px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .day-column:hover {
+        border-color: rgba(79, 70, 229, 0.3);
+        box-shadow: 0 12px 26px rgba(79, 70, 229, 0.14);
     }
 
     .day-header {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 10px;
+        font-weight: 700;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        background: rgba(79, 70, 229, 0.12);
+        color: var(--primary-dark);
         text-align: center;
-        padding: 8px;
-        background: #e9ecef;
-        border-radius: 6px;
-        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
     }
 
     .day-slots {
-        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
     }
 
     .slot-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #e3f2fd;
-        padding: 8px 12px;
-        margin-bottom: 8px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        border: 1px solid #bbdefb;
+        background: #f8fafc;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        border-radius: 12px;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text-dark);
     }
 
     .slot-time {
-        font-weight: 500;
-        color: #1565c0;
+        font-weight: 600;
+        color: var(--primary-dark);
     }
 
     .delete-slot {
-        background: none;
+        background: rgba(239, 68, 68, 0.12);
         border: none;
-        color: #dc3545;
+        color: #dc2626;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 0.8rem;
+        transition: background 0.2s ease;
     }
 
     .delete-slot:hover {
-        background: #f8d7da;
+        background: rgba(239, 68, 68, 0.18);
     }
 
     .add-slot-form {
-        margin-top: 10px;
-        padding: 10px;
-        background: #f1f3f4;
-        border-radius: 6px;
-        border: 1px dashed #adb5bd;
+        border: 1px dashed rgba(79, 70, 229, 0.35);
+        padding: 0.8rem;
+        border-radius: 12px;
+        background: rgba(79, 70, 229, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
     }
 
     .time-inputs {
         display: flex;
-        gap: 5px;
-        margin-bottom: 8px;
         align-items: center;
+        justify-content: space-between;
+        gap: 0.4rem;
     }
 
-    .time-inputs input {
-        width: 70px;
-        padding: 4px 6px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 0.8rem;
+    .time-inputs input[type="time"] {
+        width: 76px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        padding: 0.45rem 0.55rem;
+        font-size: 0.88rem;
     }
 
-    .time-inputs input:disabled {
-        background-color: #e9ecef;
+    .time-inputs span {
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.82rem;
+    }
+
+    .time-inputs input[type="time"]:disabled {
+        background: #e5e7eb;
         cursor: not-allowed;
     }
 
     .add-slot-btn {
-        background: #28a745;
-        color: white;
+        background: linear-gradient(135deg, var(--accent), #16a34a);
         border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 0.8rem;
+        color: #fff;
+        padding: 0.6rem;
+        border-radius: 10px;
+        font-weight: 600;
         cursor: pointer;
-        width: 100%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.4rem;
     }
 
     .add-slot-btn:hover {
-        background: #218838;
+        filter: brightness(0.98);
     }
 
-    .time-inputs span {
-        color: #6c757d;
-        font-size: 0.8rem;
-        font-weight: 500;
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1.8rem;
+        background: var(--card-bg);
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 38px rgba(15, 23, 42, 0.12);
+        margin-bottom: 1rem;
     }
 
-    /* Month Selection */
-    .months-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
+    .form-actions .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        padding: 0.85rem 2.4rem;
+        border-radius: 999px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #fff;
+        box-shadow: 0 16px 32px rgba(79, 70, 229, 0.24);
     }
 
-    .month-card {
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .month-card:hover {
-        border-color: #007bff;
-        box-shadow: 0 2px 8px rgba(0,123,255,0.1);
-    }
-
-    .month-card.selected {
-        border-color: #007bff;
-        background: #e7f3ff;
-    }
-
-    .month-card input[type="checkbox"] {
-        margin-right: 8px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
+    .form-actions .btn-secondary {
+        background: #fff;
+        color: var(--text-muted);
+        border: 1px solid rgba(100, 116, 139, 0.35);
+        padding: 0.85rem 2.4rem;
+        border-radius: 999px;
         font-weight: 600;
-        color: #495057;
-        margin-bottom: 8px;
-        display: block;
     }
 
-    .form-control {
-        border-radius: 6px;
-        border: 1px solid #ced4da;
-        padding: 10px 12px;
-    }
-
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-    }
-
-    /* Submit section */
-    .submit-section {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-        text-align: center;
-    }
-
-    .btn-primary {
-        background: #007bff;
-        border-color: #007bff;
-        padding: 12px 30px;
-        font-weight: 600;
-        border-radius: 6px;
-    }
-
-    .btn-secondary {
-        background: #6c757d;
-        border-color: #6c757d;
-        padding: 12px 30px;
-        font-weight: 600;
-        border-radius: 6px;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-        .weekly-scheduler {
-            grid-template-columns: repeat(4, 1fr);
-        }
+    .form-actions .btn-secondary:hover {
+        background: rgba(15, 23, 42, 0.05);
     }
 
     @media (max-width: 768px) {
-        .weekly-scheduler {
-            grid-template-columns: repeat(2, 1fr);
+        .availability-page {
+            padding: 0 1rem 2.5rem;
         }
-        
-        .months-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
 
-    @media (max-width: 576px) {
-        .weekly-scheduler {
-            grid-template-columns: 1fr;
+        .availability-header {
+            padding: 1.75rem 1.6rem;
         }
-        
-        .months-grid {
-            grid-template-columns: 1fr;
-        }
-    }
 
-    .alert {
-        border-radius: 6px;
-        margin-bottom: 20px;
+        .availability-header h1 {
+            font-size: 1.45rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            padding: 1.4rem;
+        }
+
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="main-content app-content">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">Add New Availability</h1>
-                <div>
-                    <nav>
+<div class="content-wrapper">
+    <div class="availability-page">
+        <div class="availability-shell">
+            <header class="availability-header">
+                <div class="header-content">
+                    <h1>Add New Availability</h1>
+                    <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('professional.availability.index') }}">Availability</a></li>
@@ -250,46 +427,44 @@
                         </ol>
                     </nav>
                 </div>
-            </div>
-        </div>
-
-        <!-- Error Messages -->
-        <div id="error-messages"></div>
-
-        <!-- Availability Form -->
-        <form id="availability-form">
-            @csrf
-            
-            <!-- Basic Information -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="ri-settings-line me-2"></i>Basic Information</h6>
+                <div class="header-actions">
+                    <a href="{{ route('professional.availability.index') }}" class="btn">
+                        <i class="ri-arrow-left-line"></i>
+                        Back to Availability
+                    </a>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="session_duration">Session Duration (in minutes)</label>
-                                <select name="session_duration" id="session_duration" class="form-control" required>
-                                    @foreach([30, 45, 60, 90, 120] as $duration)
-                                        <option value="{{ $duration }}" {{ $duration == 30 ? 'selected' : '' }}>
-                                            {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+            </header>
+
+            <div id="error-messages"></div>
+
+            <form id="availability-form" class="availability-form">
+                @csrf
+
+                <section class="form-card">
+                    <header>
+                        <i class="ri-settings-line"></i>
+                        Basic Information
+                    </header>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="session_duration">Session Duration (in minutes)</label>
+                            <select name="session_duration" id="session_duration" class="form-control" required>
+                                @foreach([30, 45, 60, 90, 120] as $duration)
+                                    <option value="{{ $duration }}" {{ $duration == 30 ? 'selected' : '' }}>
+                                        {{ $duration }} {{ $duration == 120 ? 'minutes (2 hours)' : 'minutes' }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Month Selection -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="ri-calendar-line me-2"></i>Select Months</h6>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-3">Choose the months for which you want to set this availability schedule.</p>
+                <section class="form-card">
+                    <header>
+                        <i class="ri-calendar-line"></i>
+                        Select Months
+                    </header>
+                    <p class="description">Choose the months for which you want to set this availability schedule.</p>
                     <div class="months-grid">
                         @php
                             $currentYear = date('Y');
@@ -300,7 +475,7 @@
                                 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
                             ];
                         @endphp
-                        
+
                         @for($year = $currentYear; $year <= $currentYear + 1; $year++)
                             @foreach($months as $monthNum => $monthName)
                                 @if($year == $currentYear && $monthNum < $currentMonth)
@@ -318,22 +493,19 @@
                             @endforeach
                         @endfor
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Weekly Schedule -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="ri-time-line me-2"></i>Weekly Schedule</h6>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-3">Set your available time slots for each day of the week. You can add multiple time slots per day.</p>
-                    
+                <section class="form-card schedule-card">
+                    <header>
+                        <i class="ri-time-line"></i>
+                        Weekly Schedule
+                    </header>
+                    <p class="description">Set your available time slots for each day of the week. You can add multiple time slots per day.</p>
                     <div class="weekly-scheduler">
                         @php
                             $days = [
                                 'mon' => 'Monday',
-                                'tue' => 'Tuesday', 
+                                'tue' => 'Tuesday',
                                 'wed' => 'Wednesday',
                                 'thu' => 'Thursday',
                                 'fri' => 'Friday',
@@ -341,39 +513,37 @@
                                 'sun' => 'Sunday'
                             ];
                         @endphp
-                        
+
                         @foreach($days as $dayCode => $dayName)
                             <div class="day-column">
                                 <div class="day-header">{{ $dayName }}</div>
-                                <div class="day-slots" id="slots-{{ $dayCode }}">
-                                    <!-- Slots will be added dynamically -->
-                                </div>
+                                <div class="day-slots" id="slots-{{ $dayCode }}"></div>
                                 <div class="add-slot-form">
                                     <div class="time-inputs">
-                                        <input type="time" id="start-{{ $dayCode }}" placeholder="Start" onchange="calculateEndTime('{{ $dayCode }}')">
+                                        <input type="time" id="start-{{ $dayCode }}" onchange="calculateEndTime('{{ $dayCode }}')">
                                         <span>to</span>
-                                        <input type="time" id="end-{{ $dayCode }}" placeholder="End" readonly>
+                                        <input type="time" id="end-{{ $dayCode }}" readonly>
                                     </div>
                                     <button type="button" class="add-slot-btn" onclick="addSlot('{{ $dayCode }}')">
-                                        <i class="ri-add-line me-1"></i>Add Slot
+                                        <i class="ri-add-line"></i>
+                                        Add Slot
                                     </button>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Submit Section -->
-            <div class="submit-section">
-                <button type="submit" class="btn btn-primary me-3">
-                    <i class="ri-save-line me-2"></i>Save Availability
-                </button>
-                <a href="{{ route('professional.availability.index') }}" class="btn btn-secondary">
-                    <i class="ri-arrow-left-line me-2"></i>Cancel
-                </a>
-            </div>
-        </form>
+                <section class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line"></i>Save Availability
+                    </button>
+                    <a href="{{ route('professional.availability.index') }}" class="btn btn-secondary">
+                        <i class="ri-arrow-left-line"></i>Cancel
+                    </a>
+                </section>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

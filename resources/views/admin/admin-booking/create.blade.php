@@ -42,25 +42,75 @@
     }
 
     .customer-type-card {
-        border: 2px solid #e9ecef;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
+        appearance: none;
+        background: #ffffff;
+        border: 1px solid rgba(99, 102, 241, 0.08);
+        border-radius: 16px;
+        padding: 1.75rem 1.75rem 1.5rem;
+        text-align: left;
         cursor: pointer;
-        transition: all 0.3s ease;
-        background: #fafbfc;
+        transition: all 0.25s ease-out;
+        min-height: 170px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.75rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+        color: #1f2937;
+        font-weight: 500;
+        font-size: 1rem;
+        line-height: 1.4;
+        font-family: inherit;
+        text-decoration: none;
+    }
+
+    .customer-type-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(140deg, rgba(99, 102, 241, 0.18) 0%, rgba(129, 140, 248, 0.12) 45%, rgba(99, 102, 241, 0.05) 100%);
+        opacity: 0;
+        transition: opacity 0.25s ease-out;
     }
 
     .customer-type-card:hover {
-        border-color: #667eea;
-        background: #f0f2ff;
+        transform: translateY(-6px);
+        box-shadow: 0 20px 38px rgba(79, 70, 229, 0.18);
+        border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    .customer-type-card:active {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        box-shadow: 0 12px 26px rgba(79, 70, 229, 0.16);
+    }
+
+    .customer-type-card:hover::after {
+        opacity: 1;
     }
 
     .customer-type-card.selected {
-        border-color: #667eea;
-        background: rgba(102, 126, 234, 0.1);
+        border-color: rgba(79, 70, 229, 0.55);
+        box-shadow: 0 24px 44px rgba(79, 70, 229, 0.24);
+    }
+
+    .customer-type-card.selected::after {
+        opacity: 1;
+    }
+
+    .customer-type-card:focus {
+        outline: none;
+    }
+
+    .customer-type-card:focus-visible {
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25), 0 18px 36px rgba(79, 70, 229, 0.2);
+    }
+
+    .customer-type-card * {
+        position: relative;
+        z-index: 1;
     }
 
     .customer-type-card .icon {
@@ -70,18 +120,81 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.65rem;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .customer-type-card h6 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.35rem;
+    }
+
+    .customer-type-card p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 0;
+        line-height: 1.45;
+    }
+
+    .customer-type-card .cta-label {
+        margin-top: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #3730a3;
+        transition: color 0.25s ease-out;
+    }
+
+    .customer-type-card .cta-label i {
+        font-size: 0.85rem;
     }
 
     .existing-customer .icon {
-        background: rgba(25, 135, 84, 0.1);
-        color: #198754;
+        background: linear-gradient(135deg, rgba(0, 171, 85, 0.18) 0%, rgba(16, 185, 129, 0.1) 100%);
+        color: #047857;
     }
 
     .new-customer .icon {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(129, 140, 248, 0.12) 100%);
+        color: #1d4ed8;
+    }
+
+    .customer-type-card.selected .cta-label {
+        color: #1e1b4b;
+    }
+
+    .customer-type-card.selected.existing-customer .icon {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.25) 100%);
+        color: #065f46;
+    }
+
+    .customer-type-card.selected.new-customer .icon {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+        color: #3730a3;
+    }
+
+    @media (max-width: 767.98px) {
+        .customer-type-card {
+            text-align: center;
+            align-items: center;
+            padding: 1.5rem 1.25rem;
+            min-height: 0;
+        }
+
+        .customer-type-card p {
+            max-width: 320px;
+        }
+
+        .customer-type-card .cta-label {
+            justify-content: center;
+        }
     }
 
     .new-customer-form {
@@ -157,23 +270,29 @@
                         <div class="col-12">
                             <h6 class="fw-semibold mb-3">Choose Customer Type</h6>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="customer-type-card existing-customer" data-type="existing">
-                                <div class="icon">
+                        <div class="col-md-6 mb-3 d-flex">
+                            <button type="button" data-type="existing"
+                                class="customer-type-card existing-customer"
+                                style="display:flex;width:100%;flex-direction:column;justify-content:space-between;gap:0.6rem;text-align:left;padding:1.5rem 1.5rem 1.35rem;border-radius:16px;border:1px solid rgba(30,64,175,0.6);background:linear-gradient(135deg,rgba(37,99,235,0.9) 0%,rgba(59,130,246,0.86) 60%,rgba(99,102,241,0.82) 100%);box-shadow:0 14px 32px rgba(30,64,175,0.22);color:#f8fafc;transition:all .25s ease-out;min-height:150px;">
+                                <div class="icon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;font-size:1.45rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.45);background:linear-gradient(140deg,rgba(16,185,129,0.4) 0%,rgba(5,150,105,0.3) 90%);color:#dcfce7;">
                                     <i class="ri-user-search-line"></i>
                                 </div>
-                                <h6 class="fw-semibold">Existing Customer</h6>
-                                <p class="text-muted mb-0">Select from registered customers</p>
-                            </div>
+                                <h6 class="fw-semibold" style="font-size:0.98rem;font-weight:600;color:#fff;margin-bottom:0.25rem;">Existing Customer</h6>
+                                <p class="text-muted mb-0" style="font-size:0.8rem;color:rgba(226,232,240,0.92);line-height:1.4;margin-bottom:0;">Select from registered customers</p>
+                                <span class="cta-label" style="margin-top:0.75rem;display:inline-flex;align-items:center;gap:0.35rem;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:rgba(224,231,255,0.92);"><i class="ri-arrow-right-up-line"></i>Continue</span>
+                            </button>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="customer-type-card new-customer" data-type="new">
-                                <div class="icon">
+                        <div class="col-md-6 mb-3 d-flex">
+                            <button type="button" data-type="new"
+                                class="customer-type-card new-customer"
+                                style="display:flex;width:100%;flex-direction:column;justify-content:space-between;gap:0.6rem;text-align:left;padding:1.5rem 1.5rem 1.35rem;border-radius:16px;border:1px solid rgba(30,64,175,0.6);background:linear-gradient(135deg,rgba(37,99,235,0.9) 0%,rgba(59,130,246,0.86) 60%,rgba(99,102,241,0.82) 100%);box-shadow:0 14px 32px rgba(30,64,175,0.22);color:#f8fafc;transition:all .25s ease-out;min-height:150px;">
+                                <div class="icon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;font-size:1.45rem;box-shadow:inset 0 0 0 1px rgb(255, 250, 250);background:linear-gradient(140deg,rgb(237, 241, 247) 0%,rgb(243, 243, 247) 95%);color:#eef2ff;">
                                     <i class="ri-user-add-line"></i>
                                 </div>
-                                <h6 class="fw-semibold">New Customer</h6>
-                                <p class="text-muted mb-0">Create a new customer account</p>
-                            </div>
+                                <h6 class="fw-semibold" style="font-size:0.98rem;font-weight:600;color:#fff;margin-bottom:0.25rem;">New Customer</h6>
+                                <p class="text-muted mb-0" style="font-size:0.8rem;color:rgba(226,232,240,0.92);line-height:1.4;margin-bottom:0;">Create a new customer account</p>
+                                <span class="cta-label" style="margin-top:0.75rem;display:inline-flex;align-items:center;gap:0.35rem;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:rgba(224,231,255,0.92);"><i class="ri-arrow-right-up-line"></i>Continue</span>
+                            </button>
                         </div>
                     </div>
 
@@ -230,7 +349,7 @@
                                 <p class="mb-0">After filling the details, an OTP will be sent to the email for verification.</p>
                             </div>
 
-                            <button type="button" id="send_otp_btn" class="btn btn-primary">
+                            <button type="button" id="send_otp_btn" class="btn btn-primary" style="margin-bottom: 10px;">
                                 <i class="ri-mail-send-line me-1"></i>Send OTP
                             </button>
                         </div>

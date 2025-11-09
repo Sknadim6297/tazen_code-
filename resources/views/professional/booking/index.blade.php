@@ -1,543 +1,834 @@
 @extends('professional.layout.layout')
 
 @section('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    /* Core layout styles */
-    .content-wrapper {
-        background-color: #f8f9fa;
-        padding: 1.5rem;
-        min-height: calc(100vh - 60px);
-    }
-    
-    .page-header {
-        margin-bottom: 1.5rem;
-    }
-    
-    .page-title h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
     }
 
-    /* Card styling */
-    .card {
-        background-color: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        margin-bottom: 1.5rem;
-    }
-    
-    .card-body {
-        padding: 1.25rem;
+    body,
+    .app-content {
+        background: var(--page-bg);
     }
 
-    /* Table styling */
-    .table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+    .content-wrapper.bookings-page {
+        background: transparent;
+        padding: 0;
     }
-    
-    .data-table {
+
+    .bookings-page {
         width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
-    }
-    
-    .data-table th,
-    .data-table td {
-        padding: 0.75rem;
-        border: 1px solid #e9ecef;
-        vertical-align: middle;
-    }
-    
-    .data-table th {
-        background-color: #f5f7fa;
-        font-weight: 600;
-        color: #495057;
-        white-space: nowrap;
-    }
-    
-    .data-table td {
-        color: #495057;
+        padding: 2.6rem 1.35rem 3.5rem;
     }
 
-    /* Search container */
-    .search-container {
-        background: #fff;
-        padding: 1.25rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    .bookings-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
     }
-    
-    .search-form {
+
+    .bookings-header {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.25rem;
+        padding: 2rem 2.4rem;
+        border-radius: 26px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(14, 165, 233, 0.12));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 48px rgba(79, 70, 229, 0.18);
     }
-    
+
+    .bookings-header::before,
+    .bookings-header::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .bookings-header::before {
+        width: 320px;
+        height: 320px;
+        top: -45%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.18);
+    }
+
+    .bookings-header::after {
+        width: 220px;
+        height: 220px;
+        bottom: -42%;
+        left: -8%;
+        background: rgba(59, 130, 246, 0.16);
+    }
+
+    .header-content,
+    .header-actions {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bookings-header .pretitle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1.1rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: var(--text-dark);
+    }
+
+    .bookings-header h1 {
+        margin: 1.1rem 0 0.5rem;
+        font-size: 2.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .bookings-header .breadcrumb {
+        margin: 0;
+        padding: 0;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        background: transparent;
+    }
+
+    .bookings-header .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .header-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.6rem;
+        border-radius: 999px;
+        border: none;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 16px 32px rgba(79, 70, 229, 0.24);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .header-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.28);
+    }
+
+    .filter-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+        padding: 1.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.35rem;
+    }
+
+    .filter-card h3 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .search-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.1rem;
+    }
+
     .search-form .form-group {
-        flex: 1;
-        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
     }
-    
+
     .search-form label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #495057;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
     }
-    
+
     .search-form select,
     .search-form input {
         width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        background-color: white;
-        color: #495057;
-        font-size: 0.875rem;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.72rem 0.85rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
+        color: var(--text-dark);
     }
-    
+
+    .search-form select:focus,
+    .search-form input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        outline: none;
+    }
+
     .search-buttons {
         display: flex;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        align-items: flex-end;
+        gap: 0.85rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 0.2rem;
     }
 
-    /* Buttons */
-    .btn-success, .btn-primary {
-        background-color: #28a745;
-        color: white;
+    .search-buttons .btn,
+    .btn {
+        border-radius: 12px;
+        padding: 0.75rem 1.45rem;
+        font-weight: 600;
         border: none;
-        border-radius: 0.25rem;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
         cursor: pointer;
-        transition: background-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    
+
+    .search-buttons .btn-primary,
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.2);
+    }
+
+    .search-buttons .btn-secondary,
     .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 0.25rem;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        transition: background-color 0.2s;
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--primary-dark);
+        border: 1px solid rgba(79, 70, 229, 0.18);
     }
-    
+
+    .search-buttons .btn:hover,
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-sm {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
+    }
+
     .btn-info {
-        background-color: #17a2b8;
-        color: white;
-        border: none;
-        border-radius: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-        cursor: pointer;
+        background: rgba(14, 165, 233, 0.18);
+        color: #0369a1;
+        border: 1px solid rgba(14, 165, 233, 0.35);
     }
-    
+
+    .btn-info:hover {
+        background: rgba(14, 165, 233, 0.26);
+    }
+
     .btn-link {
-        background-color: #007bff;
-        color: white;
+        background: rgba(79, 70, 229, 0.12);
+        color: var(--primary-dark);
+        border-radius: 10px;
+        padding: 0.45rem 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
         text-decoration: none;
-        border-radius: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-        display: inline-block;
     }
-    
-    .btn-success:hover, .btn-primary:hover { background-color: #218838; }
-    .btn-secondary:hover { background-color: #5a6268; }
-    .btn-info:hover { background-color: #138496; }
-    .btn-link:hover { background-color: #0069d9; }
 
-    /* Status badges */
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        border-radius: 1rem;
-        text-transform: uppercase;
+    .btn-link:hover {
+        background: rgba(79, 70, 229, 0.18);
+        text-decoration: none;
     }
-    
-    .bg-success { background-color: #28a745 !important; color: white; }
-    .bg-warning { background-color: #ffc107 !important; color: #212529; }
-    
-    /* Status slider/toggle switch */
-    .status-slider {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 30px;
-        cursor: pointer;
-    }
-    
-    .status-slider input { opacity: 0; width: 0; height: 0; }
-    
-    .status-slider .slider {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        border-radius: 30px;
-        transition: 0.4s;
-    }
-    
-    .status-slider .slider:before {
-        content: "";
-        position: absolute;
-        height: 22px;
-        width: 22px;
-        border-radius: 50%;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: 0.4s;
-    }
-    
-    .status-slider input:checked + .slider { background-color: #2196F3; }
-    .status-slider input:checked + .slider:before { transform: translateX(30px); }
-    .status-slider.disabled { cursor: not-allowed; opacity: 0.6; }
-    .status-slider.disabled input:checked + .slider { background-color: #ccc; }
 
-    /* Modal styles */
-    .custom-modal, .upload-modal {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
+    .bookings-card {
+        background: var(--card-bg);
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+        overflow: hidden;
     }
-    
-    .custom-modal-content, .upload-modal-content {
-        background-color: #fff;
-        margin: 5% auto;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        width: 90%;
-        max-width: 700px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        position: relative;
-    }
-    
-    .close-modal, .close-upload-modal {
-        color: #aaa;
-        position: absolute;
-        right: 1.25rem;
-        top: 1rem;
-        font-size: 1.5rem;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    
-    .close-modal:hover, .close-upload-modal:hover { color: #000; }
 
-    /* Modal header and body */
-    .modal-header {
-        background: linear-gradient(to right, #2c3e50, #3498db);
-        color: white;
-        padding: 15px 20px;
+    .bookings-card__head {
+        padding: 1.6rem 2.2rem 1.2rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-radius: 12px 12px 0 0;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
-    .modal-header h3 {
+    .bookings-card__head h3 {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-dark);
     }
 
-    .modal-body {
-        padding: 20px;
+    .bookings-card__body {
+        padding: 1.9rem 2.2rem;
     }
 
-    /* Questionnaire styles */
-    .questionnaire-info {
-        margin-left: 0.5rem;
-        padding: 0.125rem 0.375rem;
-        font-size: 0.75rem;
-    }
-    
-    .questionnaire-details { padding: 1rem; }
-    
-    .answers-list { margin-top: 1.25rem; }
-    
-    .answer-item {
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid #e9ecef;
-    }
-    
-    .answer-item .question {
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    
-    .answer-item .answer {
-        color: #495057;
-        margin-bottom: 0;
-        font-size: 0.875rem;
-        padding-left: 1.25rem;
+    .text-muted {
+        color: var(--text-muted);
     }
 
-    /* Document display */
-    .document-preview {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 0.75rem;
-        margin: 0.25rem;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-    
-    .document-preview:hover {
-        background-color: #e9ecef;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .document-preview img {
-        width: 24px;
-        height: 24px;
-        margin-right: 0.5rem;
-    }
-    
-    .document-preview .doc-info {
+    .empty-state {
+        padding: 2.4rem 1.6rem;
+        text-align: center;
+        color: var(--text-muted);
         display: flex;
         flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
     }
-    
-    .document-preview .doc-name {
-        font-size: 0.75rem;
-        color: #495057;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+
+    .empty-state i {
+        font-size: 2rem;
+        color: var(--primary);
+    }
+
+    .table-wrapper {
+        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        overflow-x: auto;
+        overflow-y: hidden;
+        position: relative;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .data-table thead {
+        background: rgba(79, 70, 229, 0.08);
+    }
+
+    .data-table th {
+        padding: 0.95rem 1rem;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         white-space: nowrap;
     }
-    
-    .document-preview .doc-type {
-        font-size: 0.625rem;
-        color: #6c757d;
-    }
-    
-    .no-doc-message {
-        color: #6c757d;
-        font-style: italic;
-        padding: 0.625rem;
-        text-align: center;
-        background-color: #f8f9fa;
-        border-radius: 0.375rem;
-        border: 1px dashed #dee2e6;
+
+    .data-table td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        font-size: 0.9rem;
+        color: var(--text-dark);
     }
 
-    /* Upload form */
-    .upload-form {
-        margin-top: 1.25rem;
+    .data-table tr:last-child td {
+        border-bottom: none;
     }
-    
-    .upload-form .form-group {
-        margin-bottom: 1.25rem;
+
+    .table-wrapper::-webkit-scrollbar {
+        height: 8px;
     }
-    
-    .upload-form label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #495057;
+
+    .table-wrapper::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.6);
+        border-radius: 10px;
     }
-    
-    .upload-form input[type="file"] {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        background-color: #f8f9fa;
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(79, 70, 229, 0.35);
+        border-radius: 10px;
     }
-    
-    .upload-form .btn-upload {
-        background-color: #007bff;
-        color: white;
-        padding: 0.625rem 1.25rem;
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(79, 70, 229, 0.55);
+    }
+
+    .data-table {
+        min-width: 1100px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .badge.bg-success {
+        background: rgba(34, 197, 94, 0.15) !important;
+        color: #16a34a !important;
+    }
+
+    .badge.bg-warning {
+        background: rgba(250, 204, 21, 0.2) !important;
+        color: #b45309 !important;
+    }
+
+    .badge.bg-info {
+        background: rgba(14, 165, 233, 0.18) !important;
+        color: #0c4a6e !important;
+    }
+
+    .questionnaire-info {
+        margin-left: 0.35rem;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.74rem;
+        border-radius: 999px;
         border: none;
-        border-radius: 0.25rem;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: background-color 0.2s;
-    }
-    
-    .upload-form .btn-upload:hover {
-        background-color: #0069d9;
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--primary-dark);
+        transition: all 0.2s ease;
     }
 
-    /* Responsive styles */
-    @media screen and (max-width: 767px) {
-        .content-wrapper {
-            padding: 1rem 0.5rem;
-        }
-        
-        .search-form {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .search-form .form-group {
-            width: 100%;
-        }
-        
-        .search-buttons {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .search-buttons button,
-        .search-buttons a {
-            width: 100%;
-            margin-bottom: 0.5rem;
-        }
-        
-        .custom-modal-content,
-        .upload-modal-content {
-            width: 95%;
-            margin: 5% auto;
-            padding: 1rem;
-        }
+    .questionnaire-info:hover {
+        background: rgba(79, 70, 229, 0.2);
     }
 
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        .search-form {
-            flex-wrap: wrap;
-        }
-        
-        .search-form .form-group {
-            min-width: 48%;
-            flex: 0 0 48%;
-        }
-        
-        .search-buttons {
-            width: 100%;
-            justify-content: flex-start;
-        }
+    .chat-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1.05rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 14px 26px rgba(37, 99, 235, 0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Chat notification badge */
+    .chat-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 32px rgba(37, 99, 235, 0.24);
+    }
+
     .chat-badge {
-        font-size: 10px;
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        font-size: 0.62rem;
         min-width: 18px;
         height: 18px;
+        border-radius: 999px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 0 5px;
+        background: #ef4444;
+        color: #ffffff;
+        box-shadow: 0 0 0 2px #ffffff;
         animation: pulse 2s infinite;
+    }
+
+    .document-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        background: rgba(248, 250, 252, 0.9);
+        text-decoration: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .document-preview:hover {
+        border-color: var(--primary);
+        box-shadow: 0 10px 18px rgba(79, 70, 229, 0.12);
+    }
+
+    .document-preview img {
+        width: 22px;
+        height: 22px;
+    }
+
+    .document-preview .doc-name {
+        font-size: 0.78rem;
+        color: var(--text-dark);
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .no-doc-message {
+        background: rgba(226, 232, 240, 0.35);
+        border: 1px dashed rgba(148, 163, 184, 0.65);
+        padding: 0.65rem;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .status-slider {
+        position: relative;
+        display: inline-block;
+        width: 58px;
+        height: 30px;
+    }
+
+    .status-slider input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .status-slider .slider {
+        position: absolute;
+        inset: 0;
+        background: rgba(148, 163, 184, 0.55);
+        border-radius: 30px;
+        transition: 0.3s ease;
+    }
+
+    .status-slider .slider::before {
+        content: "";
+        position: absolute;
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        transition: 0.3s ease;
+    }
+
+    .status-slider input:checked + .slider {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    }
+
+    .status-slider input:checked + .slider::before {
+        transform: translateX(28px);
+    }
+
+    .status-text {
+        display: inline-block;
+        margin-left: 0.55rem;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .custom-modal,
+    .upload-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 9999;
+        padding: 2rem 1rem;
+        overflow-y: auto;
+    }
+
+    .custom-modal-content,
+    .upload-modal-content {
+        background: #ffffff;
+        margin: 0 auto;
+        border-radius: 20px;
+        max-width: 720px;
+        width: 100%;
+        padding: 1.8rem;
+        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.25);
+        position: relative;
+    }
+
+    .close-modal,
+    .close-upload-modal {
+        position: absolute;
+        top: 18px;
+        right: 20px;
+        font-size: 1.4rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .close-modal:hover,
+    .close-upload-modal:hover {
+        color: var(--primary);
+    }
+
+    .modal-header {
+        border-radius: 16px;
+        padding: 1rem 1.4rem;
+        margin: -1.8rem -1.8rem 1.4rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .modal-body {
+        padding: 0 0.3rem;
+    }
+
+    .answers-list {
+        margin-top: 1.1rem;
+        display: grid;
+        gap: 1rem;
+    }
+
+    .answer-item {
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        background: rgba(248, 250, 252, 0.82);
+        padding: 1.1rem;
+    }
+
+    .answer-item .question {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.4rem;
+    }
+
+    .answer-item .answer {
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .upload-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        margin-bottom: 1.3rem;
+    }
+
+    .upload-form input[type="file"] {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.7rem;
+        background: rgba(248, 250, 252, 0.95);
+    }
+
+    .upload-form .btn-upload {
+        align-self: flex-start;
+        padding: 0.75rem 1.45rem;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+        transition: transform 0.2s ease;
+    }
+
+    .upload-form .btn-upload:hover {
+        transform: translateY(-1px);
     }
 
     @keyframes pulse {
         0%, 100% {
-            transform: translate(-50%, -50%) scale(1);
+            transform: scale(1);
         }
         50% {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.12);
         }
     }
 
-    .btn.position-relative {
-        overflow: visible;
+    @media (max-width: 1024px) {
+        .bookings-page {
+            padding: 2.1rem 1.1rem 3rem;
+        }
+
+        .bookings-header {
+            padding: 1.8rem 1.9rem;
+        }
+
+        .bookings-card__body {
+            padding: 1.6rem 1.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .bookings-header {
+            padding: 1.75rem 1.6rem;
+        }
+
+        .bookings-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .search-form {
+            grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+        }
+
+        .search-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-buttons .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            min-width: 900px;
+        }
+
+        .custom-modal-content,
+        .upload-modal-content {
+            padding: 1.4rem;
+        }
     }
 </style>
 @endsection
 
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>All Bookings</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">All Bookings</li>
-        </ul>
-    </div>
-<div class="search-container">
-    
-    <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
-          <div class="form-group">
-    <label for="plan_type">Plan Type</label>
-    <select name="plan_type" id="plan_type">
-        <option value="">-- Select Plan --</option>
-        @foreach($planTypes as $type)
-            <option value="{{ $type }}" {{ request('plan_type') == $type ? 'selected' : '' }}>
-                {{ ucfirst(str_replace('_', ' ', $type)) }}
-            </option>
-        @endforeach
-    </select>
-</div>
+<div class="content-wrapper bookings-page">
+    <div class="bookings-shell">
+        <header class="bookings-header">
+            <div class="header-content">
+                <span class="pretitle">
+                    <i class="fas fa-calendar-check"></i>
+                    Bookings
+                </span>
+                <h1>All Bookings</h1>
+                <ul class="breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                    <li class="active">Bookings</li>
+                </ul>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('professional.dashboard') }}" class="btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </header>
 
-        <div class="form-group">
-            <label for="status">Status</label>
-            <select name="status" id="status" class="form-control">
-                <option value="">All Status</option>
-                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-            </select>
-        </div>
+        <section class="filter-card">
+            <h3>Filter Bookings</h3>
+            <form action="{{ route('professional.booking.index') }}" method="GET" class="search-form">
+                <div class="form-group">
+                    <label for="plan_type">Plan Type</label>
+                    <select name="plan_type" id="plan_type">
+                        <option value="">-- Select Plan --</option>
+                        @foreach($planTypes as $type)
+                            <option value="{{ $type }}" {{ request('plan_type') == $type ? 'selected' : '' }}>
+                                {{ ucfirst(str_replace('_', ' ', $type)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <div class="form-group">
-            <label for="search_name">Search</label>
-            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
-        </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" id="status">
+                        <option value="">All Status</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    </select>
+                </div>
 
-        <div class="form-group">
-            <label for="search_date_from">From Date</label>
-            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
-        </div>
+                <div class="form-group">
+                    <label for="search_name">Search</label>
+                    <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Customer or Service Name">
+                </div>
 
-        <div class="form-group">
-            <label for="search_date_to">To Date</label>
-            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
-        </div>
+                <div class="form-group">
+                    <label for="search_date_from">From Date</label>
+                    <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+                </div>
 
-        <div class="search-buttons">
-            <button type="submit" class="btn-success">Search</button>
-            <a href="{{ route('professional.booking.index') }}" class="btn-secondary">Reset</a>
-        </div>
-    </form>
-</div>
+                <div class="form-group">
+                    <label for="search_date_to">To Date</label>
+                    <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+                </div>
 
+                <div class="search-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                    <a href="{{ route('professional.booking.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
 
-
-    <div class="card">
-        <div class="card-body">
-            <div class="table-wrapper">
-                @if($bookings->isEmpty())
-                    <div class="text-center py-5 text-muted">
-                        <p>No bookings available at the moment.</p>
-                    </div>
-                @else
-                    <div class="table-responsive">
+        <section class="bookings-card">
+            <div class="bookings-card__head">
+                <h3>Bookings Overview</h3>
+                <span class="text-muted" style="font-size: 0.9rem;">Monitor customer bookings, manage slots, and access documents from a single place.</span>
+            </div>
+            <div class="bookings-card__body">
+                <div class="table-wrapper">
+                    @if($bookings->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No bookings available at the moment.</p>
+                        </div>
+                    @else
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -558,174 +849,154 @@
                             </thead>
                             <tbody>
                                 @foreach ($bookings as $booking)
-                                @php
-                                //   dd($booking);
-                                $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
-                                    ? $booking->timedates
-                                        ->filter(function($timedate) {
-                                            return \Carbon\Carbon::parse($timedate->date)->isFuture();
-                                        })
-                                        ->sortBy('date')
-                                        ->first()
-                                    : null;
-                            @endphp
-                            
-                            <tr>
-                                <td>
-                                    {{ $booking->customer_name }}
-                                    <button class="btn btn-info btn-sm questionnaire-info" 
-                                            data-booking-id="{{ $booking->id }}" 
-                                            title="View Questionnaire Answers">
-                                        <i class="fas fa-info-circle"></i>
-                                    </button>
-                                </td>
-                                <td>{{ $booking->plan_type }}</td>
-                                <td>{{ $booking->service_name }}</td>
-                                <td>
-                                    @if($booking->sub_service_name)
-                                        <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>         
-                          <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
-
-                                <td>
-                                    @if($booking->meeting_link)
-                                        <a href="{{ $booking->meeting_link }}" class="btn btn-link" target="_blank">
-                                            Join Meeting
-                                        </a>
-                                    @elseif($booking->timedates && $booking->timedates->count() > 0 && $booking->timedates->first()->meeting_link)
-                                        <a href="{{ $booking->timedates->first()->meeting_link }}" class="btn btn-link" target="_blank">
-                                            Join Meeting
-                                        </a>
-                                    @else
-                                        <span class="badge bg-warning">Meeting link not given by admin</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm view-details"
-                                        data-booking-id="{{ $booking->id }}">
-                                        View
-                                    </button>
-                                </td>
-                                <td>
                                     @php
+                                        $earliestTimedate = $booking->timedates && $booking->timedates->count() > 0 
+                                            ? $booking->timedates
+                                                ->filter(function($timedate) {
+                                                    return \Carbon\Carbon::parse($timedate->date)->isFuture();
+                                                })
+                                                ->sortBy('date')
+                                                ->first()
+                                            : null;
                                         $allSlots = $booking->timedates;
                                         $allCompleted = $allSlots->count() > 0 && $allSlots->every(function($timedate) {
                                             return $timedate->status === 'completed';
                                         });
                                     @endphp
-                                    <span class="badge {{ $allCompleted ? 'bg-success' : 'bg-warning' }}">
-                                        {{ $allCompleted ? 'Completed' : 'Pending' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($booking->remarks_for_professional)
-                                        <div class="alert alert-info mb-0 p-2" style="font-size: 0.875rem;">
-                                            <i class="fas fa-comment-alt me-1"></i>
-                                            {{ $booking->remarks_for_professional }}
-                                        </div>
-                                    @else
-                                        <span class="text-muted fst-italic">No admin remarks</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @if ($booking->professional_documents)
-                                            @php
-                                                $doc = $booking->professional_documents;
-                                                $extension = pathinfo($doc, PATHINFO_EXTENSION);
-                                                $fileName = basename($doc);
-                                                $icon = match(strtolower($extension)) {
-                                                    'pdf' => 'pdf',
-                                                    'doc', 'docx' => 'word',
-                                                    'jpg', 'jpeg', 'png' => 'image',
-                                                    default => 'file'
-                                                };
-                                            @endphp
-                                            <a href="{{ asset('storage/' . $doc) }}" 
-                                               class="document-preview" 
-                                               target="_blank"
-                                               title="View {{ $fileName }}">
-                                                <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
-                                                     alt="{{ strtoupper($extension) }}">
-                                                <div class="doc-info">
-                                                    <span class="doc-name">{{ $fileName }}</span>
-                                                    <span class="doc-type">{{ strtoupper($extension) }} Document</span>
-                                                </div>
-                                            </a>
-                                        @endif
-                                        <button class="btn btn-sm btn-primary upload-btn" 
-                                                onclick="openUploadModal('{{ $booking->id }}')"
-                                                title="Upload/Update Document">
-                                            <i class="fas fa-{{ $booking->professional_documents ? 'sync' : 'upload' }}"></i>
-                                            {{ $booking->professional_documents ? 'Update' : 'Upload' }}
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if ($booking->customer_document)
-                                        @php
-                                            $customerDocs = explode(',', $booking->customer_document);
-                                        @endphp
-                                        <div class="d-flex flex-wrap gap-2">
-                                            @foreach ($customerDocs as $doc)
-                                                @php
-                                                    $extension = pathinfo($doc, PATHINFO_EXTENSION);
-                                                    $fileName = basename($doc);
-                                                    $icon = match(strtolower($extension)) {
-                                                        'pdf' => 'pdf',
-                                                        'doc', 'docx' => 'word',
-                                                        'jpg', 'jpeg', 'png' => 'image',
-                                                        default => 'file'
-                                                    };
-                                                @endphp
-                                                <a href="{{ asset('storage/' . $doc) }}" 
-                                                   class="document-preview" 
-                                                   target="_blank"
-                                                   title="View {{ $fileName }}">
-                                                    <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
-                                                         alt="{{ strtoupper($extension) }}">
-                                                    <div class="doc-info">
-                                                        <span class="doc-name">{{ $fileName }}</span>
-                                                        <span class="doc-type">{{ strtoupper($extension) }} Document</span>
-                                                    </div>
+                                    <tr>
+                                        <td>
+                                            {{ $booking->customer_name }}
+                       				        <button class="btn btn-info btn-sm questionnaire-info" data-booking-id="{{ $booking->id }}" title="View Questionnaire Answers">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </td>
+                                        <td>{{ $booking->plan_type }}</td>
+                                        <td>{{ $booking->service_name }}</td>
+                                        <td>
+                                            @if($booking->sub_service_name)
+                                                <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>{!! $earliestTimedate ? str_replace(',', '<br>', $earliestTimedate->time_slot) : '-' !!}</td>
+                                        <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}</td>
+                                        <td>
+                                            @if($booking->meeting_link)
+                                                <a href="{{ $booking->meeting_link }}" class="btn btn-link" target="_blank">
+                                                    <i class="fas fa-video"></i> Join Meeting
                                                 </a>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <div class="no-doc-message">
-                                            <i class="fas fa-file-alt me-2"></i>
-                                            No documents provided
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('professional.chat.open', $booking->id) }}" 
-                                       class="btn btn-sm btn-success position-relative chat-btn-{{ $booking->id }}" 
-                                       target="_blank" 
-                                       title="Chat with Customer"
-                                       data-booking-id="{{ $booking->id }}">
-                                        <i class="fas fa-comments"></i> Chat
-                                        <span class="chat-badge badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill d-none" 
-                                              id="chat-badge-{{ $booking->id }}">
-                                            0
-                                        </span>
-                                    </a>
-                                </td>
-                            </tr>
-                            
-                            @endforeach
-                            
-                            
+                                            @elseif($booking->timedates && $booking->timedates->count() > 0 && $booking->timedates->first()->meeting_link)
+                                                <a href="{{ $booking->timedates->first()->meeting_link }}" class="btn btn-link" target="_blank">
+                                                    <i class="fas fa-video"></i> Join Meeting
+                                                </a>
+                                            @else
+                                                <span class="badge bg-warning">Meeting link not given by admin</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm view-details" data-booking-id="{{ $booking->id }}">
+                                                View
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $allCompleted ? 'bg-success' : 'bg-warning' }}">
+                                                {{ $allCompleted ? 'Completed' : 'Pending' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $booking->remarks ?? 'No remarks' }}</td>
+                                        <td>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @if ($booking->professional_documents)
+                                                    @php
+                                                        $doc = $booking->professional_documents;
+                                                        $extension = pathinfo($doc, PATHINFO_EXTENSION);
+                                                        $fileName = basename($doc);
+                                                        $icon = match(strtolower($extension)) {
+                                                            'pdf' => 'pdf',
+                                                            'doc', 'docx' => 'word',
+                                                            'jpg', 'jpeg', 'png' => 'image',
+                                                            default => 'file'
+                                                        };
+                                                    @endphp
+                                                    <a href="{{ asset('storage/' . $doc) }}" 
+                                                       class="document-preview" 
+                                                       target="_blank"
+                                                       title="View {{ $fileName }}">
+                                                        <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
+                                                             alt="{{ strtoupper($extension) }}">
+                                                        <div class="doc-info">
+                                                            <span class="doc-name">{{ $fileName }}</span>
+                                                            <span class="doc-type">{{ strtoupper($extension) }} Document</span>
+                                                        </div>
+                                                    </a>
+                                                @endif
+                                                <button class="btn btn-sm btn-primary upload-btn" 
+                                                        onclick="openUploadModal('{{ $booking->id }}')"
+                                                        title="Upload/Update Document">
+                                                    <i class="fas fa-{{ $booking->professional_documents ? 'sync' : 'upload' }}"></i>
+                                                    {{ $booking->professional_documents ? 'Update' : 'Upload' }}
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if ($booking->customer_document)
+                                                @php
+                                                    $customerDocs = explode(',', $booking->customer_document);
+                                                @endphp
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach ($customerDocs as $doc)
+                                                        @php
+                                                            $extension = pathinfo($doc, PATHINFO_EXTENSION);
+                                                            $fileName = basename($doc);
+                                                            $icon = match(strtolower($extension)) {
+                                                                'pdf' => 'pdf',
+                                                                'doc', 'docx' => 'word',
+                                                                'jpg', 'jpeg', 'png' => 'image',
+                                                                default => 'file'
+                                                            };
+                                                        @endphp
+                                                        <a href="{{ asset('storage/' . $doc) }}" 
+                                                           class="document-preview" 
+                                                           target="_blank"
+                                                           title="View {{ $fileName }}">
+                                                            <img src="{{ asset('images/' . $icon . '-icon.png') }}" 
+                                                                 alt="{{ strtoupper($extension) }}">
+                                                            <div class="doc-info">
+                                                                <span class="doc-name">{{ $fileName }}</span>
+                                                                <span class="doc-type">{{ strtoupper($extension) }} Document</span>
+                                                            </div>
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="no-doc-message">
+                                                    <i class="fas fa-file-alt"></i>
+                                                    No documents provided
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('professional.chat.open', $booking->id) }}" 
+                                               class="chat-button position-relative chat-btn-{{ $booking->id }}" 
+                                               target="_blank" 
+                                               title="Chat with Customer"
+                                               data-booking-id="{{ $booking->id }}">
+                                                <i class="fas fa-comments chat-icon"></i>
+                                                <span class="chat-label">Chat</span>
+                                                <span class="chat-badge badge bg-danger d-none" id="chat-badge-{{ $booking->id }}">
+                                                    0
+                                                </span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
@@ -804,146 +1075,6 @@
         </div>
     </div>
 </div>
-<style>
-    @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-    }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-}
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-         /* Fix header to prevent horizontal scrolling */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        /* Make table container scrollable horizontally */
-        .table-responsive-container {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-        }
-        
-        /* Ensure the table takes full width of container */
-        .table {
-            width: 100%;
-            table-layout: auto;
-            white-space: nowrap;
-        }
-        
-        /* Fix the search container from overflowing */
-        .search-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure content wrapper doesn't cause horizontal scroll */
-        .content-wrapper {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-            padding: 20px 10px;
-        }
-        
-        /* Fix card width */
-        .card {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure the card body doesn't cause overflow */
-        .card-body {
-            padding: 10px 5px;
-        }
-        
-        /* Add scrollbar styling */
-        .table-responsive-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .table-responsive-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-            .user-profile-wrapper{
-                margin-top: -57px;
-            }
-    }
-</style>
 @endsection
 
 @section('scripts')

@@ -1,152 +1,583 @@
 @extends('professional.layout.layout')
 
-@section('style')
-<!-- Page-specific styles (kept minimal here) -->
+@section('title', 'Rate Management')
+
+@section('styles')
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --accent: #22c55e;
+        --background: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: #e5e7eb;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+    }
+
+    body,
+    .app-content {
+        background: var(--background);
+    }
+
+    .rates-page {
+        width: 100%;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .rates-shell {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+
+    .rates-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 2rem 2.4rem;
+        gap: 1.25rem;
+        border-radius: 24px;
+        border: 1px solid rgba(79,70,229,0.15);
+        background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(59,130,246,0.08));
+        position: relative;
+        overflow: hidden;
+    }
+
+    .rates-header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(79,70,229,0.2), transparent 55%);
+        pointer-events: none;
+    }
+
+    .rates-header > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .rates-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .rates-header .breadcrumb {
+        margin: 0.45rem 0 0;
+        padding: 0;
+        background: transparent;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .rates-header .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .header-actions .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.85rem 1.5rem;
+        border-radius: 999px;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        color: #fff;
+        box-shadow: 0 15px 34px rgba(79,70,229,0.28);
+    }
+
+    .header-actions .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 40px rgba(79,70,229,0.32);
+    }
+
+    .filters-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 34px rgba(15,23,42,0.12);
+        padding: 1.8rem;
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .filters-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .filters-toggle {
+        border: 1px solid rgba(79,70,229,0.35);
+        color: var(--primary-dark);
+        border-radius: 999px;
+        padding: 0.45rem 1rem;
+        background: transparent;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        cursor: pointer;
+    }
+
+    .filters-body {
+        margin-top: 1.4rem;
+        display: none;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.2rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .filters-grid label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.88rem;
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+
+    .filters-grid select {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filters-grid select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+    }
+
+    .filters-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .filters-actions .btn {
+        border-radius: 12px;
+        padding: 0.65rem 1.3rem;
+        font-weight: 600;
+    }
+
+    .filters-actions .btn-outline-secondary {
+        border: 1px solid rgba(100,116,139,0.35);
+        color: var(--text-muted);
+        background: #fff;
+    }
+
+    .filters-actions .btn-outline-secondary:hover {
+        background: rgba(15,23,42,0.05);
+    }
+
+    .filters-results {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .service-section {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 36px rgba(15,23,42,0.12);
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .service-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        padding-bottom: 0.75rem;
+    }
+
+    .service-title h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .rates-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid rgba(226,232,240,0.9);
+    }
+
+    .rates-table thead {
+        background: rgba(79,70,229,0.08);
+    }
+
+    .rates-table th {
+        font-weight: 700;
+        color: var(--text-dark);
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .rates-table td {
+        padding: 0.8rem 1rem;
+        border-top: 1px solid rgba(226,232,240,0.7);
+        font-size: 0.9rem;
+    }
+
+    .rate-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: rgba(79,70,229,0.12);
+        color: var(--primary-dark);
+    }
+
+    .rate-type-badge.sub {
+        background: rgba(14,165,233,0.12);
+        color: #0369a1;
+    }
+
+    .feature-pill {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(15,23,42,0.06);
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 0.78rem;
+        margin: 0.15rem;
+    }
+
+    .table-actions {
+        display: inline-flex;
+        gap: 0.4rem;
+        align-items: center;
+    }
+
+    .table-actions a {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(79,70,229,0.1);
+        color: var(--primary-dark);
+    }
+
+    .table-actions a.text-danger {
+        background: rgba(239,68,68,0.12);
+        color: #dc2626;
+    }
+
+    .available-session-info {
+        background: rgba(248,250,252,0.85);
+        border-radius: 14px;
+        padding: 1rem;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+    }
+
+    .available-session-info strong {
+        color: var(--text-dark);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .summary-card {
+        background: var(--card-bg);
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 28px rgba(15,23,42,0.1);
+        padding: 1.4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+
+    .summary-card h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+
+    .summary-card p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+        padding: 2.5rem 1rem;
+    }
+
+    .empty-state i {
+        color: var(--primary);
+    }
+
+    .empty-state .btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        color: #fff;
+        padding: 0.85rem 1.8rem;
+        border-radius: 999px;
+        font-weight: 600;
+        box-shadow: 0 16px 32px rgba(79,70,229,0.24);
+    }
+
+    @media (max-width: 768px) {
+        .rates-page {
+            padding: 0 1rem 2.5rem;
+        }
+
+        .rates-header {
+            padding: 1.75rem 1.6rem;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filters-actions .btn,
+        .filters-actions .btn-outline-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rates-table,
+        .rates-table thead,
+        .rates-table tbody,
+        .rates-table th,
+        .rates-table td,
+        .rates-table tr {
+            display: block;
+        }
+
+        .rates-table thead {
+            display: none;
+        }
+
+        .rates-table tr {
+            margin-bottom: 1rem;
+            border: 1px solid rgba(226,232,240,0.8);
+            border-radius: 14px;
+            background: #fff;
+            padding: 0.75rem 0.9rem;
+        }
+
+        .rates-table td {
+            border: none;
+            padding: 0.45rem 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .rates-table td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .table-actions {
+            justify-content: flex-end;
+            gap: 0.55rem;
+        }
+
+        .table-actions a {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
 @endsection
 
 @section('content')
 <div class="content-wrapper">
-    <div class="page-header">
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">All Rates</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="rates-page">
+        <div class="rates-shell">
+            <header class="rates-header">
                 <div>
-                    <h4 class="mb-0">Rate List</h4>
-                    <small class="text-muted">Manage rates per service and sub-service</small>
+                    <h1>Rate Management</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Rates</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div class="card-actions">
-                    <a href="{{ route('professional.rate.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus mr-1"></i> Add Rate
+                <div class="header-actions">
+                    <a href="{{ route('professional.rate.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Rate
                     </a>
                 </div>
-            </div>
-            
-            <!-- Advanced Filters -->
-            <div class="filters-section mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">
-                            <i class="fas fa-filter"></i> Filter Rates
-                            <button class="btn btn-sm btn-outline-secondary float-right" id="toggleFilters">
-                                <i class="fas fa-chevron-down"></i> Toggle Filters
-                            </button>
-                        </h6>
+            </header>
+
+            <section class="filters-card">
+                <div class="filters-header">
+                    <h2><i class="fas fa-filter"></i> Filter Rates</h2>
+                    <button class="filters-toggle" id="toggleFilters">
+                        <i class="fas fa-chevron-down"></i> Toggle Filters
+                    </button>
+                </div>
+                <div class="filters-body" id="filtersBody">
+                    <div class="filters-grid">
+                        <div>
+                            <label for="filterService">Service</label>
+                            <select id="filterService">
+                                <option value="">All Services</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filterSubService">Sub-Service</label>
+                            <select id="filterSubService">
+                                <option value="">All Sub-Services</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filterSessionType">Session Type</label>
+                            <select id="filterSessionType">
+                                <option value="">All Session Types</option>
+                                <option value="One Time">One Time</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Free Hand">Free Hand</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filterRate">Rate Range</label>
+                            <select id="filterRate">
+                                <option value="">All Rates</option>
+                                <option value="0-500">₹0 - ₹500</option>
+                                <option value="501-1000">₹501 - ₹1000</option>
+                                <option value="1001-2000">₹1001 - ₹2000</option>
+                                <option value="2001-5000">₹2001 - ₹5000</option>
+                                <option value="5000+">₹5000+</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="card-body" id="filtersBody" style="display: none;">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="filterService">Service</label>
-                                <select id="filterService" class="form-control">
-                                    <option value="">All Services</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="filterSubService">Sub-Service</label>
-                                <select id="filterSubService" class="form-control">
-                                    <option value="">All Sub-Services</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="filterSessionType">Session Type</label>
-                                <select id="filterSessionType" class="form-control">
-                                    <option value="">All Session Types</option>
-                                    <option value="One Time">One Time</option>
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Quarterly">Quarterly</option>
-                                    <option value="Free Hand">Free Hand</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="filterRate">Rate Range</label>
-                                <select id="filterRate" class="form-control">
-                                    <option value="">All Rates</option>
-                                    <option value="0-500">₹0 - ₹500</option>
-                                    <option value="501-1000">₹501 - ₹1000</option>
-                                    <option value="1001-2000">₹1001 - ₹2000</option>
-                                    <option value="2001-5000">₹2001 - ₹5000</option>
-                                    <option value="5000+">₹5000+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
-                                <button id="clearFilters" class="btn btn-outline-secondary ml-2">Clear All</button>
-                                <span id="filterResults" class="ml-3 text-muted"></span>
-                            </div>
-                        </div>
+                    <div class="filters-actions">
+                        <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
+                        <button id="clearFilters" class="btn btn-outline-secondary">Clear All</button>
+                        <span id="filterResults" class="filters-results"></span>
                     </div>
                 </div>
-            </div>
-            <div class="table-responsive">
-                @php
-                    $groupedRates = $rates->groupBy(function($rate) {
-                        // Get service ID from multiple sources to ensure consistent grouping
-                        if ($rate->professionalService && $rate->professionalService->service_id) {
-                            return $rate->professionalService->service_id;
+            </section>
+
+            @php
+                $groupedRates = $rates->groupBy(function($rate) {
+                    if ($rate->professionalService && $rate->professionalService->service_id) {
+                        return $rate->professionalService->service_id;
+                    }
+                    if ($rate->subService && $rate->subService->service_id) {
+                        return $rate->subService->service_id;
+                    }
+                    return 'unknown';
+                });
+            @endphp
+
+            @if($groupedRates->count() > 0)
+                @foreach($groupedRates as $serviceId => $serviceRates)
+                    @php
+                        $firstRate = $serviceRates->first();
+                        $serviceName = null;
+
+                        if ($firstRate && $firstRate->professionalService) {
+                            if ($firstRate->professionalService->service) {
+                                $serviceName = $firstRate->professionalService->service->name;
+                            } elseif ($firstRate->professionalService->service_name) {
+                                $serviceName = $firstRate->professionalService->service_name;
+                            }
                         }
-                        // Fallback: get service from sub-service if this is a sub-service rate
-                        if ($rate->subService && $rate->subService->service_id) {
-                            return $rate->subService->service_id;
-                        }
-                        return 'unknown';
-                    });
-                @endphp
-                
-                @if($groupedRates->count() > 0)
-                    @foreach($groupedRates as $serviceId => $serviceRates)
-                        @php
-                            // Get service name directly from the first rate's relationship
-                            $firstRate = $serviceRates->first();
-                            $serviceName = null;
-                            
-                            if ($firstRate && $firstRate->professionalService) {
-                                // Try to get from related service
-                                if ($firstRate->professionalService->service) {
-                                    $serviceName = $firstRate->professionalService->service->name;
-                                } 
-                                // Fallback to service_name on professional service
-                                elseif ($firstRate->professionalService->service_name) {
-                                    $serviceName = $firstRate->professionalService->service_name;
+
+                        if (!$serviceName && $firstRate && $firstRate->subService) {
+                            $subServiceModel = $firstRate->subService;
+                            if ($subServiceModel && $subServiceModel->service_id) {
+                                $serviceFromSubService = \App\Models\Service::find($subServiceModel->service_id);
+                                if ($serviceFromSubService) {
+                                    $serviceName = $serviceFromSubService->name;
                                 }
                             }
-                            
-                            // If still no service name and we have a sub-service, try to get service from sub-service
-                            if (!$serviceName && $firstRate && $firstRate->subService) {
-                                $subServiceModel = $firstRate->subService;
-                                if ($subServiceModel && $subServiceModel->service_id) {
-                                    $serviceFromSubService = \App\Models\Service::find($subServiceModel->service_id);
-                                    if ($serviceFromSubService) {
-                                        $serviceName = $serviceFromSubService->name;
-                                    }
-                                }
-                            }
-                            
-                            // Final fallback
-                            if (!$serviceName) {
-                                $serviceName = 'Service';
-                            }
-                            
-                            $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
-                            $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
-                            
-                            // Get all session types for this service (both main service and sub-services)
-                            $allSessionTypes = $serviceRates->pluck('session_type')->unique()->toArray();
-                            $availableSessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand'];
-                        @endphp
-                        
-                        <div class="service-section mb-4">
-                            <h5 class="service-header">{{ $serviceName }}</h5>
-                            
-                            <!-- Combined Service and Sub-Service Rates Table -->
-                            <table class="table table-bordered service-table">
-                                <thead class="table-light">
+                        }
+
+                        if (!$serviceName) {
+                            $serviceName = 'Service';
+                        }
+
+                        $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
+                        $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
+                        $availableSessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand'];
+                        $usedSessionTypes = $serviceRates->pluck('session_type')->toArray();
+                        $availableToAdd = array_diff($availableSessionTypes, $usedSessionTypes);
+                    @endphp
+
+                    <section class="service-section">
+                        <div class="service-title">
+                            <h3>{{ $serviceName }}</h3>
+                            <span class="filters-results">Total rates: {{ $serviceRates->count() }}</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="rates-table">
+                                <thead>
                                     <tr>
                                         <th>Type</th>
                                         <th>Session Type</th>
@@ -158,11 +589,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Service Level Rates -->
                                     @foreach($serviceOnlyRates as $rate)
-                                        <tr class="service-rate">
+                                        <tr>
                                             <td data-label="Type">
-                                                <span class="badge bg-primary">Main Service</span>
+                                                <span class="rate-type-badge"><i class="fas fa-briefcase"></i> Main Service</span>
                                             </td>
                                             <td data-label="Session Type">{{ $rate->session_type }}</td>
                                             <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
@@ -172,7 +602,7 @@
                                                 @if($rate->features && count($rate->features) > 0)
                                                     @foreach($rate->features as $feature)
                                                         @if(trim($feature))
-                                                            <span class="badge bg-light text-dark" style="margin: 2px; font-size: 0.75rem;">{{ $feature }}</span>
+                                                            <span class="feature-pill">{{ $feature }}</span>
                                                         @endif
                                                     @endforeach
                                                 @else
@@ -180,8 +610,8 @@
                                                 @endif
                                             </td>
                                             <td data-label="Actions">
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">
+                                                <div class="table-actions">
+                                                    <a href="{{ route('professional.rate.edit', $rate->id) }}" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item text-danger" title="Delete">
@@ -191,16 +621,15 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                    
-                                    <!-- Sub-Service Level Rates -->
+
                                     @foreach($subServiceRates as $subServiceId => $subRates)
                                         @php
                                             $subService = $subRates->first()->subService;
                                         @endphp
                                         @foreach($subRates as $rate)
-                                            <tr class="sub-service-rate">
+                                            <tr>
                                                 <td data-label="Type">
-                                                    <span class="badge bg-info">{{ $subService->name ?? 'Sub-Service' }}</span>
+                                                    <span class="rate-type-badge sub"><i class="fas fa-layer-group"></i> {{ $subService->name ?? 'Sub-Service' }}</span>
                                                 </td>
                                                 <td data-label="Session Type">{{ $rate->session_type }}</td>
                                                 <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
@@ -210,7 +639,7 @@
                                                     @if($rate->features && count($rate->features) > 0)
                                                         @foreach($rate->features as $feature)
                                                             @if(trim($feature))
-                                                                <span class="badge bg-light text-dark" style="margin: 2px; font-size: 0.75rem;">{{ $feature }}</span>
+                                                                <span class="feature-pill">{{ $feature }}</span>
                                                             @endif
                                                         @endforeach
                                                     @else
@@ -218,8 +647,8 @@
                                                     @endif
                                                 </td>
                                                 <td data-label="Actions">
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('professional.rate.edit', $rate->id) }}" class="text-primary" title="Edit">
+                                                    <div class="table-actions">
+                                                        <a href="{{ route('professional.rate.edit', $rate->id) }}" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
                                                         <a href="javascript:void(0)" data-url="{{ route('professional.rate.destroy', $rate->id) }}" class="delete-item text-danger" title="Delete">
@@ -230,369 +659,49 @@
                                             </tr>
                                         @endforeach
                                     @endforeach
-                                    
-                                    <!-- Show Available Session Types -->
-                                    @php
-                                        $usedSessionTypes = $serviceRates->pluck('session_type')->toArray();
-                                        $availableToAdd = array_diff($availableSessionTypes, $usedSessionTypes);
-                                        
-                                        // Separate service-level and sub-service-level session types
-                                        $serviceSessionTypes = $serviceOnlyRates->pluck('session_type')->toArray();
-                                        $subServiceSessionTypes = $subServiceRates->flatten()->pluck('session_type')->toArray();
-                                        $availableForService = array_diff($availableSessionTypes, $serviceSessionTypes);
-                                        $availableForSubServices = array_diff($availableSessionTypes, $subServiceSessionTypes);
-                                    @endphp
-                                    
-                                    @if(count($availableToAdd) > 0)
-                                        <tr class="available-sessions-row">
-                                            <td colspan="6" class="text-center bg-light">
-                                                <div class="session-status-info">
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-plus-circle"></i> 
-                                                        <strong>Available to add:</strong> {{ implode(', ', $availableToAdd) }}
-                                                    </small>
-                                                    @if(count($availableForService) > 0)
-                                                        <br><small class="text-info">
-                                                            <i class="fas fa-info-circle"></i> 
-                                                            For main service: {{ implode(', ', $availableForService) }}
-                                                        </small>
-                                                    @endif
-                                                    @if($subServiceRates->count() > 0 && count($availableForSubServices) > 0)
-                                                        <br><small class="text-secondary">
-                                                            <i class="fas fa-layer-group"></i> 
-                                                            For sub-services: {{ implode(', ', $availableForSubServices) }}
-                                                        </small>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @else
-                                        <tr class="complete-sessions-row">
-                                            <td colspan="6" class="text-center bg-success text-white">
-                                                <small>
-                                                    <i class="fas fa-check-circle"></i> All session types configured for this service
-                                                </small>
-                                            </td>
-                                        </tr>
-                                    @endif
+
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="available-session-info">
+                                                <strong><i class="fas fa-plus-circle"></i> Session Types Remaining:</strong>
+                                                {{ count($availableToAdd) > 0 ? implode(', ', $availableToAdd) : 'All session types configured for this service.' }}
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        
-                        @if(!$loop->last)
-                            <hr class="service-separator">
-                        @endif
-                    @endforeach
-                @else
-                    <table class="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <td colspan="6" class="text-center text-muted">
-                                    <div class="empty-state">
-                                        <i class="fas fa-money-bill-wave fa-3x mb-3 text-muted"></i>
-                                        <h5>No rate details found</h5>
-                                        <p>You haven't set up any rates yet. Start by adding rates for your services.</p>
-                                        <a href="{{ route('professional.rate.create') }}" class="btn btn-primary">
-                                            <i class="fas fa-plus"></i> Add Your First Rate
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                @endif
-            </div>
+                    </section>
+                @endforeach
 
-            @if($rates->count() > 0)
-                <div class="summary-info mt-4">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="info-card">
-                                <h6><i class="fas fa-chart-bar"></i> Rate Summary</h6>
-                                <p><strong>Total Rate Entries:</strong> {{ $rates->count() }}</p>
-                                                                <p><strong>Services with Rates:</strong> {{ $rates->pluck('service_id')->unique()->count() }}</p>
-                                <p><strong>Sub-Services with Rates:</strong> {{ $rates->whereNotNull('sub_service_id')->pluck('sub_service_id')->unique()->count() }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="info-card">
-                                <h6><i class="fas fa-info-circle"></i> Quick Info</h6>
-                                <p>Each service can have up to 4 different session types (One Time, Monthly, Quarterly, Free Hand)</p>
-                            </div>
-                        </div>
+                <section class="summary-grid">
+                    <div class="summary-card">
+                        <h4><i class="fas fa-chart-bar"></i> Rate Summary</h4>
+                        <p><strong>Total Rate Entries:</strong> {{ $rates->count() }}</p>
+                        <p><strong>Services with Rates:</strong> {{ $rates->pluck('service_id')->unique()->count() }}</p>
+                        <p><strong>Sub-Services with Rates:</strong> {{ $rates->whereNotNull('sub_service_id')->pluck('sub_service_id')->unique()->count() }}</p>
                     </div>
-                </div>
+                    <div class="summary-card">
+                        <h4><i class="fas fa-info-circle"></i> Quick Info</h4>
+                        <p>Each service can include up to four session types: One Time, Monthly, Quarterly, and Free Hand.</p>
+                        <p>Use the filters above to quickly find rates for a specific offering.</p>
+                    </div>
+                </section>
+            @else
+                <section class="service-section">
+                    <div class="empty-state">
+                        <i class="fas fa-money-bill-wave fa-3x"></i>
+                        <h4>No rate details found</h4>
+                        <p>You haven't set up any rates yet. Start by adding rates for your services.</p>
+                        <a href="{{ route('professional.rate.create') }}" class="btn">
+                            <i class="fas fa-plus"></i> Add Your First Rate
+                        </a>
+                    </div>
+                </section>
             @endif
         </div>
     </div>
 </div>
-
-<style>
-    .service-info {
-        min-width: 200px;
-    }
-    
-    .service-section {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .service-header {
-        color: #0d6efd;
-        font-weight: 600;
-        margin-bottom: 15px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #0d6efd;
-    }
-    
-    .sub-service-section {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 12px;
-        margin-left: 20px;
-        margin-bottom: 15px;
-    }
-    
-    .sub-service-header {
-        color: #6c757d;
-        font-weight: 600;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .service-table {
-        margin-bottom: 0;
-    }
-    
-    .sub-service-table {
-        margin-bottom: 0;
-        background: #fff;
-    }
-    
-    .service-separator {
-        border-top: 2px solid #dee2e6;
-        margin: 30px 0;
-    }
-    
-    .empty-state {
-        padding: 2rem;
-        text-align: center;
-    }
-    
-    .info-card {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #007bff;
-    }
-    
-    .info-card h6 {
-        color: #007bff;
-        margin-bottom: 0.5rem;
-    }
-    
-    .info-card p {
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
-    }
-
-    /* Enhanced visuals */
-    .service-name { font-weight: 600; color: #0d6efd; }
-    .subservice-name { font-size: 0.9rem; }
-
-    .btn-outline-primary { color: #0d6efd; border-color: #0d6efd; }
-    .btn-outline-danger { color: #dc3545; border-color: #dc3545; }
-
-    .empty-state h5 { margin-top: 0.5rem; }
-    .empty-state p { margin-bottom: 1rem; }
-    
-    /* Rate type styling */
-    .service-rate {
-        background-color: #f8f9ff;
-    }
-    
-    .sub-service-rate {
-        background-color: #f0f8ff;
-    }
-    
-    .available-sessions-row td {
-        padding: 12px;
-        font-style: italic;
-    }
-    
-    .complete-sessions-row td {
-        padding: 8px;
-        font-weight: 500;
-    }
-    
-    .session-status-info {
-        line-height: 1.5;
-    }
-    
-    .session-status-info small {
-        display: inline-block;
-        margin: 2px 0;
-    }
-    
-    @media only screen and (min-width: 768px) and (max-width: 1024px) {
-    .user-profile-wrapper {
-        margin-top: -57px;
-    }
-}
-    @media screen and (max-width: 767px) {
-    /* Fix header to prevent horizontal scrolling */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #f8f9fa;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-    }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        width: 100%;
-        table-layout: auto;
-    }
-    
-    /* Fix the search container from overflowing */
-    .search-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure content wrapper doesn't cause horizontal scroll */
-    .content-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100vw;
-        padding: 20px 10px;
-    }
-    
-    /* Fix card width */
-    .card {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Ensure the card body doesn't cause overflow */
-    .card-body {
-        padding: 10px 5px;
-    }
-    
-    /* Optional: Make some table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        white-space: nowrap;
-    }
-}
-</style>
-
-<style>
-    /* Mobile: convert table rows into stacked cards for easier management */
-    @media screen and (max-width: 767px) {
-        .table-responsive { overflow-x: auto; }
-        
-        .service-section {
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .sub-service-section {
-            margin-left: 10px;
-            padding: 8px;
-        }
-        
-        .service-header {
-            font-size: 1.1rem;
-        }
-        
-        .sub-service-header {
-            font-size: 1rem;
-        }
-
-        table.table {
-            border-collapse: separate;
-        }
-
-        table.table thead {
-            display: none;
-        }
-
-        table.table, table.table tbody, table.table tr, table.table td {
-            display: block;
-            width: 100%;
-        }
-
-        table.table tr {
-            margin-bottom: 12px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-            background: #fff;
-        }
-
-        table.table td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 8px;
-            border: none;
-            white-space: normal;
-        }
-
-        /* Use the data-label attribute already present on TDs for header labels */
-        table.table td:before {
-            content: attr(data-label) ": ";
-            font-weight: 600;
-            color: #495057;
-            margin-right: 8px;
-            flex: 0 0 auto;
-        }
-
-        /* Make action buttons easier to tap */
-        table.table td[data-label="Actions"] {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .btn-group a {
-            padding: 8px 10px;
-            font-size: 14px;
-            flex: 1 1 auto; /* make buttons share available space on small screens */
-            text-align: center;
-        }
-
-        /* Reduce summary section clutter on mobile */
-        .summary-info .info-card {
-            padding: 0.75rem;
-        }
-    }
-
-    /* Tablet: allow horizontal scroll but keep readable padding */
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        .table-responsive { overflow-x: auto; }
-        table.table td, table.table th { padding: 8px; }
-    }
-</style>
-
 @endsection
 
 @section('scripts')
@@ -607,60 +716,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyFiltersBtn = document.getElementById('applyFilters');
     const clearFiltersBtn = document.getElementById('clearFilters');
     const filterResults = document.getElementById('filterResults');
-    
+
     let allRates = [];
-    
-    // Toggle filters visibility
+
     toggleFiltersBtn.addEventListener('click', function() {
         const isVisible = filtersBody.style.display !== 'none';
         filtersBody.style.display = isVisible ? 'none' : 'block';
         const icon = this.querySelector('i');
         icon.className = isVisible ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
     });
-    
-    // Collect all rate data for filtering
+
     function collectRateData() {
         allRates = [];
-        document.querySelectorAll('.service-section, .sub-service-section').forEach(section => {
+        document.querySelectorAll('.service-section').forEach(section => {
             section.querySelectorAll('tbody tr').forEach(row => {
-                const serviceName = row.querySelector('[data-label="Service"], [data-label="Sub-Service"]')?.textContent.trim();
-                const sessionType = row.querySelector('[data-label="Session Type"]')?.textContent.trim();
-                const rateText = row.querySelector('[data-label="Rate/Session"]')?.textContent.trim();
-                const finalRateText = row.querySelector('[data-label="Final Rate"]')?.textContent.trim();
-                
-                if (serviceName && sessionType) {
-                    const rate = parseFloat(rateText.replace(/[₹,]/g, '')) || 0;
-                    const finalRate = parseFloat(finalRateText.replace(/[₹,]/g, '')) || 0;
-                    const isSubService = row.querySelector('[data-label="Sub-Service"]') !== null;
-                    
-                    allRates.push({
-                        element: row,
-                        section: section,
-                        serviceName: serviceName,
-                        sessionType: sessionType,
-                        rate: rate,
-                        finalRate: finalRate,
-                        isSubService: isSubService
-                    });
-                }
+                const typeCell = row.querySelector('[data-label="Type"]');
+                const sessionTypeCell = row.querySelector('[data-label="Session Type"]');
+                const rateCell = row.querySelector('[data-label="Rate/Session"]');
+                const finalRateCell = row.querySelector('[data-label="Final Rate"]');
+                if (!typeCell || !sessionTypeCell || !rateCell || !finalRateCell) return;
+                const label = typeCell.textContent.trim();
+                const isSummaryRow = typeCell.querySelector('.available-session-info');
+                if (isSummaryRow) return;
+                const rate = parseFloat(rateCell.textContent.replace(/[₹,]/g, '')) || 0;
+                const finalRate = parseFloat(finalRateCell.textContent.replace(/[₹,]/g, '')) || 0;
+                const isSubService = label.includes('Sub-Service');
+                allRates.push({
+                    element: row,
+                    section: section,
+                    serviceName: section.querySelector('.service-title h3').textContent.trim(),
+                    sessionType: sessionTypeCell.textContent.trim(),
+                    rate,
+                    finalRate,
+                    isSubService
+                });
             });
         });
     }
-    
-    // Populate filter dropdowns
+
     function populateFilters() {
         const services = new Set();
         const subServices = new Set();
-        
         allRates.forEach(rate => {
             if (rate.isSubService) {
-                subServices.add(rate.serviceName);
+                subServices.add(rate.sessionType + ' · ' + rate.serviceName);
             } else {
                 services.add(rate.serviceName);
             }
         });
-        
-        // Populate service filter
         filterService.innerHTML = '<option value="">All Services</option>';
         Array.from(services).sort().forEach(service => {
             const option = document.createElement('option');
@@ -668,8 +771,6 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = service;
             filterService.appendChild(option);
         });
-        
-        // Populate sub-service filter
         filterSubService.innerHTML = '<option value="">All Sub-Services</option>';
         Array.from(subServices).sort().forEach(subService => {
             const option = document.createElement('option');
@@ -678,118 +779,68 @@ document.addEventListener('DOMContentLoaded', function() {
             filterSubService.appendChild(option);
         });
     }
-    
-    // Apply filters
+
     function applyFilters() {
         const serviceFilter = filterService.value.toLowerCase();
         const subServiceFilter = filterSubService.value.toLowerCase();
         const sessionTypeFilter = filterSessionType.value.toLowerCase();
         const rateFilter = filterRate.value;
-        
         let visibleCount = 0;
-        let hiddenSections = new Set();
-        
         allRates.forEach(rate => {
             let visible = true;
-            
-            // Service filter
             if (serviceFilter && !rate.serviceName.toLowerCase().includes(serviceFilter)) {
                 visible = false;
             }
-            
-            // Sub-service filter
-            if (subServiceFilter && (!rate.isSubService || !rate.serviceName.toLowerCase().includes(subServiceFilter))) {
-                visible = false;
-            }
-            
-            // Session type filter
-            if (sessionTypeFilter && !rate.sessionType.toLowerCase().includes(sessionTypeFilter)) {
-                visible = false;
-            }
-            
-            // Rate filter
-            if (rateFilter) {
-                const rateValue = rate.finalRate;
-                let rateMatch = false;
-                
-                switch(rateFilter) {
-                    case '0-500':
-                        rateMatch = rateValue >= 0 && rateValue <= 500;
-                        break;
-                    case '501-1000':
-                        rateMatch = rateValue >= 501 && rateValue <= 1000;
-                        break;
-                    case '1001-2000':
-                        rateMatch = rateValue >= 1001 && rateValue <= 2000;
-                        break;
-                    case '2001-5000':
-                        rateMatch = rateValue >= 2001 && rateValue <= 5000;
-                        break;
-                    case '5000+':
-                        rateMatch = rateValue > 5000;
-                        break;
-                    default:
-                        rateMatch = true;
-                }
-                
-                if (!rateMatch) {
+            if (subServiceFilter) {
+                const combo = `${rate.sessionType.toLowerCase()} · ${rate.serviceName.toLowerCase()}`;
+                if (!combo.includes(subServiceFilter)) {
                     visible = false;
                 }
             }
-            
-            // Show/hide row
+            if (sessionTypeFilter && !rate.sessionType.toLowerCase().includes(sessionTypeFilter)) {
+                visible = false;
+            }
+            if (rateFilter) {
+                const val = rate.finalRate;
+                let match = false;
+                switch(rateFilter) {
+                    case '0-500': match = val >= 0 && val <= 500; break;
+                    case '501-1000': match = val >= 501 && val <= 1000; break;
+                    case '1001-2000': match = val >= 1001 && val <= 2000; break;
+                    case '2001-5000': match = val >= 2001 && val <= 5000; break;
+                    case '5000+': match = val > 5000; break;
+                    default: match = true;
+                }
+                if (!match) visible = false;
+            }
             rate.element.style.display = visible ? '' : 'none';
-            
-            if (visible) {
-                visibleCount++;
-            } else {
-                hiddenSections.add(rate.section);
-            }
+            if (visible) visibleCount++;
         });
-        
-        // Hide sections that have no visible rows
-        document.querySelectorAll('.service-section, .sub-service-section').forEach(section => {
-            const visibleRows = Array.from(section.querySelectorAll('tbody tr')).filter(row => 
-                row.style.display !== 'none'
-            );
-            
-            if (visibleRows.length === 0) {
-                section.style.display = 'none';
-            } else {
-                section.style.display = 'block';
-            }
+        document.querySelectorAll('.service-section').forEach(section => {
+            const visibleRows = Array.from(section.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+            section.style.display = visibleRows.length > 0 ? 'block' : 'none';
         });
-        
-        // Update results
         filterResults.textContent = `Showing ${visibleCount} of ${allRates.length} rates`;
     }
-    
-    // Clear all filters
+
     function clearAllFilters() {
         filterService.value = '';
         filterSubService.value = '';
         filterSessionType.value = '';
         filterRate.value = '';
-        
-        // Show all elements
         allRates.forEach(rate => {
             rate.element.style.display = '';
             rate.section.style.display = 'block';
         });
-        
         filterResults.textContent = '';
     }
-    
-    // Event listeners
+
     applyFiltersBtn.addEventListener('click', applyFilters);
     clearFiltersBtn.addEventListener('click', clearAllFilters);
-    
-    // Auto-apply filters on dropdown change
     [filterService, filterSubService, filterSessionType, filterRate].forEach(filter => {
         filter.addEventListener('change', applyFilters);
     });
-    
-    // Initialize
+
     collectRateData();
     populateFilters();
 });

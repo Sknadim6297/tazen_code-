@@ -455,7 +455,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script>
             $(document).ready(function() {
-                // Handle Enter key on search input
                 $('input[name="search"]').keypress(function(e) {
                     if (e.which == 13) {
                         e.preventDefault();
@@ -463,31 +462,14 @@
                     }
                 });
             });
-            
-            // Export data function
+
             window.exportData = function(type) {
-                console.log('Export requested:', type);
-                
-                // Set the export type explicitly
                 document.getElementById('export-type').value = type;
-                
-                // Set the values of the hidden inputs to current filter values
                 document.getElementById('export-search').value = document.getElementById('searchInput').value || '';
                 document.getElementById('export-status').value = document.getElementById('paymentStatusFilter').value || '';
                 document.getElementById('export-event-mode').value = document.getElementById('eventModeFilter').value || '';
-                document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]')?.value || '';
-                document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]')?.value || '';
-                
-                // Show a loading message (optional)
-                if (typeof toastr !== 'undefined') {
-                    toastr.info('Preparing ' + type.toUpperCase() + ' export...');
-                }
-                
-                // Debug what's being submitted
-                console.log('Form action:', document.getElementById('export-form').action);
-                console.log('Type value:', document.getElementById('export-type').value);
-                
-                // Submit the form
+                document.getElementById('export-start-date').value = document.querySelector('input[name="start_date"]').value || '';
+                document.getElementById('export-end-date').value = document.querySelector('input[name="end_date"]').value || '';
                 document.getElementById('export-form').submit();
             }
         </script>

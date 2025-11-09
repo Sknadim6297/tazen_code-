@@ -79,6 +79,11 @@ Route::get('/run-migrations', function () {
     return "Migrations ran successfully!";
 });
 
+Route::get('/linkstorage', function () {
+    Artisan::call('storage:link');
+    return 'Storage link created!';
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('gridlisting', [HomeController::class, 'professionals'])->name('gridlisting');
 

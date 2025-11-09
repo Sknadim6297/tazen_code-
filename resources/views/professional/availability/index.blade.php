@@ -2,356 +2,562 @@
 
 @section('styles')
 <style>
-    /* Fix container overflow */
-    .main-content {
-        max-width: 100%;
-        overflow-x: hidden;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --accent: #22c55e;
+        --background: #f4f6fb;
+        --card-bg: #ffffff;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --border: #e5e7eb;
     }
 
-    .container-fluid {
-        max-width: 100%;
-        padding-right: 15px;
-        padding-left: 15px;
-        overflow-x: hidden;
+    body,
+    .app-content {
+        background: var(--background);
     }
 
-    /* Page Header */
-    .page-header {
-        margin-bottom: 1.5rem;
+    .availability-page {
+        width: 100%;
+        padding: 0 1.25rem 3rem;
     }
 
-    .page-header .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin-bottom: 0.5rem;
+    .availability-shell {
+        max-width: 1180px;
+        margin: 0 auto;
     }
 
-    .page-header-breadcrumb {
+    .availability-header {
+        display: flex;
         flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
         gap: 1rem;
+        padding: 2rem 2.5rem;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(59, 130, 246, 0.08));
+        border-radius: 20px;
+        border: 1px solid rgba(79, 70, 229, 0.12);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* Availability Cards */
+    .availability-header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.16), transparent 55%);
+        pointer-events: none;
+    }
+
+    .header-content,
+    .header-actions {
+        position: relative;
+        z-index: 1;
+    }
+
+    .availability-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .availability-header .breadcrumb {
+        margin: 0.35rem 0 0;
+        padding: 0;
+        background: transparent;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+    }
+
+    .availability-header .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .header-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.75rem 1.4rem;
+        border-radius: 999px;
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .header-actions .btn.btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        color: #fff;
+        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.25);
+    }
+
+    .header-actions .btn.btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 35px rgba(79, 70, 229, 0.28);
+    }
+
+    .filter-card {
+        background: var(--card-bg);
+        border-radius: 18px;
+        padding: 1.85rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.09);
+        margin-bottom: 2rem;
+    }
+
+    .filter-card form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.2rem;
+        align-items: end;
+    }
+
+    .filter-card label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+
+    .filter-card select,
+    .filter-card button {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 0.65rem 0.85rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filter-card select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .filter-card .btn {
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .filter-card .btn-outline-primary {
+        border: 1px solid rgba(79, 70, 229, 0.45);
+        color: var(--primary-dark);
+        background: #fff;
+    }
+
+    .filter-card .btn-outline-primary:hover {
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .filter-card .btn-outline-secondary {
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: #fff;
+    }
+
+    .filter-card .btn-outline-secondary:hover {
+        background: rgba(15, 23, 42, 0.05);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .filter-actions .btn {
+        flex: 1;
+    }
+
+    .availability-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.6rem;
+    }
+
     .availability-card {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        transition: all 0.2s ease;
-        max-width: 100%;
-        overflow: hidden;
+        background: var(--card-bg);
+        border-radius: 22px;
+        border: 1px solid rgba(229, 231, 235, 0.85);
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .availability-card:hover {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        border-color: #d1d5db;
+        transform: translateY(-6px);
+        box-shadow: 0 20px 48px rgba(79, 70, 229, 0.18);
     }
 
-    .card-header {
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-        padding: 0.75rem 1rem;
-        border-radius: 8px 8px 0 0;
+    .availability-card .card-top {
+        padding: 1.55rem 1.8rem 1.2rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
     }
 
-    .card-header .d-flex {
+    .card-top .card-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .card-top .month-title {
+        margin: 0;
+        font-size: 1.12rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.01em;
+    }
+
+    .card-top .month-info {
+        margin: 0.35rem 0 0;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.65rem;
         flex-wrap: wrap;
+    }
+
+    .card-actions .btn {
+        border-radius: 999px;
+        padding: 0.45rem 1rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .card-actions .btn-outline-primary {
+        border: 1px solid rgba(79, 70, 229, 0.35);
+        color: var(--primary-dark);
+        background: #fff;
+    }
+
+    .card-actions .btn-outline-primary:hover {
+        background: rgba(79, 70, 229, 0.08);
+    }
+
+    .card-actions .btn-outline-danger {
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #dc2626;
+        background: #fff;
+    }
+
+    .card-actions .btn-outline-danger:hover {
+        background: rgba(239, 68, 68, 0.08);
+    }
+
+    .card-actions .label-text {
+        display: none;
+    }
+
+    .availability-card .card-body {
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.45rem;
+    }
+
+    .weekly-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        border-bottom: 1px dashed var(--border);
+        padding-bottom: 0.65rem;
+    }
+
+    .weekly-title i {
+        font-size: 1.05rem;
+        color: var(--accent);
+    }
+
+    .day-schedule {
+        display: grid;
         gap: 1rem;
     }
 
-    .month-title {
-        font-size: 1.1rem;
+    .day-entry {
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        background: rgba(248, 250, 252, 0.85);
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .day-entry:hover {
+        background: rgba(219, 234, 254, 0.45);
+        border-color: rgba(59, 130, 246, 0.45);
+    }
+
+    .day-entry .day-name {
         font-weight: 600;
-        color: #495057;
-        margin: 0;
-    }
-
-    .month-info {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin: 0;
-    }
-
-    .card-body {
-        padding: 1rem;
-        overflow-x: auto;
-    }
-
-    /* Time Slots Display */
-    .slots-section {
-        margin-bottom: 1rem;
-    }
-
-    .slots-section h6 {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #495057;
+        font-size: 0.92rem;
+        color: var(--text-dark);
         margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
-    .day-slots {
-        margin-bottom: 1rem;
-    }
-
-    .day-name {
-        font-weight: 600;
-        color: #495057;
-        font-size: 0.875rem;
-        text-transform: capitalize;
-        margin-bottom: 0.5rem;
-        padding: 0.25rem 0.5rem;
-        background: #f1f3f4;
-        border-radius: 4px;
+    .day-entry .day-name::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
         display: inline-block;
     }
 
-    .time-slots {
+    .time-pill-group {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+        gap: 0.45rem;
     }
 
-    .time-slot {
-        background: #e3f2fd;
-        color: #1565c0;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
+    .time-pill {
+        background: rgba(79, 70, 229, 0.12);
+        color: var(--primary-dark);
+        padding: 0.4rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .no-slots {
+        margin: 0;
+        color: var(--text-muted);
         font-weight: 500;
     }
 
-    /* Action Buttons */
-    .card-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0;
-        flex-shrink: 0;
-    }
-
-    .btn-sm {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-        white-space: nowrap;
-    }
-
-    /* Search and Filter */
-    .search-section {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        max-width: 100%;
-        overflow: hidden;
-    }
-
-    .search-section .form-control {
-        border-radius: 6px;
-    }
-
-    .search-section .row {
-        margin-right: 0;
-        margin-left: 0;
-    }
-
-    .search-section .col-md-4 {
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-
-    /* Empty State */
     .empty-state {
+        background: #fff;
+        border-radius: 22px;
+        border: 1px dashed rgba(79, 70, 229, 0.35);
+        padding: 3.5rem 1rem;
         text-align: center;
-        padding: 3rem 1rem;
-        color: #6c757d;
+        box-shadow: 0 14px 32px rgba(79, 70, 229, 0.12);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        color: var(--text-muted);
     }
 
     .empty-state i {
         font-size: 3rem;
-        color: #dee2e6;
-        margin-bottom: 1rem;
+        color: var(--primary);
     }
 
-    /* Desktop Layout Fix */
-    @media (min-width: 769px) {
-        .row {
-            margin-right: 0;
-            margin-left: 0;
-        }
+    .empty-state h4 {
+        margin: 0;
+        font-size: 1.35rem;
+        color: var(--text-dark);
+    }
 
-        .col-12 {
-            padding-right: 0;
-            padding-left: 0;
-        }
+    .empty-state p {
+        margin: 0;
+    }
 
-        .card-header .d-flex {
-            align-items: flex-start;
-        }
+    .empty-state .btn {
+        align-self: center;
+        padding: 0.85rem 1.85rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
+        transition: transform 0.2s ease;
+    }
 
-        .card-actions {
-            flex-wrap: nowrap;
+    .empty-state .btn:hover {
+        transform: translateY(-3px);
+    }
+
+    @media (min-width: 576px) {
+        .card-actions .label-text {
+            display: inline;
         }
     }
 
-    /* Tablet and Desktop */
-    @media (min-width: 992px) {
-        .container-fluid {
-            padding-right: 30px;
-            padding-left: 30px;
+    @media (max-width: 992px) {
+        .filter-card form {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-wrap: wrap;
         }
     }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
-        .time-slots {
-            flex-direction: column;
+        .availability-page {
+            padding: 0 1rem 2.5rem;
         }
-        
+
+        .availability-header {
+            padding: 1.8rem 1.6rem;
+        }
+
+        .availability-header h1 {
+            font-size: 1.45rem;
+        }
+
+        .availability-grid {
+            grid-template-columns: 1fr;
+        }
+
         .card-actions {
             flex-direction: column;
-            width: 100%;
-            margin-top: 1rem;
-        }
-        
-        .btn-sm {
-            width: 100%;
         }
 
-        .card-header .d-flex {
+        .card-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .filter-actions {
             flex-direction: column;
         }
 
-        .page-header-breadcrumb .ms-auto {
-            margin-left: 0 !important;
-            margin-top: 1rem;
+        .filter-actions .btn {
+            width: 100%;
         }
-
-        .search-section .col-md-4 {
-            margin-bottom: 1rem;
-        }
-    }
-
-    /* Ensure no horizontal scroll */
-    body {
-        overflow-x: hidden;
-    }
-
-    .app-content {
-        overflow-x: hidden;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="main-content app-content">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-            <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">My Availability</h1>
-                <div>
-                    <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Availability</li>
-                        </ol>
-                    </nav>
-                </div>
+<div class="content-wrapper">
+    <div class="availability-page">
+        <div class="availability-shell">
+        <header class="availability-header">
+            <div class="header-content">
+                <h1>My Availability</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Availability</li>
+                    </ol>
+                </nav>
             </div>
-            <div class="ms-auto">
+            <div class="header-actions">
                 <a href="{{ route('professional.availability.create') }}" class="btn btn-primary">
-                    <i class="ri-add-line me-1"></i>Add New Availability
+                    <i class="ri-add-line"></i>
+                    <span>Add New Availability</span>
                 </a>
             </div>
-        </div>
+        </header>
 
-        <!-- Search Section -->
-        <div class="search-section">
+        <section class="filter-card">
             <form method="GET" action="{{ route('professional.availability.index') }}">
-                <div class="row align-items-end">
-                    <div class="col-md-4">
-                        <label for="search_month" class="form-label">Search by Month</label>
-                        <select name="search_month" id="search_month" class="form-control">
-                            <option value="">All Months</option>
-                            @foreach($availableMonths as $month)
-                                <option value="{{ $month }}" {{ request('search_month') == $month ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($month . '-01')->format('F Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="ri-search-line me-1"></i>Search
-                        </button>
-                        @if(request('search_month'))
-                            <a href="{{ route('professional.availability.index') }}" class="btn btn-outline-secondary ms-2">
-                                <i class="ri-refresh-line me-1"></i>Clear
-                            </a>
-                        @endif
-                    </div>
+                <div>
+                    <label for="search_month">Search by Month</label>
+                    <select name="search_month" id="search_month">
+                        <option value="">All Months</option>
+                        @foreach($availableMonths as $month)
+                            <option value="{{ $month }}" {{ request('search_month') == $month ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::parse($month . '-01')->format('F Y') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="ri-search-line"></i>Search
+                    </button>
+                    @if(request('search_month'))
+                        <a href="{{ route('professional.availability.index') }}" class="btn btn-outline-secondary">
+                            <i class="ri-refresh-line"></i>Clear
+                        </a>
+                    @endif
                 </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Availability List -->
-        <div class="row">
-            <div class="col-12">
-                @if($availability->count() > 0)
-                    @foreach($availability as $avail)
-                        <div class="availability-card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h5 class="month-title">
-                                            {{ \Carbon\Carbon::parse($avail->month . '-01')->format('F Y') }}
-                                        </h5>
-                                        <p class="month-info">
-                                            Session Duration: {{ $avail->session_duration }} minutes
-                                        </p>
-                                    </div>
-                                    <div class="card-actions ms-3">
-                                        <a href="{{ route('professional.availability.edit', $avail->id) }}" 
-                                           class="btn btn-sm btn-outline-primary" title="Edit">
-                                            <i class="ri-edit-line"></i><span class="d-none d-lg-inline ms-1">Edit</span>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger delete-availability" 
-                                                data-id="{{ $avail->id }}" data-month="{{ \Carbon\Carbon::parse($avail->month . '-01')->format('F Y') }}"
-                                                title="Delete">
-                                            <i class="ri-delete-bin-line"></i><span class="d-none d-lg-inline ms-1">Delete</span>
-                                        </button>
-                                    </div>
+        @if($availability->count() > 0)
+            <section class="availability-grid">
+                @foreach($availability as $avail)
+                    <article class="availability-card">
+                        <div class="card-top">
+                            <div class="card-meta">
+                                <div>
+                                    <h2 class="month-title">{{ \Carbon\Carbon::parse($avail->month . '-01')->format('F Y') }}</h2>
+                                    <p class="month-info">Session Duration: {{ $avail->session_duration }} minutes</p>
+                                </div>
+                                <div class="card-actions">
+                                    <a href="{{ route('professional.availability.edit', $avail->id) }}"
+                                       class="btn btn-outline-primary" title="Edit Availability">
+                                        <i class="ri-edit-line"></i>
+                                        <span class="label-text">Edit</span>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-outline-danger delete-availability"
+                                            data-id="{{ $avail->id }}"
+                                            data-month="{{ \Carbon\Carbon::parse($avail->month . '-01')->format('F Y') }}"
+                                            title="Delete Availability">
+                                        <i class="ri-delete-bin-line"></i>
+                                        <span class="label-text">Delete</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                @if($avail->slots && $avail->slots->count() > 0)
-                                    <div class="slots-section">
-                                        <h6>Weekly Schedule</h6>
-                                        @php
-                                            $weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-                                            $dayNames = [
-                                                'mon' => 'Monday',
-                                                'tue' => 'Tuesday', 
-                                                'wed' => 'Wednesday',
-                                                'thu' => 'Thursday',
-                                                'fri' => 'Friday',
-                                                'sat' => 'Saturday',
-                                                'sun' => 'Sunday'
-                                            ];
-                                            $slotsByDay = $avail->slots->groupBy('weekday');
-                                        @endphp
-                                        
+                        </div>
+                        <div class="card-body">
+                            @if($avail->slots && $avail->slots->count() > 0)
+                                <div class="weekly-block">
+                                    <div class="weekly-title">
+                                        <span>Weekly Schedule</span>
+                                        <i class="ri-calendar-check-line"></i>
+                                    </div>
+                                    @php
+                                        $weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                                        $dayNames = [
+                                            'mon' => 'Monday',
+                                            'tue' => 'Tuesday',
+                                            'wed' => 'Wednesday',
+                                            'thu' => 'Thursday',
+                                            'fri' => 'Friday',
+                                            'sat' => 'Saturday',
+                                            'sun' => 'Sunday'
+                                        ];
+                                        $slotsByDay = $avail->slots->groupBy('weekday');
+                                    @endphp
+
+                                    <div class="day-schedule">
                                         @foreach($weekdays as $day)
                                             @if(isset($slotsByDay[$day]) && $slotsByDay[$day]->count() > 0)
-                                                <div class="day-slots">
+                                                <div class="day-entry">
                                                     <div class="day-name">{{ $dayNames[$day] }}</div>
-                                                    <div class="time-slots">
+                                                    <div class="time-pill-group">
                                                         @foreach($slotsByDay[$day] as $slot)
-                                                            <span class="time-slot">
-                                                                {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} - 
+                                                            <span class="time-pill">
+                                                                {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} –
                                                                 {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}
                                                             </span>
                                                         @endforeach
@@ -360,25 +566,28 @@
                                             @endif
                                         @endforeach
                                     </div>
-                                @else
-                                    <p class="text-muted mb-0">No time slots configured for this month.</p>
-                                @endif
-                            </div>
+                                </div>
+                            @else
+                                <p class="no-slots">No time slots configured for this month.</p>
+                            @endif
                         </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <i class="ri-calendar-line"></i>
-                        <h4>No Availability Set</h4>
-                        <p class="mb-3">You haven't configured your availability yet. Set up your schedule to start receiving bookings.</p>
-                        <a href="{{ route('professional.availability.create') }}" class="btn btn-primary">
-                            <i class="ri-add-line me-1"></i>Add Your First Availability
-                        </a>
-                    </div>
-                @endif
-            </div>
+                    </article>
+                @endforeach
+            </section>
+        @else
+            <section class="empty-state">
+                <i class="ri-calendar-line"></i>
+                <h4>No Availability Set</h4>
+                <p>You haven't configured your availability yet. Set up your schedule to start receiving bookings.</p>
+                <a href="{{ route('professional.availability.create') }}" class="btn">
+                    <i class="ri-add-line"></i>
+                    <span>Add Your First Availability</span>
+                </a>
+            </section>
+        @endif
         </div>
     </div>
+
 </div>
 @endsection
 

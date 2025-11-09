@@ -2,483 +2,600 @@
 
 @section('styles')
 <style>
-    .form-container {
-        background: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        margin-top: 20px;
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --accent: #22c55e;
+        --danger: #ef4444;
+        --warning: #f97316;
+        --surface: #ffffff;
+        --muted: #64748b;
+        --border: rgba(148, 163, 184, 0.22);
+        --page-bg: #f5f7fb;
     }
 
-    .form-row {
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
+
+    .events-edit-page {
+        width: 100%;
+        padding: 2.6rem 1.4rem 3.6rem;
+    }
+
+    .events-edit-shell {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .events-edit-hero {
         display: flex;
         flex-wrap: wrap;
-        margin-bottom: 20px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.4rem;
+        padding: 2.1rem 2.4rem;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.14));
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
     }
 
-    .form-col {
-        flex: 1;
-        padding-right: 15px;
+    .events-edit-hero::before,
+    .events-edit-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    .form-col:last-child {
-        padding-right: 0;
+    .events-edit-hero::before {
+        width: 340px;
+        height: 340px;
+        top: -48%;
+        right: -14%;
+        background: rgba(79, 70, 229, 0.2);
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    .events-edit-hero::after {
+        width: 240px;
+        height: 240px;
+        bottom: -45%;
+        left: -12%;
+        background: rgba(14, 165, 233, 0.18);
     }
 
-    .form-group label {
+    .events-edit-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--muted);
+    }
+
+    .hero-meta .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.38);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        font-size: 0.76rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2.05rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .breadcrumb-sm {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+
+    .breadcrumb-sm li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        background: rgba(79, 70, 229, 0.12);
+        color: var(--primary-dark);
+    }
+
+    .status-chip.pending { background: rgba(250, 204, 21, 0.2); color: #a16207; }
+    .status-chip.approved { background: rgba(34, 197, 94, 0.2); color: #15803d; }
+    .status-chip.rejected { background: rgba(248, 113, 113, 0.2); color: #b91c1c; }
+
+    .events-edit-card {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+        overflow: hidden;
+    }
+
+    .events-edit-card__head {
+        padding: 1.8rem 2.3rem 1.2rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .events-edit-card__head h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .events-edit-card__head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+    }
+
+    .events-edit-card__body {
+        padding: 2.1rem 2.3rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.9rem;
+    }
+
+    .alert-modern {
+        padding: 1.15rem 1.3rem;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        display: flex;
+        gap: 0.85rem;
+        align-items: flex-start;
+    }
+
+    .alert-modern i {
+        font-size: 1.35rem;
+    }
+
+    .alert-modern strong {
         display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
+        margin-bottom: 0.35rem;
     }
 
-    .form-control {
+    .alert-warning-modern { background: rgba(250, 204, 21, 0.12); color: #a16207; }
+    .alert-info-modern { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
+    .alert-danger-modern { background: rgba(248, 113, 113, 0.12); color: #b91c1c; }
+
+    .edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+    }
+
+    .form-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.6rem;
+    }
+
+    .form-section.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-section-title {
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        font-weight: 600;
+    }
+
+    .form-group-custom {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+    }
+
+    .form-group-custom label {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.92rem;
+    }
+
+    .form-group-custom .form-text {
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .form-control-custom {
+        border-radius: 14px !important;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 0.75rem 1rem;
+        font-size: 0.94rem;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control-custom:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    textarea.form-control-custom {
+        min-height: 180px;
+        resize: vertical;
+    }
+
+    .image-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .current-image,
+    .preview-image {
+        width: 140px;
+        height: 140px;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: #f8fafc;
+    }
+
+    .current-image img,
+    .preview-image img {
         width: 100%;
-        padding: 12px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: border-color 0.3s ease;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .form-control:focus {
-        outline: none;
-        border-color: #0d67c7;
-        box-shadow: 0 0 0 3px rgba(13, 103, 199, 0.1);
+    .form-footer {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
     }
 
-    .btn-submit {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
+    .form-footer-actions {
+        display: inline-flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-secondary-ghost,
+    .btn-neutral,
+    .btn-primary-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        padding: 0.85rem 1.6rem;
         font-weight: 600;
+        text-decoration: none;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
     }
 
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    .btn-secondary-ghost {
+        background: rgba(226, 232, 240, 0.6);
+        color: #0f172a;
     }
 
-    .status-badge {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-        display: inline-block;
-        margin-bottom: 20px;
+    .btn-neutral {
+        background: rgba(148, 163, 184, 0.16);
+        color: #0f172a;
+        border: 1px solid rgba(148, 163, 184, 0.35);
     }
 
-    .status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-    .status-approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .status-rejected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .btn-primary-pill {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-secondary-ghost:hover,
+    .btn-neutral:hover,
+    .btn-primary-pill:hover {
+        transform: translateY(-1px);
+    }
+
+    .char-count {
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .admin-notes {
+        background: rgba(248, 113, 113, 0.12);
+        border: 1px dashed rgba(248, 113, 113, 0.45);
+        border-radius: 16px;
+        padding: 1rem 1.15rem;
+        color: #b91c1c;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+    }
 
     @media (max-width: 768px) {
-        .form-col {
-            flex: 100%;
-            padding-right: 0;
+        .events-edit-page {
+            padding: 2.2rem 1rem 3.2rem;
+        }
+
+        .events-edit-hero {
+            padding: 1.7rem 1.6rem;
+        }
+
+        .events-edit-card__body {
+            padding: 1.7rem 1.6rem;
+        }
+
+        .form-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-footer-actions {
+            width: 100%;
+        }
+
+        .btn-secondary-ghost,
+        .btn-neutral,
+        .btn-primary-pill {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Edit Event</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li><a href="{{ route('professional.events.index') }}">Events</a></li>
-            <li class="active">Edit Event</li>
-        </ul>
-    </div>
-
-    <div class="form-container">
-        <!-- Event Status -->
-        <div class="status-badge status-{{ $event->status }}">
-            Status: {{ ucfirst($event->status) }}
-            @if($event->status === 'rejected' && $event->admin_notes)
-                <br><small>Note: {{ $event->admin_notes }}</small>
-            @endif
-        </div>
-
-        @if($event->status === 'approved')
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <strong>Note:</strong> This event has been approved and cannot be edited. Contact admin if changes are needed.
+<div class="content-wrapper events-edit-page">
+    <div class="events-edit-shell">
+        <section class="events-edit-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="ri-edit-line"></i>Edit Event</span>
+                <h1>{{ $event->heading }}</h1>
+                <ul class="breadcrumb-sm">
+                    <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('professional.events.index') }}">Events</a></li>
+                    <li><a href="{{ route('professional.events.show', $event->id) }}">{{ \Illuminate\Support\Str::limit($event->heading, 26) }}</a></li>
+                    <li class="active" aria-current="page">Edit</li>
+                </ul>
             </div>
-        @else
-            <form id="eventForm" action="{{ route('professional.events.update', $event) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="card_image">Event Image</label>
-                            <input type="file" name="card_image" id="card_image" class="form-control" accept="image/*">
-                            <small class="text-muted">Leave empty to keep current image. Upload new image (JPEG, PNG, JPG, GIF, max 2MB)</small>
-                            @if($event->card_image)
-                                <div style="margin-top: 10px;">
-                                    <img src="{{ asset('storage/' . $event->card_image) }}" alt="Current Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="date">Event Date *</label>
-                            <input type="date" name="date" id="date" class="form-control" required min="{{ date('Y-m-d', strtotime('+1 day')) }}" value="{{ $event->date }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="mini_heading">Event Type *</label>
-                            <input type="text" name="mini_heading" id="mini_heading" class="form-control" required maxlength="100" placeholder="e.g., Workshop, Seminar, Training" value="{{ $event->mini_heading }}">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="starting_fees">Starting Fees (₹) *</label>
-                            <input type="number" name="starting_fees" id="starting_fees" class="form-control" required min="0" step="0.01" placeholder="0.00" value="{{ $event->starting_fees }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%;">
-                        <div class="form-group">
-                            <label for="heading">Event Name *</label>
-                            <input type="text" name="heading" id="heading" class="form-control" required maxlength="150" placeholder="Enter event name" value="{{ $event->heading }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%;">
-                        <div class="form-group">
-                            <label for="short_description">Event Description *</label>
-                            <textarea name="short_description" id="short_description" class="form-control" rows="6" required maxlength="1000" placeholder="Describe your event in detail...">{{ $event->short_description }}</textarea>
-                            <small class="text-muted">Maximum 1000 characters</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col" style="flex: 100%; text-align: center;">
-                        <button type="submit" class="btn-submit">
-                            Update Event
-                        </button>
-                        <a href="{{ route('professional.events.index') }}" 
-                           style="background-color: #6c757d; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; margin-left: 15px; display: inline-block;">
-                            Cancel
-                        </a>
-                    </div>
-                </div>
-            </form>
-        @endif
-    </div>
-</div>
-
-<script>
-document.getElementById('eventForm')?.addEventListener('submit', function(e) {
-    const submitBtn = document.querySelector('.btn-submit');
-    submitBtn.textContent = 'Updating...';
-    submitBtn.disabled = true;
-});
-
-// Character counter for description
-document.getElementById('short_description')?.addEventListener('input', function() {
-    const maxLength = 1000;
-    const currentLength = this.value.length;
-    
-    let counter = document.getElementById('char-counter');
-    if (!counter) {
-        counter = document.createElement('small');
-        counter.id = 'char-counter';
-        counter.className = 'text-muted';
-        this.parentNode.appendChild(counter);
-    }
-    
-    counter.textContent = `${currentLength}/${maxLength} characters`;
-    
-    if (maxLength - currentLength < 50) {
-        counter.style.color = '#dc3545';
-    } else {
-        counter.style.color = '#6c757d';
-    }
-});
-
-<div class="main-content app-content">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">Edit Event</h1>
-                <div class="">
-                    <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('professional.events.index') }}">Events</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('professional.events.show', $event->id) }}">{{ $event->heading }}</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Edit</li>
-                        </ol>
-                    </nav>
-                </div>
+                <span class="status-chip {{ $event->status }}">
+                    @if($event->status === 'pending')
+                        <i class="ri-time-line"></i> Pending
+                    @elseif($event->status === 'approved')
+                        <i class="ri-checkbox-circle-line"></i> Approved
+                    @else
+                        <i class="ri-close-circle-line"></i> Rejected
+                    @endif
+                </span>
             </div>
-        </div>
+        </section>
 
-        <!-- Edit Event Form -->
-        <div class="row justify-content-center">
-            <div class="col-xl-8">
-                <div class="card custom-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="ri-edit-line me-2"></i>Edit Event Details
-                        </div>
+        <article class="events-edit-card">
+            <header class="events-edit-card__head">
+                <h2>Update Event Details</h2>
+                <p>Refresh your event information, update the visuals, or tweak the schedule without altering any logic.</p>
+            </header>
+            <div class="events-edit-card__body">
+                @if($event->status === 'approved')
+                    <div class="alert-modern alert-warning-modern">
+                        <i class="ri-information-line"></i>
                         <div>
-                            @if($event->status === 'approved')
-                                <span class="badge bg-success-transparent">
-                                    <i class="ri-check-line me-1"></i>Approved
-                                </span>
-                            @elseif($event->status === 'pending')
-                                <span class="badge bg-warning-transparent">
-                                    <i class="ri-time-line me-1"></i>Pending
-                                </span>
-                            @elseif($event->status === 'rejected')
-                                <span class="badge bg-danger-transparent">
-                                    <i class="ri-close-line me-1"></i>Rejected
-                                </span>
+                            <strong>Heads up!</strong>
+                            This event is currently approved. Saving changes will move it back to pending status for admin review.
+                        </div>
+                    </div>
+                @elseif($event->status === 'rejected')
+                    <div class="alert-modern alert-danger-modern">
+                        <i class="ri-error-warning-line"></i>
+                        <div>
+                            <strong>Action Required</strong>
+                            Update the event using the feedback below and resubmit for approval.
+                            @if($event->admin_notes)
+                                <div class="admin-notes"><strong>Admin Notes:</strong> {{ $event->admin_notes }}</div>
                             @endif
                         </div>
                     </div>
-                    <div class="card-body">
-                        <!-- Status Information -->
-                        @if($event->status === 'approved')
-                            <div class="alert alert-warning" role="alert">
-                                <h6 class="alert-heading"><i class="ri-alert-line me-2"></i>Important Notice</h6>
-                                <p class="mb-0">This event has been approved. Editing will change its status back to pending and require re-approval.</p>
-                            </div>
-                        @elseif($event->status === 'rejected')
-                            <div class="alert alert-info" role="alert">
-                                <h6 class="alert-heading"><i class="ri-information-line me-2"></i>Revision Opportunity</h6>
-                                <p class="mb-2">Your event was rejected. Please review the admin notes and make necessary changes:</p>
-                                @if($event->admin_notes)
-                                    <div class="bg-light rounded p-2 mt-2">
-                                        <small><strong>Admin Notes:</strong> {{ $event->admin_notes }}</small>
-                                    </div>
-                                @endif
-                            </div>
-                        @else
-                            <div class="alert alert-info" role="alert">
-                                <h6 class="alert-heading"><i class="ri-information-line me-2"></i>Edit Information</h6>
-                                <ul class="mb-0">
-                                    <li>You can edit your event while it's pending approval</li>
-                                    <li>Changes will be saved and reviewed by the admin</li>
-                                    <li>Event date must be today or in the future</li>
-                                </ul>
-                            </div>
-                        @endif
-
-                        <form action="{{ route('professional.events.update', $event->id) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-                            
-                            <div class="row gy-4">
-                                <!-- Current Event Image -->
-                                <div class="col-xl-12">
-                                    <label class="form-label">Current Event Image</label>
-                                    <div class="mb-3">
-                                        <img src="{{ asset('storage/' . $event->card_image) }}" 
-                                             alt="Current Event Image" 
-                                             class="img-thumbnail" 
-                                             style="max-width: 200px;">
-                                    </div>
-                                </div>
-
-                                <!-- Event Image -->
-                                <div class="col-xl-12">
-                                    <label for="card_image" class="form-label">Update Event Image</label>
-                                    <input type="file" class="form-control @error('card_image') is-invalid @enderror" 
-                                           id="card_image" name="card_image" accept="image/*">
-                                    <div class="form-text">Leave empty to keep current image. Upload a high-quality image (JPEG, PNG, JPG, GIF). Max size: 2MB</div>
-                                    @error('card_image')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    
-                                    <!-- Image Preview -->
-                                    <div id="imagePreview" class="mt-3" style="display: none;">
-                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
-                                    </div>
-                                </div>
-
-                                <!-- Event Date -->
-                                <div class="col-xl-6">
-                                    <label for="date" class="form-label">Event Date <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('date') is-invalid @enderror" 
-                                           id="date" name="date" min="{{ date('Y-m-d') }}" 
-                                           value="{{ old('date', $event->date) }}" required>
-                                    @error('date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Starting Fees -->
-                                <div class="col-xl-6">
-                                    <label for="starting_fees" class="form-label">Starting Fees (₹) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('starting_fees') is-invalid @enderror" 
-                                           id="starting_fees" name="starting_fees" placeholder="Enter Starting Fees" 
-                                           min="0" step="0.01" value="{{ old('starting_fees', $event->starting_fees) }}" required>
-                                    @error('starting_fees')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Event Type -->
-                                <div class="col-xl-12">
-                                    <label for="mini_heading" class="form-label">Event Type <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('mini_heading') is-invalid @enderror" 
-                                           id="mini_heading" name="mini_heading" placeholder="e.g., Workshop, Seminar, Consultation" 
-                                           maxlength="100" value="{{ old('mini_heading', $event->mini_heading) }}" required>
-                                    <div class="form-text">Brief category or type of event (max 100 characters)</div>
-                                    @error('mini_heading')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Event Name -->
-                                <div class="col-xl-12">
-                                    <label for="heading" class="form-label">Event Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('heading') is-invalid @enderror" 
-                                           id="heading" name="heading" placeholder="Enter Main Event Title" 
-                                           maxlength="150" value="{{ old('heading', $event->heading) }}" required>
-                                    <div class="form-text">Main title of your event (max 150 characters)</div>
-                                    @error('heading')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Short Description -->
-                                <div class="col-xl-12">
-                                    <label for="short_description" class="form-label">Event Description <span class="text-danger">*</span></label>
-                                    <textarea class="form-control @error('short_description') is-invalid @enderror" 
-                                              id="short_description" name="short_description" rows="6" 
-                                              placeholder="Provide a detailed description of your event, including what participants will learn, duration, agenda, etc." 
-                                              maxlength="1000" required>{{ old('short_description', $event->short_description) }}</textarea>
-                                    <div class="form-text">
-                                        <span id="charCount">{{ strlen($event->short_description) }}</span>/1000 characters
-                                    </div>
-                                    @error('short_description')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <!-- Form Actions -->
-                            <div class="mt-4 d-flex justify-content-between">
-                                <a href="{{ route('professional.events.show', $event->id) }}" class="btn btn-light">
-                                    <i class="ri-arrow-left-line me-1"></i>Back to Event
-                                </a>
-                                <div>
-                                    <a href="{{ route('professional.events.index') }}" class="btn btn-outline-secondary me-2">
-                                        <i class="ri-close-line me-1"></i>Cancel
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="ri-save-line me-1"></i>
-                                        @if($event->status === 'rejected')
-                                            Resubmit for Approval
-                                        @else
-                                            Update Event
-                                        @endif
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                @else
+                    <div class="alert-modern alert-info-modern">
+                        <i class="ri-lightbulb-line"></i>
+                        <div>
+                            <strong>Quick reminder</strong>
+                            Pending events are editable. Ensure the event date is not in the past and all required fields are complete.
+                        </div>
                     </div>
-                </div>
+                @endif
+
+                <form class="edit-form" action="{{ route('professional.events.update', $event->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="form-section full">
+                        <div class="form-group-custom">
+                            <span class="form-section-title">Current Artwork</span>
+                            <div class="image-preview">
+                                <div class="current-image">
+                                    <img src="{{ asset('storage/' . $event->card_image) }}" alt="Current event image">
+                                </div>
+                                <div class="form-group-custom" style="gap:0.4rem;">
+                                    <label for="card_image">Upload New Image</label>
+                                    <input type="file" class="form-control form-control-custom @error('card_image') is-invalid @enderror" id="card_image" name="card_image" accept="image/*">
+                                    <span class="form-text">Optional — keep empty to retain current image. JPEG/PNG/GIF up to 2MB.</span>
+                                    @error('card_image')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <div id="imagePreview" class="preview-image" style="display:none;">
+                                        <img id="previewImg" src="" alt="New image preview">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group-custom">
+                            <label for="date">Event Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control form-control-custom @error('date') is-invalid @enderror" id="date" name="date" value="{{ old('date', $event->date) }}" min="{{ date('Y-m-d') }}" required>
+                            @error('date')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="starting_fees">Starting Fees (₹) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-custom @error('starting_fees') is-invalid @enderror" id="starting_fees" name="starting_fees" value="{{ old('starting_fees', $event->starting_fees) }}" min="0" step="0.01" placeholder="0.00" required>
+                            <span class="form-text">Enter the base price participants will see.</span>
+                            @error('starting_fees')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group-custom">
+                            <label for="mini_heading">Event Type <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-custom @error('mini_heading') is-invalid @enderror" id="mini_heading" name="mini_heading" value="{{ old('mini_heading', $event->mini_heading) }}" maxlength="100" placeholder="Workshop, Seminar, Masterclass..." required>
+                            <span class="form-text">Keep this short and descriptive (max 100 characters).</span>
+                            @error('mini_heading')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="heading">Event Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-custom @error('heading') is-invalid @enderror" id="heading" name="heading" value="{{ old('heading', $event->heading) }}" maxlength="150" placeholder="Enter the main event title" required>
+                            <span class="form-text">Displayed as the headline on listings and cards.</span>
+                            @error('heading')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-section full">
+                        <div class="form-group-custom">
+                            <label for="short_description">Event Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control form-control-custom @error('short_description') is-invalid @enderror" id="short_description" name="short_description" maxlength="1000" rows="6" placeholder="Describe the experience, agenda, and key outcomes." required>{{ old('short_description', $event->short_description) }}</textarea>
+                            <div class="form-text"><span id="charCount">{{ strlen(old('short_description', $event->short_description)) }}</span>/1000 characters</div>
+                            @error('short_description')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <footer class="form-footer">
+                        <a href="{{ route('professional.events.show', $event->id) }}" class="btn-secondary-ghost">
+                            <i class="ri-arrow-left-line"></i>
+                            Back to Event
+                        </a>
+                        <div class="form-footer-actions">
+                            <a href="{{ route('professional.events.index') }}" class="btn-neutral">
+                                <i class="ri-close-line"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn-primary-pill">
+                                <i class="ri-save-line"></i>
+                                @if($event->status === 'rejected') Resubmit for Approval @else Update Event @endif
+                            </button>
+                        </div>
+                    </footer>
+                </form>
             </div>
-        </div>
+        </article>
     </div>
 </div>
 @endsection
 
-@section('script')
+@section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Image preview functionality
+document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('card_image');
-    const preview = document.getElementById('imagePreview');
+    const previewWrapper = document.getElementById('imagePreview');
     const previewImg = document.getElementById('previewImg');
+    const description = document.getElementById('short_description');
+    const charCount = document.getElementById('charCount');
+    const form = document.querySelector('.edit-form');
 
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
+    if (imageInput) {
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                previewWrapper.style.display = 'none';
+                previewImg.src = '';
+                return;
+            }
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 previewImg.src = e.target.result;
-                preview.style.display = 'block';
+                previewWrapper.style.display = 'block';
             };
             reader.readAsDataURL(file);
-        } else {
-            preview.style.display = 'none';
-        }
-    });
+        });
+    }
 
-    // Character count for description
-    const textarea = document.getElementById('short_description');
-    const charCount = document.getElementById('charCount');
-
-    function updateCharCount() {
-        const count = textarea.value.length;
+    const updateCounter = () => {
+        if (!description || !charCount) return;
+        const count = description.value.length;
         charCount.textContent = count;
-        
-        if (count > 800) {
-            charCount.className = 'text-warning';
-        } else if (count > 950) {
-            charCount.className = 'text-danger';
-        } else {
-            charCount.className = '';
+
+        charCount.style.color = count >= 960 ? '#b91c1c' : count >= 820 ? '#b45309' : '#64748b';
+        charCount.style.fontWeight = count >= 820 ? '700' : '500';
+    };
+
+    description?.addEventListener('input', updateCounter);
+    updateCounter();
+
+    form?.addEventListener('submit', (e) => {
+        if ('{{ $event->status }}' === 'approved') {
+            const confirmMessage = 'Editing this approved event will move it back to pending for admin approval. Continue?';
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+                return;
+            }
         }
-    }
 
-    textarea.addEventListener('input', updateCharCount);
-    updateCharCount(); // Initial count
-
-    // Character counter functionality from the top of file
-    const counter = document.getElementById('charCount');
-    if (counter) {
-        counter.style.fontWeight = 'bold';
-        if (textarea.value.length > 800) {
-            counter.style.color = '#ffc107';
-        } else if (textarea.value.length > 950) {
-            counter.style.color = '#dc3545';
-        } else {
-            counter.style.color = '#6c757d';
-        }
-    }
-
-    // Form validation enhancement
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
 
-        requiredFields.forEach(field => {
+        requiredFields.forEach((field) => {
             if (!field.value.trim()) {
-                isValid = false;
                 field.classList.add('is-invalid');
+                isValid = false;
             } else {
                 field.classList.remove('is-invalid');
             }
@@ -486,18 +603,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!isValid) {
             e.preventDefault();
-            alert('Please fill in all required fields.');
+            alert('Please complete all required fields before submitting.');
         }
     });
-
-    // Confirmation for approved events
-    @if($event->status === 'approved')
-    form.addEventListener('submit', function(e) {
-        if (!confirm('This event is already approved. Editing will change its status back to pending and require re-approval. Are you sure you want to continue?')) {
-            e.preventDefault();
-        }
-    });
-    @endif
 });
 </script>
 @endsection

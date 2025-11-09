@@ -2,241 +2,351 @@
 
 @section('styles')
 <style>
-    .chat-container {
-        height: calc(100vh - 120px);
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --muted: #64748b;
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --border: rgba(148, 163, 184, 0.22);
+    }
+
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
+
+    .chat-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
+
+    .chat-shell {
+        max-width: 1040px;
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
+        gap: 2rem;
     }
-    
-    .chat-header {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 10px 10px 0 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+    .chat-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.2rem;
+        padding: 2rem 2.3rem;
+        border-radius: 26px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 48px rgba(79, 70, 229, 0.16);
     }
-    
-    .chat-messages {
+
+    .chat-hero::before,
+    .chat-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .chat-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -45%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .chat-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -40%;
+        left: -10%;
+        background: rgba(59, 130, 246, 0.18);
+    }
+
+    .chat-hero > * { position: relative; z-index: 1; }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.72rem;
+        color: var(--muted);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.35rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.42);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+
+    .hero-breadcrumb li a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.48rem 1.2rem;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.18);
+        border: 1px solid rgba(34, 197, 94, 0.28);
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #166534;
+    }
+
+    .chat-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 22px 52px rgba(15, 23, 42, 0.14);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-card__head {
+        padding: 1.7rem 2.1rem 1.2rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .chat-card__head h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .chat-card__head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .chat-card__body {
+        display: flex;
+        flex-direction: column;
+        height: 560px;
+        background: #f8fafc;
+    }
+
+    .chat-messages-wrapper {
         flex: 1;
+        padding: 1.6rem 1.9rem;
+        overflow: hidden;
+    }
+
+    #chatMessages {
+        height: 100%;
         overflow-y: auto;
-        padding: 20px;
-        background-color: #f8f9fa;
-        max-height: 400px;
-    }
-    
-    .message-bubble {
-        max-width: 75%;
-        word-wrap: break-word;
-        margin-bottom: 15px;
-        animation: slideInUp 0.3s ease-out;
-    }
-    
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .message-sender {
-        font-size: 0.85rem;
-        opacity: 0.9;
-    }
-    
-    .message-time {
-        font-size: 0.75rem;
-        opacity: 0.7;
-    }
-    
-    .chat-input-area {
-        background: white;
-        padding: 20px;
-        border-top: 1px solid #dee2e6;
-        border-radius: 0 0 10px 10px;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .attachment-preview {
-        background: #f8f9fa;
-        border: 1px dashed #dee2e6;
-        border-radius: 5px;
-        padding: 10px;
-        margin-top: 10px;
-    }
-    
-    .btn-attach {
-        border: none;
-        background: #f8f9fa;
-        color: #6c757d;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-attach:hover {
-        background: #e9ecef;
-        color: #495057;
-    }
-    
-    .btn-send {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        border: none;
-        transition: all 0.3s ease;
-        color: white !important;
-        min-width: 50px;
-        height: 40px;
-    }
-    
-    .btn-send:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
-        background: linear-gradient(135deg, #375abd 0%, #1d4087 100%);
-    }
-    
-    .btn-attach {
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        color: #6c757d;
-        min-width: 50px;
-        height: 40px;
-    }
-    
-    .btn-attach:hover {
-        background: #e9ecef;
-        color: #495057;
-    }
-    
-    .chat-empty-state {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 300px;
-        color: #6c757d;
+        gap: 0.9rem;
+        padding-right: 0.4rem;
     }
-    
-    .chat-empty-state i {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-    
-    .admin-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 10px;
-    }
-    
-    .professional-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #1cc88a 0%, #13a085 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-left: 10px;
-    }
-    
+
+    #chatMessages::-webkit-scrollbar { width: 6px; }
+    #chatMessages::-webkit-scrollbar-track { background: rgba(226, 232, 240, 0.6); border-radius: 3px; }
+    #chatMessages::-webkit-scrollbar-thumb { background: rgba(79, 70, 229, 0.32); border-radius: 3px; }
+    #chatMessages::-webkit-scrollbar-thumb:hover { background: rgba(79, 70, 229, 0.48); }
+
+    .chat-empty-state,
     .loading-spinner {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 200px;
+        height: 100%;
+        gap: 0.8rem;
+        color: var(--muted);
     }
-    
-    /* Chat Message Styles */
+
+    .chat-empty-state i {
+        font-size: 3rem;
+        color: var(--primary);
+        opacity: 0.6;
+    }
+
+    .message-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.65rem;
+    }
+
     .message-bubble {
         position: relative;
         border-radius: 18px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin: 8px 0;
-        max-width: 75%;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        padding: 0.85rem 1rem;
+        max-width: 72%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        animation: fadeInUp 0.3s ease-out;
     }
-    
+
     .message-bubble.bg-primary {
-        background: linear-gradient(135deg, #1cc88a 0%, #13a085 100%) !important;
+        background: linear-gradient(135deg, #22c55e, #16a34a) !important;
         margin-left: auto;
+        color: #ffffff !important;
     }
-    
+
     .message-bubble.bg-light {
-        background: #f8f9fa !important;
-        border: 1px solid #e9ecef;
-        color: #495057 !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        color: #0f172a !important;
         margin-right: auto;
     }
-    
-    .justify-content-end .message-bubble::after {
-        content: '';
-        position: absolute;
-        bottom: 10px;
-        right: -8px;
-        width: 0;
-        height: 0;
-        border: 8px solid transparent;
-        border-left-color: #1cc88a;
-        border-right: 0;
-        border-bottom: 0;
-        margin-top: -4px;
-    }
-    
-    .justify-content-start .message-bubble::after {
-        content: '';
-        position: absolute;
-        bottom: 10px;
-        left: -8px;
-        width: 0;
-        height: 0;
-        border: 8px solid transparent;
-        border-right-color: #f8f9fa;
-        border-left: 0;
-        border-bottom: 0;
-        margin-top: -4px;
-    }
-    
+
     .message-sender {
-        font-size: 11px;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        opacity: 0.8;
     }
-    
+
+    .message-bubble.bg-primary .message-sender { color: rgba(255,255,255,0.9); }
+    .message-bubble.bg-light .message-sender { color: var(--muted); }
+
     .message-time {
-        font-size: 10px;
-        opacity: 0.7;
+        font-size: 0.7rem;
+        opacity: 0.75;
     }
-    
-    #chatMessages {
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 15px;
+
+    .attachment-card a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        color: #0f172a;
+        background: rgba(248, 250, 252, 0.9);
+        font-size: 0.78rem;
+        text-decoration: none;
     }
-    
-    #chatMessages::-webkit-scrollbar {
-        width: 6px;
+
+    .chat-input-area {
+        padding: 1.4rem 1.9rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        background: var(--card-bg);
     }
-    
-    #chatMessages::-webkit-scrollbar-track {
-        background: #f1f1f1;
+
+    .chat-input-area .input-group {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        background: rgba(248, 250, 252, 0.92);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
     }
-    
-    #chatMessages::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
+
+    .form-control-lg {
+        border: none;
+        background: transparent;
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
     }
-    
-    #chatMessages::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
+
+    .form-control-lg:focus { box-shadow: none; background: transparent; }
+
+    .btn-attach,
+    .btn-send {
+        border: none;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn-attach i,
+    .btn-send i {
+        font-size: 1.2rem;
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .btn-attach {
+        color: #475569;
+        background: rgba(148, 163, 184, 0.18);
+        border-left: 1px solid rgba(148, 163, 184, 0.32);
+    }
+
+    .btn-attach:hover {
+        color: #0f172a;
+        background: rgba(148, 163, 184, 0.28);
+        box-shadow: 0 10px 20px rgba(148, 163, 184, 0.28);
+    }
+
+    .btn-send {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff !important;
+    }
+
+    .btn-send:hover,
+    .btn-attach:hover { transform: translateY(-1px); }
+
+    .attachment-preview {
+        border-radius: 14px;
+        border: 1px dashed rgba(148, 163, 184, 0.35);
+        background: rgba(226, 232, 240, 0.28);
+        padding: 0.75rem 1rem;
+        margin-top: 0.9rem;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .chat-page { padding: 2.2rem 1rem 3.2rem; }
+        .chat-hero { padding: 1.75rem 1.6rem; }
+        .chat-card__body { height: 520px; }
+        .message-bubble { max-width: 82%; }
+        .chat-input-area { padding: 1.2rem 1.3rem; }
+        .chat-input-area .input-group { border-radius: 14px; }
     }
 </style>
 @endsection
@@ -244,86 +354,68 @@
 @section('title', 'Chat with Admin')
 
 @section('content')
-<div class="container-fluid px-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="chat-header">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h4 class="mb-1">
-                                <i class="ri-message-3-line me-2"></i>Chat with Admin
-                            </h4>
-                            <p class="mb-0 opacity-75">Direct communication with the admin team</p>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-success" id="connectionStatus">Connected</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chat-container">
-                    <!-- Chat Messages Area -->
-                    <div class="chat-messages" id="chatMessages">
+<div class="chat-page">
+    <div class="chat-shell">
+        <section class="chat-hero">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="ri-message-3-line"></i>Support</span>
+                <h1>Chat with Admin</h1>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Chat</li>
+                </ul>
+            </div>
+            <span class="status-pill" id="connectionStatus">
+                <i class="ri-flashlight-line"></i>
+                Connected
+            </span>
+        </section>
+
+        <section class="chat-card">
+            <header class="chat-card__head">
+                <h2><i class="ri-chat-voice-line"></i>Conversation</h2>
+                <p>Stay connected with the admin team for quick assistance.</p>
+            </header>
+            <div class="chat-card__body">
+                <div class="chat-messages-wrapper">
+                    <div id="chatMessages">
                         <div class="loading-spinner">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <span class="ms-3">Loading chat...</span>
+                            <span class="mt-3">Loading chat...</span>
                         </div>
                     </div>
-                    
-                    <!-- Chat Input Area -->
-                    <div class="chat-input-area">
-                        <form id="chatMessageForm" enctype="multipart/form-data">
-                            @csrf
-                            
-                            <div class="input-group">
-                                <input type="text" 
-                                       class="form-control form-control-lg" 
-                                       id="messageInput" 
-                                       name="message" 
-                                       placeholder="Type your message to admin..." 
-                                       autocomplete="off">
-                                       
-                                <input type="file" 
-                                       id="fileInput" 
-                                       name="attachment" 
-                                       style="display: none;" 
-                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif">
-                                       
-                                <button type="button" 
-                                        class="btn btn-attach" 
-                                        id="attachBtn" 
-                                        title="Attach File">
-                                    <i class="ri-attachment-line fs-5"></i>
-                                </button>
-                                
-                                <button type="submit" 
-                                        class="btn btn-send btn-primary" 
-                                        id="sendBtn">
-                                    <i class="ri-send-plane-fill fs-5"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- File Preview -->
-                            <div id="filePreview" class="attachment-preview" style="display: none;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <i class="ri-attachment-line me-2"></i>
-                                        <span id="fileName"></span>
-                                        <span id="fileSize" class="text-muted ms-2"></span>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-link text-danger p-0" id="removeFileBtn">
-                                        <i class="ri-close-line"></i> Remove
-                                    </button>
+                </div>
+                <div class="chat-input-area">
+                    <form id="chatMessageForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-lg" id="messageInput" name="message" placeholder="Type your message to admin..." autocomplete="off">
+                            <input type="file" id="fileInput" name="attachment" style="display:none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif">
+                            <button type="button" class="btn-attach" id="attachBtn" title="Attach File">
+                                <i class="fas fa-paperclip" style="font-size:1.2rem; line-height:1; pointer-events:none;"></i>
+                            </button>
+                            <button type="submit" class="btn-send" id="sendBtn">
+                                <i class="fas fa-paper-plane" style="font-size:1.1rem; line-height:1; pointer-events:none;"></i>
+                            </button>
+                        </div>
+                        <div id="filePreview" class="attachment-preview" style="display:none;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="ri-attachment-line"></i>
+                                    <span id="fileName"></span>
+                                    <span id="fileSize" class="text-muted"></span>
                                 </div>
+                                <button type="button" class="btn btn-sm btn-link text-danger p-0" id="removeFileBtn">
+                                    <i class="ri-close-line"></i> Remove
+                                </button>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 @endsection
@@ -333,17 +425,11 @@
 $(document).ready(function() {
     let currentChatId = null;
     let isLoading = false;
-    
-    // Initialize chat
     loadChat();
-    
-    // Load chat with admin
     function loadChat() {
         if (isLoading) return;
         isLoading = true;
-        
         showLoadingState();
-        
         $.ajax({
             url: '{{ route("professional.admin-chat.messages") }}',
             method: 'GET',
@@ -356,7 +442,7 @@ $(document).ready(function() {
                     showEmptyState();
                 }
             },
-            error: function(xhr) {
+            error: function() {
                 showErrorState('Failed to load chat. Please refresh the page.');
                 updateConnectionStatus(false);
             },
@@ -365,85 +451,50 @@ $(document).ready(function() {
             }
         });
     }
-    
-    // Display messages
     function displayMessages(messages) {
-        let messagesHtml = '';
-        
-        if (!messages || messages.length === 0) {
-            showEmptyState();
-            return;
-        }
-        
-        // Sort messages by creation time
+        if (!messages || messages.length === 0) { showEmptyState(); return; }
         messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        
-        messages.forEach(function(message) {
-            messagesHtml += buildMessageHtml(message);
-        });
-        
-        $('#chatMessages').html(messagesHtml);
+        const html = messages.map(buildMessageHtml).join('');
+        $('#chatMessages').html(html);
         scrollToBottom();
     }
-    
-    // Build message HTML
     function buildMessageHtml(message) {
         const isProfessional = message.sender_type === 'App\\Models\\Professional';
-        const messageClass = isProfessional ? 'justify-content-end' : 'justify-content-start';
-        const bgClass = isProfessional ? 'bg-primary text-white' : 'bg-light';
+        const bubbleClass = isProfessional ? 'message-bubble bg-primary text-white' : 'message-bubble bg-light';
         const alignClass = isProfessional ? 'text-end' : 'text-start';
-        
         let attachmentHtml = '';
         if (message.attachments && message.attachments.length > 0) {
             message.attachments.forEach(function(attachment) {
                 attachmentHtml += `
-                    <div class="mt-2">
-                        <a href="/professional/admin-chat/attachment/${attachment.id}/download" 
-                           class="btn btn-sm btn-outline-secondary text-decoration-none">
+                    <div class="attachment-card">
+                        <a href="/professional/admin-chat/attachment/${attachment.id}/download" target="_blank">
                             <i class="${attachment.file_icon || 'ri-attachment-line'}"></i>
                             ${attachment.original_name}
                             <small>(${attachment.human_file_size || 'N/A'})</small>
                         </a>
-                    </div>
-                `;
+                    </div>`;
             });
         }
-        
         return `
-            <div class="d-flex ${messageClass} mb-3">
-                <div class="message-bubble ${bgClass} rounded-3 px-3 py-2">
-                    <div class="message-sender fw-bold small mb-1 ${alignClass}">
-                        ${isProfessional ? 'You' : message.sender_name}
-                    </div>
+            <div class="message-row ${isProfessional ? 'justify-content-end' : 'justify-content-start'}">
+                <div class="${bubbleClass}">
+                    <div class="message-sender ${alignClass}">${isProfessional ? 'You' : (message.sender_name || 'Admin')}</div>
                     ${message.message ? `<div class="message-text">${escapeHtml(message.message)}</div>` : ''}
                     ${attachmentHtml}
-                    <div class="message-time small mt-1 ${alignClass}">
-                        ${formatDateTime(message.created_at)}
-                    </div>
+                    <div class="message-time ${alignClass}">${formatDateTime(message.created_at)}</div>
                 </div>
-            </div>
-        `;
+            </div>`;
     }
-    
-    // Send message
     $('#chatMessageForm').on('submit', function(e) {
         e.preventDefault();
-        
         const message = $('#messageInput').val().trim();
         const hasFile = $('#fileInput')[0].files.length > 0;
-        
-        if (!message && !hasFile) {
-            return;
-        }
-        
+        if (!message && !hasFile) { return; }
         const formData = new FormData(this);
         const sendBtn = $('#sendBtn');
         const originalBtnHtml = sendBtn.html();
-        
-        // Disable form
         sendBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin"></i>');
         $('#messageInput').prop('disabled', true);
-        
         $.ajax({
             url: '{{ route("professional.admin-chat.send-message") }}',
             method: 'POST',
@@ -452,11 +503,8 @@ $(document).ready(function() {
             contentType: false,
             success: function(response) {
                 if (response.success) {
-                    // Clear form
                     $('#messageInput').val('');
                     clearFileSelection();
-                    
-                    // Add message to chat
                     appendMessage(response.message);
                     scrollToBottom();
                     updateConnectionStatus(true);
@@ -479,163 +527,91 @@ $(document).ready(function() {
             }
         });
     });
-    
-    // Append new message
     function appendMessage(message) {
-        const messageHtml = buildMessageHtml(message);
-        
-        // Check if we need to replace empty state
+        const html = buildMessageHtml(message);
         if ($('#chatMessages').find('.chat-empty-state').length > 0) {
-            $('#chatMessages').html(messageHtml);
+            $('#chatMessages').html(html);
         } else {
-            $('#chatMessages').append(messageHtml);
+            $('#chatMessages').append(html);
         }
-        
-        scrollToBottom();
     }
-    
-    // File handling
-    $('#attachBtn').on('click', function() {
-        $('#fileInput').click();
-    });
-    
-    $('#fileInput').on('change', function() {
-        const file = this.files[0];
-        if (file) {
-            showFilePreview(file);
-        }
-    });
-    
-    $('#removeFileBtn').on('click', function() {
-        clearFileSelection();
-    });
-    
+    $('#attachBtn').on('click', function() { $('#fileInput').click(); });
+    $('#fileInput').on('change', function() { const file = this.files[0]; if (file) showFilePreview(file); });
+    $('#removeFileBtn').on('click', function() { clearFileSelection(); });
     function showFilePreview(file) {
         $('#fileName').text(file.name);
-        
-        // Format file size
-        let fileSize = file.size;
-        const units = ['B', 'KB', 'MB', 'GB'];
-        let unitIndex = 0;
-        
-        while (fileSize > 1024 && unitIndex < units.length - 1) {
-            fileSize /= 1024;
-            unitIndex++;
-        }
-        
-        $('#fileSize').text(`(${fileSize.toFixed(2)} ${units[unitIndex]})`);
+        $('#fileSize').text(`(${formatFileSize(file.size)})`);
         $('#filePreview').show();
     }
-    
     function clearFileSelection() {
         $('#fileInput').val('');
         $('#filePreview').hide();
         $('#fileName').text('');
         $('#fileSize').text('');
     }
-    
-    // Utility functions
     function scrollToBottom() {
-        const chatMessages = $('#chatMessages');
-        chatMessages.scrollTop(chatMessages[0].scrollHeight);
+        const container = $('#chatMessages');
+        container.scrollTop(container[0].scrollHeight);
     }
-    
     function showLoadingState() {
         $('#chatMessages').html(`
             <div class="loading-spinner">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <span class="ms-3">Loading chat...</span>
-            </div>
-        `);
+                <span class="mt-3">Loading chat...</span>
+            </div>`);
     }
-    
     function showEmptyState() {
         $('#chatMessages').html(`
             <div class="chat-empty-state">
                 <i class="ri-message-3-line"></i>
                 <h5>No messages yet</h5>
                 <p class="text-muted mb-0">Start a conversation with the admin team</p>
-            </div>
-        `);
+            </div>`);
     }
-    
     function showErrorState(message) {
         $('#chatMessages').html(`
             <div class="chat-empty-state text-danger">
                 <i class="ri-error-warning-line"></i>
                 <h5>Error</h5>
                 <p class="mb-0">${message}</p>
-            </div>
-        `);
+            </div>`);
     }
-    
     function updateConnectionStatus(connected) {
         const statusEl = $('#connectionStatus');
         if (connected) {
-            statusEl.removeClass('bg-danger').addClass('bg-success').text('Connected');
+            statusEl.removeClass('badge bg-danger').addClass('status-pill').html('<i class="ri-flashlight-line"></i> Connected');
         } else {
-            statusEl.removeClass('bg-success').addClass('bg-danger').text('Disconnected');
+            statusEl.removeClass('status-pill').addClass('badge bg-danger').text('Disconnected');
         }
     }
-    
     function formatDateTime(dateTime) {
         const date = new Date(dateTime);
-        return date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        return date.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
-    
     function formatFileSize(bytes) {
         const units = ['B', 'KB', 'MB', 'GB'];
         let size = bytes;
         let unitIndex = 0;
-        
         while (size >= 1024 && unitIndex < units.length - 1) {
             size /= 1024;
             unitIndex++;
         }
-        
         return `${Math.round(size * 100) / 100} ${units[unitIndex]}`;
     }
-    
-    function getFileIcon(mimeType) {
-        if (mimeType.startsWith('image/')) {
-            return 'ri-image-line';
-        } else if (mimeType === 'application/pdf') {
-            return 'ri-file-pdf-line';
-        } else if (mimeType.includes('word')) {
-            return 'ri-file-word-line';
-        } else if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) {
-            return 'ri-file-excel-line';
-        } else {
-            return 'ri-attachment-line';
-        }
-    }
-    
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
-    // Auto-focus on message input
     $('#messageInput').focus();
-    
-    // Handle Enter key
     $('#messageInput').on('keypress', function(e) {
         if (e.which === 13 && !e.shiftKey) {
             e.preventDefault();
             $('#chatMessageForm').submit();
         }
     });
-    
-    // Auto-refresh chat every 30 seconds
     setInterval(function() {
         if (!isLoading && currentChatId) {
             loadChat();
