@@ -706,11 +706,20 @@
         border: 1px solid rgba(148, 163, 184, 0.35);
         padding: 0.65rem 0.85rem;
         font-size: 0.9rem;
+        width: 100%;
+        resize: vertical;
+        min-height: auto;
     }
 
     .modal-body .form-control:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        outline: none;
+    }
+
+    .modal-body textarea.form-control {
+        min-height: 80px;
+        font-family: inherit;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -1117,6 +1126,10 @@
                         <label for="delivery_date" class="form-label">Delivery Date *</label>
                         <input type="date" class="form-control" id="delivery_date" name="delivery_date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="delivery_reason" class="form-label">Delivery Reason *</label>
+                        <textarea class="form-control" id="delivery_reason" name="delivery_reason" rows="3" placeholder="Please provide a reason for the delivery date..." required></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('deliveryDateModal')">
@@ -1423,7 +1436,8 @@ $(document).ready(function() {
                 type: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    delivery_date: $('#delivery_date').val()
+                    delivery_date: $('#delivery_date').val(),
+                    delivery_reason: $('#delivery_reason').val()
                 },
                 success: function(response) {
                     if (response.success) {
