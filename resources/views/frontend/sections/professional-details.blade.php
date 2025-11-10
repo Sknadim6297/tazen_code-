@@ -1733,7 +1733,7 @@
                                             <p style="color:#555; margin-bottom:18px;">{{ $rate->professional->bio }}</p>
                                             <ul class="appointment-features" style="padding-left:0; list-style:none; margin-bottom:22px;">
                                                 <li style="margin-bottom:7px; color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">{{ $rate->num_sessions }} sessions</span></li>
-                                                       @php
+                                                @php
                                                     // compute minimum session duration from availabilities (same as desktop)
                                                     $minSessionDuration = $availabilities->min('session_duration');
                                                 @endphp
@@ -1743,10 +1743,18 @@
                                                         <span style="color:#444;">{{ $minSessionDuration }} min per session</span>
                                                     </li>
                                                 @endif
-                                                @foreach($availabilities as $availability)
-                                                    
-                                                @endforeach
-                                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @if($rate->features_list && count($rate->features_list) > 0)
+                                                    @foreach($rate->features_list as $feature)
+                                                        @if(trim($feature))
+                                                            <li style="margin-bottom:7px; color:#2563eb;">
+                                                                <i class="icon_check_alt2"></i> 
+                                                                <span style="color:#444;">{{ trim($feature) }}</span>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                                @endif
                                             </ul>
                                             <div class="price" style="margin-bottom:18px;">
                                                 @php
@@ -1814,36 +1822,57 @@
                                     <div class="dropdown-menu-content">
                                         <div class="radio_select d-flex flex-wrap gap-2">
                                             @foreach($availabilities as $availability)
-                                                @php $weekdays = json_decode($availability->weekdays, true); @endphp
-                                                @if(is_array($weekdays))
-                                                    @foreach($availability->slots as $slot)
-                                                        @foreach($weekdays as $day)
-                                                            @php
-                                                                $weekday = strtolower($day);
-                                                                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
-                                                                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
-                                                            @endphp
+                                                @php 
+                                                    // Extract month abbreviation from "2026-03" format
+                                                    $monthFull = $availability->month;
+                                                    $monthMap = [
+                                                        'January' => 'jan', 'February' => 'feb', 'March' => 'mar',
+                                                        'April' => 'apr', 'May' => 'may', 'June' => 'jun',
+                                                        'July' => 'jul', 'August' => 'aug', 'September' => 'sep',
+                                                        'October' => 'oct', 'November' => 'nov', 'December' => 'dec'
+                                                    ];
+                                                    
+                                                    // Handle "2026-03" format
+                                                    if (preg_match('/^\d{4}-(\d{2})$/', $monthFull, $matches)) {
+                                                        $monthNum = (int)$matches[1];
+                                                        $monthNames = array_keys($monthMap);
+                                                        $monthAbbr = $monthNum >= 1 && $monthNum <= 12 ? $monthMap[$monthNames[$monthNum - 1]] : 'jan';
+                                                    } else {
+                                                        // Handle "March 2026" format
+                                                        $monthAbbr = 'jan'; // default
+                                                        foreach ($monthMap as $full => $abbr) {
+                                                            if (stripos($monthFull, $full) !== false) {
+                                                                $monthAbbr = $abbr;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                @endphp
+                                                @foreach($availability->slots as $slot)
+                                                    @php
+                                                        $weekday = strtolower($slot->weekday);
+                                                        $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
+                                                        $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
+                                                    @endphp
 
-                                                            <div class="slot-box" data-weekday="{{ $weekday }}" data-month="{{ $availability->month }}" style="flex: 0 0 auto; display: none;">
-                                                                <input type="radio"
-                                                                    id="mobile-time_{{ $slot->id }}_{{ $weekday }}_{{ $availability->month }}"
-                                                                    name="mobile-time"
-                                                                    class="mobile-time-slot"
-                                                                    data-id="{{ $slot->id }}"
-                                                                    data-month="{{ $availability->month }}"
-                                                                    value="{{ $startTime }} to {{ $endTime }}"
-                                                                    data-start="{{ $startTime }}"
-                                                                    data-start-period="{{ strtoupper($slot->start_period) }}"
-                                                                    data-end="{{ $endTime }}"
-                                                                    data-end-period="{{ strtoupper($slot->end_period) }}">
+                                                    <div class="slot-box" data-weekday="{{ $weekday }}" data-month="{{ $monthAbbr }}" style="flex: 0 0 auto; display: none;">
+                                                        <input type="radio"
+                                                            id="mobile-time_{{ $slot->id }}_{{ $weekday }}_{{ $monthAbbr }}"
+                                                            name="mobile-time"
+                                                            class="mobile-time-slot"
+                                                            data-id="{{ $slot->id }}"
+                                                            data-month="{{ $monthAbbr }}"
+                                                            value="{{ $startTime }} to {{ $endTime }}"
+                                                            data-start="{{ $startTime }}"
+                                                            data-start-period="{{ strtoupper($slot->start_period) }}"
+                                                            data-end="{{ $endTime }}"
+                                                            data-end-period="{{ strtoupper($slot->end_period) }}">
 
-                                                                <label for="mobile-time_{{ $slot->id }}_{{ $weekday }}_{{ $availability->month }}">
-                                                                    {{ $startTime }} - {{ $endTime }}
-                                                                </label>
-                                                            </div>
-                                                        @endforeach
-                                                    @endforeach
-                                                @endif
+                                                        <label for="mobile-time_{{ $slot->id }}_{{ $weekday }}_{{ $monthAbbr }}">
+                                                            {{ $startTime }} - {{ $endTime }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
                                             @endforeach
                                         </div>
                                     </div>
@@ -2175,11 +2204,24 @@
                                             @php
                                                 $minSessionDuration = $availabilities->min('session_duration');
                                             @endphp
-                                            <li style="margin-bottom:7px; color:#2563eb;">
-                                                <i class="icon_check_alt2"></i>
-                                                <span style="color:#444;">{{ $minSessionDuration }} min per session</span>
-                                            </li>
-                                            <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                            @if($minSessionDuration)
+                                                <li style="margin-bottom:7px; color:#2563eb;">
+                                                    <i class="icon_check_alt2"></i>
+                                                    <span style="color:#444;">{{ $minSessionDuration }} min per session</span>
+                                                </li>
+                                            @endif
+                                            @if($rate->features_list && count($rate->features_list) > 0)
+                                                @foreach($rate->features_list as $feature)
+                                                    @if(trim($feature))
+                                                        <li style="margin-bottom:7px; color:#2563eb;">
+                                                            <i class="icon_check_alt2"></i> 
+                                                            <span style="color:#444;">{{ trim($feature) }}</span>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <li style="color:#2563eb;"><i class="icon_check_alt2"></i> <span style="color:#444;">Curated solutions for you</span></li>
+                                            @endif
                                         </ul>
                                         <div class="price" style="margin-bottom:18px;">
                                             @php
@@ -2247,36 +2289,57 @@
                                 <div class="dropdown-menu-content">
                                     <div class="radio_select d-flex flex-wrap gap-2">
                                         @foreach($availabilities as $availability)
-                                            @php $weekdays = json_decode($availability->weekdays, true); @endphp
-                                            @if(is_array($weekdays))
-                                                @foreach($availability->slots as $slot)
-                                                    @foreach($weekdays as $day)
-                                                        @php
-                                                            $weekday = strtolower($day);
-                                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
-                                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
-                                                        @endphp
+                                            @php 
+                                                // Extract month abbreviation from "2026-03" format
+                                                $monthFull = $availability->month;
+                                                $monthMap = [
+                                                    'January' => 'jan', 'February' => 'feb', 'March' => 'mar',
+                                                    'April' => 'apr', 'May' => 'may', 'June' => 'jun',
+                                                    'July' => 'jul', 'August' => 'aug', 'September' => 'sep',
+                                                    'October' => 'oct', 'November' => 'nov', 'December' => 'dec'
+                                                ];
+                                                
+                                                // Handle "2026-03" format
+                                                if (preg_match('/^\d{4}-(\d{2})$/', $monthFull, $matches)) {
+                                                    $monthNum = (int)$matches[1];
+                                                    $monthNames = array_keys($monthMap);
+                                                    $monthAbbr = $monthNum >= 1 && $monthNum <= 12 ? $monthMap[$monthNames[$monthNum - 1]] : 'jan';
+                                                } else {
+                                                    // Handle "March 2026" format
+                                                    $monthAbbr = 'jan'; // default
+                                                    foreach ($monthMap as $full => $abbr) {
+                                                        if (stripos($monthFull, $full) !== false) {
+                                                            $monthAbbr = $abbr;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+                                            @foreach($availability->slots as $slot)
+                                                @php
+                                                    $weekday = strtolower($slot->weekday);
+                                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->start_time)->format('h:i A'); 
+                                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $slot->end_time)->format('h:i A');
+                                                @endphp
 
-                                                        <div class="slot-box" data-weekday="{{ $weekday }}" data-month="{{ $availability->month }}" style="flex: 0 0 auto; display: none;">
-                                                            <input type="radio"
-                                                                id="time_{{ $slot->id }}_{{ $weekday }}_{{ $availability->month }}"
-                                                                name="time"
-                                                                class="time-slot"
-                                                                data-id="{{ $slot->id }}"
-                                                                data-month="{{ $availability->month }}"
-                                                                value="{{ $startTime }} to {{ $endTime }}"
-                                                                data-start="{{ $startTime }}"
-                                                                data-start-period="{{ strtoupper($slot->start_period) }}"
-                                                                data-end="{{ $endTime }}"
-                                                                data-end-period="{{ strtoupper($slot->end_period) }}">
+                                                <div class="slot-box" data-weekday="{{ $weekday }}" data-month="{{ $monthAbbr }}" style="flex: 0 0 auto; display: none;">
+                                                    <input type="radio"
+                                                        id="time_{{ $slot->id }}_{{ $weekday }}_{{ $monthAbbr }}"
+                                                        name="time"
+                                                        class="time-slot"
+                                                        data-id="{{ $slot->id }}"
+                                                        data-month="{{ $monthAbbr }}"
+                                                        value="{{ $startTime }} to {{ $endTime }}"
+                                                        data-start="{{ $startTime }}"
+                                                        data-start-period="{{ strtoupper($slot->start_period) }}"
+                                                        data-end="{{ $endTime }}"
+                                                        data-end-period="{{ strtoupper($slot->end_period) }}">
 
-                                                            <label for="time_{{ $slot->id }}_{{ $weekday }}_{{ $availability->month }}">
-                                                                {{ $startTime }} - {{ $endTime }}
-                                                            </label>
-                                                        </div>
-                                                    @endforeach
-                                                @endforeach
-                                            @endif
+                                                    <label for="time_{{ $slot->id }}_{{ $weekday }}_{{ $monthAbbr }}">
+                                                        {{ $startTime }} - {{ $endTime }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
                                         @endforeach
                                     </div>
                                 </div>
@@ -2388,6 +2451,13 @@
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+        // Helper function to format the date to local date string (GLOBAL SCOPE)
+        function formatLocalDate(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - offset * 60000);
+            return localDate.toISOString().split('T')[0];
+        }
+        
         document.addEventListener("DOMContentLoaded", function () {
             let enabledDates = @json($enabledDates);
             
@@ -2403,13 +2473,6 @@
             // Initialize calendars for both desktop and mobile
             function initializeCalendar(calendarId, isMobile = false) {
                 if (!document.getElementById(calendarId)) return;
-                
-                // Helper function to format the date to local date string
-                function formatLocalDate(date) {
-                    const offset = date.getTimezoneOffset();
-                    const localDate = new Date(date.getTime() - offset * 60000);
-                    return localDate.toISOString().split('T')[0];
-                }
                 
                 // Initialize Flatpickr
                 flatpickr("#" + calendarId, {
@@ -2474,6 +2537,19 @@
 
                             console.log('Selected date:', dateString, 'Weekday:', weekday, 'Month:', selectedMonth);
                             console.log('Looking for slots with selector:', `.slot-box[data-weekday="${weekday}"][data-month="${selectedMonth}"]`);
+                            
+                            // Debug: Log all available slot boxes
+                            const allSlotBoxes = document.querySelectorAll('.slot-box');
+                            console.log('Total slot boxes:', allSlotBoxes.length);
+                            allSlotBoxes.forEach((box, index) => {
+                                if (index < 5) { // Show first 5 for debugging
+                                    console.log(`Slot ${index}:`, {
+                                        weekday: box.getAttribute('data-weekday'),
+                                        month: box.getAttribute('data-month'),
+                                        debugMonth: box.getAttribute('data-debug-month')
+                                    });
+                                }
+                            });
 
                             const relevantSlotBoxes = isMobile ? 
                                 Array.from(document.querySelectorAll(`.slot-box[data-weekday="${weekday}"][data-month="${selectedMonth}"] .mobile-time-slot`)).map(slot => slot.closest('.slot-box')) :
@@ -2492,42 +2568,66 @@
                                     const timeValue = timeInput ? timeInput.value : '';
                                     const label = timeInput ? timeInput.nextElementSibling : null;
 
-                                    // Reset any previous styling
+                                    // AGGRESSIVELY Reset any previous styling and state
                                     if (timeInput) {
                                         timeInput.disabled = false;
                                         timeInput.checked = false;
+                                        timeInput.removeAttribute('disabled');
+                                    }
+                                    if (box) {
+                                        box.classList.remove('slot-booked');
+                                        box.style.opacity = '';
+                                        box.style.pointerEvents = '';
+                                        box.style.cursor = '';
                                     }
                                     if (label) {
                                         label.style.opacity = '';
                                         label.style.textDecoration = '';
+                                        label.style.pointerEvents = '';
+                                        label.style.cursor = '';
+                                        label.style.color = '#222';
+                                        label.style.background = '#f8f9fa';
+                                        label.style.display = 'block';
+                                        
+                                        // Remove previous BOOKED text FIRST
+                                        if (label.innerHTML && label.innerHTML.includes('(BOOKED)')) {
+                                            label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
+                                        }
+                                        
                                         // Ensure label text is present (fallback to data attributes)
                                         try {
                                             const start = timeInput ? timeInput.getAttribute('data-start') || '' : '';
                                             const end = timeInput ? timeInput.getAttribute('data-end') || '' : '';
-                                            if (!label.textContent || label.textContent.trim() === '') {
+                                            const cleanText = label.textContent.replace(/\(BOOKED\)/g, '').trim();
+                                            if (!cleanText || cleanText === '') {
                                                 label.textContent = start + (start && end ? ' - ' : '') + end;
                                             }
-                                            label.style.color = label.style.color || '#222';
-                                            label.style.background = label.style.background || '#f8f9fa';
-                                            label.style.display = 'block';
                                         } catch (e) {
                                             console.warn('label autofill failed', e);
-                                        }
-                                        // Remove previous BOOKED text
-                                        if (label.innerHTML && label.innerHTML.includes('(BOOKED)')) {
-                                            label.innerHTML = label.innerHTML.replace(/ <span[^>]*>\(BOOKED\)<\/span>/g, '');
                                         }
                                     }
                                     
                                     // Check if this slot is booked for the selected date
-                                    if (timeInput && isTimeSlotBooked(dateString, timeValue)) {
+                                    console.log('Checking booking for date:', dateString, 'time:', timeValue);
+                                    const isBooked = isTimeSlotBooked(dateString, timeValue);
+                                    console.log('Is booked result:', isBooked);
+                                    
+                                    if (timeInput && isBooked) {
+                                        console.log('MARKING AS BOOKED:', dateString, timeValue);
                                         timeInput.disabled = true;
+                                        timeInput.setAttribute('disabled', 'disabled');
                                         box.classList.add('slot-booked');
+                                        box.style.pointerEvents = 'none';
+                                        box.style.cursor = 'not-allowed';
                                         if (label) {
                                             label.style.opacity = '0.5';
                                             label.style.textDecoration = 'line-through';
+                                            label.style.pointerEvents = 'none';
+                                            label.style.cursor = 'not-allowed';
                                             label.innerHTML = label.innerHTML + ' <span style="color: red; font-size: 10px; font-weight: bold;">(BOOKED)</span>';
                                         }
+                                    } else {
+                                        console.log('MARKING AS AVAILABLE:', dateString, timeValue);
                                     }
                                 }
                             });
@@ -2546,10 +2646,16 @@
 
             // Function to check if a time slot is already booked
             function isTimeSlotBooked(date, timeSlot) {
-                console.log('Checking if booked - Date:', date, 'TimeSlot:', timeSlot);
-                console.log('Available bookings for date:', existingBookings[date]);
+                console.log('=== Checking if booked ===');
+                console.log('Requested Date:', date);
+                console.log('Requested TimeSlot:', timeSlot);
+                console.log('All existing bookings:', existingBookings);
+                console.log('Bookings for this specific date:', existingBookings[date]);
                 
-                if (!existingBookings[date]) return false;
+                if (!existingBookings[date]) {
+                    console.log('No bookings found for this date - AVAILABLE');
+                    return false;
+                }
                 
                 // Normalize both time slot formats for comparison
                 const normalizeTimeSlot = (slot) => {
@@ -2679,13 +2785,35 @@
             function initializeSlotHandlers(isMobile = false) {
                 const selector = isMobile ? '.mobile-time-slot' : '.time-slot';
                 document.querySelectorAll(selector).forEach(slot => {
+                    // Prevent clicks on disabled inputs
+                    slot.addEventListener('click', function (e) {
+                        if (this.disabled) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const box = this.closest('.slot-box');
+                            if (box && box.classList.contains('slot-booked')) {
+                                toastr.error('This time slot is already booked. Please choose another time.');
+                            }
+                            console.log('Click prevented on disabled slot');
+                            return false;
+                        }
+                    });
+                    
                     slot.addEventListener('change', function () {
+                        // Prevent selection if disabled
+                        if (this.disabled) {
+                            console.log('Slot is disabled, preventing selection');
+                            this.checked = false;
+                            return;
+                        }
+                        
                         const box = this.closest('.slot-box');
                         const currentDate = box.getAttribute('data-current-date');
                         const selectedTime = this.value;
 
                         // Don't allow selection of already booked slots
                         if (isTimeSlotBooked(currentDate, selectedTime)) {
+                            console.log('Slot is booked, preventing selection');
                             toastr.error('This time slot is already booked. Please choose another time.');
                             this.checked = false;
                             return;
@@ -2717,6 +2845,12 @@
                 .slot-booked {
                     opacity: 0.6;
                     position: relative;
+                    pointer-events: none;
+                    cursor: not-allowed;
+                }
+                .slot-booked input {
+                    pointer-events: none;
+                    cursor: not-allowed;
                 }
                 .slot-booked::after {
                     content: "BOOKED";

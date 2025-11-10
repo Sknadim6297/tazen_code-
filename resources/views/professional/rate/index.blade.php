@@ -564,12 +564,9 @@
 
                         $serviceOnlyRates = $serviceRates->where('sub_service_id', null);
                         $subServiceRates = $serviceRates->where('sub_service_id', '!=', null)->groupBy('sub_service_id');
-                        $availableSessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand'];
-                        $usedSessionTypes = $serviceRates->pluck('session_type')->toArray();
-                        $availableToAdd = array_diff($availableSessionTypes, $usedSessionTypes);
                     @endphp
 
-                    <section class="service-section">
+                    <section class="service-section" data-service="{{ $serviceName }}">
                         <div class="service-title">
                             <h3>{{ $serviceName }}</h3>
                             <span class="filters-results">Total rates: {{ $serviceRates->count() }}</span>
@@ -590,9 +587,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($serviceOnlyRates as $rate)
-                                        <tr>
+                                        <tr data-service="{{ $serviceName }}" data-sub-service="" data-session-type="{{ $rate->session_type }}" data-final-rate="{{ $rate->final_rate }}">
                                             <td data-label="Type">
-                                                <span class="rate-type-badge"><i class="fas fa-briefcase"></i> Main Service</span>
+                                                <span class="rate-type-badge"><i class="fas fa-briefcase"></i> {{ $serviceName }}</span>
                                             </td>
                                             <td data-label="Session Type">{{ $rate->session_type }}</td>
                                             <td data-label="No. of Sessions">{{ $rate->num_sessions }}</td>
@@ -627,7 +624,7 @@
                                             $subService = $subRates->first()->subService;
                                         @endphp
                                         @foreach($subRates as $rate)
-                                            <tr>
+                                            <tr data-service="{{ $serviceName }}" data-sub-service="{{ $subService->name ?? 'Sub-Service' }}" data-session-type="{{ $rate->session_type }}" data-final-rate="{{ $rate->final_rate }}">
                                                 <td data-label="Type">
                                                     <span class="rate-type-badge sub"><i class="fas fa-layer-group"></i> {{ $subService->name ?? 'Sub-Service' }}</span>
                                                 </td>
@@ -659,15 +656,6 @@
                                             </tr>
                                         @endforeach
                                     @endforeach
-
-                                    <tr>
-                                        <td colspan="7">
-                                            <div class="available-session-info">
-                                                <strong><i class="fas fa-plus-circle"></i> Session Types Remaining:</strong>
-                                                {{ count($availableToAdd) > 0 ? implode(', ', $availableToAdd) : 'All session types configured for this service.' }}
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -729,27 +717,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function collectRateData() {
         allRates = [];
         document.querySelectorAll('.service-section').forEach(section => {
-            section.querySelectorAll('tbody tr').forEach(row => {
-                const typeCell = row.querySelector('[data-label="Type"]');
-                const sessionTypeCell = row.querySelector('[data-label="Session Type"]');
-                const rateCell = row.querySelector('[data-label="Rate/Session"]');
-                const finalRateCell = row.querySelector('[data-label="Final Rate"]');
-                if (!typeCell || !sessionTypeCell || !rateCell || !finalRateCell) return;
-                const label = typeCell.textContent.trim();
-                const isSummaryRow = typeCell.querySelector('.available-session-info');
-                if (isSummaryRow) return;
-                const rate = parseFloat(rateCell.textContent.replace(/[₹,]/g, '')) || 0;
-                const finalRate = parseFloat(finalRateCell.textContent.replace(/[₹,]/g, '')) || 0;
-                const isSubService = label.includes('Sub-Service');
-                allRates.push({
-                    element: row,
-                    section: section,
-                    serviceName: section.querySelector('.service-title h3').textContent.trim(),
-                    sessionType: sessionTypeCell.textContent.trim(),
-                    rate,
-                    finalRate,
-                    isSubService
-                });
+            section.querySelectorAll('tbody tr[data-service]').forEach(row => {
+                const serviceName = row.getAttribute('data-service') || '';
+                const subServiceName = row.getAttribute('data-sub-service') || '';
+                const sessionType = row.getAttribute('data-session-type') || '';
+                const finalRate = parseFloat(row.getAttribute('data-final-rate')) || 0;
+                const isSubService = subServiceName !== '';
+                
+                if (serviceName && sessionType) {
+                    allRates.push({
+                        element: row,
+                        section: section,
+                        serviceName,
+                        subServiceName,
+                        sessionType,
+                        finalRate,
+                        isSubService
+                    });
+                }
             });
         });
     }
@@ -757,13 +742,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateFilters() {
         const services = new Set();
         const subServices = new Set();
+        
         allRates.forEach(rate => {
-            if (rate.isSubService) {
-                subServices.add(rate.sessionType + ' · ' + rate.serviceName);
-            } else {
-                services.add(rate.serviceName);
+            services.add(rate.serviceName);
+            if (rate.isSubService && rate.subServiceName) {
+                subServices.add(rate.subServiceName);
             }
         });
+        
         filterService.innerHTML = '<option value="">All Services</option>';
         Array.from(services).sort().forEach(service => {
             const option = document.createElement('option');
@@ -771,6 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = service;
             filterService.appendChild(option);
         });
+        
         filterSubService.innerHTML = '<option value="">All Sub-Services</option>';
         Array.from(subServices).sort().forEach(subService => {
             const option = document.createElement('option');
@@ -786,20 +773,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const sessionTypeFilter = filterSessionType.value.toLowerCase();
         const rateFilter = filterRate.value;
         let visibleCount = 0;
+        
         allRates.forEach(rate => {
             let visible = true;
+            
+            // Service filter
             if (serviceFilter && !rate.serviceName.toLowerCase().includes(serviceFilter)) {
                 visible = false;
             }
-            if (subServiceFilter) {
-                const combo = `${rate.sessionType.toLowerCase()} · ${rate.serviceName.toLowerCase()}`;
-                if (!combo.includes(subServiceFilter)) {
-                    visible = false;
-                }
+            
+            // Sub-service filter
+            if (subServiceFilter && (!rate.isSubService || !rate.subServiceName.toLowerCase().includes(subServiceFilter))) {
+                visible = false;
             }
+            
+            // Session type filter
             if (sessionTypeFilter && !rate.sessionType.toLowerCase().includes(sessionTypeFilter)) {
                 visible = false;
             }
+            
+            // Rate range filter
             if (rateFilter) {
                 const val = rate.finalRate;
                 let match = false;
@@ -813,13 +806,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 if (!match) visible = false;
             }
+            
             rate.element.style.display = visible ? '' : 'none';
             if (visible) visibleCount++;
         });
+        
+        // Hide/show service sections based on visible rows
         document.querySelectorAll('.service-section').forEach(section => {
-            const visibleRows = Array.from(section.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+            const visibleRows = Array.from(section.querySelectorAll('tbody tr[data-service]')).filter(row => row.style.display !== 'none');
             section.style.display = visibleRows.length > 0 ? 'block' : 'none';
         });
+        
         filterResults.textContent = `Showing ${visibleCount} of ${allRates.length} rates`;
     }
 
@@ -828,10 +825,15 @@ document.addEventListener('DOMContentLoaded', function() {
         filterSubService.value = '';
         filterSessionType.value = '';
         filterRate.value = '';
+        
         allRates.forEach(rate => {
             rate.element.style.display = '';
-            rate.section.style.display = 'block';
         });
+        
+        document.querySelectorAll('.service-section').forEach(section => {
+            section.style.display = 'block';
+        });
+        
         filterResults.textContent = '';
     }
 

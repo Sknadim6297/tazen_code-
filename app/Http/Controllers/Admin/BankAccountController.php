@@ -23,12 +23,15 @@ class BankAccountController extends Controller
             ->whereNotNull('bank_name')
             ->whereNotNull('account_number')
             ->whereNotNull('ifsc_code');
+
+        // Professional Status Filter
         if ($request->filled('professional_status')) {
             $query->whereHas('professional', function ($q) use ($request) {
                 $q->where('status', $request->professional_status);
             });
         }
 
+        // Account Type Filter
         if ($request->filled('account_type')) {
             $query->where('account_type', $request->account_type);
         }

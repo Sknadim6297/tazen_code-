@@ -117,6 +117,32 @@
     <div class="container-fluid mt-4">
         <h2 class="mb-4">Edit Professional Details</h2>
 
+        <!-- Display Success/Error Messages -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <h5><i class="fas fa-exclamation-triangle"></i> There were some errors with your submission:</h5>
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <form action="{{ route('admin.manage-professional.update', $professional->id) }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmUpdate()">
             @csrf
@@ -155,8 +181,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="experience" class="form-label">Experience (Years)</label>
-                        <input type="number" class="form-control" id="experience" name="experience" 
+                        <label for="experience" class="form-label">Experience</label>
+                        <input type="text" class="form-control" id="experience" name="experience" 
+                               placeholder="e.g., 5 years, Beginner, Expert, etc."
                                value="{{ old('experience', optional($professional->profile)->experience) }}">
                     </div>
 
@@ -204,8 +231,11 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="gst_number" class="form-label">GST Number</label>
-                        <input type="text" class="form-control" id="gst_number" name="gst_number" 
+                        <input type="text" class="form-control @error('gst_number') is-invalid @enderror" id="gst_number" name="gst_number" 
                                value="{{ old('gst_number', optional($professional->profile)->gst_number) }}">
+                        @error('gst_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -358,8 +388,17 @@
                                             $imagePath = asset('storage/'.$image);
                                         } elseif (str_starts_with($image, 'uploads/')) {
                                             $imagePath = asset($image);
+                                        } elseif (str_starts_with($image, 'storage/')) {
+                                            $imagePath = asset($image);
                                         } else {
-                                            $imagePath = asset('uploads/professionals/gallery/'.$image);
+                                            // Default fallback - try both possibilities
+                                            if (file_exists(public_path('uploads/professionals/gallery/'.$image))) {
+                                                $imagePath = asset('uploads/professionals/gallery/'.$image);
+                                            } elseif (file_exists(public_path('storage/gallery/'.$image))) {
+                                                $imagePath = asset('storage/gallery/'.$image);
+                                            } else {
+                                                $imagePath = asset('uploads/professionals/gallery/'.$image);
+                                            }
                                         }
                                     @endphp
                                     <img src="{{ $imagePath }}" 
@@ -419,11 +458,14 @@
 
 <script>
 function confirmUpdate() {
+    console.log('Form submission - Removed images:', removedImages);
+    console.log('Form data being submitted');
     return confirm("Are you sure you want to edit this professional's details?");
 }
 
 // Gallery image removal functionality
 let removedImages = [];
+console.log('Gallery management script loaded');
 
 function removeGalleryImage(imagePath, button) {
     if (confirm('Are you sure you want to remove this image?')) {
