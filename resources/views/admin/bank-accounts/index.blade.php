@@ -116,11 +116,6 @@
         color: #856404;
     }
     
-    .verification-failed {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
     .dataTables_wrapper .dataTables_filter {
         float: right;
         text-align: right;
@@ -282,7 +277,6 @@
                                         <option value="">All Statuses</option>
                                         <option value="verified" {{ request('verification_status') == 'verified' ? 'selected' : '' }}>Verified</option>
                                         <option value="pending" {{ request('verification_status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="failed" {{ request('verification_status') == 'failed' ? 'selected' : '' }}>Failed</option>
                                     </select>
                                 </div>
                             </div>

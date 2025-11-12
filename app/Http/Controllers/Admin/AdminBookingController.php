@@ -57,11 +57,6 @@ class AdminBookingController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Apply professional filter
-        if ($request->filled('professional_id')) {
-            $query->where('professional_id', $request->professional_id);
-        }
-
         // Apply service filter
         if ($request->filled('service_id')) {
             $query->where('service_id', $request->service_id);

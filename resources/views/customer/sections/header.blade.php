@@ -59,15 +59,29 @@
                         ->get();
                     
                     $unreadNotificationsCount = $unreadNotifications->count();
+
+                    // Get unread admin messages
+                    $unreadAdminMessages = \App\Models\AdminProfessionalChatMessage::whereHas('chat', function($q) use ($userId) {
+                            $q->where('customer_id', $userId)
+                              ->where('chat_type', 'admin_customer');
+                        })
+                        ->where('sender_type', 'App\\Models\\Admin')
+                        ->where('is_read', false)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    
+                    $unreadAdminMessagesCount = $unreadAdminMessages->count();
                 } catch (\Exception $e) {
                     $unreadBookingChats = collect();
                     $unreadChatCount = 0;
                     $unreadNotifications = collect();
                     $unreadNotificationsCount = 0;
+                    $unreadAdminMessages = collect();
+                    $unreadAdminMessagesCount = 0;
                 }
                 
-                // Total notifications (chat + additional service notifications)
-                $totalNotifications = $unreadChatCount + $unreadNotificationsCount;
+                // Total notifications (chat + additional service notifications + admin messages)
+                $totalNotifications = $unreadChatCount + $unreadNotificationsCount + $unreadAdminMessagesCount;
             @endphp
             
             <div class="header-actions">
@@ -83,7 +97,11 @@
                 <div class="header-icon chat-icon" id="chatIcon" title="Chat with Admin">
                     <button type="button" class="chat-btn" data-participant-type="admin" data-participant-id="1">
                         <i class="fas fa-comments"></i>
-                        <span id="chatUnreadBadge" class="notification-badge" style="display: none;">0</span>
+                        @if($unreadAdminMessagesCount > 0)
+                            <span id="chatUnreadBadge" class="notification-badge">{{ $unreadAdminMessagesCount }}</span>
+                        @else
+                            <span id="chatUnreadBadge" class="notification-badge" style="display: none;">0</span>
+                        @endif
                     </button>
                 </div>
                 
@@ -145,6 +163,35 @@
                                     </a>
                                 @endif
                                 <button class="notification-btn mark-read-btn" onclick="markNotificationAsRead('{{ $notification->id }}')">
+                                    <i class="fas fa-check"></i> Mark as Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+
+            {{-- Admin Message Notifications --}}
+            @if($unreadAdminMessagesCount > 0)
+                @foreach($unreadAdminMessages as $adminMessage)
+                    @php
+                        $messagePreview = $adminMessage->message ? 
+                            (strlen($adminMessage->message) > 100 ? substr($adminMessage->message, 0, 100) . '...' : $adminMessage->message) : 
+                            'File attachment';
+                    @endphp
+                    <div class="notification-item admin-chat-notification" data-message-id="{{ $adminMessage->id }}">
+                        <div class="notification-icon-wrapper" style="background-color: #e74c3c;">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h5>New Message from Admin</h5>
+                            <p>{{ $messagePreview }}</p>
+                            <p><small>{{ $adminMessage->created_at->diffForHumans() }}</small></p>
+                            <div class="button-container">
+                                <button class="notification-btn view-btn admin-chat-btn">
+                                    <i class="fas fa-comments"></i> Open Admin Chat
+                                </button>
+                                <button class="notification-btn mark-read-btn" onclick="markAdminMessageAsRead('{{ $adminMessage->id }}')">
                                     <i class="fas fa-check"></i> Mark as Read
                                 </button>
                             </div>
@@ -1194,6 +1241,49 @@
                 window.location.href = '{{ route("user.admin-chat.index") }}';
             });
         }
+
+        // Start checking for new admin messages
+        startAdminMessageNotificationCheck();
+
+        // Add admin chat button functionality in notifications
+        document.addEventListener('click', function(e) {
+            // Check for admin chat button
+            const adminChatBtn = e.target.closest('.admin-chat-btn');
+            if (adminChatBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close notification modal and redirect to admin chat
+                const notificationModal = document.getElementById('notificationModal');
+                if (notificationModal) {
+                    notificationModal.style.display = 'none';
+                }
+                
+                // Redirect to customer admin chat page
+                window.location.href = '{{ route("user.admin-chat.index") }}';
+                return;
+            }
+        });
+
+        // Alternative approach - direct event attachment
+        setTimeout(() => {
+            const adminChatBtns = document.querySelectorAll('.admin-chat-btn');
+            adminChatBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Close notification modal
+                    const notificationModal = document.getElementById('notificationModal');
+                    if (notificationModal) {
+                        notificationModal.style.display = 'none';
+                    }
+                    
+                    // Redirect to admin chat
+                    window.location.href = '{{ route("user.admin-chat.index") }}';
+                });
+            });
+        }, 500);
     });
 
     // Function to mark notification as read
@@ -1259,5 +1349,106 @@
             }
         }
     }
-</script>
+
+    // Function to mark admin message as read
+    function markAdminMessageAsRead(messageId) {
+        fetch(`/customer/admin-chat/messages/${messageId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                message_id: messageId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the notification from the modal
+                const notificationItem = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (notificationItem) {
+                    notificationItem.style.opacity = '0.5';
+                    notificationItem.style.pointerEvents = 'none';
+                    
+                    // Fade out and remove
+                    setTimeout(() => {
+                        notificationItem.remove();
+                        // Update badge count
+                        updateNotificationBadge();
+                    }, 300);
+                }
+            } else {
+                console.error('Failed to mark admin message as read');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking admin message as read:', error);
+        });
+    }
+
+    // Function to check for new admin messages
+    function startAdminMessageNotificationCheck() {
+        // Check every 30 seconds for new admin messages
+        setInterval(function() {
+            fetch('/customer/admin-chat/unread-count', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.unread_count > 0) {
+                    // Update chat badge
+                    const chatBadge = document.getElementById('chatUnreadBadge');
+                    if (chatBadge) {
+                        chatBadge.textContent = data.unread_count;
+                        chatBadge.style.display = 'inline-block';
+                    }
+                    
+                    // Update main notification badge
+                    updateNotificationBadgeWithAdminMessages(data.unread_count);
+                    
+                    // Add pulse animation to notification icon
+                    const notificationIcon = document.getElementById('notificationIcon');
+                    if (notificationIcon) {
+                        notificationIcon.classList.add('pulse-animation');
+                        setTimeout(() => {
+                            notificationIcon.classList.remove('pulse-animation');
+                        }, 1000);
+                    }
+                } else {
+                    // Hide chat badge if no unread messages
+                    const chatBadge = document.getElementById('chatUnreadBadge');
+                    if (chatBadge) {
+                        chatBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking for new admin messages:', error);
+            });
+        }, 30000); // Check every 30 seconds
+    }
+
+    // Function to update notification badge including admin messages
+    function updateNotificationBadgeWithAdminMessages(adminMessageCount) {
+        // Get current notification counts from DOM
+        const currentNotifications = document.querySelectorAll('.notification-item:not([style*="opacity: 0.5"])').length;
+        const totalCount = currentNotifications + (adminMessageCount || 0);
+        
+        const badge = document.querySelector('.notification-badge');
+        if (totalCount > 0) {
+            if (badge) {
+                badge.textContent = totalCount;
+                badge.style.display = 'inline-block';
+            }
+        } else {
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    }
 </script>

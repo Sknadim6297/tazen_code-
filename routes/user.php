@@ -112,6 +112,7 @@ Route::middleware(['auth:user'])->group(function () {
         Route::post('/send-message', [App\Http\Controllers\Customer\ChatController::class, 'sendMessage'])->name('send-message');
         Route::get('/messages', [App\Http\Controllers\Customer\ChatController::class, 'getMessages'])->name('messages');
         Route::post('/mark-as-read', [App\Http\Controllers\Customer\ChatController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/messages/{messageId}/mark-as-read', [App\Http\Controllers\Customer\ChatController::class, 'markMessageAsRead'])->name('message.mark-as-read');
         Route::get('/unread-count', [App\Http\Controllers\Customer\ChatController::class, 'getUnreadCount'])->name('unread-count');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Customer\ChatController::class, 'downloadAttachment'])->name('attachment.download');
     });

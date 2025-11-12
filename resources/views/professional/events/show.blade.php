@@ -441,7 +441,7 @@
                         @endif
 
                         @if($event->status === 'approved')
-                            <a href="{{ route('professional-event.details', $event->id) }}" 
+                            <a href="{{ route('event.details', $event->id) }}" 
                                class="btn-action btn-primary-custom" target="_blank">
                                 <i class="ri-external-link-line me-2"></i>View on Frontend
                             </a>

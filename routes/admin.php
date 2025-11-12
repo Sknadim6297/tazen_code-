@@ -198,6 +198,7 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::resource('manage-customer', ManageCustomerController::class);
     Route::get('manage-customer-export/excel', [ManageCustomerController::class, 'exportExcel'])->name('manage-customer.export.excel');
     Route::get('manage-customer-export/pdf', [ManageCustomerController::class, 'exportPdf'])->name('manage-customer.export.pdf');
+    Route::get('manage-customer-export/test-excel', [ManageCustomerController::class, 'testExcelExport'])->name('manage-customer.test-excel');
     Route::post('manage-customer/{id}/reset-onboarding', [ManageCustomerController::class, 'resetOnboarding'])->name('manage-customer.reset-onboarding');
     Route::resource('eventpage', EventController::class);
     Route::post('booking/{id}/add-remarks', [BookingController::class, 'addRemarks'])->name('add-remarks');

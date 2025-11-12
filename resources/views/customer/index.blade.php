@@ -481,6 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Include Onboarding Tutorial -->
-@include('components.onboarding-tutorial')
-@include('components.customer-onboarding')
+{{-- Temporarily commented out onboarding tutorials --}}
+{{-- @include('components.onboarding-tutorial') --}}
+{{-- @include('components.customer-onboarding') --}}
 @endsection

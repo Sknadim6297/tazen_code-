@@ -529,37 +529,58 @@
 
     // Export function
     function exportData(format) {
-        // Get current form data (search filters)
-        const form = document.getElementById('customer-filter-form');
-        const formData = new FormData(form);
-        
-        // Convert FormData to URL parameters
-        const params = new URLSearchParams();
-        for (let [key, value] of formData) {
-            if (value) {
-                params.append(key, value);
+        try {
+            // Get current form data (search filters)
+            const form = document.getElementById('customer-filter-form');
+            const formData = new FormData(form);
+            
+            // Convert FormData to URL parameters
+            const params = new URLSearchParams();
+            for (let [key, value] of formData) {
+                if (value) {
+                    params.append(key, value);
+                }
             }
+            
+            // Construct export URL
+            let exportUrl;
+            if (format === 'excel') {
+                exportUrl = '{{ route("admin.manage-customer.export.excel") }}';
+            } else if (format === 'pdf') {
+                exportUrl = '{{ route("admin.manage-customer.export.pdf") }}';
+            }
+            
+            // Add parameters if any
+            const queryString = params.toString();
+            if (queryString) {
+                exportUrl += '?' + queryString;
+            }
+            
+            // Show loading message
+            toastr.info('Preparing export... Please wait.');
+            
+            // Create a hidden link and trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = exportUrl;
+            downloadLink.style.display = 'none';
+            downloadLink.setAttribute('target', '_blank');
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Show success message after a delay
+            setTimeout(() => {
+                if (format === 'excel') {
+                    toastr.success('Excel file download started. If the file doesn\'t open, try right-clicking the downloaded file and selecting "Open with Microsoft Excel".');
+                } else {
+                    toastr.success('PDF export completed.');
+                }
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Export error:', error);
+            toastr.error('Export failed. Please try again.');
         }
-        
-        // Construct export URL
-        let exportUrl;
-        if (format === 'excel') {
-            exportUrl = '{{ route("admin.manage-customer.export.excel") }}';
-        } else if (format === 'pdf') {
-            exportUrl = '{{ route("admin.manage-customer.export.pdf") }}';
-        }
-        
-        // Add parameters if any
-        const queryString = params.toString();
-        if (queryString) {
-            exportUrl += '?' + queryString;
-        }
-        
-        // Show loading message
-        toastr.info('Preparing export... Please wait.');
-        
-        // Trigger download
-        window.location.href = exportUrl;
     }
 
     // Utility functions for chat

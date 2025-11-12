@@ -706,7 +706,13 @@
                             </div>
                             <div class="profile-info">
                                 <h2>{{ $profile->name }}</h2>
-                                <p class="profile-subtitle">{{ $profile->specialization }}</p>
+                                <p class="profile-subtitle">
+                                    @if($services->count() > 0)
+                                        {{ $services->first()->service->name ?? $services->first()->service_name ?? $profile->specialization }}
+                                    @else
+                                        {{ $profile->specialization ?? 'Professional' }}
+                                    @endif
+                                </p>
                             </div>
                         </div>
                         
@@ -983,26 +989,113 @@
                             </div>
                             
                             @if($services->count() > 0)
-                                <div class="services-grid">
+                                <div class="services-list">
                                     @foreach($services as $service)
-                                        <div class="service-card">
-                                            <div class="service-img-container">
+                                        <div class="service-item" style="background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm);">
+                                            <!-- Service Header -->
+                                            <div class="service-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                                <div style="flex: 1;">
+                                                    <h6 style="margin: 0 0 0.5rem 0; color: var(--gray-800); font-weight: 600; font-size: 1.1rem;">
+                                                        <i class="fas fa-concierge-bell" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                                                        {{ $service->service->name ?? $service->service_name }}
+                                                    </h6>
+                                                    
+                                                    <!-- Service Meta Information -->
+                                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                                        @if($service->price)
+                                                            <span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
+                                                                <i class="fas fa-rupee-sign" style="margin-right: 0.25rem;"></i>{{ number_format($service->price, 2) }}
+                                                            </span>
+                                                        @endif
+                                                        @if($service->category)
+                                                            <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
+                                                                <i class="fas fa-tag" style="margin-right: 0.25rem;"></i>{{ $service->category }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Service Image -->
                                                 @if($service->image_path)
-                                                    <img src="{{ asset($service->image_path) }}" alt="{{ $service->service_name }}" class="service-img">
+                                                    <div style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; margin-left: 1rem; flex-shrink: 0;">
+                                                        <img src="{{ asset($service->image_path) }}" alt="{{ $service->service_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    </div>
                                                 @else
-                                                    <div class="service-placeholder">
-                                                        <i class="fas fa-image"></i>
+                                                    <div style="width: 80px; height: 80px; border-radius: 8px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; margin-left: 1rem; flex-shrink: 0; border: 1px solid var(--gray-200);">
+                                                        <i class="fas fa-image" style="color: var(--gray-400); font-size: 1.5rem;"></i>
                                                     </div>
                                                 @endif
                                             </div>
-                                            
-                                            <div class="service-content">
-                                                <h4 class="service-name">{{ $service->service_name }}</h4>
-                                                <div class="service-meta">
-                                                    <span class="service-badge">{{ $service->category }}</span>
-                                                    <span class="service-duration">{{ $service->duration }} mins</span>
+
+                                            <!-- Service Description -->
+                                            @if($service->description)
+                                                <div style="margin-bottom: 1rem; padding: 0.75rem; background: var(--gray-50); border-radius: 6px; border-left: 3px solid var(--primary);">
+                                                    <strong style="color: var(--gray-700); font-size: 0.9rem;">Description:</strong>
+                                                    <p style="margin: 0.5rem 0 0 0; color: var(--gray-600); line-height: 1.5;">{{ $service->description }}</p>
                                                 </div>
-                                            </div>
+                                            @endif
+
+                                            <!-- Service Requirements -->
+                                            @if($service->requirements)
+                                                <div style="margin-bottom: 1rem; padding: 0.75rem; background: #fef7cd; border-radius: 6px; border-left: 3px solid #f59e0b;">
+                                                    <strong style="color: #92400e; font-size: 0.9rem;">Requirements:</strong>
+                                                    <p style="margin: 0.5rem 0 0 0; color: #92400e; line-height: 1.5;">{{ $service->requirements }}</p>
+                                                </div>
+                                            @endif
+
+                                            <!-- Service Features -->
+                                            @php
+                                                $serviceFeatures = $service->features;
+                                                if (is_string($serviceFeatures)) {
+                                                    $decoded = json_decode($serviceFeatures, true);
+                                                    $serviceFeatures = is_array($decoded) ? $decoded : [];
+                                                }
+                                                if (!is_array($serviceFeatures)) {
+                                                    $serviceFeatures = [];
+                                                }
+                                            @endphp
+                                            @if(count($serviceFeatures) > 0)
+                                                <div style="margin-bottom: 1rem;">
+                                                    <strong style="color: var(--gray-600); display: block; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                                        <i class="fas fa-star" style="margin-right: 0.25rem;"></i>Features:
+                                                    </strong>
+                                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                        @foreach($serviceFeatures as $feature)
+                                                            <span style="background: #f0f9ff; color: #0369a1; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem; border: 1px solid #bae6fd;">
+                                                                <i class="fas fa-check" style="font-size: 0.75rem; margin-right: 0.25rem;"></i> {{ ucfirst(str_replace(['_', '-'], ' ', $feature)) }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Service Tags -->
+                                            @if($service->tags)
+                                                <div style="margin-bottom: 1rem;">
+                                                    <strong style="color: var(--gray-600); display: block; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                                        <i class="fas fa-tags" style="margin-right: 0.25rem;"></i>Tags:
+                                                    </strong>
+                                                    <div style="background: var(--gray-50); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--gray-200); font-size: 0.9rem; color: var(--gray-700);">
+                                                        {{ $service->tags }}
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Sub-Services (if any) -->
+                                            @if($service->subServices && $service->subServices->count() > 0)
+                                                <div style="margin-top: 1rem;">
+                                                    <strong style="color: var(--gray-600); display: block; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                                        <i class="fas fa-list" style="margin-right: 0.25rem;"></i>Sub-Services:
+                                                    </strong>
+                                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                        @foreach($service->subServices as $subService)
+                                                            <span style="background: #e0f2fe; color: #0277bd; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem; border: 1px solid #b3e5fc;">
+                                                                <i class="fas fa-arrow-right" style="font-size: 0.75rem; margin-right: 0.25rem;"></i> {{ $subService->name }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -1031,17 +1124,89 @@
                             </div>
                             
                             @if($rates->count() > 0)
-                                <div class="pricing-grid">
+                                <div class="pricing-list">
                                     @foreach($rates as $rate)
-                                        <div class="pricing-card">
-                                            <div class="pricing-header">
-                                                <div class="pricing-type">{{ $rate->session_type }}</div>
-                                                <div class="pricing-amount">₹{{ number_format($rate->final_rate, 2) }}</div>
+                                        <div class="pricing-item" style="background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm);">
+                                            <!-- Rate Header -->
+                                            <div class="pricing-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                                <div style="flex: 1;">
+                                                    <h6 style="margin: 0 0 0.5rem 0; color: var(--gray-800); font-weight: 600; font-size: 1.1rem;">
+                                                        <i class="fas fa-money-bill-wave" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                                                        {{ $rate->session_type }}
+                                                    </h6>
+                                                    
+                                                    <!-- Service/Sub-Service Information -->
+                                                    @if($rate->sub_service_id && $rate->subService)
+                                                        <div style="margin-bottom: 0.75rem;">
+                                                            <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem;">
+                                                                Service: {{ $rate->subService->service->name ?? 'N/A' }}
+                                                            </span>
+                                                            <span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
+                                                                Sub-Service: {{ $rate->subService->name }}
+                                                            </span>
+                                                        </div>
+                                                    @else
+                                                        @php
+                                                            // For general rates, show the main service name from professional's services
+                                                            $mainService = $services->first()->service_name ?? 'General Service';
+                                                        @endphp
+                                                        <div style="margin-bottom: 0.75rem;">
+                                                            <span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem;">
+                                                                Service: {{ $mainService }}
+                                                            </span>
+                                                            <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
+                                                                General Rate (All Sub-Services)
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- Total Amount -->
+                                                <div style="text-align: right;">
+                                                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 0;">
+                                                        ₹{{ number_format($rate->final_rate, 2) }}
+                                                    </div>
+                                                    <small style="color: var(--gray-500); font-size: 0.75rem;">Total Amount</small>
+                                                </div>
                                             </div>
-                                            <div class="pricing-details">
-                                                <span>{{ $rate->num_sessions }} sessions</span>
-                                                <span>{{ $rate->duration }}</span>
+
+                                            <!-- Rate Details -->
+                                            <div class="pricing-meta" style="margin-bottom: 1rem;">
+                                                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                        <i class="fas fa-calendar-check" style="color: var(--primary);"></i>
+                                                        <strong>Sessions:</strong> {{ $rate->num_sessions }}
+                                                    </div>
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                        <i class="fas fa-rupee-sign" style="color: var(--primary);"></i>
+                                                        <strong>Per Session:</strong> ₹{{ number_format($rate->rate_per_session, 2) }}
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Calculation Display -->
+                                                <div style="background: var(--gray-50); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--gray-200); font-size: 0.9rem; color: var(--gray-700);">
+                                                    <i class="fas fa-calculator" style="margin-right: 0.5rem; color: var(--primary);"></i>
+                                                    <strong>Calculation:</strong> {{ $rate->num_sessions }} × ₹{{ number_format($rate->rate_per_session, 2) }} = ₹{{ number_format($rate->final_rate, 2) }}
+                                                </div>
                                             </div>
+
+                                            <!-- Features (if available) -->
+                                            @if($rate->features && count($rate->features) > 0)
+                                                <div style="margin-top: 1rem;">
+                                                    <strong style="color: var(--gray-600); display: block; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                                        <i class="fas fa-list-check" style="margin-right: 0.25rem;"></i>Features Included:
+                                                    </strong>
+                                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                        @foreach($rate->features as $feature)
+                                                            @if(trim($feature))
+                                                                <span style="background: #f0f9ff; color: #0369a1; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem; border: 1px solid #bae6fd;">
+                                                                    <i class="fas fa-check" style="font-size: 0.75rem; margin-right: 0.25rem;"></i> {{ $feature }}
+                                                                </span>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -1178,61 +1343,152 @@
                             @if($availabilities->count() > 0)
                                 <div class="availability-list">
                                     @foreach($availabilities as $availability)
-                                        <div class="availability-item">
-                                            <div class="availability-header">
-                                                <div>
-                                                    @php
-                                                        // Normalize month display: handle 'all_months', 'Y-m' and old short names
-                                                        $monthValue = $availability->month;
+                                        <div class="availability-item" style="background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm);">
+                                            @php
+                                                // Normalize month display: handle 'all_months', 'Y-m' and old short names
+                                                $monthValue = $availability->month;
 
-                                                        if ($monthValue === 'all_months') {
-                                                            $months = [];
-                                                            $currentDate = now();
-                                                            for ($i = 0; $i < 6; $i++) {
-                                                                $months[] = $currentDate->copy()->addMonths($i)->format('F Y');
-                                                            }
-                                                            $fullMonth = implode(', ', $months);
-                                                        } elseif (strpos($monthValue, '-') !== false) {
-                                                            try {
-                                                                $fullMonth = \Carbon\Carbon::createFromFormat('Y-m', $monthValue)->format('F Y');
-                                                            } catch (\Exception $e) {
-                                                                $fullMonth = $monthValue;
+                                                if ($monthValue === 'all_months') {
+                                                    $months = [];
+                                                    $currentDate = now();
+                                                    for ($i = 0; $i < 6; $i++) {
+                                                        $months[] = $currentDate->copy()->addMonths($i)->format('F Y');
+                                                    }
+                                                    $fullMonth = implode(', ', $months);
+                                                } elseif (strpos($monthValue, '-') !== false) {
+                                                    try {
+                                                        $fullMonth = \Carbon\Carbon::createFromFormat('Y-m', $monthValue)->format('F Y');
+                                                    } catch (\Exception $e) {
+                                                        $fullMonth = $monthValue;
+                                                    }
+                                                } else {
+                                                    $monthNames = [
+                                                        'jan' => 'January', 'feb' => 'February', 'mar' => 'March',
+                                                        'apr' => 'April', 'may' => 'May', 'jun' => 'June',
+                                                        'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
+                                                        'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
+                                                    ];
+                                                    $fullMonth = $monthNames[strtolower($monthValue)] ?? ucfirst($monthValue);
+                                                }
+                                            @endphp
+                                            
+                                            <!-- Month Header -->
+                                            <div class="availability-header" style="margin-bottom: 1rem;">
+                                                <h6 style="margin: 0; color: var(--gray-800); font-weight: 600; font-size: 1.1rem;">
+                                                    <i class="fas fa-calendar" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                                                    {{ $fullMonth }}
+                                                </h6>
+                                            </div>
+
+                                            <!-- Session Duration -->
+                                            <div class="availability-meta" style="margin-bottom: 1rem;">
+                                                <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                    <i class="fas fa-clock" style="color: var(--primary);"></i>
+                                                    <strong>Session:</strong> {{ $availability->session_duration }} min
+                                                </div>
+                                                
+                                                @if($availability->weekdays)
+                                                    @php
+                                                        $weekdays = json_decode($availability->weekdays, true) ?? [];
+                                                        $dayNames = [
+                                                            'mon' => 'Mon', 'tue' => 'Tue', 'wed' => 'Wed', 
+                                                            'thu' => 'Thu', 'fri' => 'Fri', 'sat' => 'Sat', 'sun' => 'Sun'
+                                                        ];
+                                                    @endphp
+                                                    <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                        <i class="fas fa-calendar" style="color: var(--primary);"></i>
+                                                        <strong>Days:</strong>
+                                                        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-left: 0.5rem;">
+                                                            @foreach($weekdays as $day)
+                                                                <span style="background: #e0e7ff; color: #5b21b6; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
+                                                                    {{ $dayNames[$day] ?? $day }}
+                                                                </span>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            @if($availability->slots && $availability->slots->count() > 0)
+                                                <div>
+                                                    <strong style="color: var(--gray-600); display: block; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                                        <i class="fas fa-clock" style="margin-right: 0.25rem;"></i>Time Slots by Weekday:
+                                                    </strong>
+                                                    @php
+                                                        $dayNames = [
+                                                            'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 
+                                                            'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday', 'sun' => 'Sunday'
+                                                        ];
+                                                        $dayOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                                                        
+                                                        // Check if slots have weekday field
+                                                        $firstSlot = $availability->slots->first();
+                                                        $hasWeekdayField = $firstSlot && isset($firstSlot->weekday);
+                                                        
+                                                        if ($hasWeekdayField) {
+                                                            // Group slots by their individual weekday field
+                                                            $slotsByDay = $availability->slots->groupBy('weekday');
+                                                        } else {
+                                                            // Fallback: Show all slots under "All Days" if no weekday field exists
+                                                            $slotsByDay = collect(['general' => $availability->slots]);
+                                                        }
+                                                        
+                                                        // Sort by weekday order (if we have weekday-specific slots)
+                                                        $sortedSlotsByDay = collect();
+                                                        if ($hasWeekdayField) {
+                                                            foreach ($dayOrder as $day) {
+                                                                if ($slotsByDay->has($day)) {
+                                                                    $sortedSlotsByDay->put($day, $slotsByDay->get($day));
+                                                                }
                                                             }
                                                         } else {
-                                                            $monthNames = [
-                                                                'jan' => 'January', 'feb' => 'February', 'mar' => 'March',
-                                                                'apr' => 'April', 'may' => 'May', 'jun' => 'June',
-                                                                'jul' => 'July', 'aug' => 'August', 'sep' => 'September',
-                                                                'oct' => 'October', 'nov' => 'November', 'dec' => 'December'
-                                                            ];
-                                                            $fullMonth = $monthNames[strtolower($monthValue)] ?? ucfirst($monthValue);
+                                                            $sortedSlotsByDay = $slotsByDay;
                                                         }
                                                     @endphp
-                                                    <div class="availability-month">{{ $fullMonth }}</div>
-                                                    <div class="availability-duration">{{ $availability->session_duration }} min sessions</div>
+                                                    
+                                                    @if($sortedSlotsByDay->count() > 0)
+                                                        @foreach($sortedSlotsByDay as $weekday => $daySlots)
+                                                            <div style="margin-bottom: 1rem;">
+                                                                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                                                    @if($weekday === 'general')
+                                                                        <span style="background: #e0e7ff; color: #5b21b6; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem;">All Days</span>
+                                                                    @else
+                                                                        <span style="background: #e0e7ff; color: #5b21b6; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 0.5rem;">{{ $dayNames[$weekday] ?? ucfirst($weekday) }}</span>
+                                                                    @endif
+                                                                    <span style="color: var(--gray-500); font-size: 0.85rem;">({{ $daySlots->count() }} slot{{ $daySlots->count() > 1 ? 's' : '' }})</span>
+                                                                </div>
+                                                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                                    @foreach($daySlots as $slot)
+                                                                        <span style="background: var(--gray-100); color: var(--gray-700); padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem; border: 1px solid var(--gray-200);">
+                                                                            @php
+                                                                                try {
+                                                                                    $startTime = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
+                                                                                } catch (\Exception $e) {
+                                                                                    $startTime = $slot->start_time;
+                                                                                }
+                                                                                try {
+                                                                                    $endTime = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
+                                                                                } catch (\Exception $e) {
+                                                                                    $endTime = $slot->end_time;
+                                                                                }
+                                                                            @endphp
+                                                                            <i class="fas fa-clock" style="font-size: 0.75rem; margin-right: 0.25rem;"></i> {{ $startTime }} - {{ $endTime }}
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        <div style="color: var(--gray-500); font-size: 0.9rem;">
+                                                            <i class="fas fa-info-circle"></i> No slots could be displayed. Please check the availability configuration.
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="availability-slots">
-                                                @foreach($availability->slots as $slot)
-                                                    <div class="slot-badge">
-                                                        @php
-                                                            try {
-                                                                $start = \Carbon\Carbon::parse($slot->start_time)->format('g:i A');
-                                                            } catch (\Exception $e) {
-                                                                $start = $slot->start_time;
-                                                            }
-
-                                                            try {
-                                                                $end = \Carbon\Carbon::parse($slot->end_time)->format('g:i A');
-                                                            } catch (\Exception $e) {
-                                                                $end = $slot->end_time;
-                                                            }
-                                                        @endphp
-                                                        {{ $start }} - {{ $end }}
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                            @else
+                                                <div style="color: var(--gray-500); font-size: 0.9rem; text-align: center; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
+                                                    <i class="fas fa-exclamation-circle"></i> No time slots configured
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>

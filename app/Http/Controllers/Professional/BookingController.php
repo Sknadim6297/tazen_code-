@@ -10,6 +10,7 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -205,57 +206,127 @@ class BookingController extends Controller
         return response()->json(['success' => true, 'message' => 'Booking status updated successfully.']);
     }
     
+
+
     /**
      * Get questionnaire answers for a specific booking
      */
     public function getQuestionnaireAnswers($bookingId)
     {
         try {
-            $booking = Booking::with(['customer'])->findOrFail($bookingId);
+            $booking = Booking::with(['customer', 'service', 'subService'])->findOrFail($bookingId);
             
-            // Get all answers for this user and service, not just those linked to this specific booking
-            $answers = McqAnswer::with('serviceMcq')
-                ->where('user_id', $booking->user_id)
-                ->where('service_id', $booking->service_id)
+            // First try to get answers linked to this specific booking
+            $answers = McqAnswer::with(['serviceMcq'])
+                ->where('booking_id', $bookingId)
                 ->get();
+            
+            // If no booking-specific answers, try to get answers for this user and service
+            if ($answers->isEmpty()) {
+                if ($booking->service_id) {
+                    $answers = McqAnswer::with(['serviceMcq'])
+                        ->where('user_id', $booking->user_id)
+                        ->where('service_id', $booking->service_id)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                }
+            }
+            
+            // If still no answers, try broader search including sub-service
+            if ($answers->isEmpty() && $booking->sub_service_id) {
+                // Look for answers where service matches or where sub-service context might be relevant
+                $answers = McqAnswer::with(['serviceMcq'])
+                    ->where('user_id', $booking->user_id)
+                    ->where(function($query) use ($booking) {
+                        if ($booking->service_id) {
+                            $query->where('service_id', $booking->service_id);
+                        }
+                        $query->orWhere('service_id', $booking->sub_service_id);
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+            
+            // If still no answers and service_id is null, get all user answers (fallback)
+            if ($answers->isEmpty() && !$booking->service_id) {
+                $answers = McqAnswer::with(['serviceMcq'])
+                    ->where('user_id', $booking->user_id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
             
             if ($answers->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No questionnaire answers found for this booking.',
+                    'message' => 'No MCQ questionnaire answers found for this booking. The customer may not have filled out the questionnaire yet.',
                     'debug_info' => [
                         'booking_id' => $bookingId,
                         'user_id' => $booking->user_id,
-                        'service_id' => $booking->service_id
+                        'service_id' => $booking->service_id,
+                        'sub_service_id' => $booking->sub_service_id,
+                        'customer_name' => $booking->customer_name,
+                        'service_name' => $booking->service_name
                     ]
                 ]);
             }
             
             $formattedAnswers = $answers->map(function ($answer) {
+                $questionText = 'Question not found';
+                $answerText = 'No answer provided';
+                
+                if ($answer->serviceMcq) {
+                    $questionText = $answer->serviceMcq->question;
+                } elseif ($answer->question) {
+                    $questionText = $answer->question;
+                }
+                
+                if ($answer->selected_answer) {
+                    $answerText = $answer->selected_answer;
+                } elseif ($answer->other_answer) {
+                    $answerText = $answer->other_answer;
+                } elseif (isset($answer->answer)) {
+                    $answerText = $answer->answer;
+                }
+                
                 return [
-                    'question' => $answer->serviceMcq ? $answer->serviceMcq->question : 'Question not found',
-                    'answer' => $answer->answer,
+                    'question' => $questionText,
+                    'answer' => $answerText,
+                    'question_type' => $answer->serviceMcq ? $answer->serviceMcq->question_type : 'text',
                     'service_id' => $answer->service_id,
-                    'user_id' => $answer->user_id
+                    'user_id' => $answer->user_id,
+                    'created_at' => $answer->created_at ? $answer->created_at->format('Y-m-d H:i:s') : null
                 ];
             });
             
-            $serviceName = $booking->service_name ?? 'Unknown Service';
-            $customerName = $booking->customer ? $booking->customer->name : 'Unknown Customer';
+            $serviceName = $booking->service_name ?? ($booking->service ? $booking->service->name : 'Unknown Service');
+            $subServiceName = $booking->sub_service_name ?? ($booking->subService ? $booking->subService->name : null);
+            $customerName = $booking->customer_name ?? ($booking->customer ? $booking->customer->name : 'Unknown Customer');
             
             return response()->json([
                 'success' => true,
                 'answers' => $formattedAnswers,
                 'booking_details' => [
                     'service_name' => $serviceName,
-                    'customer_name' => $customerName
+                    'sub_service_name' => $subServiceName,
+                    'customer_name' => $customerName,
+                    'booking_date' => $booking->booking_date,
+                    'answers_count' => $formattedAnswers->count()
                 ]
             ]);
-} catch (\Exception $e) {
+            
+        } catch (\Exception $e) {
+            Log::error('Error in getQuestionnaireAnswers: ' . $e->getMessage(), [
+                'booking_id' => $bookingId,
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving questionnaire answers: ' . $e->getMessage()
+                'message' => 'Error retrieving questionnaire answers: ' . $e->getMessage(),
+                'debug_info' => [
+                    'booking_id' => $bookingId,
+                    'error' => $e->getMessage()
+                ]
             ]);
         }
     }
