@@ -51,9 +51,12 @@
             </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn btn-danger btn-sm" onclick="deleteUser({{ $user->id }})">
-                <i class="ri-delete-bin-line"></i> Delete
+        <div class="action-buttons d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm flex-fill" onclick="viewUser({{ $user->id }})">
+                <i class="ri-eye-line me-1"></i> View
+            </button>
+            <button class="btn btn-outline-danger btn-sm flex-fill" onclick="deleteUser({{ $user->id }})">
+                <i class="ri-delete-bin-line me-1"></i> Delete
             </button>
         </div>
     </div>

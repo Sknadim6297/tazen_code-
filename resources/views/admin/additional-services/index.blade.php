@@ -4,20 +4,129 @@
 
 @section('styles')
 <style>
-.blink {
-    animation: blink-animation 1.5s infinite;
-}
+    /* Blink animation for special statuses */
+    .blink {
+        animation: blink-animation 1.5s infinite;
+    }
 
-@keyframes blink-animation {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.5; }
-}
+    @keyframes blink-animation {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.5; }
+    }
 
-.label-warning.blink {
-    background-color: #f39c12 !important;
-    color: white !important;
-    font-weight: bold;
-}
+    .label-warning.blink {
+        background-color: #f39c12 !important;
+        color: white !important;
+        font-weight: bold;
+    }
+
+    /* Modern Card Styling */
+    .stats-card {
+        border-radius: 12px;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    /* Filter Section Styling */
+    .filter-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-card .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        border: none;
+        padding: 1rem 1.25rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #e1e5e9;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        border: 1px solid #e1e5e9;
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+
+    /* Table Styling */
+    .table-responsive {
+        border-radius: 12px;
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 1200px; /* Ensure minimum width for proper column display */
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #495057;
+        padding: 1rem 0.75rem;
+        white-space: nowrap; /* Prevent header text wrapping */
+    }
+
+    .table td {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    /* Status badges */
+    .badge {
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
 </style>
 @endsection
 
@@ -26,160 +135,167 @@
     <div class="container-fluid">
 
         <!-- Page Header -->
-        <div class="my-4 page-header-breadcrumb d-flex align-items-center flex-wrap gap-2">
+        <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="page-title fw-medium fs-18 mb-2">Additional Services Management</h1>
-                <div>
-                    <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Additional Services</li>
-                        </ol>
-                    </nav>
-                </div>
+                <h1 class="page-title fw-semibold fs-18 mb-2">
+                    <i class="ri-service-line me-2 text-primary"></i>
+                    Additional Services Management
+                </h1>
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('admin.dashboard') }}" class="text-decoration-none">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">Additional Services</li>
+                    </ol>
+                </nav>
             </div>
+
         </div>
 
-<!-- Statistics Cards -->
-<div class="row">
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-blue">
-                <i class="fa fa-list-alt"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Total Services</span>
-                <span class="info-box-number" id="total-services">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-yellow">
-                <i class="fa fa-clock-o"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Pending</span>
-                <span class="info-box-number" id="pending-services">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-green">
-                <i class="fa fa-check"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Approved</span>
-                <span class="info-box-number" id="approved-services">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-aqua">
-                <i class="fa fa-credit-card"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Paid</span>
-                <span class="info-box-number" id="paid-services">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-purple">
-                <i class="fa fa-handshake-o"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Negotiations</span>
-                <span class="info-box-number" id="negotiation-services">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-2 col-sm-6">
-        <div class="info-box">
-            <div class="info-box-icon bg-red">
-                <i class="fa fa-money"></i>
-            </div>
-            <div class="info-box-content">
-                <span class="info-box-text">Pending Payouts</span>
-                <span class="info-box-number" id="pending-payouts">₹0</span>
-            </div>
-        </div>
-    </div>
-</div>
 
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card custom-card">
-                    <div class="card-header justify-content-between d-flex align-items-center">
-                        <div class="card-title">Additional Services List</div>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-secondary">Export</a>
+
+        <!-- Filter Section -->
+        <div class="card filter-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-filter-3-line me-2"></i>
+                    Filter Additional Services
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="filter-form" method="GET">
+                    <div class="row g-3">
+                        <!-- Status Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="status-filter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-checkbox-circle-line me-1"></i>Status
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-flag-line text-muted"></i>
+                                </span>
+                                <select class="form-select border-start-0" id="status-filter" name="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="negotiation" {{ request('status') == 'negotiation' ? 'selected' : '' }}>Under Negotiation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Search Filter -->
+                        <div class="col-lg-6 col-md-12">
+                            <label for="search-filter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-search-line me-1"></i>Search Professional or Customer
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-search-2-line text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="search-filter" name="search" 
+                                       value="{{ request('search') }}" 
+                                       placeholder="Search by professional name, customer name, or service details..."
+                                       autocomplete="off">
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()" 
+                                        title="Clear search">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                                <button class="btn btn-primary" type="submit" title="Search">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                <i class="ri-information-line me-1"></i>
+                                Search across professional names, customer names, service titles, and descriptions
+                                @if(request('search'))
+                                    <br><strong class="text-primary">
+                                        <i class="ri-search-eye-line me-1"></i>
+                                        Currently searching for: "{{ request('search') }}"
+                                    </strong>
+                                @endif
+                            </small>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-calendar-line me-1"></i>Date Range
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-calendar-event-line text-muted"></i>
+                                </span>
+                                <input type="date" class="form-control border-start-0 border-end-0" 
+                                       id="date-from" name="date_from" value="{{ request('date_from') }}" placeholder="From Date">
+                                <span class="input-group-text bg-light border-start-0 border-end-0 text-muted">to</span>
+                                <input type="date" class="form-control border-start-0" 
+                                       id="date-to" name="date_to" value="{{ request('date_to') }}" placeholder="To Date">
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body p-0">
-                
-                <!-- Filters -->
-                <div class="row mb-3">
-                    <div class="col-md-2">
-                        <select class="form-control" id="status-filter">
-                            <option value="">All Statuses</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="paid">Paid</option>
-                            <option value="negotiation">Under Negotiation</option>
-                        </select>
+
+                    <!-- Filter Actions -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary" id="apply-filters">
+                                    <i class="ri-search-line me-1"></i>
+                                    Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="ri-refresh-line me-1"></i>
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="professional-filter">
-                            <option value="">All Professionals</option>
-                            @foreach($professionals as $professional)
-                                <option value="{{ $professional->id }}">{{ $professional->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" id="user-filter">
-                            <option value="">All Users</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" class="form-control" id="date-from" placeholder="From Date">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" class="form-control" id="date-to" placeholder="To Date">
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
-                    </div>
+
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Additional Services Management
+                    @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
+                        <small class="text-muted ms-2">
+                            ({{ $additionalServices->total() }} 
+                            {{ Str::plural('result', $additionalServices->total()) }} found)
+                        </small>
+                    @endif
                 </div>
+                @if(request('search'))
+                    <div class="mt-2">
+                        <span class="badge bg-primary-light text-primary">
+                            <i class="ri-search-line me-1"></i>
+                            Searching: "{{ request('search') }}"
+                        </span>
+                    </div>
+                @endif
+            </div>
+            <div class="card-body">
                 
                 <div class="table-responsive">
-                    <table class="table table-striped" id="additional-services-table">
-                        <thead>
+                    <table class="table text-nowrap table-bordered">
+                        <thead class="table-primary">
                             <tr>
-                                <th>ID</th>
-                                <th>Service Name</th>
-                                <th>Professional</th>
-                                <th>Customer</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th>Delivery Date</th>
-                                <th>Consultation</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th scope="col">#</th>
+                                <th scope="col">Service Details</th>
+                                <th scope="col">Professional</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Payment</th>
+                                <th scope="col">Delivery</th>
+                                <th scope="col">Consultation</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -220,31 +336,31 @@
                                 </td>
                                 <td>
                                     @if($service->admin_status === 'pending')
-                                        <span class="label label-warning">Pending</span>
+                                        <span class="badge bg-warning text-dark">Pending</span>
                                     @elseif($service->admin_status === 'approved')
-                                        <span class="label label-success">Approved</span>
+                                        <span class="badge bg-success">Approved</span>
                                     @elseif($service->admin_status === 'rejected')
-                                        <span class="label label-danger">Rejected</span>
+                                        <span class="badge bg-danger">Rejected</span>
                                     @endif
                                     
                                     @if($service->negotiation_status === 'user_negotiated')
-                                        <br><span class="label label-warning blink">⚠️ Negotiation Pending</span>
+                                        <br><span class="badge bg-warning blink">⚠️ Negotiation Pending</span>
                                     @elseif($service->negotiation_status === 'admin_responded')
-                                        <br><span class="label label-primary">✅ Responded</span>
+                                        <br><span class="badge bg-primary">✅ Responded</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($service->payment_status === 'pending')
-                                        <span class="label label-warning">Pending</span>
+                                        <span class="badge bg-warning text-dark">Pending</span>
                                     @elseif($service->payment_status === 'paid')
-                                        <span class="label label-success">Paid</span>
+                                        <span class="badge bg-success">Paid</span>
                                         @if($service->professional_payment_status === 'pending')
                                             <br><small class="text-danger">Payout Pending</small>
                                         @else
                                             <br><small class="text-success">Payout Released</small>
                                         @endif
                                     @elseif($service->payment_status === 'failed')
-                                        <span class="label label-danger">Failed</span>
+                                        <span class="badge bg-danger">Failed</span>
                                     @endif
                                 </td>
                                 <td>
@@ -265,18 +381,18 @@
                                 </td>
                                 <td>
                                     @if($service->consulting_status === 'pending')
-                                        <span class="label label-secondary">Not Started</span>
+                                        <span class="badge bg-secondary">Not Started</span>
                                     @elseif($service->consulting_status === 'in_progress')
-                                        <span class="label label-info">In Progress</span>
+                                        <span class="badge bg-info">In Progress</span>
                                     @elseif($service->consulting_status === 'done')
                                         @if($service->customer_confirmed_at)
-                                            <span class="label label-success">Completed & Confirmed</span>
+                                            <span class="badge bg-success">Completed & Confirmed</span>
                                             <br><small class="text-success">
                                                 <i class="fa fa-check"></i> 
                                                 {{ \Carbon\Carbon::parse($service->customer_confirmed_at)->format('M d, Y h:i A') }}
                                             </small>
                                         @else
-                                            <span class="label label-warning">Awaiting Customer Confirmation</span>
+                                            <span class="badge bg-warning text-dark">Awaiting Customer Confirmation</span>
                                             @if($service->professional_completed_at)
                                                 <br><small class="text-muted">
                                                     Completed: {{ \Carbon\Carbon::parse($service->professional_completed_at)->format('M d, Y h:i A') }}
@@ -317,14 +433,42 @@
                                 </td>
                             </tr>
                             @endforeach
+                            
+                            @if($additionalServices->count() == 0)
+                            <tr>
+                                <td colspan="11" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="ri-search-line" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                                        <h5 class="text-muted mb-2">No Results Found</h5>
+                                        @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
+                                            <p class="text-muted mb-3">
+                                                No additional services match your current filters.
+                                                @if(request('search'))
+                                                    <br><strong>Search term:</strong> "{{ request('search') }}"
+                                                @endif
+                                            </p>
+                                            <button type="button" class="btn btn-outline-primary" onclick="clearFilters()">
+                                                <i class="ri-refresh-line me-2"></i>Clear All Filters
+                                            </button>
+                                        @else
+                                            <p class="text-muted">No additional services have been created yet.</p>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
                 
-                    <div class="card-footer border-top-0">
-                        <nav aria-label="Page navigation">
-                            {{ $additionalServices->appends(request()->query())->links() }}
-                        </nav>
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="dataTables_info">
+                        Showing {{ $additionalServices->firstItem() ?? 0 }} to {{ $additionalServices->lastItem() ?? 0 }} 
+                        of {{ $additionalServices->total() }} entries
+                    </div>
+                    <div class="dataTables_paginate">
+                        {{ $additionalServices->appends(request()->query())->links() }}
                     </div>
                 </div>
             </div>
@@ -501,6 +645,43 @@
 
 @section('scripts')
 <script>
+// Global functions - defined outside document.ready to be accessible from HTML onclick
+function clearFilters() {
+    // Clear specific form fields
+    document.getElementById('status-filter').value = '';
+    document.getElementById('search-filter').value = '';
+    document.getElementById('date-from').value = '';
+    document.getElementById('date-to').value = '';
+    
+    // Redirect to base URL without query parameters
+    window.location.href = '{{ route("admin.additional-services.index") }}';
+}
+
+function clearSearch() {
+    document.getElementById('search-filter').value = '';
+    // Submit the form to apply the cleared search
+    document.getElementById('filter-form').submit();
+}
+
+// Enhanced search functionality
+function performSearch() {
+    const searchValue = document.getElementById('search-filter').value.trim();
+    console.log('Performing search for:', searchValue); // Debug log
+    if (searchValue.length >= 2 || searchValue.length === 0) {
+        document.getElementById('filter-form').submit();
+    } else if (searchValue.length > 0 && searchValue.length < 2) {
+        // Show message for short search terms
+        const searchHelp = document.querySelector('.search-help-message');
+        if (!searchHelp) {
+            const helpMsg = document.createElement('small');
+            helpMsg.className = 'text-warning search-help-message';
+            helpMsg.innerHTML = '<i class="ri-information-line me-1"></i>Please enter at least 2 characters to search';
+            document.getElementById('search-filter').parentNode.appendChild(helpMsg);
+            setTimeout(() => helpMsg.remove(), 3000);
+        }
+    }
+}
+
 $(document).ready(function() {
     // Load statistics
     loadStatistics();
@@ -512,37 +693,74 @@ $(document).ready(function() {
         "responsive": true
     });
     
+    // Enhanced search functionality
+    $('#search-filter').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            performSearch();
+        }
+    });
+    
+    // Auto-focus search if there's a search term
+    @if(request('search'))
+        $('#search-filter').focus();
+    @endif
+    
     let currentServiceId = null;
     
     // Load statistics
     function loadStatistics() {
-        $.get('{{ route("admin.additional-services.statistics") }}', function(data) {
-            $('#total-services').text(data.total);
-            $('#pending-services').text(data.pending);
-            $('#approved-services').text(data.approved);
-            $('#paid-services').text(data.paid);
-            $('#negotiation-services').text(data.with_negotiation);
-            $('#pending-payouts').text('₹' + Number(data.pending_payouts).toLocaleString());
+        // Get current filter parameters from URL
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.append('ajax_stats', '1');
+        
+        $.get('{{ route("admin.additional-services.statistics") }}?' + currentParams.toString())
+        .done(function(data) {
+            $('#total-services').text(data.total || 0);
+            $('#pending-services').text(data.pending || 0);
+            $('#approved-services').text(data.approved || 0);
+            $('#paid-services').text(data.paid || 0);
+            $('#negotiation-services').text(data.with_negotiation || 0);
+            
+            // Update total count in table header
+            $('#total-count').text('Total: ' + (data.total || 0));
+        })
+        .fail(function() {
+            console.log('Failed to load statistics');
+            // Set default values on failure
+            $('#total-services, #pending-services, #approved-services, #paid-services, #negotiation-services').text('0');
+            $('#total-count').text('Total: 0');
         });
     }
     
-    // Apply filters
-    $('#apply-filters').click(function() {
-        const filters = {
-            status: $('#status-filter').val(),
-            professional: $('#professional-filter').val(),
-            user: $('#user-filter').val(),
-            date_from: $('#date-from').val(),
-            date_to: $('#date-to').val()
-        };
+    // Handle filter form submission
+    $('#filter-form').on('submit', function(e) {
+        e.preventDefault();
         
-        const queryString = Object.keys(filters)
-            .filter(key => filters[key])
-            .map(key => key + '=' + encodeURIComponent(filters[key]))
-            .join('&');
-            
+        const formData = new FormData(this);
+        const queryParams = new URLSearchParams();
+        
+        // Add only non-empty values to query params
+        for (let [key, value] of formData.entries()) {
+            if (value.trim() !== '') {
+                queryParams.append(key, value);
+            }
+        }
+        
+        // Redirect with filters
+        const queryString = queryParams.toString();
         window.location.href = '{{ route("admin.additional-services.index") }}' + (queryString ? '?' + queryString : '');
     });
+
+    // Apply filters button (fallback for direct click)
+    $('#apply-filters').click(function(e) {
+        e.preventDefault();
+        $('#filter-form').submit();
+    });
+
+
+
+
     
     // Price calculation for modify price modal
     $('#modified_base_price').on('input', function() {
@@ -661,6 +879,8 @@ $(document).ready(function() {
         
         $('.modal').modal('hide');
     }
+    
+
 });
 </script>
 @endsection

@@ -566,35 +566,85 @@
             </div>
             <div class="col-lg-3 pl-0">
                 <div class="share-option">
-                    <h6>{{ isset($allEvent) ? 'Location TBD' : ($event->city ?? 'Location TBD') }}</h6>
-                    <p>Venue to be announced {{ isset($allEvent) ? '' : ($event->city ?? '') }}</p>
-                    <div style="position: relative; width: 100%; max-width: 600px; height: 300px; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                        @php
-                            $mapLink = isset($allEvent) ? ($allEvent->map_link ?? null) : ($event->map_link ?? null);
-                        @endphp
+                    @php
+                        // Determine event mode and location
+                        $eventMode = '';
+                        $eventCity = '';
+                        $mapLink = null;
+                        
+                        if(isset($allEvent)) {
+                            // Professional Event
+                            $eventMode = isset($eventDetail) && $eventDetail && $eventDetail->event_mode 
+                                        ? $eventDetail->event_mode 
+                                        : 'offline';
+                            $eventCity = isset($eventDetail) && $eventDetail && $eventDetail->city 
+                                        ? $eventDetail->city 
+                                        : '';
+                            $mapLink = $allEvent->map_link ?? null;
+                        } else {
+                            // Admin Event
+                            $eventMode = $event->eventDetails->event_mode ?? $event->event_mode ?? 'offline';
+                            $eventCity = $event->eventDetails->city ?? $event->city ?? '';
+                            $mapLink = $event->map_link ?? null;
+                        }
+                    @endphp
 
-                        @if($mapLink)
-                        <iframe 
-                            src="{{ $mapLink }}" 
-                            width="100%" 
-                            height="100%" 
-                            style="border:0; pointer-events: none;" 
-                            allowfullscreen="" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
-
-                        <a href="{{ $mapLink }}" 
-                        target="_blank" 
-                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-indent: -9999px;">
-                        Open Map
-                        </a>
+                    @if(strtolower($eventMode) === 'online')
+                        {{-- Online Event --}}
+                        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 15px; border: 2px solid #2196f3;">
+                            <i class="fas fa-video" style="font-size: 3rem; color: #1976d2; margin-bottom: 1rem;"></i>
+                            <h6 style="color: #1565c0; font-weight: 600; margin-bottom: 0.5rem;">Online Event</h6>
+                            <p style="color: #1976d2; margin-bottom: 1rem; font-size: 0.9rem;">Join from anywhere in the world!</p>
+                            <div style="background: rgba(25, 118, 210, 0.1); padding: 1rem; border-radius: 10px; border-left: 4px solid #1976d2;">
+                                <small style="color: #1565c0; font-weight: 500;">
+                                    <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                                    Event link will be shared in your dashboard after successful booking
+                                </small>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Offline Event --}}
+                        @if($eventCity)
+                            <h6 style="color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 0.5rem;"></i>
+                                {{ $eventCity }}
+                            </h6>
                         @else
-                            <div style="display:flex;align-items:center;justify-content:center;height:100%;">
-                                <p style="color:#666;">Map not available for this event.</p>
+                            <h6 style="color: #7f8c8d; font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-map-marker-alt" style="color: #95a5a6; margin-right: 0.5rem;"></i>
+                                Venue details will be shared after booking
+                            </h6>
+                        @endif
+
+                        @if($mapLink && $eventCity)
+                            {{-- Show map only if we have both map link and city --}}
+                            <div style="position: relative; width: 100%; max-width: 600px; height: 300px; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-top: 1rem;">
+                                <iframe 
+                                    src="{{ $mapLink }}" 
+                                    width="100%" 
+                                    height="100%" 
+                                    style="border:0; pointer-events: none;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+
+                                <a href="{{ $mapLink }}" 
+                                target="_blank" 
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-indent: -9999px;">
+                                Open Map
+                                </a>
+                            </div>
+                        @elseif($eventCity)
+                            {{-- Show location info without map --}}
+                            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem; border-radius: 10px; border: 1px solid #dee2e6; margin-top: 1rem; text-align: center;">
+                                <i class="fas fa-building" style="font-size: 2rem; color: #6c757d; margin-bottom: 0.5rem;"></i>
+                                <p style="color: #495057; margin: 0; font-size: 0.9rem;">
+                                    Exact venue address will be provided closer to the event date
+                                </p>
                             </div>
                         @endif
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -44,12 +44,12 @@ class AdditionalServiceController extends Controller
             }
         }
 
-        if ($request->filled('professional')) {
-            $query->where('professional_id', $request->professional);
+        if ($request->filled('professional_id')) {
+            $query->where('professional_id', $request->professional_id);
         }
 
-        if ($request->filled('user')) {
-            $query->where('user_id', $request->user);
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         if ($request->filled('date_from')) {
@@ -58,6 +58,17 @@ class AdditionalServiceController extends Controller
 
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Handle export requests
+        if ($request->has('export')) {
+            $services = $query->orderBy('created_at', 'desc')->get();
+            
+            if ($request->export === 'excel') {
+                return $this->exportToExcel($services);
+            } elseif ($request->export === 'pdf') {
+                return $this->exportToPDF($services);
+            }
         }
 
         $additionalServices = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -451,20 +462,58 @@ class AdditionalServiceController extends Controller
     }
 
     /**
-     * Get statistics for dashboard
+     * Get statistics for dashboard (with filtering support)
      */
-    public function getStatistics()
+    public function getStatistics(Request $request)
     {
+        // Build base query with same filters as index method
+        $baseQuery = AdditionalService::query();
+
+        // Apply same filters as index method
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'pending':
+                    $baseQuery->where('admin_status', 'pending');
+                    break;
+                case 'approved':
+                    $baseQuery->where('admin_status', 'approved');
+                    break;
+                case 'rejected':
+                    $baseQuery->where('admin_status', 'rejected');
+                    break;
+                case 'paid':
+                    $baseQuery->where('payment_status', 'paid');
+                    break;
+                case 'negotiation':
+                    $baseQuery->where('negotiation_status', '!=', 'none');
+                    break;
+            }
+        }
+
+        if ($request->filled('professional_id')) {
+            $baseQuery->where('professional_id', $request->professional_id);
+        }
+
+        if ($request->filled('user_id')) {
+            $baseQuery->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('date_from')) {
+            $baseQuery->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $baseQuery->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Calculate statistics based on filtered results
         $stats = [
-            'total' => AdditionalService::count(),
-            'pending' => AdditionalService::where('admin_status', 'pending')->count(),
-            'approved' => AdditionalService::where('admin_status', 'approved')->count(),
-            'paid' => AdditionalService::where('payment_status', 'paid')->count(),
-            'with_negotiation' => AdditionalService::where('negotiation_status', '!=', 'none')->count(),
-            'total_revenue' => AdditionalService::where('payment_status', 'paid')->sum('total_price'),
-            'pending_payouts' => AdditionalService::where('payment_status', 'paid')
-                ->where('professional_payment_status', 'pending')
-                ->sum('professional_final_amount'),
+            'total' => (clone $baseQuery)->count(),
+            'pending' => (clone $baseQuery)->where('admin_status', 'pending')->count(),
+            'approved' => (clone $baseQuery)->where('admin_status', 'approved')->count(),
+            'paid' => (clone $baseQuery)->where('payment_status', 'paid')->count(),
+            'with_negotiation' => (clone $baseQuery)->where('negotiation_status', '!=', 'none')->count(),
+            'total_revenue' => (clone $baseQuery)->where('payment_status', 'paid')->sum('total_price') ?? 0,
         ];
 
         return response()->json($stats);
@@ -771,5 +820,76 @@ class AdditionalServiceController extends Controller
         $pdf = Pdf::loadView('admin.additional-services.invoice-pdf', $invoiceData);
         
         return $pdf->download('additional-service-invoice-' . $additionalService->id . '.pdf');
+    }
+
+    /**
+     * Export additional services to Excel
+     */
+    private function exportToExcel($services)
+    {
+        $filename = 'additional_services_' . now()->format('Y_m_d_H_i_s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($services) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'ID',
+                'Service Name',
+                'Professional',
+                'Customer',
+                'Final Price',
+                'Admin Status',
+                'Payment Status',
+                'Consulting Status',
+                'Delivery Date',
+                'Created At',
+                'Negotiation Status'
+            ]);
+
+            // Add data rows
+            foreach ($services as $service) {
+                fputcsv($file, [
+                    $service->id,
+                    $service->service_name,
+                    $service->professional->name ?? 'N/A',
+                    $service->user->name ?? 'N/A',
+                    '₹' . number_format($service->final_price, 2),
+                    ucfirst($service->admin_status),
+                    ucfirst($service->payment_status),
+                    ucfirst(str_replace('_', ' ', $service->consulting_status)),
+                    $service->delivery_date ? \Carbon\Carbon::parse($service->delivery_date)->format('Y-m-d') : 'Not Set',
+                    $service->created_at->format('Y-m-d H:i:s'),
+                    ucfirst(str_replace('_', ' ', $service->negotiation_status))
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export additional services to PDF
+     */
+    private function exportToPDF($services)
+    {
+        $data = [
+            'services' => $services,
+            'title' => 'Additional Services Report',
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'total_count' => $services->count()
+        ];
+
+        $pdf = PDF::loadView('admin.additional-services.export-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('additional_services_report_' . now()->format('Y_m_d_H_i_s') . '.pdf');
     }
 }

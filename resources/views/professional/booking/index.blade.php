@@ -423,6 +423,68 @@
         background: rgba(79, 70, 229, 0.2);
     }
 
+    /* Enhanced Questionnaire Styles */
+    .questionnaire-details {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .questionnaire-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .answer-card {
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .answer-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .question-number .badge {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+    }
+
+    .question-content {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #475569;
+    }
+
+    .answer-content {
+        font-size: 1.05rem;
+        line-height: 1.4;
+        color: #059669;
+    }
+
+    .metadata .badge {
+        font-size: 0.75rem;
+    }
+
+    .border-success {
+        border-color: #10b981 !important;
+    }
+
+    .custom-modal .modal-content {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
     .chat-button {
         position: relative;
         display: inline-flex;
@@ -1284,37 +1346,126 @@ document.querySelectorAll('.questionnaire-info').forEach(button => {
 
 // Fetch questionnaire answers
 function fetchQuestionnaireAnswers(bookingId) {
+    // Show loading indicator
+    questionnaireContent.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading questionnaire answers...</div>';
+    questionnaireModal.style.display = 'block';
+    
     fetch(`/professional/bookings/${bookingId}/questionnaire`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 let html = `<div class="questionnaire-details">
-                    <h5>Customer: ${data.booking_details.customer_name}</h5>
-                    <h6>Service: ${data.booking_details.service_name}</h6>
-                    ${data.booking_details.sub_service_name ? '<h6>Sub-Service: <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></h6>' : ''}
+                    <!-- Header Section -->
+                    <div class="questionnaire-header mb-4 p-3 bg-light rounded">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-1"><i class="fas fa-user text-primary"></i> ${data.booking_details.customer_name}</h5>
+                                <p class="mb-1"><i class="fas fa-cog text-info"></i> <strong>Service:</strong> ${data.booking_details.service_name}</p>
+                                ${data.booking_details.sub_service_name ? '<p class="mb-1"><i class="fas fa-puzzle-piece text-warning"></i> <strong>Sub-Service:</strong> <span class="badge bg-info">' + data.booking_details.sub_service_name + '</span></p>' : ''}
+                            </div>
+                            <div class="col-md-4 text-end">
+                                ${data.booking_details.booking_date ? '<p class="mb-1"><i class="fas fa-calendar text-success"></i> ' + new Date(data.booking_details.booking_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</p>' : ''}
+                                <span class="badge bg-primary fs-6"><i class="fas fa-question-circle"></i> ${data.booking_details.answers_count || data.answers.length} Answers</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Answers Section -->
                     <div class="answers-list">`;
                 
-                data.answers.forEach(item => {
+                if (data.answers && data.answers.length > 0) {
+                    data.answers.forEach((item, index) => {
+                        // Format date nicely
+                        let formattedDate = '';
+                        if (item.created_at) {
+                            const date = new Date(item.created_at);
+                            formattedDate = date.toLocaleDateString('en-US', { 
+                                month: 'numeric', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                            });
+                        }
+                        
+                        html += `
+                            <div class="answer-card mb-3 border rounded">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-start">
+                                        <div class="question-number me-3 mt-1">
+                                            <span class="badge bg-gradient-primary rounded-pill fs-6">${index + 1}</span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="question-text mb-3">
+                                                <h6 class="text-dark mb-2"><i class="fas fa-question-circle text-primary me-2"></i>Question:</h6>
+                                                <p class="question-content mb-0 text-muted">${item.question}</p>
+                                            </div>
+                                            <div class="answer-text mb-3">
+                                                <h6 class="text-dark mb-2"><i class="fas fa-check-circle text-success me-2"></i>Answer:</h6>
+                                                <div class="answer-content p-2 bg-light rounded border-start border-success border-3">
+                                                    <strong class="text-success">${item.answer}</strong>
+                                                </div>
+                                            </div>
+                                            <div class="metadata d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    ${item.question_type ? '<span class="badge bg-secondary"><i class="fas fa-tag me-1"></i>Type: ' + item.question_type + '</span>' : ''}
+                                                </div>
+                                                <div>
+                                                    ${formattedDate ? '<small class="text-muted"><i class="fas fa-clock me-1"></i>Answered on: ' + formattedDate + '</small>' : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
                     html += `
-                        <div class="answer-item">
-                            <p class="question"><strong>Q:</strong> ${item.question}</p>
-                            <p class="answer"><strong>A:</strong> ${item.answer}</p>
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle text-warning fs-1 mb-3"></i>
+                            <h5 class="text-muted">No MCQ Answers Found</h5>
+                            <p class="text-muted">The customer hasn't filled out the questionnaire yet.</p>
                         </div>
                     `;
-                });
+                }
                 
                 html += `</div></div>`;
                 questionnaireContent.innerHTML = html;
-                questionnaireModal.style.display = 'block';
             } else {
-                questionnaireContent.innerHTML = `<p class="text-center text-muted">${data.message}</p>`;
-                questionnaireModal.style.display = 'block';
+                let errorHtml = `
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> No MCQ Answers Found</h6>
+                        <p>${data.message}</p>
+                `;
+                
+                if (data.debug_info) {
+                    errorHtml += `
+                        <details class="mt-3">
+                            <summary>Debug Information</summary>
+                            <small class="text-muted">
+                                <br>Booking ID: ${data.debug_info.booking_id}
+                                <br>Customer: ${data.debug_info.customer_name || 'N/A'}
+                                <br>Service: ${data.debug_info.service_name || 'N/A'}
+                                <br>User ID: ${data.debug_info.user_id || 'N/A'}
+                                <br>Service ID: ${data.debug_info.service_id || 'N/A'}
+                                ${data.debug_info.sub_service_id ? '<br>Sub-Service ID: ' + data.debug_info.sub_service_id : ''}
+                            </small>
+                        </details>
+                    `;
+                }
+                
+                errorHtml += '</div>';
+                questionnaireContent.innerHTML = errorHtml;
             }
         })
         .catch(error => {
             console.error('Error fetching questionnaire answers:', error);
-            questionnaireContent.innerHTML = '<p class="text-center text-danger">Error loading questionnaire answers.</p>';
-            questionnaireModal.style.display = 'block';
+            questionnaireContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-circle"></i> Error Loading Questionnaire</h6>
+                    <p>There was an error loading the questionnaire answers. Please try again.</p>
+                    <small class="text-muted">Error: ${error.message}</small>
+                </div>
+            `;
         });
 }
 
@@ -1420,6 +1571,8 @@ function loadUnreadChatCounts() {
         });
     });
 }
+
+
 
 // Load counts on page load
 $(document).ready(function() {

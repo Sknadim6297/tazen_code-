@@ -197,9 +197,19 @@
                                 <div>
                                     <h3 class="rate-type">{{ $rate->session_type }}</h3>
                                     @if($rate->sub_service_id && $rate->subService)
-                                    <div class="mb-2">
-                                        <span class="badge bg-info text-white">Sub-Service: {{ $rate->subService->name }}</span>
-                                    </div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-info text-white">Service: {{ $rate->subService->service->name ?? 'N/A' }}</span>
+                                            <span class="badge bg-secondary text-white ms-1">Sub-Service: {{ $rate->subService->name }}</span>
+                                        </div>
+                                    @else
+                                        @php
+                                            // For general rates, show the main service name from professional's services
+                                            $mainService = $professionalServices->first()->service->name ?? 'General Service';
+                                        @endphp
+                                        <div class="mb-2">
+                                            <span class="badge bg-success text-white">Service: {{ $mainService }}</span>
+                                            <span class="badge bg-primary text-white ms-1">General Rate (All Sub-Services)</span>
+                                        </div>
                                     @endif
                                     <div class="rate-details">
                                         <span class="rate-badge">{{ $rate->num_sessions }} sessions</span>
@@ -273,7 +283,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('admin.professional.rates.store', $professional->id) }}" method="POST">
+            <form action="{{ route('admin.professional.rates.store', $professional->id) }}" method="POST" onsubmit="return validateAddRateSubmission()">
                 @csrf
                 <div class="modal-body">
                     <!-- Sub-Service Selection (Optional) -->
@@ -287,9 +297,12 @@
                             <div class="form-group">
                                 <label for="sub_service_id">Sub-Service (Optional)</label>
                                 <select class="form-control" id="sub_service_id" name="sub_service_id">
-                                    <option value="">General Rate (No specific sub-service)</option>
+                                    @php
+                                        $mainServiceName = $professionalServices->first()->service->name ?? 'General Service';
+                                    @endphp
+                                    <option value="">General Rate for {{ $mainServiceName }} (All Sub-Services)</option>
                                     @foreach($allSubServices as $subService)
-                                        <option value="{{ $subService->id }}">{{ $subService->name }}</option>
+                                        <option value="{{ $subService->id }}">{{ $subService->service->name ?? 'Service' }} - {{ $subService->name }}</option>
                                     @endforeach
                                 </select>
                                 <small class="text-muted">Leave empty for a general rate applicable to all services.</small>
@@ -306,7 +319,9 @@
                             <option value="Quarterly">Quarterly</option>
                             <option value="Free Hand">Free Hand</option>
                         </select>
-                        <small id="sessionWarning" class="text-danger" style="display:none;">A rate with this session type already exists. Please choose another type or edit the existing rate.</small>
+                        <small id="sessionWarning" class="text-danger" style="display:none;">
+                            <strong>Already Added!</strong> A rate with this session type already exists for this service. Please choose another type or edit the existing rate.
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="num_sessions">Number of Sessions</label>
@@ -366,9 +381,12 @@
                             <div class="form-group">
                                 <label for="edit_sub_service_id">Sub-Service (Optional)</label>
                                 <select class="form-control" id="edit_sub_service_id" name="sub_service_id">
-                                    <option value="">General Rate (No specific sub-service)</option>
+                                    @php
+                                        $mainServiceName = $professionalServices->first()->service->name ?? 'General Service';
+                                    @endphp
+                                    <option value="">General Rate for {{ $mainServiceName }} (All Sub-Services)</option>
                                     @foreach($allSubServices as $subService)
-                                        <option value="{{ $subService->id }}">{{ $subService->name }}</option>
+                                        <option value="{{ $subService->id }}">{{ $subService->service->name ?? 'Service' }} - {{ $subService->name }}</option>
                                     @endforeach
                                 </select>
                                 <small class="text-muted">Leave empty for a general rate applicable to all services.</small>
@@ -482,9 +500,56 @@ function showAddRateModal() {
         </div>
     `;
     
+    // Reset warning state
+    const warning = document.getElementById('sessionWarning');
+    const submitBtn = document.getElementById('addRateSubmitBtn');
+    if (warning) warning.style.display = 'none';
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    }
+    
+    // Update session type options based on current sub-service
+    updateSessionTypeOptions();
+    
     $('#addRateModal').modal('show');
     // validate initial session type state
-    setTimeout(validateAddSessionType, 10);
+    setTimeout(validateAddSessionType, 100);
+}
+
+function updateSessionTypeOptions() {
+    const subServiceSel = document.getElementById('sub_service_id');
+    const sessionTypeSel = document.getElementById('session_type');
+    
+    if (!sessionTypeSel) return;
+    
+    const currentSubServiceId = subServiceSel ? (subServiceSel.value || null) : null;
+    const sessionTypes = ['One Time', 'Monthly', 'Quarterly', 'Free Hand'];
+    
+    // Reset all options first
+    Array.from(sessionTypeSel.options).forEach(option => {
+        if (option.value !== '') {
+            option.disabled = false;
+            option.style.color = '';
+            // Remove any "Already Added" text
+            if (option.textContent.includes(' - Already Added')) {
+                option.textContent = option.value;
+            }
+        }
+    });
+    
+    // Disable options that are already used for current sub-service
+    sessionTypes.forEach(sessionType => {
+        if (sessionTypeExists(sessionType, currentSubServiceId)) {
+            const option = Array.from(sessionTypeSel.options).find(opt => opt.value === sessionType);
+            if (option) {
+                option.disabled = true;
+                option.style.color = '#999';
+                option.textContent = sessionType + ' - Already Added';
+            }
+        }
+    });
 }
 
 function editRate(rateId) {
@@ -586,15 +651,47 @@ function validateAddSessionType() {
     const warning = document.getElementById('sessionWarning');
     const submitBtn = document.getElementById('addRateSubmitBtn');
     if (!sel || !warning || !submitBtn) return;
+    
     const val = sel.value;
     const subServiceId = subServiceSel ? (subServiceSel.value || null) : null;
-    if (sessionTypeExists(val, subServiceId)) {
+    
+    console.log('Validating session type:', val, 'for sub-service:', subServiceId);
+    
+    if (val && sessionTypeExists(val, subServiceId)) {
+        console.log('Session type already exists!');
         warning.style.display = 'block';
         submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
     } else {
+        console.log('Session type is available');
         warning.style.display = 'none';
         submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
     }
+}
+
+function validateAddRateSubmission() {
+    const sel = document.getElementById('session_type');
+    const subServiceSel = document.getElementById('sub_service_id');
+    
+    if (!sel) return false;
+    
+    const sessionType = sel.value;
+    const subServiceId = subServiceSel ? (subServiceSel.value || null) : null;
+    
+    if (!sessionType) {
+        alert('Please select a session type.');
+        return false;
+    }
+    
+    if (sessionTypeExists(sessionType, subServiceId)) {
+        alert('A rate with this session type already exists for this service/sub-service combination. Please choose a different session type or edit the existing rate.');
+        return false;
+    }
+    
+    return true;
 }
 
 function validateEditSessionType(excludingRateId) {
@@ -693,7 +790,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hook validation for add modal sub-service (trigger validation when sub-service changes)
     const addSubServiceSel = document.getElementById('sub_service_id');
     if (addSubServiceSel) {
-        addSubServiceSel.addEventListener('change', validateAddSessionType);
+        addSubServiceSel.addEventListener('change', function() {
+            updateSessionTypeOptions();
+            validateAddSessionType();
+        });
     }
 
     // Hook validation for edit modal; note edit modal calls validate in editRate()

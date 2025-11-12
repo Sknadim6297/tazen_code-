@@ -28,8 +28,22 @@ class BookingController extends Controller
             $query->where('service_name', $request->service);
         }
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        // Date filtering with proper handling for one-time bookings
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                // Both dates provided - filter between dates
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($request->filled('start_date')) {
+                // Only start date provided - filter from start date onwards
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($request->filled('end_date')) {
+                // Only end date provided - filter up to end date
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->where('created_at', '<=', $endDate);
+            }
         }
 
         if ($request->filled('status')) {
@@ -67,8 +81,22 @@ public function freeHandBooking(Request $request)
             $query->where('service_name', $request->service);
         }
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        // Date filtering with proper handling for freehand bookings
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                // Both dates provided - filter between dates
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($request->filled('start_date')) {
+                // Only start date provided - filter from start date onwards
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($request->filled('end_date')) {
+                // Only end date provided - filter up to end date
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->where('created_at', '<=', $endDate);
+            }
         }
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
@@ -136,8 +164,22 @@ public function freeHandBooking(Request $request)
             $query->where('service_name', $request->service);
         }
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        // Date filtering with proper handling for monthly bookings
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                // Both dates provided - filter between dates
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($request->filled('start_date')) {
+                // Only start date provided - filter from start date onwards
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($request->filled('end_date')) {
+                // Only end date provided - filter up to end date
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->where('created_at', '<=', $endDate);
+            }
         }
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {
@@ -197,8 +239,22 @@ public function freeHandBooking(Request $request)
             $query->where('service_name', $request->service);
         }
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        // Date filtering with proper handling for quarterly bookings
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                // Both dates provided - filter between dates
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($request->filled('start_date')) {
+                // Only start date provided - filter from start date onwards
+                $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($request->filled('end_date')) {
+                // Only end date provided - filter up to end date
+                $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+                $query->where('created_at', '<=', $endDate);
+            }
         }
         if ($request->filled('status')) {
             $query->whereHas('timedates', function ($q) use ($request) {

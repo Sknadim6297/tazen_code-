@@ -116,11 +116,6 @@
         color: #856404;
     }
     
-    .verification-failed {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
     .dataTables_wrapper .dataTables_filter {
         float: right;
         text-align: right;
@@ -260,16 +255,15 @@
                     <div class="card-body">
                         <form id="filterForm" method="GET">
                             <div class="row">
-                                <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="col-md-4 col-sm-6 mb-3">
                                     <label for="professional_status" class="form-label">Professional Status</label>
                                     <select name="professional_status" id="professional_status" class="form-select">
                                         <option value="">All Statuses</option>
-                                        <option value="active" {{ request('professional_status') == 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ request('professional_status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                        <option value="pending" {{ request('professional_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="accepted" {{ request('professional_status') == 'accepted' ? 'selected' : '' }}>Accepted</option>
+                                        <option value="rejected" {{ request('professional_status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="col-md-4 col-sm-6 mb-3">
                                     <label for="account_type" class="form-label">Account Type</label>
                                     <select name="account_type" id="account_type" class="form-select">
                                         <option value="">All Types</option>
@@ -277,13 +271,12 @@
                                         <option value="current" {{ request('account_type') == 'current' ? 'selected' : '' }}>Current</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="col-md-4 col-sm-6 mb-3">
                                     <label for="verification_status" class="form-label">Verification Status</label>
                                     <select name="verification_status" id="verification_status" class="form-select">
                                         <option value="">All Statuses</option>
                                         <option value="verified" {{ request('verification_status') == 'verified' ? 'selected' : '' }}>Verified</option>
                                         <option value="pending" {{ request('verification_status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="failed" {{ request('verification_status') == 'failed' ? 'selected' : '' }}>Failed</option>
                                     </select>
                                 </div>
                             </div>

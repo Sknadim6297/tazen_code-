@@ -9,12 +9,13 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Http\Request;
 
-class CustomersExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class CustomersExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithChunkReading
 {
     protected $request;
 
@@ -91,23 +92,42 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         $customerProfile = CustomerProfile::where('user_id', $user->id)->first();
         
         return [
-            $user->id,
-            $user->name,
-            $user->email,
-            $user->phone ?? 'N/A',
+            $user->id ?? '',
+            $this->cleanString($user->name ?? ''),
+            $this->cleanString($user->email ?? ''),
+            $this->cleanString($user->phone ?? 'N/A'),
             $user->email_verified_at ? 'Yes' : 'No',
             $user->email_verified_at ? $user->email_verified_at->format('Y-m-d H:i:s') : 'Not Verified',
-            $user->created_at->format('Y-m-d H:i:s'),
+            $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : '',
             $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
             $user->is_active ? 'Active' : 'Inactive',
-            $customerProfile ? ($customerProfile->gender ?? 'N/A') : 'N/A',
-            $customerProfile ? ($customerProfile->dob ?? 'N/A') : 'N/A',
-            $customerProfile ? ($customerProfile->address ?? 'N/A') : 'N/A',
-            $customerProfile ? ($customerProfile->city ?? 'N/A') : 'N/A',
-            $customerProfile ? ($customerProfile->state ?? 'N/A') : 'N/A',
-            $customerProfile ? ($customerProfile->country ?? 'N/A') : 'N/A',
+            $this->cleanString($customerProfile ? ($customerProfile->gender ?? 'N/A') : 'N/A'),
+            $customerProfile && $customerProfile->dob ? $customerProfile->dob : 'N/A',
+            $this->cleanString($customerProfile ? ($customerProfile->address ?? 'N/A') : 'N/A'),
+            $this->cleanString($customerProfile ? ($customerProfile->city ?? 'N/A') : 'N/A'),
+            $this->cleanString($customerProfile ? ($customerProfile->state ?? 'N/A') : 'N/A'),
+            $this->cleanString($customerProfile ? ($customerProfile->country ?? 'N/A') : 'N/A'),
             $customerProfile ? 'Yes' : 'No'
         ];
+    }
+
+    /**
+     * Clean strings for Excel compatibility
+     */
+    private function cleanString($string)
+    {
+        if (is_null($string)) {
+            return 'N/A';
+        }
+        
+        // Remove any non-printable characters
+        $string = preg_replace('/[\x00-\x1F\x7F]/', '', $string);
+        
+        // Remove BOM if present
+        $string = str_replace("\xEF\xBB\xBF", '', $string);
+        
+        // Trim whitespace
+        return trim($string);
     }
 
     /**
@@ -133,5 +153,13 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         }
 
         return [];
+    }
+
+    /**
+     * Set chunk size for memory management
+     */
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 }

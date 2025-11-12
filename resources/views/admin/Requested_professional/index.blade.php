@@ -120,6 +120,49 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
     }
+    
+    /* Service Filter Layout Fix */
+    .service-filter-select {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .service-filter-select option {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+    
+    /* Force grid columns to maintain their width */
+    .row.g-3 > .col-lg-3 {
+        flex: 0 0 auto;
+        width: 25%;
+        min-width: 0; /* Allow content to shrink */
+    }
+    
+    .row.g-3 > .col-lg-6 {
+        flex: 0 0 auto;
+        width: 50%;
+        min-width: 0; /* Allow content to shrink */
+    }
+    
+    @media (max-width: 991.98px) {
+        .row.g-3 > .col-lg-3,
+        .row.g-3 > .col-lg-6 {
+            width: 50%;
+        }
+    }
+    
+    @media (max-width: 767.98px) {
+        .row.g-3 > .col-lg-3,
+        .row.g-3 > .col-lg-6 {
+            width: 100%;
+        }
+    }
+    
     .specialization-badge {
         display: inline-block;
         padding: 4px 10px;
@@ -234,18 +277,18 @@
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="ri-briefcase-line text-muted"></i>
                                 </span>
-                                <select name="specialization" class="form-select border-start-0" id="specializationFilter">
+                                <select name="specialization" class="form-select border-start-0 service-filter-select" id="specializationFilter">
                                     <option value="">All Services</option>
                                     @foreach($specializations as $specialization)
-                                        <option value="{{ $specialization }}" {{ request('specialization') == $specialization ? 'selected' : '' }}>
-                                            {{ $specialization }}
+                                        <option value="{{ $specialization }}" {{ request('specialization') == $specialization ? 'selected' : '' }} title="{{ $specialization }}">
+                                            {{ Str::limit($specialization, 25, '...') }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                         <!-- Date Range -->
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-6 col-md-12">
                             <label class="form-label fw-medium text-muted mb-2">
                                 <i class="ri-calendar-line me-1"></i>Date Range
                             </label>
@@ -261,7 +304,7 @@
                             </div>
                         </div>
                         <!-- Action Buttons -->
-                        <div class="col-lg-3 col-md-6 d-flex align-items-end justify-content-end gap-2">
+                        <div class="col-12 d-flex justify-content-end gap-2 pt-2">
                             <button type="submit" class="btn btn-primary px-4">
                                 <i class="ri-search-line me-1"></i>Search
                             </button>

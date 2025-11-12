@@ -464,20 +464,6 @@
                             </select>
                         </div>
 
-                        <!-- Professional Filter -->
-                        <div class="col-md-3">
-                            <label class="form-label">Professional</label>
-                            <select class="form-select" name="professional_id">
-                                <option value="">All Professionals</option>
-                                @foreach(\App\Models\Professional::orderBy('name')->get() as $professional)
-                                    <option value="{{ $professional->id }}" 
-                                            {{ request('professional_id') == $professional->id ? 'selected' : '' }}>
-                                        {{ $professional->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <!-- Service Filter -->
                         <div class="col-md-3">
                             <label class="form-label">Service</label>
@@ -771,14 +757,30 @@
                             </div>
                         </div>
                     </div>
-                @else
+                @elseif($bookings->count() > 0)
                     <div class="card-footer border-top-0 bg-light">
-                        <div class="text-center py-3">
-                            <div class="mb-3">
-                                <i class="ri-file-list-line fs-48 text-muted"></i>
+                        <div class="d-flex justify-content-between align-items-center py-3">
+                            <div class="text-muted">
+                                <small>
+                                    Showing {{ $bookings->count() }} {{ Str::plural('entry', $bookings->count()) }}
+                                    @if($bookings->total() != $bookings->count())
+                                        of {{ $bookings->total() }} total
+                                    @endif
+                                </small>
                             </div>
-                            <h6 class="text-muted">No bookings found</h6>
-                            <p class="text-muted mb-0">Try adjusting your filter criteria or create a new booking.</p>
+                            @if($bookings->count() >= 10)
+                                <div class="d-flex align-items-center gap-2">
+                                    <label class="form-label mb-0 text-muted">Show:</label>
+                                    <select class="form-select form-select-sm w-auto" onchange="changePerPage(this.value)">
+                                        <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10</option>
+                                        <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                                        <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                                        <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                                    </select>
+                                    <span class="text-muted">per page</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif

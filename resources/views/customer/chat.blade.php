@@ -632,10 +632,134 @@ $(document).ready(function() {
         container.scrollTop(container[0].scrollHeight);
     }
 
+    // Phone number detection utility
+    function detectPersonalInfo(text) {
+        // Comprehensive phone number patterns
+        const phonePatterns = [
+            // Indian numbers with country code: +91, 0091, 91
+            /(\+91|0091|91)[\s\-]?[6-9]\d{9}/g,
+            // Indian numbers without country code: 10 digits starting with 6-9
+            /(?<!\d)[6-9]\d{9}(?!\d)/g,
+            // International formats with common separators
+            /(\+\d{1,3})?[\s\-\.]?\(?\d{1,4}\)?[\s\-\.]?\d{1,4}[\s\-\.]?\d{1,4}[\s\-\.]?\d{1,9}/g,
+            // Numbers with brackets, dashes, dots, spaces (10+ digits)
+            /\(?\d{3,4}\)?[\s\-\.]?\d{3,4}[\s\-\.]?\d{3,6}/g,
+            // WhatsApp pattern: "whatsapp me" followed by number
+            /whatsapp\s*(me|at|on)?\s*[\+\d\s\-\(\)\.]{8,}/gi,
+            // Call me pattern
+            /call\s*(me\s*)?(?:at|on)?\s*[\+\d\s\-\(\)\.]{8,}/gi,
+            // Phone/mobile pattern
+            /(phone|mobile|contact|number)\s*[:=]?\s*[\+\d\s\-\(\)\.]{8,}/gi,
+        ];
+
+        // Additional personal info patterns
+        const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+        const socialMediaPatterns = [
+            /(?:instagram|insta)\s*[:@]?\s*[A-Za-z0-9._]+/gi,
+            /(?:facebook|fb)\s*[:@]?\s*[A-Za-z0-9._]+/gi,
+            /(?:twitter|x\.com)\s*[:@]?\s*[A-Za-z0-9._]+/gi,
+            /(?:telegram|tg)\s*[:@]?\s*[A-Za-z0-9._]+/gi,
+        ];
+
+        // Check for phone numbers
+        for (const pattern of phonePatterns) {
+            if (pattern.test(text)) {
+                return { 
+                    detected: true, 
+                    type: 'phone number', 
+                    message: 'Phone numbers are not allowed in messages. Please use the platform\'s communication features only.' 
+                };
+            }
+        }
+
+        // Check for emails
+        if (emailPattern.test(text)) {
+            return { 
+                detected: true, 
+                type: 'email address', 
+                message: 'Email addresses are not allowed in messages. Please use the platform\'s communication features only.' 
+            };
+        }
+
+        // Check for social media
+        for (const pattern of socialMediaPatterns) {
+            if (pattern.test(text)) {
+                return { 
+                    detected: true, 
+                    type: 'social media handle', 
+                    message: 'Social media handles are not allowed in messages. Please use the platform\'s communication features only.' 
+                };
+            }
+        }
+
+        return { detected: false };
+    }
+
+    // Show notification for blocked content
+    function showPersonalInfoAlert(type, message) {
+        // Remove any existing alerts
+        $('.personal-info-alert').remove();
+        
+        const alertHtml = `
+            <div class="personal-info-alert" style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 400px;
+                background: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-left: 4px solid #f39c12;
+                border-radius: 8px;
+                padding: 15px 20px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideInRight 0.3s ease;
+            ">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f39c12; font-size: 18px; margin-top: 2px;"></i>
+                    <div>
+                        <strong style="color: #856404; font-size: 14px;">Personal Information Detected</strong>
+                        <p style="margin: 5px 0 0 0; color: #856404; font-size: 13px; line-height: 1.4;">${message}</p>
+                    </div>
+                    <button onclick="$(this).closest('.personal-info-alert').fadeOut(300)" style="
+                        background: none;
+                        border: none;
+                        color: #856404;
+                        font-size: 16px;
+                        cursor: pointer;
+                        padding: 0;
+                        margin-left: auto;
+                    ">&times;</button>
+                </div>
+            </div>
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            </style>
+        `;
+        
+        $('body').append(alertHtml);
+        
+        // Auto-remove after 6 seconds
+        setTimeout(() => {
+            $('.personal-info-alert').fadeOut(300);
+        }, 6000);
+    }
+
     $('#chatForm').on('submit', function(e) {
         e.preventDefault();
         const message = $('#messageInput').val().trim();
         if (!message) return;
+
+        // Check for personal information
+        const personalInfoCheck = detectPersonalInfo(message);
+        if (personalInfoCheck.detected) {
+            showPersonalInfoAlert(personalInfoCheck.type, personalInfoCheck.message);
+            return; // Block the message from being sent
+        }
+
         const sendBtn = $('#sendBtn');
         const originalContent = sendBtn.html();
         sendBtn.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin"></i>');
@@ -666,7 +790,19 @@ $(document).ready(function() {
                     showError('Failed to send message');
                 }
             },
-            error: function() { showError('Failed to send message'); },
+            error: function(xhr) { 
+                // Check if the error is due to personal information detection
+                if (xhr.status === 422 && xhr.responseJSON) {
+                    const response = xhr.responseJSON;
+                    if (response.type && response.message) {
+                        showPersonalInfoAlert(response.type, response.message);
+                    } else {
+                        showError('Failed to send message');
+                    }
+                } else {
+                    showError('Failed to send message');
+                }
+            },
             complete: function() { sendBtn.prop('disabled', false).html(originalContent); }
         });
     });

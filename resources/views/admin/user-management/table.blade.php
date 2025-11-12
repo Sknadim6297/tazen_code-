@@ -37,10 +37,19 @@
             <div>{{ $user->created_at->format('M d, Y') }}</div>
             <div class="text-muted fs-12">{{ $user->created_at->format('h:i A') }}</div>
         </td>
-        <td>
+        <td class="text-center">
             <div class="action-buttons">
-                <button class="btn btn-danger btn-sm" onclick="deleteUser({{ $user->id }})">
-                    <i class="ri-delete-bin-line"></i> Delete
+                <button class="btn btn-outline-primary btn-sm me-1" 
+                        onclick="viewUser({{ $user->id }})" 
+                        data-bs-toggle="tooltip" 
+                        title="View Details">
+                    <i class="ri-eye-line"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm" 
+                        onclick="deleteUser({{ $user->id }})"
+                        data-bs-toggle="tooltip" 
+                        title="Delete User">
+                    <i class="ri-delete-bin-line"></i>
                 </button>
             </div>
         </td>

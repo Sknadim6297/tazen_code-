@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use PDF;
+use PDF as FacadePdf;
 
 class ProfessionalRequestedController extends Controller
 {

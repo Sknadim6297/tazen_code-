@@ -394,9 +394,7 @@
         <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;box-shadow:0 18px 45px rgba(15,23,42,0.2);">
             <div class="modal-header" style="padding:22px 26px;border-bottom:1px solid #e5e7eb;background:#f9fafb;align-items:center;">
                 <h5 class="modal-title" id="addServiceModalLabel" style="margin:0;font-size:1.1rem;font-weight:600;color:#111827;">Add New Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;"></button>
             </div>
             <form action="{{ route('admin.professional.services.store', $professional->id) }}" method="POST" style="margin:0;">
                 @csrf
@@ -439,7 +437,7 @@
                     </div>
                 </div>
                 <div class="modal-footer" style="padding:18px 26px;border-top:1px solid #e5e7eb;background:#f9fafb;">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
                     <button type="submit" class="btn btn-primary" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;font-weight:600;">Add Service</button>
                 </div>
             </form>
@@ -453,9 +451,7 @@
         <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;box-shadow:0 18px 45px rgba(15,23,42,0.2);">
             <div class="modal-header" style="padding:22px 26px;border-bottom:1px solid #e5e7eb;background:#f9fafb;align-items:center;">
                 <h5 class="modal-title" id="editServiceModalLabel" style="margin:0;font-size:1.1rem;font-weight:600;color:#111827;">Edit Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background:none;border:none;font-size:1.5rem;color:#6b7280;opacity:0.7;"></button>
             </div>
             <form id="editServiceForm" method="POST" style="margin:0;">
                 @csrf
@@ -496,7 +492,7 @@
                     </div>
                 </div>
                 <div class="modal-footer" style="padding:18px 26px;border-top:1px solid #e5e7eb;background:#f9fafb;">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding:10px 18px;border-radius:10px;border:none;background:#e5e7eb;color:#374151;font-weight:500;">Cancel</button>
                     <button type="submit" class="btn btn-primary" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;font-weight:600;">Update Service</button>
                 </div>
             </form>

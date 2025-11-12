@@ -6,7 +6,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style type="text/css">
         @page {
-            margin: 2cm;
+            /* increased bottom margin to accommodate fixed footer in PDFs */
+            margin: 2cm 1.5cm 3.5cm 1.5cm;
         }
         
         body {
@@ -21,7 +22,7 @@
         .invoice-container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0;
+            padding: 0 4px;
         }
         
         .header {
@@ -33,27 +34,26 @@
         }
         
         .header-content {
-            position: relative;
+            /* use a simple flow layout that's PDF-friendly */
+            display: block;
             width: 100%;
-            height: 90px;
+            overflow: hidden;
+            padding-bottom: 6px;
         }
-        
+
         .logo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 25%;
+            float: left;
+            width: 22%;
         }
-        
+
         .logo img {
             max-width: 100%;
             height: 70px;
+            display: block;
         }
-        
+
         .company-details {
-            position: absolute;
-            top: 0;
-            right: 0;
+            float: right;
             width: 40%;
             text-align: right;
         }
@@ -98,8 +98,11 @@
             border-collapse: collapse;
             margin: 20px 0;
             font-size: 10px;
+            /* ensure columns respect widths and long content wraps */
+            table-layout: fixed;
+            word-break: break-word;
         }
-        
+
         table, th, td {
             border: 1px solid #ddd;
         }
@@ -118,8 +121,17 @@
         }
         
         td {
-            padding: 7px 8px;
+            padding: 6px 6px;
             vertical-align: middle;
+            /* wrap long words/emails to next line */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        th, td {
+            /* prevent cells from expanding beyond column widths */
+            max-width: 1px; /* combined with table-layout: fixed forces wrapping */
         }
         
         .total-row {

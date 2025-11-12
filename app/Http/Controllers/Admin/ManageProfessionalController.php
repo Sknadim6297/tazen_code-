@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\ProfessionalDeactivated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ManageProfessionalController extends Controller
@@ -205,12 +206,20 @@ class ManageProfessionalController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        // Log the request data for debugging
+        Log::info('Update Professional Request', [
+            'id' => $id,
+            'data' => $request->except(['photo', 'qualification_document', 'id_proof_document', 'gst_certificate', 'bank_document', 'gallery_images']),
+            'has_photo' => $request->hasFile('photo'),
+            'has_gallery' => $request->hasFile('gallery_images'),
+        ]);
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:professionals,email,' . $id,
             'phone' => 'nullable|string|max:20',
             'specialization' => 'nullable|string|max:255',
-            'experience' => 'nullable|integer|min:0',
+            'experience' => 'nullable|string|max:255',
             'starting_price' => 'nullable|numeric|min:0',
             'address' => 'nullable|string',
             'gst_number' => 'nullable|string|max:15',
@@ -263,25 +272,34 @@ class ManageProfessionalController extends Controller
                 }
             }
 
-            // Update profile data
-            $profile->fill([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'specialization' => $request->specialization,
-                'experience' => $request->experience,
-                'starting_price' => $request->starting_price,
-                'address' => $request->address,
-                'gst_number' => $request->gst_number,
-                'state_code' => $request->state_code,
-                'state_name' => $request->state_name,
-                'gst_address' => $request->gst_address,
-                'account_holder_name' => $request->account_holder_name,
-                'bank_name' => $request->bank_name,
-                'account_number' => $request->account_number,
-                'ifsc_code' => $request->ifsc_code,
-                'account_type' => $request->account_type,
-                'bank_branch' => $request->bank_branch,
+            // Update profile data - explicitly set each field
+            $profile->name = $request->name;
+            $profile->email = $request->email;
+            $profile->phone = $request->phone;
+            $profile->specialization = $request->specialization;
+            $profile->experience = $request->experience;
+            $profile->starting_price = $request->starting_price;
+            $profile->address = $request->address;
+            
+            // GST Information
+            $profile->gst_number = $request->gst_number;
+            $profile->state_code = $request->state_code;
+            $profile->state_name = $request->state_name;
+            $profile->gst_address = $request->gst_address;
+            
+            // Bank Account Details
+            $profile->account_holder_name = $request->account_holder_name;
+            $profile->bank_name = $request->bank_name;
+            $profile->account_number = $request->account_number;
+            $profile->ifsc_code = $request->ifsc_code;
+            $profile->account_type = $request->account_type;
+            $profile->bank_branch = $request->bank_branch;
+            
+            Log::info('Profile data updated', [
+                'professional_id' => $professional->id,
+                'profile_id' => $profile->id ?? 'new',
+                'has_gst' => !empty($request->gst_number),
+                'has_bank' => !empty($request->account_number),
             ]);
 
             // Handle gallery images upload
@@ -289,14 +307,36 @@ class ManageProfessionalController extends Controller
             
             // Remove images that were marked for deletion
             if ($request->removed_images) {
-                $removedImages = explode(',', $request->removed_images);
+                $removedImages = json_decode($request->removed_images, true) ?? [];
+                if (!is_array($removedImages)) {
+                    $removedImages = explode(',', $request->removed_images);
+                }
+                
                 foreach ($removedImages as $imageToRemove) {
                     if (!empty($imageToRemove)) {
                         // Remove from current gallery array
                         $currentGallery = array_diff($currentGallery, [$imageToRemove]);
                         
-                        // Delete from storage
-                        \Storage::disk('public')->delete($imageToRemove);
+                        // Delete from storage - handle different path formats
+                        if (str_starts_with($imageToRemove, 'gallery/')) {
+                            // New format: stored in storage/app/public/gallery/
+                            if (Storage::disk('public')->exists($imageToRemove)) {
+                                Storage::disk('public')->delete($imageToRemove);
+                            }
+                        } elseif (str_starts_with($imageToRemove, 'uploads/')) {
+                            // Old format: stored in public/uploads/
+                            $publicPath = public_path($imageToRemove);
+                            if (file_exists($publicPath)) {
+                                unlink($publicPath);
+                            }
+                        } else {
+                            // Try both locations
+                            if (Storage::disk('public')->exists('gallery/'.$imageToRemove)) {
+                                Storage::disk('public')->delete('gallery/'.$imageToRemove);
+                            } elseif (file_exists(public_path('uploads/professionals/gallery/'.$imageToRemove))) {
+                                unlink(public_path('uploads/professionals/gallery/'.$imageToRemove));
+                            }
+                        }
                     }
                 }
             }
@@ -324,6 +364,14 @@ class ManageProfessionalController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
+            
+            // Log the error with full details
+            Log::error('Failed to update professional details', [
+                'professional_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Failed to update professional details: ' . $e->getMessage());

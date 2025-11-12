@@ -90,6 +90,18 @@ class ChatController extends Controller
             ], 422);
         }
 
+        // Check for personal information in message
+        if ($request->has('message') && $request->message) {
+            $personalInfoCheck = $this->detectPersonalInfo($request->message);
+            if ($personalInfoCheck['detected']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $personalInfoCheck['message'],
+                    'type' => $personalInfoCheck['type']
+                ], 422);
+            }
+        }
+
         $professional = Auth::guard('professional')->user();
         
         // Get or create chat with the first available admin
@@ -210,5 +222,69 @@ class ChatController extends Controller
             'success' => true,
             'unread_count' => $totalUnread
         ]);
+    }
+
+    /**
+     * Detect personal information in text
+     */
+    private function detectPersonalInfo($text)
+    {
+        // Phone number patterns (comprehensive)
+        $phonePatterns = [
+            // Indian numbers with country code: +91, 0091, 91
+            '/(\+91|0091|91)[\s\-]?[6-9]\d{9}/',
+            // Indian numbers without country code: 10 digits starting with 6-9
+            '/(?<!\d)[6-9]\d{9}(?!\d)/',
+            // International formats with common separators
+            '/(\+\d{1,3})?[\s\-\.]?\(?\d{1,4}\)?[\s\-\.]?\d{1,4}[\s\-\.]?\d{1,4}[\s\-\.]?\d{1,9}/',
+            // Numbers with brackets, dashes, dots, spaces (10+ digits)
+            '/\(?\d{3,4}\)?[\s\-\.]?\d{3,4}[\s\-\.]?\d{3,6}/',
+            // WhatsApp pattern: "whatsapp me" followed by number
+            '/whatsapp\s*(me|at|on)?\s*[\+\d\s\-\(\)\.]{8,}/i',
+            // Call me pattern
+            '/call\s*(me\s*)?(?:at|on)?\s*[\+\d\s\-\(\)\.]{8,}/i',
+            // Phone/mobile pattern
+            '/(phone|mobile|contact|number)\s*[:=]?\s*[\+\d\s\-\(\)\.]{8,}/i',
+        ];
+
+        // Check for phone numbers
+        foreach ($phonePatterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                return [
+                    'detected' => true,
+                    'type' => 'phone number',
+                    'message' => 'Phone numbers are not allowed in messages. Please use the platform\'s communication features only.'
+                ];
+            }
+        }
+
+        // Email pattern
+        if (preg_match('/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/', $text)) {
+            return [
+                'detected' => true,
+                'type' => 'email address',
+                'message' => 'Email addresses are not allowed in messages. Please use the platform\'s communication features only.'
+            ];
+        }
+
+        // Social media patterns
+        $socialMediaPatterns = [
+            '/(?:instagram|insta)\s*[:@]?\s*[A-Za-z0-9._]+/i',
+            '/(?:facebook|fb)\s*[:@]?\s*[A-Za-z0-9._]+/i',
+            '/(?:twitter|x\.com)\s*[:@]?\s*[A-Za-z0-9._]+/i',
+            '/(?:telegram|tg)\s*[:@]?\s*[A-Za-z0-9._]+/i',
+        ];
+
+        foreach ($socialMediaPatterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                return [
+                    'detected' => true,
+                    'type' => 'social media handle',
+                    'message' => 'Social media handles are not allowed in messages. Please use the platform\'s communication features only.'
+                ];
+            }
+        }
+
+        return ['detected' => false];
     }
 }

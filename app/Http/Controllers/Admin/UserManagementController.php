@@ -59,7 +59,7 @@ class UserManagementController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(20);
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Get statistics
         $stats = [

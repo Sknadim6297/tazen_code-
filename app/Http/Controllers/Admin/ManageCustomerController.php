@@ -9,6 +9,7 @@ use App\Exports\CustomersExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class ManageCustomerController extends Controller
 {
@@ -103,9 +104,23 @@ class ManageCustomerController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $fileName = 'customers_' . date('Y-m-d_H-i-s') . '.xlsx';
-        
-        return Excel::download(new CustomersExport($request), $fileName);
+        try {
+            $fileName = 'customers_' . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            // Clear any previous output
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Set proper headers for Excel download
+            $response = Excel::download(new CustomersExport($request), $fileName);
+            
+            return $response;
+            
+        } catch (\Exception $e) {
+            Log::error('Excel export failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to export customers. Please try again.');
+        }
     }
 
     /**
@@ -169,5 +184,50 @@ class ManageCustomerController extends Controller
         ]);
         
         return redirect()->back()->with('success', 'Onboarding status has been reset for this user.');
+    }
+
+    /**
+     * Test Excel export with debugging
+     */
+    public function testExcelExport(Request $request)
+    {
+        try {
+            // Create a simple test export with minimal data
+            $users = User::take(5)->get(); // Get only first 5 users for testing
+            
+            $fileName = 'test_customers_' . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            Log::info('Starting Excel export test', ['users_count' => $users->count()]);
+            
+            // Clear any previous output
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Create the export
+            $export = new CustomersExport($request);
+            $response = Excel::download($export, $fileName);
+            
+            Log::info('Excel export completed successfully', ['filename' => $fileName]);
+            
+            return $response;
+            
+        } catch (\Exception $e) {
+            Log::error('Excel export test failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'debug_info' => [
+                    'php_version' => PHP_VERSION,
+                    'memory_limit' => ini_get('memory_limit'),
+                    'max_execution_time' => ini_get('max_execution_time'),
+                    'excel_package' => class_exists('Maatwebsite\\Excel\\Facades\\Excel') ? 'Loaded' : 'Not Found'
+                ]
+            ]);
+        }
     }
 }

@@ -1323,22 +1323,28 @@
                 <h2>Commission & Fees</h2>
                 <p>Understand how each booking and service request contributes to your earnings.</p>
             </div>
-        </header>
-        <div class="commission-card__grid">
-            <div class="commission-pill commission-pill--blue">
-                <h3>Service Request Margin</h3>
-                <span class="commission-pill__value">{{ number_format($serviceRequestMargin, 2) }}%</span>
-                <p>Commission for additional service requests you approve.</p>
-            </div>
-            <div class="commission-pill commission-pill--red">
-                <h3>Negotiation Offset</h3>
-                <span class="commission-pill__value">{{ number_format($negotiationOffset, 2) }}%</span>
-                <p>Maximum discount customers can negotiate before requiring approval.</p>
-            </div>
-            <div class="commission-pill commission-pill--green">
-                <h3>Main Margin</h3>
-                <span class="commission-pill__value">{{ number_format($marginRate, 2) }}%</span>
-                <p>Platform commission applied on completed bookings.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Main Margin</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #28a745;">{{ number_format($marginRate, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Platform commission on completed bookings</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Service Request Margin</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #3498db;">{{ number_format($serviceRequestMargin, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Commission for additional service requests</p>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Negotiation Offset</h5>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #e74c3c;">{{ number_format($negotiationOffset, 2) }}%</span>
+                    </div>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Maximum negotiation limit for customers</p>
+                </div>
             </div>
         </div>
     </div>
@@ -1583,6 +1589,7 @@
 </script>
 
 <!-- Include Onboarding Tutorial -->
-@include('components.onboarding-tutorial')
-@include('components.professional-onboarding')
+{{-- Temporarily commented out onboarding tutorials --}}
+{{-- @include('components.onboarding-tutorial') --}}
+{{-- @include('components.professional-onboarding') --}}
 @endsection
