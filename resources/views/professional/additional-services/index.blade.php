@@ -347,6 +347,43 @@
         background: rgba(79, 70, 229, 0.55);
     }
 
+    .table-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.2rem 0.35rem;
+    }
+
+    .table-controls--top {
+        margin-bottom: 0.75rem;
+    }
+
+    .table-controls--bottom {
+        margin-top: 1rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .table-control {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .table-control--length,
+    .table-control--info {
+        justify-content: flex-start;
+    }
+
+    .table-control--search,
+    .table-control--pagination {
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+
     .data-table,
     table.dataTable {
         width: 100% !important;
@@ -399,16 +436,15 @@
         background: #f8faff !important;
     }
 
-    #additional-services-table_wrapper .dataTables_length,
-    #additional-services-table_wrapper .dataTables_filter {
+    .table-controls--top .dataTables_length,
+    .table-controls--top .dataTables_filter {
         display: flex;
         align-items: center;
         gap: 0.65rem;
-        margin-bottom: 1.2rem;
     }
 
-    #additional-services-table_wrapper .dataTables_length label,
-    #additional-services-table_wrapper .dataTables_filter label {
+    .table-controls--top .dataTables_length label,
+    .table-controls--top .dataTables_filter label {
         font-weight: 600;
         color: #0f172a;
         display: flex;
@@ -416,8 +452,8 @@
         gap: 0.45rem;
     }
 
-    #additional-services-table_wrapper .dataTables_length select,
-    #additional-services-table_wrapper .dataTables_filter input {
+    .table-controls--top .dataTables_length select,
+    .table-controls--top .dataTables_filter input {
         border-radius: 12px;
         border: 1px solid rgba(148, 163, 184, 0.35);
         padding: 0.45rem 0.75rem;
@@ -425,25 +461,16 @@
         color: #0f172a;
     }
 
-    #additional-services-table_wrapper .dataTables_filter input {
+    .table-controls--top .dataTables_filter input {
         width: 240px;
         max-width: 100%;
     }
 
-    #additional-services-table_wrapper .dataTables_filter input:focus,
-    #additional-services-table_wrapper .dataTables_length select:focus {
+    .table-controls--top .dataTables_filter input:focus,
+    .table-controls--top .dataTables_length select:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-    }
-
-    #additional-services-table_wrapper .dataTables_length {
-        justify-content: flex-start;
-    }
-
-    #additional-services-table_wrapper .dataTables_filter {
-        justify-content: flex-end;
-        flex-wrap: wrap;
     }
 
     .action-buttons {
@@ -722,7 +749,13 @@
         font-family: inherit;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
+    .table-controls--bottom .dataTables_paginate {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .table-controls--bottom .dataTables_paginate .paginate_button {
         border-radius: 10px !important;
         padding: 0.45rem 0.85rem !important;
         border: none !important;
@@ -731,19 +764,12 @@
         margin: 0 0.15rem !important;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    .table-controls--bottom .dataTables_paginate .paginate_button.current {
         background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
         color: #fff !important;
     }
 
-    .dataTables_wrapper .dataTables_filter input,
-    .dataTables_wrapper .dataTables_length select {
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        padding: 0.4rem 0.65rem;
-    }
-
-    .dataTables_wrapper .dataTables_info {
+    .table-controls--bottom .dataTables_info {
         color: var(--muted);
         font-size: 0.85rem;
     }
@@ -794,6 +820,28 @@
 
         .services-card__body {
             padding: 1.6rem 1.4rem;
+        }
+
+        .table-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.85rem;
+        }
+
+        .table-control {
+            justify-content: stretch;
+        }
+
+        .table-controls--top .dataTables_filter input {
+            width: 100%;
+        }
+
+        .table-controls--bottom {
+            align-items: center;
+        }
+
+        .table-control--pagination {
+            justify-content: center;
         }
     }
 </style>
@@ -917,6 +965,10 @@
             </header>
             <div class="services-card__body">
                 @if($additionalServices->count() > 0)
+                    <div class="table-controls table-controls--top">
+                        <div class="table-control table-control--length"></div>
+                        <div class="table-control table-control--search"></div>
+                    </div>
                     <div class="table-wrapper">
                         <table class="data-table" id="additional-services-table">
                             <thead>
@@ -1069,6 +1121,10 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="table-controls table-controls--bottom">
+                        <div class="table-control table-control--info"></div>
+                        <div class="table-control table-control--pagination"></div>
+                    </div>
 
                     <div style="margin-top: 1.6rem; text-align: center;">
                         {{ $additionalServices->links() }}
@@ -1219,6 +1275,14 @@ $(document).ready(function() {
             "zeroRecords": "No matching services found"
         }
     });
+
+    var dataTableWrapper = $('#additional-services-table').closest('.dataTables_wrapper');
+    if (dataTableWrapper.length) {
+        dataTableWrapper.find('.dataTables_length').appendTo('.table-control--length');
+        dataTableWrapper.find('.dataTables_filter').appendTo('.table-control--search');
+        dataTableWrapper.find('.dataTables_info').appendTo('.table-control--info');
+        dataTableWrapper.find('.dataTables_paginate').appendTo('.table-control--pagination');
+    }
 
     $('#toggle_filters_btn, #toggleFiltersBtn').on('click', function() {
         var content = document.getElementById('filtersContent');

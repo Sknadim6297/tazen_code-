@@ -30,7 +30,7 @@
     .header {
         width: 100% !important;
         max-width: 100% !important;
-        overflow-x: hidden !important;
+        /* overflow-x: hidden !important; */
         position: sticky !important;
         top: 0 !important;
         left: 0 !important;
@@ -123,16 +123,6 @@
     }
     
     /* Enhanced Dashboard Cards */
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(320px, 1fr));
-        gap: 32px;
-        margin-bottom: 40px;
-        justify-content: center;
-        width: max-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
     .card {
         position: relative;
         border-radius: 12px;
@@ -387,173 +377,175 @@
     /* Enhanced Dashboard Cards */
     .card-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        gap: 1.2rem;
+        align-items: stretch;
     }
-
+    
+    @media (max-width: 900px) {
+        .card-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+    }
+    
+    .card-grid > * {
+        height: 100%;
+    }
+    
+    .dashboard-card-link {
+        display: block;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+    }
+    
     .card {
         position: relative;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        padding: 24px;
-        display: flex;
-        transition: all 0.3s ease;
-        cursor: pointer;
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
         overflow: hidden;
-        border: none;
+        background: #ffffff;
+        padding: 1.6rem 1.8rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1rem;
+        box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
         height: 100%;
     }
     
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        transform: translateY(-6px);
+        box-shadow: 0 24px 42px rgba(15, 23, 42, 0.16);
     }
     
-    .card:active {
-        transform: translateY(0);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-    
-    .card:after {
+    .card::after {
         content: '';
         position: absolute;
-        top: 0;
-        right: 0;
-        height: 100%;
-        width: 6px;
-        background: rgba(255, 255, 255, 0.3);
+        inset: 0;
+        background: linear-gradient(120deg, rgba(79, 70, 229, 0.1), transparent 48%);
+        opacity: 0;
+        transition: opacity 0.22s ease;
     }
     
-    .card-primary {
-        background: linear-gradient(135deg, #2980b9, #3498db);
-        color: white;
+    .card:hover::after {
+        opacity: 1;
     }
     
-    .card-success {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white;
-    }
-    
-    .card-warning {
-        background: linear-gradient(135deg, #f39c12, #f1c40f);
-        color: white;
-    }
-    
-    .card-danger {
-        background: linear-gradient(135deg, #c0392b, #e74c3c);
-        color: white;
-    }
-    
-    .card-icon {
+    .card__top {
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        margin-right: 18px;
-        flex-shrink: 0;
+        gap: 1rem;
+        position: relative;
+        z-index: 1;
     }
     
-    .card-icon i {
-        font-size: 32px;
-        color: white;
-    }
-    
-    .card-info {
-        flex: 1;
-    }
-    
-    .card-info h4 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 500;
-        opacity: 0.9;
-        margin-bottom: 8px;
-        color: #a67c52;
-    }
-    
-    .card-info h2 {
-        margin: 0;
-        font-size: 34px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: #a67c52; !important;
-    }
-    
-    .card p {
-        margin: 0;
-        font-size: 15px;
-        opacity: 0.9;
-    }
-    
-    .positive {
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .negative {
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .fa-arrow-up, .fa-calendar, .fa-check-circle {
-        margin-right: 5px;
-    }
-    
-    .fa-arrow-down {
-        margin-right: 5px;
-    }
-    
-    /* View Button */
-    .view-btn {
+    .card__icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
         display: inline-flex;
         align-items: center;
-        padding: 6px 16px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        font-size: 14px;
-        transition: all 0.2s;
+        justify-content: center;
+        background: rgba(79, 70, 229, 0.1);
+        color: #4f46e5;
+        font-size: 1.4rem;
+    }
+    
+    .card.card-success .card__icon { background: rgba(34, 197, 94, 0.1); color: #059669; }
+    .card.card-warning .card__icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+    .card.card-danger .card__icon { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+    
+    .card__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .card__meta span.label {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 600;
+    }
+    
+    .card__meta span.value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.05;
+    }
+    
+    .card__meta span.value small {
+        font-size: 1rem;
+        color: #94a3b8;
+        margin-left: 0.35rem;
+    }
+    
+    .card__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    
+    .card__footer .trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 600;
+    }
+    
+    .card__footer .trend.positive { color: #059669; }
+    .card__footer .trend.negative { color: #dc2626; }
+    
+    .card__footer .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(79, 70, 229, 0.1);
+        color: #4338ca;
+        font-weight: 600;
         text-decoration: none;
-        margin-top: 12px;
+        transition: background 0.18s ease, color 0.18s ease;
     }
     
-    .view-btn i {
-        margin-right: 6px;
-        font-size: 14px;
+    .card__footer .cta:hover {
+        background: rgba(79, 70, 229, 0.18);
+        color: #312e81;
     }
     
-    .card:hover .view-btn {
-        background: rgba(255, 255, 255, 0.3);
-    }
+    .card.card-success .card__footer .cta { background: rgba(34, 197, 94, 0.12); color: #047857; }
+    .card.card-success .card__footer .cta:hover { background: rgba(34, 197, 94, 0.2); color: #065f46; }
     
-    /* Enhanced for mobile */
-    @media (max-width: 768px) {
-        .card-grid {
-            grid-template-columns: 1fr;
+    .card.card-warning .card__footer .cta { background: rgba(245, 158, 11, 0.12); color: #b45309; }
+    .card.card-warning .card__footer .cta:hover { background: rgba(245, 158, 11, 0.18); color: #92400e; }
+    
+    .card.card-danger .card__footer .cta { background: rgba(239, 68, 68, 0.12); color: #b91c1c; }
+    .card.card-danger .card__footer .cta:hover { background: rgba(239, 68, 68, 0.18); color: #991b1b; }
+    
+    @media (max-width: 640px) {
+        .card__footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.6rem;
         }
         
-        .card {
-            margin-bottom: 15px;
-        }
+    .card__footer .cta {
+        width: 100%;
+        justify-content: center;
     }
     
-    /* Pulse animation for attention on hover */
-    .card:hover .card-icon {
-        animation: pulse 1.5s infinite;
+    .dashboard-card-link {
+        height: auto;
     }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.1);
-        }
-        100% {
-            transform: scale(1);
-        }
     }
     
     /* Table styling */
@@ -709,422 +701,325 @@
     }
 </style>
 <style>
-    /* Enhanced Dashboard Cards */
-    .card-grid-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100%;
-        margin-top: 24px;
-        margin-bottom: 28px;
+    .dashboard-enhanced {
+        background: #f4f6fb;
+        padding: 2.2rem 2.2rem 3rem;
     }
-    .card-grid {
+
+    .dashboard-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2.2rem;
+    }
+
+    .dashboard-hero {
         display: grid;
-        grid-template-columns: repeat(2, minmax(340px, 1fr));
-        gap: 28px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.6rem;
+        padding: 2.2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.16);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
+        box-shadow: 0 26px 54px rgba(79, 70, 229, 0.16);
     }
 
-    .card {
-        position: relative;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        padding: 32px 28px;
+    .dashboard-hero__meta {
         display: flex;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        overflow: hidden;
-        border: none;
-        height: 100%;
-        min-width: 320px;
-        max-width: 480px;
-        background: #f5e9da;
-        color: #a67c52;
-    }
-    
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-    
-    .card:active {
-        transform: translateY(0);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-    
-    .card:after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        height: 100%;
-        width: 6px;
-        background: rgba(166, 124, 82, 0.10); /* Subtle accent */
-    }
-    
-    /* Unique colors for each card */
-    .card-primary {
-        background: #f5e9da !important; /* Nude beige */
-        color: #a67c52 !important;
-    }
-    .card-primary .card-icon {
-        background: #f3d6c2;
-    }
-    .card-primary .card-icon i {
-        color: #a67c52;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
-    .card-success {
-        background: #e9f5da !important; /* Soft green nude */
-        color: #6d8a4c !important;
-    }
-    .card-success .card-icon {
-        background: #d6eac2;
-    }
-    .card-success .card-icon i {
-        color: #6d8a4c;
-    }
-
-    .card-warning {
-        background: #f5f0da !important; /* Soft yellow nude */
-        color: #b89c4e !important;
-    }
-    .card-warning .card-icon {
-        background: #f3eac2;
-    }
-    .card-warning .card-icon i {
-        color: #b89c4e;
-    }
-
-    .card-danger {
-        background: #f5dadf !important; /* Soft pink nude */
-        color: #b86a7a !important;
-    }
-    .card-danger .card-icon {
-        background: #f3c2ce;
-    }
-    .card-danger .card-icon i {
-        color: #b86a7a;
-    }
-    
-    .card-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
-        background: rgba(166, 124, 82, 0.13);
-        margin-right: 16px;
-        flex-shrink: 0;
-        transition: background 0.3s;
-    }
-    
-    .card-icon i {
-        font-size: 34px;
-        color: #a67c52;
-        transition: color 0.3s;
-    }
-    
-    .card-info {
-        flex: 1;
-    }
-    
-    .card-info h4 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 500;
-        opacity: 0.92;
-        margin-bottom: 7px;
-    }
-    
-    .card-info h2 {
-        margin: 0;
-        font-size: 38px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-    
-    .card p {
-        margin: 0;
-        font-size: 17px;
-        opacity: 0.92;
-    }
-    
-    .positive, .negative {
-        color: inherit !important;
-    }
-    
-    .fa-arrow-up, .fa-calendar, .fa-check-circle {
-        margin-right: 5px;
-    }
-    
-    .fa-arrow-down {
-        margin-right: 5px;
-    }
-    
-    /* View Button */
-    .view-btn {
+    .dashboard-hero__meta span {
         display: inline-flex;
         align-items: center;
-        padding: 10px 24px;
-        border-radius: 18px;
-        background: rgba(166, 124, 82, 0.13);
-        color: #a67c52;
-        font-size: 17px;
-        transition: all 0.2s;
-        text-decoration: none;
-        margin-top: 10px;
-    }
-    
-    .view-btn i {
-        margin-right: 6px;
-        font-size: 15px;
-    }
-    
-    .card:hover .view-btn {
-        background: rgba(166, 124, 82, 0.20);
-    }
-    
-    /* Enhanced for mobile */
-    @media (max-width: 768px) {
-        .card-grid {
-            grid-template-columns: 1fr;
-        }
-        .card {
-            min-width: 90vw;
-            max-width: 100vw;
-            padding: 22px 10px;
-        }
-    }
-    
-    /* Additional mobile header fixes */
-    @media (max-width: 767px) {
-        .header-left {
-            flex: 1;
-            max-width: calc(100% - 100px);
-        }
-        
-        .header-right {
-            flex-shrink: 0;
-            margin-left: auto;
-        }
-        
-        .search-box input {
-            width: 150px !important;
-            max-width: 150px !important;
-        }
-        
-        .user-profile {
-            margin-left: 10px !important;
-        }
-    }
-    
-    /* Tablet specific fixes */
-    @media (min-width: 768px) and (max-width: 1024px) {
-        .header-left {
-            flex: 1;
-            max-width: calc(100% - 200px);
-        }
-        
-        .search-box input {
-            width: 200px !important;
-            max-width: 200px !important;
-        }
-    }
-    
-    /* Pulse animation for attention on hover */
-    .card:hover .card-icon {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.10);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-    
-    /* Table styling */
-    .content-card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-bottom: 30px;
-        overflow: hidden;
-    }
-    
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 24px;
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .card-header h4 {
-        margin: 0;
-        font-size: 18px;
+        gap: 0.45rem;
+        font-size: 0.78rem;
         font-weight: 600;
-        color: #333;
-    }
-    
-    .card-action {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .card-action button {
-        padding: 10px 22px;
-        border-radius: 24px;
-        border: none;
-        background: #f3d6c2;
-        color: #a67c52;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s, box-shadow 0.2s;
-        margin-left: 10px;
-        box-shadow: 0 2px 8px rgba(243, 214, 194, 0.18);
-        outline: none;
-    }
-    .card-action button:first-child {
-        margin-left: 0;
-    }
-    .card-action button:hover, .card-action button:focus {
-        background: #f5e9da;
-        color: #a67c52;
-        box-shadow: 0 4px 16px rgba(166, 124, 82, 0.10);
-    }
-    .card-action button a {
-        color: inherit;
-        text-decoration: none;
-        font-weight: 600;
-    }
-    
-    /* Table styling */
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .table th {
-        padding: 18px 32px;
-        text-align: left;
-        font-weight: 700;
-        font-size: 16px;
-        color: #a67c52;
-        background: #f3d6c2;
-        border-bottom: 3px solid #e9cbb2;
-        letter-spacing: 0.5px;
         text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 0.4rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
     }
-    
-    .table td {
-        padding: 15px 24px;
-        font-size: 14px;
-        color: #333;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
+
+    .dashboard-hero__meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
     }
-    
-    .status-badge {
-        padding: 5px 10px;
+
+    .dashboard-hero__meta p {
+        margin: 0;
+        color: #475569;
+        max-width: 520px;
+        font-size: 0.96rem;
+    }
+
+    .dashboard-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .dashboard-hero__actions a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.48rem;
+        padding: 0.85rem 1.75rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.94rem;
+        text-decoration: none;
+        border: 1px solid rgba(79, 70, 229, 0.28);
+        color: #312e81;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 18px 36px rgba(79, 70, 229, 0.16);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .dashboard-hero__actions a.btn-primary {
+        background: linear-gradient(135deg, #4f46e5, #4338ca);
+        color: #ffffff;
+        border-color: transparent;
+    }
+
+    .dashboard-hero__actions a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 24px 48px rgba(79, 70, 229, 0.22);
+    }
+
+    .dashboard-section-card {
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+        padding: 2rem 2.4rem;
+    }
+
+    .dashboard-section-card + .dashboard-section-card {
+        margin-top: 1.6rem;
+    }
+
+    .dashboard-section-card h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .dashboard-section-card p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    .dashboard-notices {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .dashboard-enhanced .card-grid {
+        margin: 0;
+    }
+
+    .dashboard-enhanced .card {
         border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        display: inline-block;
+        min-width: 0;
+        box-shadow: 0 20px 44px rgba(15, 23, 42, 0.14);
+    }
+
+    .dashboard-enhanced .table-responsive-container {
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+        padding: 0;
+        background: #ffffff;
+    }
+
+    .dashboard-enhanced .content-card {
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.1);
+    }
+
+    .dashboard-enhanced .recent-events h3 {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .dashboard-enhanced .recent-events .event-card {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .commission-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
     }
     
-    .success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .info {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .secondary {
-        background-color: #e9ecef;
-        color: #383d41;
-    }
-    
-    .user-profile {
+    .commission-card__head {
         display: flex;
         align-items: center;
+        gap: 1.1rem;
     }
     
-    .user-profile img {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        margin-right: 10px;
-        object-fit: cover;
-    }
-    
-    .user-info h5 {
+    .commission-card__head h2 {
         margin: 0;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #0f172a;
     }
     
-    .action-btn {
+    .commission-card__head p {
+        margin: 0.35rem 0 0;
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+    
+    .commission-card__icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        background: #f1f1f1;
-        color: #333;
-        margin-right: 5px;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
+        background: rgba(79, 70, 229, 0.12);
+        color: #4338ca;
+        font-size: 1.4rem;
     }
     
-    .action-btn:hover {
-        background: #e1e1e1;
+    .commission-card__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.4rem;
     }
     
-    /* Table horizontal scrolling for mobile */
-    .table-responsive-container {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    .commission-pill {
+        border-radius: 18px;
+        padding: 1.6rem 1.4rem;
+        background: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
     }
     
-    .dashboard-card-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
+    .commission-pill h3 {
+        margin: 0;
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #0f172a;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    
+    .commission-pill__value {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+    
+    .commission-pill p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #475569;
+        line-height: 1.48;
+    }
+    
+    .commission-pill--blue {
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.05));
+        border-color: rgba(59, 130, 246, 0.35);
+        color: #1d4ed8;
+    }
+    
+    .commission-pill--blue .commission-pill__value { color: #1d4ed8; }
+    
+    .commission-pill--red {
+        background: linear-gradient(145deg, rgba(239, 68, 68, 0.15), rgba(248, 113, 113, 0.05));
+        border-color: rgba(239, 68, 68, 0.35);
+        color: #b91c1c;
+    }
+    
+    .commission-pill--red .commission-pill__value { color: #b91c1c; }
+    
+    .commission-pill--green {
+        background: linear-gradient(145deg, rgba(34, 197, 94, 0.16), rgba(34, 197, 94, 0.05));
+        border-color: rgba(34, 197, 94, 0.35);
+        color: #047857;
+    }
+    
+    .commission-pill--green .commission-pill__value { color: #047857; }
+    
+    @media (max-width: 768px) {
+        .commission-card__head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 1024px) {
+        .dashboard-enhanced {
+            padding: 2rem 1.6rem 2.6rem;
+        }
+
+        .dashboard-section-card {
+            padding: 1.8rem 1.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-hero {
+            padding: 1.8rem;
+        }
+
+        .dashboard-hero__actions {
+            justify-content: stretch;
+        }
+
+        .dashboard-hero__actions a {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .dashboard-enhanced .card-grid {
+            gap: 1.4rem;
+        }
     }
 </style>
 @endsection
 @section('content')
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Dashboard</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Dashboard</li>
-        </ul>
-    </div>
-    
+<div class="dashboard-enhanced">
+    <div class="dashboard-shell">
+        <section class="dashboard-hero">
+            <div class="dashboard-hero__meta">
+                <span><i class="fas fa-chart-line"></i> Professional Dashboard</span>
+                <h1>Insights & Activity Overview</h1>
+                <p>Track bookings, revenue, and upcoming appointments while keeping your profile ready for new customers.</p>
+            </div>
+            <div class="dashboard-hero__actions">
+                <a href="{{ route('professional.profile.index') }}">
+                    <i class="fas fa-user-cog"></i>
+                    Manage Profile
+                </a>
+                <a href="{{ route('professional.booking.index') }}" class="btn-primary">
+                    <i class="fas fa-calendar-check"></i>
+                    View Bookings
+                </a>
+            </div>
+        </section>
+        
     @php
         use App\Models\ProfessionalOtherInformation;
         
@@ -1149,7 +1044,8 @@
     @endphp
     
     <!-- Notifications and Alerts Section -->
-    <div class="notifications-container" style="margin-bottom: 25px;">
+    <div class="dashboard-section-card">
+        <div class="dashboard-notices">
         @if($newBookings > 0)
             <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-left: 4px solid #28a745; background-color: #d4edda; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                 <div style="display: flex; align-items: center;">
@@ -1197,6 +1093,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        </div>
     </div>
 
     <!-- Dashboard Cards -->
@@ -1211,67 +1108,80 @@
 
         <!-- Total Bookings Card - Make it clickable -->
         <a href="{{ route('professional.booking.index') }}" class="dashboard-card-link">
-            <div class="card card-primary">
-                <div class="card-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div class="card-info">
-                    <h4>Total Bookings</h4>
-                    <h2 style="color: #a67c52;">{{ $totalBookings }}</h2>
-                </div>
+    <div class="card card-primary">
+        <div class="card__top">
+            <div class="card__icon">
+                <i class="fas fa-calendar-check"></i>
             </div>
-        </a>
-
-        <a href="{{ route('professional.billing.index') }}" class="dashboard-card-link">
-        <div class="card card-success">
-            <div class="card-icon">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="card-info">
-                @php
-                    $professionalId = Auth::guard('professional')->id();
-                    
-                    // Get the total amount earned from bookings with paid_status = 'paid'
-                    $totalRevenue = \App\Models\Booking::where('professional_id', $professionalId)
-                        ->where('paid_status', 'paid')
-                        ->sum('amount');
-                        
-                    // Get the professional's margin rate from the professionals table
-                    $professional = \App\Models\Professional::find($professionalId);
-                    $marginRate = $professional->margin ?? 20; // Default to 20% if not set
-                    
-                    // Calculate actual professional earnings after deducting platform commission
-                    $actualEarnings = $totalRevenue * ((100 - $marginRate) / 100);
-                    
-                    // Calculate previous month's earnings for comparison
-                    $previousMonth = now()->subMonth();
-                    $prevMonthStart = $previousMonth->startOfMonth()->format('Y-m-d');
-                    $prevMonthEnd = $previousMonth->endOfMonth()->format('Y-m-d');
-                    
-                    $previousEarnings = \App\Models\Booking::where('professional_id', $professionalId)
-                        ->where('paid_status', 'paid')
-                        ->whereBetween('paid_date', [$prevMonthStart, $prevMonthEnd])
-                        ->sum('amount') * ((100 - $marginRate) / 100);
-                        
-                    // Calculate percentage change
-                    $percentChange = 0;
-                    if ($previousEarnings > 0) {
-                        $percentChange = (($actualEarnings - $previousEarnings) / $previousEarnings) * 100;
-                    }
-                    $isPositive = $percentChange >= 0;
-                @endphp
-                <h4>Total Revenue</h4>
-                <h2  style="color: #a67c52;">₹{{ number_format($actualEarnings, 2) }}</h2>
-                @if($previousEarnings > 0)
-                    <p class="{{ $isPositive ? 'positive' : 'negative' }}">
-                        <i class="fas fa-arrow-{{ $isPositive ? 'up' : 'down' }}"></i> 
-                        {{ abs(round($percentChange)) }}% from last month
-                    </p>
-                @else
-                    <p>No earnings last month</p>
-                @endif
+            <div class="card__meta">
+                <span class="label">Total Bookings</span>
+                <span class="value">{{ $totalBookings }}</span>
             </div>
         </div>
+        <div class="card__footer">
+            <span class="trend positive">
+                <i class="fas fa-calendar"></i> Keep track of all reservations
+            </span>
+            <span class="cta">
+                View details <i class="fas fa-arrow-right"></i>
+            </span>
+        </div>
+    </div>
+        </a>
+
+        @php
+            $professionalId = Auth::guard('professional')->id();
+            $totalRevenue = \App\Models\Booking::where('professional_id', $professionalId)
+                ->where('paid_status', 'paid')
+                ->sum('amount');
+            $professional = \App\Models\Professional::find($professionalId);
+            $marginRate = $professional->margin ?? 20;
+            $actualEarnings = $totalRevenue * ((100 - $marginRate) / 100);
+
+            $previousMonth = now()->subMonth();
+            $prevMonthStart = $previousMonth->copy()->startOfMonth();
+            $prevMonthEnd = $previousMonth->copy()->endOfMonth();
+
+            $previousEarningsRaw = \App\Models\Booking::where('professional_id', $professionalId)
+                ->where('paid_status', 'paid')
+                ->whereBetween('paid_date', [$prevMonthStart, $prevMonthEnd])
+                ->sum('amount');
+
+            $previousEarnings = $previousEarningsRaw * ((100 - $marginRate) / 100);
+            $percentChange = $previousEarnings > 0
+                ? (($actualEarnings - $previousEarnings) / $previousEarnings) * 100
+                : 0;
+            $isPositive = $percentChange >= 0;
+        @endphp
+
+        <a href="{{ route('professional.billing.index') }}" class="dashboard-card-link">
+            <div class="card card-success">
+                <div class="card__top">
+                    <div class="card__icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="card__meta">
+                        <span class="label">Total Revenue</span>
+                        <span class="value">₹{{ number_format($actualEarnings, 2) }}</span>
+                    </div>
+                </div>
+                <div class="card__footer">
+                    @if($previousEarnings > 0)
+                        <span class="trend {{ $isPositive ? 'positive' : 'negative' }}">
+                            <i class="fas fa-arrow-{{ $isPositive ? 'up' : 'down' }}"></i>
+                            {{ abs(round($percentChange)) }}% from last month
+                        </span>
+                    @else
+                        <span class="trend positive">
+                            <i class="fas fa-info-circle"></i>
+                            No earnings last month
+                        </span>
+                    @endif
+                    <span class="cta">
+                        Billing center <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </div>
         </a>
 
         @php
@@ -1281,15 +1191,26 @@
                 ->count('user_id');
         @endphp
 
-        <div class="card card-warning">
-            <div class="card-icon">
+    <div class="card card-warning">
+        <div class="card__top">
+            <div class="card__icon">
                 <i class="fas fa-users"></i>
             </div>
-            <div class="card-info">
-                <h4>Active Clients</h4>
-                <h2>{{ $activeClients }}</h2>
+            <div class="card__meta">
+                <span class="label">Active Clients</span>
+                <span class="value">{{ $activeClients }}</span>
             </div>
         </div>
+        <div class="card__footer">
+            <span class="trend positive">
+                <i class="fas fa-user-friends"></i>
+                Build client retention
+            </span>
+            <span class="cta">
+                View clients <i class="fas fa-arrow-right"></i>
+            </span>
+        </div>
+    </div>
 
         <!-- Upcoming Appointments Card - Dynamic Version -->
         @php
@@ -1351,31 +1272,38 @@
         @endphp
 
         <a href="{{ route('professional.booking.index') }}" class="dashboard-card-link">
-            <div class="card card-danger">
-                <div class="card-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="card-info">
-                    <h4>Upcoming Appointments</h4>
-                    <h2>{{ $pendingCount }}</h2>
-                    @if($todayPendingCount > 0)
-                        <p class="negative">
-                            <i class="fas fa-exclamation-circle"></i> 
-                            {{ $todayPendingCount }} pending today - Action required
-                        </p>
-                    @elseif($futurePendingCount > 0)
-                        <p class="positive">
-                            <i class="fas fa-calendar-alt"></i> 
-                            {{ $futurePendingCount }} upcoming - Review appointments
-                        </p>
-                    @else
-                        <p class="positive">
-                            <i class="fas fa-check-circle"></i> 
-                            No pending appointments
-                        </p>
-                    @endif
-                </div>
+    <div class="card card-danger">
+        <div class="card__top">
+            <div class="card__icon">
+                <i class="fas fa-clock"></i>
             </div>
+            <div class="card__meta">
+                <span class="label">Upcoming Appointments</span>
+                <span class="value">{{ $pendingCount }}</span>
+            </div>
+        </div>
+        <div class="card__footer">
+            @if($todayPendingCount > 0)
+                <span class="trend negative">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ $todayPendingCount }} pending today
+                </span>
+            @elseif($futurePendingCount > 0)
+                <span class="trend positive">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ $futurePendingCount }} upcoming
+                </span>
+            @else
+                <span class="trend positive">
+                    <i class="fas fa-check-circle"></i>
+                    No pending items
+                </span>
+            @endif
+            <span class="cta">
+                Manage schedule <i class="fas fa-arrow-right"></i>
+            </span>
+        </div>
+    </div>
         </a>
 
     <!-- Platform Fee Information -->
@@ -1386,13 +1314,14 @@
         $serviceRequestMargin = $professional->service_request_margin ?? 10.00; // Dynamic service request margin
         $negotiationOffset = $professional->service_request_offset ?? 20.00; // Dynamic negotiation offset
     @endphp
-    <div class="content-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); margin-bottom: 30px; overflow: hidden;">
-        <div style="padding: 24px;">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <i class="fas fa-percentage" style="font-size: 24px; margin-right: 16px; color: #3498db;"></i>
-                <div>
-                    <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 18px;">Commission & Fees</h4>
-                </div>
+    <div class="dashboard-section-card commission-card">
+        <header class="commission-card__head">
+            <span class="commission-card__icon">
+                <i class="fas fa-percentage"></i>
+            </span>
+            <div>
+                <h2>Commission & Fees</h2>
+                <p>Understand how each booking and service request contributes to your earnings.</p>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                 <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
@@ -1621,6 +1550,9 @@
     }
 </style>
 @endsection
+
+    </div>
+</div>
 
 @section('scripts')
 <script>

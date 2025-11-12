@@ -16,6 +16,11 @@
         --border: rgba(148, 163, 184, 0.2);
     }
 
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
     body,
     .app-content {
         background: var(--shell-bg);
@@ -362,10 +367,129 @@
         .customer-chat-page { padding: 2.2rem 1rem 3.1rem; }
         .chat-hero { padding: 1.8rem 1.6rem; }
         .chat-card__header { padding: 1.6rem 1.6rem 1.2rem; }
+        .chat-card__header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
         .chat-messages { padding: 1.5rem 1.6rem; }
         .chat-footer { padding: 1.6rem 1.6rem 1.8rem; }
         .message-bubble { max-width: 86%; }
         .chat-hero-illustration { width: 100px; height: 100px; font-size: 2.2rem; }
+    }
+
+    @media (max-width: 600px) {
+        .customer-chat-page {
+            padding: 1.9rem 0.85rem 2.6rem;
+        }
+
+        .customer-chat-shell {
+            gap: 1.6rem;
+        }
+
+        .chat-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.2rem;
+            padding: 1.6rem 1.4rem;
+        }
+
+        .hero-copy h1 {
+            font-size: 1.72rem;
+        }
+
+        .hero-copy p {
+            max-width: 100%;
+            font-size: 0.92rem;
+        }
+
+        .chat-hero-illustration {
+            width: 88px;
+            height: 88px;
+            font-size: 2rem;
+        }
+
+        .chat-card {
+            border-radius: 22px;
+        }
+
+        .chat-messages {
+            padding: 1.2rem 1.35rem;
+            height: 440px;
+        }
+
+        .message-bubble {
+            max-width: 100%;
+            font-size: 0.92rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .chat-footer {
+            padding: 1.4rem 1.35rem 1.6rem;
+        }
+
+        .chat-input-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.6rem;
+            padding: 0.45rem;
+        }
+
+        .chat-input-group .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 0.94rem;
+        }
+
+        .chat-attach-btn,
+        .chat-send-btn {
+            width: 100%;
+            min-width: unset;
+            padding: 0.7rem;
+        }
+
+        .chat-attach-btn {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .chat-send-btn {
+            border-radius: 12px;
+            min-height: 48px;
+            font-size: 0.96rem;
+        }
+
+        .selected-files {
+            font-size: 0.82rem;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .chat-hero {
+            padding: 1.45rem 1.2rem;
+            border-radius: 24px;
+        }
+
+        .chat-card {
+            border-radius: 18px;
+        }
+
+        .chat-messages {
+            padding: 1.1rem 1.1rem;
+            height: 400px;
+        }
+
+        .chat-footer {
+            padding: 1.2rem 1.1rem 1.4rem;
+        }
+
+        .chat-input-group {
+            padding: 0.4rem;
+        }
+
+        .chat-send-btn {
+            min-height: 44px;
+        }
     }
 </style>
 @endsection

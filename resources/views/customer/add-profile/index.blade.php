@@ -4,423 +4,384 @@
 <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 <style>
     :root {
-        --primary-color: #3498db;
-        --primary-hover: #2980b9;
-        --secondary-color: #2c3e50;
-        --text-color: #34495e;
-        --light-text: #7f8c8d;
-        --border-color: #e0e6ed;
-        --bg-color: #f7f9fc;
-        --card-bg: #ffffff;
-        --success-color: #2ecc71;
-        --warning-color: #f39c12;
-        --danger-color: #e74c3c;
-        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-        --shadow-md: 0 5px 15px rgba(0,0,0,0.07);
-        --shadow-lg: 0 15px 30px rgba(0,0,0,0.1);
-        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        --border-radius: 8px;
+        --profile-primary: #f97316;
+        --profile-primary-dark: #ea580c;
+        --profile-secondary: #0ea5e9;
+        --profile-muted: #64748b;
+        --profile-neutral: #1f2937;
+        --profile-bg: #f6f7fb;
+        --profile-surface: #ffffff;
+        --profile-border: rgba(148, 163, 184, 0.22);
+        --profile-shadow: 0 24px 52px rgba(15, 23, 42, 0.12);
     }
 
-    body {
-        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-        color: var(--text-color);
-        background-color: var(--bg-color);
+    body,
+    .app-content {
+        background: var(--profile-bg) !important;
     }
-    
-    /* Content Wrapper */
-    .content-wrapper {
-        padding: 2rem;
-        background-color: var(--bg-color);
-        min-height: calc(100vh - 60px);
-        transition: var(--transition);
-        max-width: 1200px;
+
+    .customer-profile-page {
+        width: 100%;
+        padding: 2.6rem 1.45rem 3.6rem;
+    }
+
+    .customer-profile-shell {
+        max-width: 980px;
         margin: 0 auto;
-    }
-
-    /* Page Header */
-    .page-header {
-        margin-bottom: 2rem;
-        position: relative;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 2rem;
     }
 
-    .page-title h3 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--secondary-color);
-        margin: 0;
-        position: relative;
-        display: inline-block;
-    }
-
-    .page-title h3::after {
-        content: "";
-        position: absolute;
-        bottom: -6px;
-        left: 0;
-        width: 40px;
-        height: 3px;
-        background-color: var(--primary-color);
-        border-radius: 2px;
-    }
-
-    /* Breadcrumb */
-    .breadcrumb {
-        list-style: none;
-        padding: 0;
-        display: flex;
-        gap: 10px;
-        font-size: 0.85rem;
-        color: var(--light-text);
-        margin: 0;
-    }
-
-    .breadcrumb li {
-        display: flex;
-        align-items: center;
-    }
-    
-    .breadcrumb li:not(:last-child)::after {
-        content: "/";
-        margin-left: 10px;
-        color: #bdc3c7;
-    }
-
-    .breadcrumb li.active {
-        font-weight: 600;
-        color: var(--secondary-color);
-    }
-
-    /* Profile Card */
-    .profile-card {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: var(--shadow-md);
-        transition: var(--transition);
-        border: 1px solid var(--border-color);
+    .customer-profile-hero {
         position: relative;
         overflow: hidden;
-    }
-
-    .profile-card:hover {
-        box-shadow: var(--shadow-lg);
-    }
-
-    .profile-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
-    }
-
-    /* Profile Header */
-    .profile-header {
+        padding: 2.2rem 2.6rem;
+        border-radius: 32px;
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.14), rgba(14, 165, 233, 0.18));
+        box-shadow: 0 28px 64px rgba(249, 115, 22, 0.18);
         display: flex;
-        justify-content: space-between;
+        flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 2rem;
-        position: relative;
+        justify-content: space-between;
+        gap: 1.6rem;
     }
 
-    .profile-header h3 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--secondary-color);
-        position: relative;
-        display: inline-block;
-    }
-
-    .profile-header h3::after {
-        content: '';
+    .customer-profile-hero::before,
+    .customer-profile-hero::after {
+        content: "";
         position: absolute;
-        bottom: -8px;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: var(--primary-color);
-        border-radius: 2px;
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    /* Button */
-    .btn-edit-profile {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-        color: white;
-        border-radius: 50px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: var(--transition);
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    .customer-profile-hero::before {
+        width: 340px;
+        height: 340px;
+        top: -48%;
+        right: -14%;
+        background: rgba(249, 115, 22, 0.22);
+    }
+
+    .customer-profile-hero::after {
+        width: 220px;
+        height: 220px;
+        bottom: -46%;
+        left: -16%;
+        background: rgba(14, 165, 233, 0.22);
+    }
+
+    .customer-profile-hero > * { position: relative; z-index: 1; }
+
+    .customer-profile-hero .hero-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: #422006;
+    }
+
+    .customer-profile-hero .hero-eyebrow {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.45rem;
+        padding: 0.45rem 1.05rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.6);
     }
 
-    .btn-edit-profile:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-        background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+    .customer-profile-hero h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
     }
 
-    .btn-edit-profile a {
-        color: white;
+    .customer-profile-hero p {
+        margin: 0;
+        font-size: 0.96rem;
+        max-width: 420px;
+        color: rgba(66, 32, 6, 0.78);
+    }
+
+    .customer-profile-hero .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--profile-primary), var(--profile-primary-dark));
+        color: #ffffff;
         text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 22px 40px rgba(249, 115, 22, 0.24);
     }
 
-    /* Profile Photo */
-    .profile-photo {
-        text-align: center;
-        margin-bottom: 2rem;
+    .customer-profile-hero .hero-illustration {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.68);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        box-shadow: inset 0 18px 36px rgba(255, 255, 255, 0.42);
+        color: rgba(66, 32, 6, 0.76);
+        font-size: 3rem;
     }
 
-    .profile-photo img {
-        width: 200px;
-        height: 200px;
+    .customer-profile-card {
+        background: var(--profile-surface);
+        border-radius: 28px;
+        border: 1px solid var(--profile-border);
+        box-shadow: var(--profile-shadow);
+        padding: 2.3rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .customer-profile-card header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.2rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+        padding-bottom: 1.4rem;
+    }
+
+    .customer-profile-card header h2 {
+        margin: 0;
+        font-size: 1.28rem;
+        font-weight: 700;
+        color: var(--profile-neutral);
+    }
+
+    .customer-profile-card .profile-edit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.75rem 1.45rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--profile-secondary), #0284c7);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 20px 38px rgba(14, 165, 233, 0.24);
+    }
+
+    .customer-profile-avatar {
+        display: flex;
+        justify-content: center;
+    }
+
+    .customer-profile-avatar img {
+        width: 196px;
+        height: 196px;
         border-radius: 50%;
         object-fit: cover;
-        border: 5px solid white;
-        box-shadow: var(--shadow-md);
-        transition: var(--transition);
+        border: 5px solid #ffffff;
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
     }
 
-    .profile-photo img:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Profile Details */
-    .profile-details {
+    .customer-profile-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.4rem;
     }
 
-    .profile-details p {
-        margin: 0;
-        padding: 1rem;
-        background: rgba(248, 249, 250, 0.6);
-        border-radius: var(--border-radius);
-        font-size: 0.95rem;
-        transition: var(--transition);
-        border-left: 4px solid var(--primary-color);
+    .customer-profile-tile {
+        padding: 1.1rem 1.2rem;
+        border-radius: 18px;
+        background: rgba(249, 250, 251, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.78);
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
 
-    .profile-details p:hover {
-        background: white;
-        transform: translateX(5px);
-        box-shadow: var(--shadow-sm);
+    .customer-profile-tile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 38px rgba(15, 23, 42, 0.12);
+        border-color: rgba(249, 115, 22, 0.3);
+        background: #ffffff;
     }
 
-    .profile-details strong {
+    .customer-profile-tile strong {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--profile-muted);
+    }
+
+    .customer-profile-tile span {
+        font-size: 1rem;
         font-weight: 600;
-        color: var(--primary-color);
-        margin-right: 8px;
+        color: var(--profile-neutral);
     }
 
-    /* Gallery */
-    .gallery {
-        margin-top: 2rem;
+    .customer-profile-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
     }
 
-    .gallery h4 {
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-        color: var(--secondary-color);
-        position: relative;
-        padding-bottom: 0.5rem;
+    .customer-profile-gallery h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--profile-neutral);
     }
 
-    .gallery h4::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 40px;
-        height: 3px;
-        background: var(--primary-color);
-        border-radius: 2px;
-    }
-
-    .gallery-images {
+    .customer-profile-gallery-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 1rem;
     }
 
-    .gallery-images img {
+    .customer-profile-gallery-grid img {
         width: 100%;
-        height: 180px;
-        border-radius: var(--border-radius);
+        height: 160px;
+        border-radius: 18px;
         object-fit: cover;
-        transition: var(--transition);
-        cursor: pointer;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.14);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .gallery-images img:hover {
-        transform: scale(1.03);
-        box-shadow: var(--shadow-md);
+    .customer-profile-gallery-grid img:hover {
+        transform: scale(1.04);
+        box-shadow: 0 22px 44px rgba(15, 23, 42, 0.18);
     }
 
-    /* Alert */
-    .alert {
-        padding: 1rem;
-        border-radius: var(--border-radius);
-        background: rgba(248, 215, 218, 0.8);
-        color: #721c24;
-        border-left: 4px solid #f5c6cb;
-        margin: 1rem 0;
+    .customer-profile-empty {
+        text-align: center;
+        padding: 3.2rem 1.6rem;
+        border-radius: 24px;
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        background: rgba(248, 250, 252, 0.92);
+        color: var(--profile-muted);
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .fade-in {
-        animation: fadeIn 0.6s ease forwards;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .content-wrapper {
-            padding: 1.5rem;
-        }
-        
-        .profile-card {
-            padding: 1.5rem;
-        }
+    .customer-profile-empty i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
     }
 
     @media (max-width: 768px) {
-        .profile-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        
-        .profile-details {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-photo img {
-            width: 150px;
-            height: 150px;
-        }
-
-        .gallery-images {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        }
-    }
-
-    @media (max-width: 576px) {
-        .content-wrapper {
-            padding: 1rem;
-        }
-        
-        .profile-card {
-            padding: 1.25rem;
-        }
-        
-        .profile-header h3 {
-            font-size: 1.5rem;
-        }
-    }
-
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e4e6eb;
-            --light-text: #b0b3b8;
-            --border-color: #2a2a2a;
-            --secondary-color: #e4e6eb;
-        }
-        
-        .profile-details p {
-            background-color: #242424;
-        }
-        
-        .profile-details p:hover {
-            background-color: #2d2d2d;
-        }
+        .customer-profile-page { padding: 2.2rem 1.05rem 3.1rem;
+        margin: -10px;
+     }
+        .customer-profile-hero { padding: 1.9rem 1.6rem; }
+        .customer-profile-hero .hero-illustration { width: 110px; height: 110px; font-size: 2.4rem; }
+        .customer-profile-card { padding: 2rem 1.9rem; }
+        .customer-profile-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="content-wrapper">
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Profile Details</h3>
-        </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Profile</li>
-        </ul>
-    </div>
-
-    @forelse($profiles as $profile)
-        <div class="profile-card fade-in">
-            <div class="profile-header">
-                <h3>Your Profile Information</h3>
-                <button class="btn-edit-profile" data-tooltip="Edit your profile">
-                    <a href="{{ route('user.profile.edit', ['profile' => $profile->id]) }}">Edit Profile</a>
-                </button>
+<div class="customer-profile-page">
+    <div class="customer-profile-shell">
+        <section class="customer-profile-hero">
+            <div class="hero-copy">
+                <span class="hero-eyebrow"><i class="ri-user-heart-line"></i>Profile</span>
+                <h1>Your Profile Details</h1>
+                <p>Review and manage the information associated with your account. Keeping your profile updated helps us serve you better.</p>
+                @if($profiles->isNotEmpty())
+                    <a href="{{ route('user.profile.edit', ['profile' => $profiles->first()->id]) }}" class="hero-cta">
+                        <i class="ri-edit-line"></i>
+                        Update Profile
+                    </a>
+                @endif
             </div>
-
-            <div class="profile-photo">
-                <img src="{{ $profile->customerProfile && $profile->customerProfile->profile_image ? asset($profile->customerProfile->profile_image) : asset('default-avatar.png') }}" alt="Profile Photo">
+            <div class="hero-illustration">
+                <i class="ri-user-smile-line"></i>
             </div>
+        </section>
 
-            <div class="profile-details">
-                <p><strong>Name:</strong> {{ $profile->name ?? 'N/A' }}</p>
-                <p><strong>Email:</strong> {{ $profile->email ?? 'N/A' }}</p>
-                <p><strong>Phone:</strong> {{ $profile->customerProfile->phone ?? 'N/A' }}</p>
-                <p><strong>Address:</strong> {{ $profile->customerProfile->address ?? 'N/A' }}</p>
-                <p><strong>City:</strong> {{ $profile->customerProfile->city ?? 'N/A' }}</p>
-                <p><strong>State:</strong> {{ $profile->customerProfile->state ?? 'N/A' }}</p>
-                <p><strong>Zip Code:</strong> {{ $profile->customerProfile->zip_code ?? 'N/A' }}</p>
-                <p><strong>Notes:</strong> {{ $profile->customerProfile->notes ?? 'No notes available' }}</p>
-            </div>
+        @forelse($profiles as $profile)
+            <section class="customer-profile-card">
+                <header>
+                    <h2>Personal Information</h2>
+                    <a href="{{ route('user.profile.edit', ['profile' => $profile->id]) }}" class="profile-edit-btn">
+                        <i class="ri-pencil-line"></i>
+                        Edit Profile
+                    </a>
+                </header>
 
-            @if($profile->customerProfile && $profile->customerProfile->gallery)
-                <div class="gallery">
-                    <h4>Gallery</h4>
-                    <div class="gallery-images">
-                        @php
-                            $gallery = is_array($profile->customerProfile->gallery) 
-                                      ? $profile->customerProfile->gallery 
-                                      : json_decode($profile->customerProfile->gallery, true);
-                        @endphp
-                        @foreach($gallery as $img)
-                            <img src="{{ asset($img) }}" alt="Gallery Image">
-                        @endforeach
+                <div class="customer-profile-avatar">
+                    <img src="{{ $profile->customerProfile && $profile->customerProfile->profile_image ? asset($profile->customerProfile->profile_image) : asset('default-avatar.png') }}" alt="Profile Photo">
+                </div>
+
+                <div class="customer-profile-grid">
+                    <div class="customer-profile-tile">
+                        <strong>Name</strong>
+                        <span>{{ $profile->name ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>Email</strong>
+                        <span>{{ $profile->email ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>Phone</strong>
+                        <span>{{ $profile->customerProfile->phone ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>Address</strong>
+                        <span>{{ $profile->customerProfile->address ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>City</strong>
+                        <span>{{ $profile->customerProfile->city ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>State</strong>
+                        <span>{{ $profile->customerProfile->state ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>Zip Code</strong>
+                        <span>{{ $profile->customerProfile->zip_code ?? 'N/A' }}</span>
+                    </div>
+                    <div class="customer-profile-tile">
+                        <strong>Notes</strong>
+                        <span>{{ $profile->customerProfile->notes ?? 'No notes available' }}</span>
                     </div>
                 </div>
-            @endif
-        </div>
-    @empty
-        <div class="alert alert-warning">No profile found.</div>
-    @endforelse
+
+                @php
+                    $customerProfile = $profile->customerProfile;
+                    $gallery = $customerProfile && $customerProfile->gallery
+                        ? (is_array($customerProfile->gallery) ? $customerProfile->gallery : json_decode($customerProfile->gallery, true))
+                        : [];
+                @endphp
+
+                @if(!empty($gallery))
+                    <div class="customer-profile-gallery">
+                        <h3>Gallery</h3>
+                        <div class="customer-profile-gallery-grid">
+                            @foreach($gallery as $img)
+                                <img src="{{ asset($img) }}" alt="Gallery Image">
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </section>
+        @empty
+            <div class="customer-profile-empty">
+                <i class="ri-folder-user-line"></i>
+                <h4>No profile found</h4>
+                <p>Add your profile details so we can tailor your experience and keep your bookings in sync.</p>
+            </div>
+        @endforelse
+    </div>
 </div>
 @endsection

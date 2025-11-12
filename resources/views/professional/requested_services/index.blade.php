@@ -337,16 +337,19 @@
                                         </div>
                                     </td>
                                     <td class="actions-cell">
-                                        <a href="{{ route('professional.requested_services.edit', $service->id) }}" class="action-btn edit">
+                                        <a href="{{ route('professional.requested_services.edit', $service->id) }}"
+                                           class="action-btn edit"
+                                           title="Edit"
+                                           aria-label="Edit">
                                             <i class="fas fa-edit"></i>
-                                            Edit
                                         </a>
                                         <a href="javascript:void(0);"
                                            data-url="{{ route('professional.requested_services.destroy', $service->id) }}"
                                            data-id="{{ $service->id }}"
-                                           class="action-btn delete delete-item">
+                                           class="action-btn delete delete-item"
+                                           title="Delete"
+                                           aria-label="Delete">
                                             <i class="fas fa-trash"></i>
-                                            Delete
                                         </a>
                                     </td>
                                 </tr>

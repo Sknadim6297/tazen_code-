@@ -1,914 +1,899 @@
 @extends('professional.layout.layout')
-@section('content')
-<div class="content-wrapper">
-    @foreach($profiles as $profile)
-    <div class="profile-box mb-4">
-        {{-- Profile Header --}}
-        <div class="profile-header">
-            <div class="header-content">
-                <h3>Professional Profile</h3>
-                <p class="profile-meta">Last updated: {{ $profile->updated_at->diffForHumans() }}</p>
-            </div>
-            <a href="{{ route('professional.profile.edit', ['profile' => $profile->id]) }}">
-            <button class="btn-edit-profile">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                </svg>
-                <span>Edit Profile</span>
-            </button>
-            </a>
-        </div>
 
-        <div class="profile-content">
-            {{-- Left Photo --}}
-            <div class="profile-photo-container">
-                <div class="profile-photo">
-                    <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg') }}" alt="Profile Photo">
-                    <div class="photo-overlay">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 16 16">
-                            <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
-                            <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="profile-status">
-                    <span class="status-indicator active"></span>
-                    <span>Verified Professional</span>
-                </div>
-            </div>
-
-            {{-- Profile Details --}}
-            <div class="profile-details-container">
-                <div class="detail-cards">
-                    <div class="detail-card">
-                        <h4 class="card-title">Personal Information</h4>
-                        <div class="card-content">
-                            <div class="detail-item">
-                                <span class="detail-label">Full Name</span>
-                                <span class="detail-value">{{ $profile->name ?? ($profile->professional->name ?? 'N/A') }}</span>
-                                @if(!$profile->name && !$profile->professional->name) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Email</span>
-                                <span class="detail-value">{{ $profile->email ?? 'N/A' }}</span>
-                                @if(!$profile->email) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Phone</span>
-                                <span class="detail-value">{{ $profile->phone ?? 'N/A' }}</span>
-                                @if(!$profile->phone) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Address</span>
-                                <span class="detail-value">{{ $profile->address ?? 'N/A' }}</span>
-                                @if(!$profile->address) <span class="warning-badge">Required</span> @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h4 class="card-title">Professional Details</h4>
-                        <div class="card-content">
-                            <div class="detail-item">
-                                <span class="detail-label">Specialization</span>
-                                <span class="detail-value">{{ $profile->specialization ?? 'N/A' }}</span>
-                                @if(!$profile->specialization) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Experience(in Yrs)</span>
-                                <span class="detail-value">{{ $profile->experience ?? 'N/A' }}</span>
-                                @if(!$profile->experience) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Starting Price</span>
-                                <span class="detail-value">
-                                    @if($profile->starting_price)
-                                        @if(str_contains($profile->starting_price, '-'))
-                                            ₹{{ $profile->starting_price }} per session
-                                        @else
-                                            ₹{{ $profile->starting_price }} per session
-                                        @endif
-                                    @else
-                                        N/A
-                                    @endif
-                                </span>
-                                @if(!$profile->starting_price) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Education</span>
-                                <span class="detail-value">{{ $profile->education ?? 'N/A' }}</span>
-                                @if(!$profile->education) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            
-                            {{-- Commission & Fees Section --}}
-                            @php
-                                $serviceRequestMargin = $profile->professional->service_request_margin ?? 10.00; // Dynamic service request margin
-                                $negotiationOffset = $profile->professional->service_request_offset ?? 20.00; // Dynamic negotiation offset  
-                                $mainMargin = $profile->professional->margin ?? 20.00; // Dynamic main margin
-                            @endphp
-                            <div class="detail-item" style="border-top: 2px solid #e9ecef; padding-top: 16px; margin-top: 16px;">
-                                <span class="detail-label" style="font-weight: 600; color: #3498db;">Service Request Margin</span>
-                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #3498db;">{{ number_format($serviceRequestMargin, 2) }}%</span>
-                                <small style="display: block; color: #6c757d; margin-top: 4px;">Commission for additional service requests</small>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label" style="font-weight: 600; color: #e74c3c;">Negotiation Offset</span>
-                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #e74c3c;">{{ number_format($negotiationOffset, 2) }}%</span>
-                                <small style="display: block; color: #6c757d; margin-top: 4px;">Maximum negotiation limit for customers</small>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label" style="font-weight: 600; color: #28a745;">Main Margin</span>
-                                <span class="detail-value" style="font-size: 18px; font-weight: bold; color: #28a745;">{{ number_format($mainMargin, 2) }}%</span>
-                                <small style="display: block; color: #6c757d; margin-top: 4px;">Platform commission on completed bookings</small>
-                            </div>
-                            
-                            @if($profile->gst_number)
-                            <div class="detail-item">
-                                <span class="detail-label">GST Number</span>
-                                <span class="detail-value">{{ $profile->gst_number }}</span>
-                            </div>
-                            @endif
-                            @if($profile->state_code)
-                            <div class="detail-item">
-                                <span class="detail-label">State Code</span>
-                                <span class="detail-value">{{ $profile->state_code }} - {{ $profile->state_name ?? 'N/A' }}</span>
-                            </div>
-                            @endif
-                            @if($profile->gst_address)
-                            <div class="detail-item">
-                                <span class="detail-label">GST Address</span>
-                                <span class="detail-value">{{ $profile->gst_address }}</span>
-                            </div>
-                            @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h4 class="card-title">About Me</h4>
-                        <div class="card-content">
-                            <p class="bio-content">{{ $profile->bio ?? 'No bio provided' }}</p>
-                            @if(!$profile->bio) <span class="warning-badge">Add your bio</span> @endif
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h4 class="card-title">Verification Documents</h4>
-                        <div class="card-content">
-                            <div class="document-item">
-                                <div class="document-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
-                                        <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
-                                        <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                    </svg>
-                                </div>
-                                <div class="document-info">
-                                    <span class="document-name">Qualification Document</span>
-                                    @if($profile->qualification_document)
-                                        <a href="{{ asset('storage/'.$profile->qualification_document) }}" target="_blank" class="document-link">View Document</a>
-                                    @else 
-                                        <span class="warning-badge">Not Uploaded</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="document-item">
-                                <div class="document-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
-                                        <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
-                                        <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                    </svg>
-                                </div>
-                                <div class="document-info">
-                                    <span class="document-name">ID Proof Document (Aadhaar / PAN Card)</span>
-                                    @if($profile->id_proof_document)
-                                        <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank" class="document-link">View Document</a>
-                                    @else 
-                                        <span class="warning-badge">Not Uploaded</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            @if($profile->gst_number)
-                            <div class="document-item">
-                                <div class="document-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
-                                        <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
-                                        <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                    </svg>
-                                </div>
-                                <div class="document-info">
-                                    <span class="document-name">GST Certificate</span>
-                                    @if($profile->gst_certificate)
-                                        <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank" class="document-link">View Document</a>
-                                    @else 
-                                        <span class="warning-badge">Not Uploaded</span>
-                                    @endif
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h4 class="card-title">Bank Account Details</h4>
-                        <div class="card-content">
-                            <div class="detail-item">
-                                <span class="detail-label">Account Holder Name</span>
-                                <span class="detail-value">{{ $profile->account_holder_name ?? 'Not provided' }}</span>
-                                @if(!$profile->account_holder_name) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Bank Name</span>
-                                <span class="detail-value">{{ $profile->bank_name ?? 'Not provided' }}</span>
-                                @if(!$profile->bank_name) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Account Number</span>
-                                <span class="detail-value">
-                                    @if($profile->account_number)
-                                        {{ str_repeat('*', strlen($profile->account_number) - 4) . substr($profile->account_number, -4) }}
-                                    @else
-                                        Not provided
-                                    @endif
-                                </span>
-                                @if(!$profile->account_number) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">IFSC Code</span>
-                                <span class="detail-value">{{ $profile->ifsc_code ?? 'Not provided' }}</span>
-                                @if(!$profile->ifsc_code) <span class="warning-badge">Required</span> @endif
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Account Type</span>
-                                <span class="detail-value">{{ ucfirst($profile->account_type ?? 'Not specified') }}</span>
-                            </div>
-                            @if($profile->bank_branch)
-                            <div class="detail-item">
-                                <span class="detail-label">Branch</span>
-                                <span class="detail-value">{{ $profile->bank_branch }}</span>
-                            </div>
-                            @endif
-                            
-                            @if($profile->bank_document)
-                            <div class="document-item">
-                                <div class="document-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#4f46e5" viewBox="0 0 16 16">
-                                        <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/>
-                                        <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/>
-                                    </svg>
-                                </div>
-                                <div class="document-info">
-                                    <span class="document-name">Bank Account Proof</span>
-                                    <a href="{{ asset('storage/'.$profile->bank_document) }}" target="_blank" class="document-link">View Document</a>
-                                </div>
-                            </div>
-                            @else
-                            <div class="document-item">
-                                <div class="document-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#dc3545" viewBox="0 0 16 16">
-                                        <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/>
-                                        <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/>
-                                    </svg>
-                                </div>
-                                <div class="document-info">
-                                    <span class="document-name">Bank Account Proof</span>
-                                    <span class="warning-badge">Not Uploaded</span>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Gallery --}}
-        <div class="gallery-section">
-            <div class="section-header">
-                <h4>Portfolio Gallery</h4>
-                {{-- <button class="btn-add-more">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                    Add More
-                </button> --}}
-            </div>
-            <div class="gallery-grid">
-                @php
-                    $gallery = is_array($profile->gallery) ? $profile->gallery : json_decode($profile->gallery, true);
-                @endphp
-                @if ($gallery && is_array($gallery))
-                    @foreach ($gallery as $img)
-                        <div class="gallery-item">
-                            @php
-                                // Handle different image path formats
-                                if (str_starts_with($img, 'gallery/')) {
-                                    $imagePath = asset('storage/'.$img);
-                                } elseif (str_starts_with($img, 'uploads/')) {
-                                    $imagePath = asset($img);
-                                } else {
-                                    $imagePath = asset('uploads/professionals/gallery/'.$img);
-                                }
-                            @endphp
-                            <img src="{{ $imagePath }}" alt="Gallery Image">
-                            <div class="gallery-overlay">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" viewBox="0 0 16 16">
-                            <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
-                            <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
-                        </svg>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-gallery">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#ccc" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M4.5 5a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5zm3 0a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5zm3 0a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5z"/>
-                        </svg>
-                        <p>No portfolio images available</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-    @endforeach
-
-    @if($profiles->isEmpty())
-        <div class="empty-state">
-            <div class="empty-content">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#4f46e5" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                </svg>
-                <h3>No Profiles Found</h3>
-                <p>You haven't created any professional profiles yet. Get started by adding your first profile.</p>
-                <button class="btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                    </svg>
-                    Create New Profile
-                </button>
-            </div>
-        </div>
-    @endif
-</div>
-
+@section('styles')
 <style>
     :root {
-    --primary: #4f46e5;
-    --primary-light: #6366f1;
-    --primary-dark: #4338ca;
-    --secondary: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
-}
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #0ea5e9;
+        --success: #16a34a;
+        --warning: #f59e0b;
+        --danger: #dc2626;
+        --page-bg: #f3f4ff;
+        --surface: #ffffff;
+        --card-border: rgba(99, 102, 241, 0.12);
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --shadow-lg: 0 26px 48px rgba(15, 23, 42, 0.12);
+    }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    body,
+    .app-content {
+        background: var(--page-bg);
+    }
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.5;
-    color: var(--gray-800);
-    background-color: #f9fafb;
-}
+    .profile-view-page {
+        padding: 2.8rem 1.6rem 3.4rem;
+    }
 
-.content-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-.page-header {
-        margin-bottom: 2rem;
+    .profile-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2.2rem;
+    }
+
+    .profile-hero {
         position: relative;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.8rem;
+        padding: 2.3rem 2.6rem;
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.14), rgba(14, 165, 233, 0.16));
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .profile-hero::before,
+    .profile-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .profile-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -160px;
+        right: -140px;
+        background: rgba(79, 70, 229, 0.38);
+    }
+
+    .profile-hero::after {
+        width: 240px;
+        height: 240px;
+        bottom: -160px;
+        left: -120px;
+        background: rgba(14, 165, 233, 0.2);
+    }
+
+    .profile-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-hero__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .profile-hero__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1.2rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dark);
+    }
+
+    .profile-hero__meta h1 {
+        margin: 0;
+        font-size: 2.3rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+    }
+
+    .profile-hero__meta p {
+        margin: 0;
+        line-height: 1.6;
+        max-width: 520px;
+    }
+
+    .profile-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .btn-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.95rem 1.9rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+
+    .btn-pill--primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 20px 38px rgba(79, 70, 229, 0.28);
+    }
+
+    .btn-pill--primary:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-pill--outline {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--primary-dark);
+        border: 1px solid rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-pill--outline:hover {
+        background: rgba(79, 70, 229, 0.18);
+        transform: translateY(-1px);
+    }
+
+    .profile-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .profile-card {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2.2rem;
+        background: var(--surface);
+        border-radius: 28px;
+        border: 1px solid var(--card-border);
+        box-shadow: var(--shadow-lg);
+        padding: 2.2rem 2.4rem;
+    }
+
+    .profile-card__sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+        position: relative;
+    }
+
+    .profile-card__photo {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        aspect-ratio: 1/1;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+        border: 4px solid rgba(79, 70, 229, 0.08);
+    }
+
+    .profile-card__photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-card__status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.14);
+        color: #047857;
+        font-weight: 600;
+        font-size: 0.88rem;
+        width: max-content;
+    }
+
+    .profile-card__status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+    }
+
+    .profile-card__updated {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .profile-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .profile-card__actions .btn-pill {
+        padding: 0.7rem 1.4rem;
+        border-radius: 12px;
+    }
+
+    .profile-card__actions .btn-pill--ghost {
+        background: rgba(148, 163, 184, 0.16);
+        color: var(--text-dark);
+    }
+
+    .profile-card__actions .btn-pill--ghost:hover {
+        background: rgba(148, 163, 184, 0.26);
+    }
+
+    .profile-card__content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+    }
+
+    .profile-section {
+        background: rgba(248, 250, 255, 0.75);
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        padding: 1.8rem 2rem;
+        box-shadow: 0 20px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-section__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-wrap: wrap;
+        margin-bottom: 1.2rem;
         gap: 1rem;
     }
 
-.profile-box {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    margin-bottom: 2.5rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid var(--gray-200);
-}
-
-.profile-box:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    transform: translateY(-2px);
-}
-
-.profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 2rem;
-        background: linear-gradient(135deg, #ed9706, #1e21a3);
-    color: white;
-}
-
-.header-content h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.profile-meta {
-    font-size: 0.875rem;
-    opacity: 0.9;
-}
-
-.btn-edit-profile {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(4px);
-}
-
-.btn-edit-profile:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-}
-
-.btn-edit-profile svg {
-    flex-shrink: 0;
-}
-
-.profile-content {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 2rem;
-    padding: 2rem;
-}
-
-@media (max-width: 768px) {
-    .profile-content {
-        grid-template-columns: 1fr;
+    .profile-section__header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
     }
-}
 
-.profile-photo-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.profile-photo {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    aspect-ratio: 1/1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.profile-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.photo-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.profile-photo:hover .photo-overlay {
-    opacity: 1;
-}
-
-.profile-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--gray-600);
-    padding: 0.75rem 1rem;
-    background: var(--gray-100);
-    border-radius: 8px;
-}
-
-.status-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.status-indicator.active {
-    background: var(--secondary);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-
-.detail-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.detail-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid var(--gray-200);
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.detail-card:hover {
-    border-color: var(--gray-300);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-.card-title {
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 1rem 1.5rem;
-    background: var(--gray-100);
-    border-bottom: 1px solid var(--gray-200);
-}
-
-.card-content {
-    padding: 1.5rem;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 1rem;
-}
-
-.detail-item:last-child {
-    margin-bottom: 0;
-}
-
-.detail-label {
-    font-size: 0.75rem;
-    color: var(--gray-500);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-}
-
-.detail-value {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--gray-800);
-}
-
-.warning-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border-radius: 999px;
-    margin-top: 0.25rem;
-}
-
-.warning-badge::before {
-    content: "!";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    background: var(--danger);
-    color: white;
-    border-radius: 50%;
-    font-weight: bold;
-}
-
-.bio-content {
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--gray-700);
-}
-
-.document-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gray-100);
-}
-
-.document-item:last-child {
-    border-bottom: none;
-}
-
-.document-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(79, 70, 229, 0.1);
-    border-radius: 8px;
-}
-
-.document-info {
-    flex: 1;
-}
-
-.document-name {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--gray-700);
-}
-
-.document-link {
-    font-size: 0.8125rem;
-    color: var(--primary);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.document-link:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
-}
-
-.gallery-section {
-    padding: 0 2rem 2rem;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.section-header h4 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--gray-800);
-}
-
-.btn-add-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-add-more:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-}
-
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-}
-
-.gallery-item {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    aspect-ratio: 1/1;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.gallery-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.gallery-item:hover .gallery-overlay {
-    opacity: 1;
-}
-
-.gallery-item:hover img {
-    transform: scale(1.05);
-}
-
-.btn-view, .btn-delete {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.9);
-    color: var(--gray-800);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-view:hover {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-delete:hover {
-    background: var(--danger);
-    color: white;
-}
-
-.empty-gallery {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    padding: 3rem;
-    background: var(--gray-100);
-    border-radius: 8px;
-    color: var(--gray-500);
-}
-
-.empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-}
-
-.empty-content {
-    text-align: center;
-    max-width: 400px;
-    padding: 2rem;
-}
-
-.empty-content svg {
-    margin-bottom: 1.5rem;
-}
-
-.empty-content h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--gray-800);
-}
-
-.empty-content p {
-    color: var(--gray-600);
-    margin-bottom: 1.5rem;
-}
-
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 2px 4px -1px rgba(79, 70, 229, 0.1);
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 10px -1px rgba(79, 70, 229, 0.2), 0 4px 6px -1px rgba(79, 70, 229, 0.15);
-}
-
-
-@media only screen and (min-width: 768px) and (max-width: 1024px) {
-    .user-profile-wrapper{
-                margin-top: -57px;
-            }
-}
-/* Additional responsive styles */
-@media (max-width: 640px) {
-    .content-wrapper {
-        padding: 1rem;
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.1rem;
     }
-    
-    .profile-header {
+
+    .detail-tile {
+        background: var(--surface);
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        padding: 1.1rem 1.3rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    .detail-tile__label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .detail-tile__value {
+        font-size: 1.02rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        line-height: 1.4;
+    }
+
+    .detail-tile__note {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .badge-warning {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.28rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--danger);
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: max-content;
+    }
+
+    .badge-warning i {
+        font-size: 0.72rem;
+    }
+
+    .commission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .commission-pill {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 1rem 1.2rem;
+        border-radius: 16px;
+        color: var(--text-dark);
+        background: rgba(79, 70, 229, 0.12);
+        border: 1px solid rgba(79, 70, 229, 0.24);
+    }
+
+    .commission-pill.is-warning {
+        background: rgba(245, 158, 11, 0.14);
+        border-color: rgba(245, 158, 11, 0.28);
+    }
+
+    .commission-pill.is-success {
+        background: rgba(34, 197, 94, 0.14);
+        border-color: rgba(34, 197, 94, 0.26);
+    }
+
+    .documents-list,
+    .bank-list {
+        display: flex;
         flex-direction: column;
         gap: 1rem;
-        align-items: flex-start;
     }
-    
-    .detail-cards {
-        grid-template-columns: 1fr;
+
+    .document-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
+        background: var(--surface);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
     }
-    
-    .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    }
-    
-    .btn-edit-profile, .btn-add-more {
-        width: 100%;
+
+    .document-row__icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(79, 70, 229, 0.14);
+        color: var(--primary-dark);
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
+        font-size: 1.05rem;
     }
-}
 
-/* Animation for elements */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.profile-box, .detail-card, .gallery-item {
-    animation: fadeIn 0.5s ease forwards;
-}
-
-.detail-card:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.detail-card:nth-child(3) {
-    animation-delay: 0.2s;
-}
-
-.detail-card:nth-child(4) {
-    animation-delay: 0.3s;
-}
-
-/* Focus styles for accessibility */
-button:focus, a:focus {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-/* Print styles */
-@media print {
-    .profile-box {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
+    .document-row__content {
+        flex: 1;
     }
-    
-    .btn-edit-profile, .btn-add-more, .gallery-overlay, .photo-overlay {
-        display: none;
-    }
-    
-    body {
-        background: white;
-    }
-}
 
+    .document-row__title {
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--text-dark);
+    }
+
+    .document-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.82rem;
+        color: var(--primary-dark);
+        text-decoration: none;
+    }
+
+    .document-link:hover {
+        text-decoration: underline;
+    }
+
+    .profile-gallery {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: var(--shadow-lg);
+        padding: 2rem 2.2rem 2.4rem;
+    }
+
+    .profile-gallery__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.4rem;
+    }
+
+    .profile-gallery__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.1rem;
+    }
+
+    .profile-gallery__item {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 1/1;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+    }
+
+    .profile-gallery__item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-gallery__item:hover img {
+        transform: scale(1.05);
+    }
+
+    .profile-gallery__item::after {
+        content: 'View';
+        position: absolute;
+        left: 50%;
+        bottom: 1rem;
+        transform: translateX(-50%);
+        padding: 0.38rem 1.2rem;
+        background: rgba(15, 23, 42, 0.8);
+        color: #fff;
+        font-size: 0.8rem;
+        border-radius: 999px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .profile-gallery__item:hover::after {
+        opacity: 1;
+    }
+
+    .gallery-empty {
+        grid-column: 1 / -1;
+        padding: 3rem 1.8rem;
+        text-align: center;
+        border: 2px dashed rgba(148, 163, 184, 0.28);
+        border-radius: 18px;
+        color: var(--text-muted);
+    }
+
+    .profile-empty-state {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        padding: 3.4rem 1.8rem;
+        background: var(--surface);
+        border-radius: 26px;
+        border: 1px dashed rgba(79, 70, 229, 0.3);
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+        .profile-card {
+            grid-template-columns: 1fr;
+            padding: 2rem;
+        }
+
+        .profile-card__sidebar {
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 1.4rem;
+        }
+
+        .profile-card__photo {
+            width: 180px;
+        }
+
+        .profile-card__sidebar-block {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-view-page {
+            padding: 2.2rem 1.1rem 2.6rem;
+        }
+
+        .profile-card {
+            padding: 1.8rem 1.6rem;
+        }
+
+        .profile-card__sidebar {
+            flex-direction: column;
+        }
+
+        .profile-card__photo {
+            width: 100%;
+            max-width: 220px;
+            align-self: center;
+        }
+
+        .profile-hero {
+            padding: 2rem 1.8rem;
+        }
+
+        .profile-hero__actions {
+            justify-content: stretch;
+        }
+
+        .btn-pill {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 </style>
+@endsection
 
+@section('content')
+<div class="profile-view-page">
+    <div class="profile-shell">
+        <section class="profile-hero">
+            <div class="profile-hero__meta">
+                <span class="profile-hero__eyebrow"><i class="ri-user-3-line"></i>Profile Overview</span>
+                <h1>Your Professional Identity</h1>
+                <p>Review your professional information, ensure key details are complete, and keep your portfolio updated to build trust with potential clients.</p>
+            </div>
+            <div class="profile-hero__actions">
+                <a href="{{ route('professional.profile.index') }}" class="btn-pill btn-pill--outline">
+                    <i class="ri-arrow-left-line"></i>
+                    Back to Overview
+                </a>
+            </div>
+        </section>
+
+        @if($profiles->count())
+            <div class="profile-list">
+                @foreach($profiles as $profile)
+                    <article class="profile-card">
+                        <aside class="profile-card__sidebar">
+                            <div class="profile-card__photo">
+                                @php
+                                    $photoPath = $profile->photo ? asset('storage/'.$profile->photo) : asset('default.jpg');
+                                    if ($profile->photo && !file_exists(public_path('storage/'.$profile->photo))) {
+                                        $photoPath = asset('img/default-avatar.jpg');
+                                    }
+                                @endphp
+                                <img src="{{ $photoPath }}" alt="{{ $profile->professional->name ?? $profile->name ?? 'Profile photo' }}">
+                            </div>
+                            <div class="profile-card__sidebar-block">
+                                <div class="profile-card__status">
+                                    <span class="profile-card__status-dot"></span>
+                                    Verified Professional
+                                </div>
+                                <div class="profile-card__updated">
+                                    Last updated {{ $profile->updated_at->diffForHumans() }}
+                                </div>
+                            </div>
+                            <div class="profile-card__actions">
+                                <a href="{{ route('professional.profile.edit', ['profile' => $profile->id]) }}" class="btn-pill btn-pill--primary">
+                                    <i class="ri-edit-line"></i>
+                                    Edit Profile
+                                </a>
+                                <a href="mailto:{{ $profile->email }}" class="btn-pill btn-pill--ghost">
+                                    <i class="ri-mail-send-line"></i>
+                                    Contact
+                                </a>
+                            </div>
+                        </aside>
+
+                        <div class="profile-card__content">
+                            <section class="profile-section">
+                                <div class="profile-section__header">
+                                    <h3><i class="ri-information-line"></i>Personal Overview</h3>
+                                </div>
+                                <div class="detail-grid">
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Full Name</span>
+                                        <span class="detail-tile__value">{{ $profile->name ?? ($profile->professional->name ?? 'Not provided') }}</span>
+                                        @if(!$profile->name && !$profile->professional->name)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Email</span>
+                                        <span class="detail-tile__value">{{ $profile->email ?? 'Not provided' }}</span>
+                                        @if(!$profile->email)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Phone</span>
+                                        <span class="detail-tile__value">{{ $profile->phone ?? 'Not provided' }}</span>
+                                        @if(!$profile->phone)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add phone number</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Address</span>
+                                        <span class="detail-tile__value">{{ $profile->address ?? 'Not provided' }}</span>
+                                        @if(!$profile->address)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add address</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="profile-section">
+                                <div class="profile-section__header">
+                                    <h3><i class="ri-briefcase-4-line"></i>Professional Details</h3>
+                                </div>
+                                <div class="detail-grid">
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Specialization</span>
+                                        <span class="detail-tile__value">{{ $profile->specialization ?? 'Not provided' }}</span>
+                                        @if(!$profile->specialization)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add specialization</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Experience (Years)</span>
+                                        <span class="detail-tile__value">{{ $profile->experience ?? 'Not provided' }}</span>
+                                        @if(!$profile->experience)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add experience</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Starting Price</span>
+                                        <span class="detail-tile__value" style="color: var(--success);">
+                                            @if($profile->starting_price)
+                                                ₹{{ $profile->starting_price }} per session
+                                            @else
+                                                Not provided
+                                            @endif
+                                        </span>
+                                        @if(!$profile->starting_price)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add pricing</span>
+                                        @endif
+                                    </div>
+                                    <div class="detail-tile">
+                                        <span class="detail-tile__label">Education</span>
+                                        <span class="detail-tile__value">{{ $profile->education ?? 'Not provided' }}</span>
+                                        @if(!$profile->education)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add education</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @php
+                                    $serviceRequestMargin = $profile->professional->service_request_margin ?? 10.00;
+                                    $negotiationOffset = $profile->professional->service_request_offset ?? 20.00;
+                                    $mainMargin = $profile->professional->margin ?? 20.00;
+                                @endphp
+                                <div class="commission-grid" style="margin-top: 1.2rem;">
+                                    <div class="commission-pill">
+                                        <span class="detail-tile__label">Service Request Margin</span>
+                                        <span class="detail-tile__value">{{ number_format($serviceRequestMargin, 2) }}%</span>
+                                        <span class="detail-tile__note">Commission for additional service requests</span>
+                                    </div>
+                                    <div class="commission-pill is-warning">
+                                        <span class="detail-tile__label">Negotiation Offset</span>
+                                        <span class="detail-tile__value">{{ number_format($negotiationOffset, 2) }}%</span>
+                                        <span class="detail-tile__note">Maximum negotiation allowance</span>
+                                    </div>
+                                    <div class="commission-pill is-success">
+                                        <span class="detail-tile__label">Platform Margin</span>
+                                        <span class="detail-tile__value">{{ number_format($mainMargin, 2) }}%</span>
+                                        <span class="detail-tile__note">Platform commission on confirmed bookings</span>
+                                    </div>
+                                </div>
+                                <div class="detail-grid" style="margin-top: 1.1rem;">
+                                    @if($profile->gst_number)
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">GST Number</span>
+                                            <span class="detail-tile__value">{{ $profile->gst_number }}</span>
+                                        </div>
+                                    @endif
+                                    @if($profile->state_code)
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">State Code</span>
+                                            <span class="detail-tile__value">{{ $profile->state_code }} {{ $profile->state_name ? '- '.$profile->state_name : '' }}</span>
+                                        </div>
+                                    @endif
+                                    @if($profile->gst_address)
+                                        <div class="detail-tile detail-tile--full">
+                                            <span class="detail-tile__label">GST Address</span>
+                                            <span class="detail-tile__value">{{ $profile->gst_address }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </section>
+
+                            <section class="profile-section">
+                                <div class="profile-section__header">
+                                    <h3><i class="ri-user-voice-line"></i>About</h3>
+                                </div>
+                                <div class="detail-grid">
+                                    <div class="detail-tile detail-tile--full">
+                                        <span class="detail-tile__label">Biography</span>
+                                        <span class="detail-tile__value" style="font-weight:500; line-height:1.7;">
+                                            {{ $profile->bio ?? 'No bio provided yet.' }}
+                                        </span>
+                                        @if(!$profile->bio)
+                                            <span class="badge-warning"><i class="ri-alert-line"></i>Add a short bio</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="profile-section">
+                                <div class="profile-section__header">
+                                    <h3><i class="ri-shield-check-line"></i>Verification Documents</h3>
+                                </div>
+                                <div class="documents-list">
+                                    <div class="document-row">
+                                        <span class="document-row__icon"><i class="ri-contacts-book-line"></i></span>
+                                        <div class="document-row__content">
+                                            <span class="document-row__title">Qualification Document</span>
+                                            @if($profile->qualification_document)
+                                                <a href="{{ asset('storage/'.$profile->qualification_document) }}" target="_blank" class="document-link">
+                                                    <i class="ri-external-link-line"></i>View document
+                                                </a>
+                                            @else
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Not uploaded</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="document-row">
+                                        <span class="document-row__icon"><i class="ri-id-card-line"></i></span>
+                                        <div class="document-row__content">
+                                            <span class="document-row__title">ID Proof (Aadhaar / PAN)</span>
+                                            @if($profile->id_proof_document)
+                                                <a href="{{ asset('storage/'.$profile->id_proof_document) }}" target="_blank" class="document-link">
+                                                    <i class="ri-external-link-line"></i>View document
+                                                </a>
+                                            @else
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Not uploaded</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @if($profile->gst_number)
+                                        <div class="document-row">
+                                            <span class="document-row__icon"><i class="ri-file-paper-line"></i></span>
+                                            <div class="document-row__content">
+                                                <span class="document-row__title">GST Certificate</span>
+                                                @if($profile->gst_certificate)
+                                                    <a href="{{ asset('storage/'.$profile->gst_certificate) }}" target="_blank" class="document-link">
+                                                        <i class="ri-external-link-line"></i>View document
+                                                    </a>
+                                                @else
+                                                    <span class="badge-warning"><i class="ri-alert-line"></i>Not uploaded</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </section>
+
+                            <section class="profile-section">
+                                <div class="profile-section__header">
+                                    <h3><i class="ri-bank-card-line"></i>Bank Details</h3>
+                                </div>
+                                <div class="bank-list">
+                                    <div class="detail-grid">
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">Account Holder</span>
+                                            <span class="detail-tile__value">{{ $profile->account_holder_name ?? 'Not provided' }}</span>
+                                            @if(!$profile->account_holder_name)
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                            @endif
+                                        </div>
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">Bank Name</span>
+                                            <span class="detail-tile__value">{{ $profile->bank_name ?? 'Not provided' }}</span>
+                                            @if(!$profile->bank_name)
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                            @endif
+                                        </div>
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">Account Number</span>
+                                            <span class="detail-tile__value">
+                                                @if($profile->account_number)
+                                                    {{ str_repeat('*', max(strlen($profile->account_number) - 4, 0)) . substr($profile->account_number, -4) }}
+                                                @else
+                                                    Not provided
+                                                @endif
+                                            </span>
+                                            @if(!$profile->account_number)
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                            @endif
+                                        </div>
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">IFSC Code</span>
+                                            <span class="detail-tile__value">{{ $profile->ifsc_code ?? 'Not provided' }}</span>
+                                            @if(!$profile->ifsc_code)
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Required</span>
+                                            @endif
+                                        </div>
+                                        <div class="detail-tile">
+                                            <span class="detail-tile__label">Account Type</span>
+                                            <span class="detail-tile__value">{{ ucfirst($profile->account_type ?? 'Not specified') }}</span>
+                                        </div>
+                                        @if($profile->bank_branch)
+                                            <div class="detail-tile">
+                                                <span class="detail-tile__label">Branch</span>
+                                                <span class="detail-tile__value">{{ $profile->bank_branch }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="document-row">
+                                        <span class="document-row__icon"><i class="ri-file-list-3-line"></i></span>
+                                        <div class="document-row__content">
+                                            <span class="document-row__title">Bank Account Proof</span>
+                                            @if($profile->bank_document)
+                                                <a href="{{ asset('storage/'.$profile->bank_document) }}" target="_blank" class="document-link">
+                                                    <i class="ri-external-link-line"></i>View document
+                                                </a>
+                                            @else
+                                                <span class="badge-warning"><i class="ri-alert-line"></i>Not uploaded</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="profile-gallery">
+                                <div class="profile-gallery__header">
+                                    <h3><i class="ri-gallery-line"></i>Portfolio Gallery</h3>
+                                </div>
+                                @php
+                                    $gallery = is_array($profile->gallery) ? $profile->gallery : json_decode($profile->gallery, true);
+                                    $gallery = is_array($gallery) ? $gallery : [];
+                                @endphp
+                                @if(!empty($gallery))
+                                    <div class="profile-gallery__grid">
+                                        @foreach($gallery as $img)
+                                            @php
+                                                if (str_starts_with($img, 'gallery/')) {
+                                                    $imagePath = asset('storage/'.$img);
+                                                } elseif (str_starts_with($img, 'uploads/')) {
+                                                    $imagePath = asset($img);
+                                                } else {
+                                                    $imagePath = asset('uploads/professionals/gallery/'.$img);
+                                                }
+                                            @endphp
+                                            <div class="profile-gallery__item">
+                                                <img src="{{ $imagePath }}" alt="Gallery image">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="gallery-empty">
+                                        <i class="ri-image-line" style="font-size:2rem;"></i>
+                                        <p>No gallery images available.</p>
+                                    </div>
+                                @endif
+                            </section>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <div class="profile-empty-state">
+                <i class="ri-user-smile-line" style="font-size:3rem; color:var(--primary-dark);"></i>
+                <h3>No profiles yet</h3>
+                <p>Build your professional presence by creating your first profile. Clients are more likely to reach out when your profile is complete and polished.</p>
+                <a href="{{ route('professional.profile.create') }}" class="btn-pill btn-pill--primary">
+                    <i class="ri-add-line"></i>
+                    Create Profile
+                </a>
+            </div>
+        @endif
+    </div>
+</div>
 @endsection

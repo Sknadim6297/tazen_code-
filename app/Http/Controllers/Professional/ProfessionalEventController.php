@@ -58,7 +58,7 @@ class ProfessionalEventController extends Controller
         if ($request->hasFile('card_image')) {
             $imagePath = $request->file('card_image')->store('professional-events', 'public');
         }
-        AllEvent::create([
+        $event = AllEvent::create([
             'professional_id' => $professional->id,
             'card_image' => $imagePath,
             'date' => $request->date,
@@ -70,8 +70,9 @@ class ProfessionalEventController extends Controller
             'created_by_type' => 'professional',
         ]);
 
-        return redirect()->route('professional.events.index')
-            ->with('success', 'Event created successfully! It will appear on the website after admin approval.');
+        return redirect()
+            ->route('professional.event-details.create', ['event_id' => $event->id])
+            ->with('success', 'Event created successfully! Add the detailed information next.');
     }
 
     /**

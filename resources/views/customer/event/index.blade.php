@@ -4,442 +4,560 @@
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/appointment.css') }}" />
 
 <style>
-    /* Base Mobile-First Responsive Design */
+    :root {
+        --primary: #f7a86c;
+        --primary-dark: #eb8640;
+        --primary-soft: #fde5cd;
+        --accent: #7dd3fc;
+        --accent-dark: #0f4a6e;
+        --success: #16a34a;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --neutral-900: #2c1b0f;
+        --neutral-700: #6b4c33;
+        --neutral-500: #a08873;
+        --neutral-300: #e6cec0;
+        --surface: #ffffff;
+        --surface-soft: rgba(255, 255, 255, 0.94);
+        --border-soft: rgba(247, 168, 108, 0.28);
+        --shadow-lg: 0 24px 48px rgba(122, 63, 20, 0.14);
+        --shadow-md: 0 16px 32px rgba(122, 63, 20, 0.12);
+        --shadow-sm: 0 10px 20px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 20px;
+        --radius-sm: 14px;
+    }
+
+    body,
+    .app-content {
+        background: linear-gradient(180deg, #fff9f3 0%, #fff4e8 100%);
+        font-family: 'Inter', sans-serif;
+        color: var(--neutral-900);
+    }
+
     .content-wrapper {
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-        padding: 10px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2.8rem 1.6rem 3.2rem;
     }
 
-    /* Page Header */
-    .page-header {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
+    .events-hero {
+        background: linear-gradient(135deg, rgba(251, 209, 173, 0.95), rgba(255, 244, 232, 0.95));
+        border-radius: var(--radius-lg);
+        padding: 2.6rem 2.4rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.8rem 2.2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
     }
 
-    .page-title h3 {
-        color: #333;
-        font-weight: 600;
-        margin: 0;
-        font-size: 1.2rem;
+    .events-hero::before,
+    .events-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 999px;
+        pointer-events: none;
     }
 
-    .breadcrumb {
-        margin: 8px 0 0 0;
-        padding: 0;
-        list-style: none;
+    .events-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -200px;
+        right: -140px;
+        background: rgba(247, 168, 108, 0.26);
+    }
+
+    .events-hero::after {
+        width: 260px;
+        height: 260px;
+        bottom: -160px;
+        left: -120px;
+        background: rgba(255, 236, 214, 0.36);
+    }
+
+    .hero-meta {
         display: flex;
-        gap: 5px;
+        flex-direction: column;
+        gap: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.68);
+        color: var(--neutral-700);
+        font-weight: 600;
         font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
     }
 
-    .breadcrumb li {
-        color: #666;
+    .hero-meta h3 {
+        margin: 0;
+        font-size: 2.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--neutral-900);
     }
 
-    .breadcrumb li.active {
-        color: #007bff;
-        font-weight: 500;
+    .hero-meta p {
+        margin: 0;
+        max-width: 520px;
+        line-height: 1.6;
+        color: rgba(47, 47, 47, 0.72);
     }
 
-    .breadcrumb li:not(:last-child)::after {
-        content: '/';
-        margin-left: 5px;
-        color: #999;
+    .hero-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+        position: relative;
+        z-index: 1;
     }
 
-    /* Search Container */
-    .search-container {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
+    .hero-breadcrumb {
+        display: flex;
+        gap: 0.6rem;
+        padding: 0;
+        margin: 0;
+        flex-wrap: wrap;
+        list-style: none;
+    }
+
+    .hero-breadcrumb li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.88rem;
+        color: var(--neutral-500);
+    }
+
+    .hero-breadcrumb li a {
+        text-decoration: none;
+        color: var(--neutral-500);
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(247, 168, 108, 0.2);
+        transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .hero-breadcrumb li a:hover {
+        background: rgba(247, 168, 108, 0.18);
+        color: var(--neutral-900);
+    }
+
+    .hero-breadcrumb li.active {
+        padding: 0.35rem 0.95rem;
+        border-radius: 999px;
+        background: rgba(247, 168, 108, 0.26);
+        color: var(--neutral-900);
+        font-weight: 600;
+    }
+
+    .stats-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 999px;
+        background: rgba(247, 168, 108, 0.18);
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        font-weight: 600;
+        border-radius: 999px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: var(--surface);
+        padding: 0.85rem 1.6rem;
+        box-shadow: 0 18px 36px rgba(247, 168, 108, 0.3);
+    }
+
+    .btn-outline {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--neutral-700);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 0.85rem 1.5rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .filter-card {
+        margin-top: 2.4rem;
+        background: var(--surface);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-soft);
+        padding: 2rem 2.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+
+    .filter-card header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filter-card header h4 {
+        margin: 0;
+        font-size: 1.28rem;
+        font-weight: 700;
+        color: var(--neutral-900);
     }
 
     .search-form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem 1.4rem;
     }
 
     .search-form .form-group {
         display: flex;
         flex-direction: column;
+        gap: 0.45rem;
     }
 
     .search-form label {
-        margin-bottom: 5px;
         font-weight: 600;
-        color: #333;
         font-size: 0.9rem;
+        color: var(--neutral-700);
     }
 
     .search-form input,
     .search-form select {
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        font-size: 14px;
-        background: #fff;
-        width: 100%;
-        box-sizing: border-box;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        background: rgba(247, 249, 252, 0.92);
+        transition: border 0.18s ease, box-shadow 0.18s ease;
     }
 
     .search-form input:focus,
     .search-form select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(247, 168, 108, 0.18);
         outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        background: var(--surface);
     }
 
     .search-buttons {
         display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 10px;
+        gap: 0.8rem;
+        align-items: center;
     }
 
-    .search-buttons button,
-    .search-buttons a {
-        padding: 12px;
-        border-radius: 6px;
-        border: none;
-        font-weight: 600;
-        text-decoration: none;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success {
-        background: #28a745;
-        color: white;
-    }
-
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background: #218838;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268;
-    }
-
-    /* Mobile-First Table Design */
     .content-section {
-        width: 100%;
-        overflow-x: hidden;
+        margin-top: 2.4rem;
+        background: var(--surface);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-md);
+        padding: 1.9rem 1.6rem;
     }
 
-    /* Mobile Card Layout (Default) */
-    .events-grid {
+    .section-heading {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 0.5rem;
+        margin-bottom: 1.6rem;
     }
 
-    .event-card {
-        background: #fff;
-        border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
-        text-align: center;
-    }
-
-    .event-card .card-header {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
-
-    .event-card .event-title {
+    .section-heading h4 {
+        margin: 0;
+        font-size: 1.2rem;
         font-weight: 600;
-        color: #333;
-        font-size: 1.1rem;
-        margin-bottom: 5px;
     }
 
-    .event-card .event-date {
-        color: #666;
-        font-size: 0.9rem;
-    }
-
-    .event-card .card-body {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-
-    .event-card .info-item {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .event-card .info-label {
-        font-size: 0.8rem;
-        color: #666;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-
-    .event-card .info-value {
-        font-size: 0.9rem;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .event-card .card-footer {
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 1px solid #eee;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-    }
-
-    /* Status and Type Badges */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        gap: 5px;
-    }
-
-    .status-success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .status-warning {
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-    }
-
-    .status-danger {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .type-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 10px;
-        border-radius: 15px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        gap: 3px;
-    }
-
-    .type-online {
-        background: #e3f2fd;
-        color: #0d47a1;
-        border: 1px solid #90caf9;
-    }
-
-    .type-offline {
-        background: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
-    }
-
-    .join-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 8px 16px;
-        background: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.85rem;
-        gap: 5px;
-        transition: all 0.3s ease;
-    }
-
-    .join-btn:hover {
-        background: #0056b3;
-        color: white;
-        text-decoration: none;
-        transform: translateY(-1px);
-    }
-
-    .price-text {
-        font-weight: 600;
-        color: #28a745;
-        font-size: 1rem;
-    }
-
-    /* Hide table on mobile, show cards */
-    .table-view {
-        display: none;
+    .section-heading small {
+        font-size: 0.84rem;
+        color: var(--neutral-500);
     }
 
     .cards-view {
         display: block;
     }
 
-    /* Empty State */
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.4rem;
+    }
+
+    .event-card {
+        background: var(--surface);
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        padding: 1.6rem 1.5rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .event-card__head {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+        padding-bottom: 1rem;
+    }
+
+    .event-card__title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--neutral-900);
+    }
+
+    .event-card__date {
+        font-size: 0.9rem;
+        color: var(--neutral-500);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .event-card__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.2rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .info-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--neutral-500);
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        color: var(--neutral-700);
+        font-weight: 600;
+    }
+
+    .status-badge,
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .status-success { background: rgba(187, 247, 208, 0.32); color: #166534; border: 1px solid rgba(187, 247, 208, 0.52); }
+    .status-warning { background: rgba(254, 240, 138, 0.36); color: #854d0e; border: 1px solid rgba(254, 240, 138, 0.52); }
+    .status-danger { background: rgba(254, 202, 202, 0.34); color: #b91c1c; border: 1px solid rgba(254, 202, 202, 0.5); }
+
+    .type-online { background: rgba(125, 211, 252, 0.24); color: var(--accent-dark); border: 1px solid rgba(125, 211, 252, 0.4); }
+    .type-offline { background: rgba(200, 250, 230, 0.3); color: #047857; border: 1px solid rgba(200, 250, 230, 0.46); }
+
+    .price-text {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--success);
+    }
+
+    .join-btn {
+        background: linear-gradient(135deg, rgba(125, 211, 252, 0.32), rgba(14, 165, 233, 0.28));
+        color: var(--accent-dark);
+        border: 1px solid rgba(125, 211, 252, 0.45);
+        padding: 0.65rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .event-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        border-top: 1px solid rgba(226, 232, 240, 0.7);
+        padding-top: 1rem;
+    }
+
     .empty-state {
         text-align: center;
-        padding: 40px 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 3rem 1.5rem;
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        border: 1px dashed rgba(247, 168, 108, 0.35);
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        gap: 0.8rem;
+        justify-items: center;
     }
 
     .empty-state i {
-        font-size: 3rem;
-        color: #ccc;
-        margin-bottom: 15px;
+        font-size: 2.8rem;
+        color: rgba(247, 168, 108, 0.5);
     }
 
-    .empty-state h4 {
-        color: #666;
-        margin-bottom: 10px;
+    .table-view {
+        display: none;
     }
 
-    .empty-state p {
-        color: #999;
-        font-size: 0.9rem;
+    .table-container {
+        margin-top: 1.6rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(226, 232, 240, 0.7);
+        overflow-x: auto;
+        box-shadow: var(--shadow-sm);
     }
 
-    /* Tablet Styles */
-    @media (min-width: 576px) {
+    .table {
+        width: 100%;
+        min-width: 960px;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background: rgba(255, 244, 232, 0.7);
+        color: var(--neutral-700);
+        font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 1rem 0.95rem;
+        border-bottom: 1px solid rgba(247, 168, 108, 0.18);
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1rem 0.95rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+        text-align: center;
+        color: var(--neutral-700);
+        font-weight: 500;
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(251, 209, 173, 0.12);
+    }
+
+    @media (max-width: 992px) {
         .content-wrapper {
-            padding: 15px;
+            padding: 2.4rem 1.2rem 2.8rem;
         }
 
-        .page-header,
-        .search-container {
-            padding: 20px;
+        .events-hero {
+            padding: 2.2rem 1.9rem;
         }
 
-        .search-form {
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-
-        .search-form .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-buttons {
-            flex-direction: row;
-            margin-top: 0;
-        }
-
-        .event-card .card-body {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-
-        .event-card .card-footer {
-            flex-direction: row;
-            justify-content: space-between;
-        }
-    }
-
-    /* Small Desktop */
-    @media (min-width: 768px) {
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-        }
-
-        .event-card .card-body {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    /* Large Desktop - Show Table */
-    @media (min-width: 992px) {
-        .content-wrapper {
-            padding: 20px;
-        }
-
-        /* Show table, hide cards */
-        .table-view {
-            display: block;
-        }
-
-        .cards-view {
-            display: none;
-        }
-
-        /* Table Styles for Desktop */
-        .table-container {
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #e0e0e0;
+        .filter-card {
+            padding: 1.8rem 1.6rem;
         }
 
         .table {
-            width: 100%;
-            margin: 0;
-            border-collapse: collapse;
-        }
-
-        .table th {
-            background: #f8f9fa;
-            color: #333;
-            padding: 15px;
-            font-weight: 600;
-            text-align: center;
-            border-bottom: 2px solid #dee2e6;
-            font-size: 0.9rem;
-        }
-
-        .table td {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #dee2e6;
-            vertical-align: middle;
-            font-size: 0.9rem;
-        }
-
-        .table tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        .table tbody tr:last-child td {
-            border-bottom: none;
+            min-width: 900px;
         }
     }
 
-    /* Extra Large Desktop */
-    @media (min-width: 1200px) {
+    @media (max-width: 768px) {
         .content-wrapper {
-            margin: 0 auto;
-            padding: 25px;
+            padding: 2rem 1rem 2.4rem;
         }
 
-        .table th,
-        .table td {
-            padding: 18px;
-            font-size: 1rem;
+        .events-hero {
+            padding: 2rem 1.6rem;
+        }
+
+        .hero-meta h3 {
+            font-size: 1.85rem;
+        }
+
+        .hero-actions {
+            width: 100%;
+        }
+
+        .search-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-buttons .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .event-card__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .event-card__footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .table {
+            min-width: 840px;
+        }
+    }
+
+    @media (max-width: 540px) {
+        .content-wrapper {
+            padding: 1.8rem 0.9rem 2.2rem;
+        }
+
+        .events-hero {
+            padding: 1.8rem 1.4rem;
+        }
+
+        .filter-card {
+            padding: 1.6rem 1.3rem;
+        }
+
+        .search-form {
+            grid-template-columns: 1fr;
+        }
+
+        .events-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .table {
+            min-width: 780px;
         }
     }
 </style>
@@ -448,135 +566,138 @@
 @section('content')
 <div class="content-wrapper">
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Summary of your Event booking</h3>
+    <section class="events-hero">
+        <div class="hero-meta">
+            <span class="hero-eyebrow"><i class="fas fa-calendar-alt"></i> Event Bookings</span>
+            <h3>Summary of Your Event Bookings</h3>
+            <p>Review upcoming sessions, revisit key details, and join events directly. Use the filters to find the exact booking you need.</p>
+            <span class="stats-pill">
+                <i class="fas fa-clock"></i>
+                {{ $bookings->count() }} {{ Str::plural('event', $bookings->count()) }} booked
+            </span>
         </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">events</li>
-        </ul>
-    </div>
-<div class="search-container">
-    <form action="{{ route('user.customer-event.index') }}" method="GET" class="search-form">
-        <div class="form-group">
-            <label for="search_name">Search</label>
-            <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search event">
+        <div class="hero-actions">
+            <ul class="hero-breadcrumb">
+                <li><a href="{{ route('user.dashboard') }}">Home</a></li>
+                <li class="active">Events</li>
+            </ul>
+            <a href="{{ route('user.customer-event.index') }}" class="btn btn-outline">
+                <i class="fas fa-sync"></i> Refresh List
+            </a>
+        </div>
+    </section>
+
+    <section class="filter-card">
+        <header>
+            <h4>Filter Event Bookings</h4>
+        </header>
+        <form action="{{ route('user.customer-event.index') }}" method="GET" class="search-form">
+            <div class="form-group">
+                <label for="search_name">Search</label>
+                <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search event">
+            </div>
+
+            <div class="form-group">
+                <label for="search_type">Event Type</label>
+                <select name="search_type" id="search_type">
+                    <option value="">All Types</option>
+                    <option value="online" {{ request('search_type') == 'online' ? 'selected' : '' }}>Online</option>
+                    <option value="offline" {{ request('search_type') == 'offline' ? 'selected' : '' }}>Offline</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="search_date_from">From Date</label>
+                <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="search_date_to">To Date</label>
+                <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
+            </div>
+
+            <div class="search-buttons">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{{ route('user.customer-event.index') }}" class="btn btn-outline">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="content-section">
+        <div class="section-heading">
+            <h4>
+                {{ $bookings->count() }} {{ Str::plural('booking', $bookings->count()) }} found
+            </h4>
+            <small>Showing confirmed and past event reservations that match your filters.</small>
         </div>
 
-        <div class="form-group">
-            <label for="search_type">Event Type</label>
-            <select name="search_type" id="search_type" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
-                <option value="">All Types</option>
-                <option value="online" {{ request('search_type') == 'online' ? 'selected' : '' }}>Online</option>
-                <option value="offline" {{ request('search_type') == 'offline' ? 'selected' : '' }}>Offline</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="search_date_from">From Date</label>
-            <input type="date" name="search_date_from" value="{{ request('search_date_from') }}">
-        </div>
-
-        <div class="form-group">
-            <label for="search_date_to">To Date</label>
-            <input type="date" name="search_date_to" value="{{ request('search_date_to') }}">
-        </div>
-
-        <div class="search-buttons">
-            <button type="submit" class="btn-success">Search</button>
-            <a href="{{ route('user.customer-event.index') }}" class="btn-secondary">Reset</a>
-        </div>
-    </form>
-</div>
-
-
-    <!-- Events Summary -->
-    <div class="content-section">
         @if($bookings->count() > 0)
-            
-            <!-- Mobile/Tablet Card View -->
             <div class="cards-view">
                 <div class="events-grid">
                     @foreach($bookings as $index => $booking)
-                        <div class="event-card">
-                            <div class="card-header">
-                                <div class="event-title">{{ $booking->event->heading ?? 'N/A' }}</div>
-                                <div class="event-date">{{ \Carbon\Carbon::parse($booking->event_date)->format('d M Y') }}</div>
-                            </div>
-                            
-                            <div class="card-body">
+                        <article class="event-card">
+                            <header class="event-card__head">
+                                <h5 class="event-card__title">{{ $booking->event->heading ?? 'Event Title Not Available' }}</h5>
+                                <span class="event-card__date">
+                                    <i class="far fa-calendar"></i>
+                                    {{ \Carbon\Carbon::parse($booking->event_date)->format('d M Y') }}
+                                </span>
+                            </header>
+
+                            <div class="event-card__grid">
                                 <div class="info-item">
-                                    <div class="info-label">Address</div>
-                                    <div class="info-value">{{ $booking->location ?? 'N/A' }}</div>
+                                    <span class="info-label">Venue / Address</span>
+                                    <span class="info-value">{{ $booking->location ?? 'Not provided' }}</span>
                                 </div>
-                                
                                 <div class="info-item">
-                                    <div class="info-label">Type</div>
-                                    <div class="info-value">
+                                    <span class="info-label">Type</span>
+                                    <span class="info-value">
                                         @if($booking->type == 'online')
-                                            <span class="type-badge type-online">
-                                                <i class="fas fa-video"></i> Online
-                                            </span>
+                                            <span class="type-badge type-online"><i class="fas fa-video"></i> Online</span>
                                         @elseif($booking->type == 'offline')
-                                            <span class="type-badge type-offline">
-                                                <i class="fas fa-map-marker-alt"></i> Offline
-                                            </span>
+                                            <span class="type-badge type-offline"><i class="fas fa-map-marker-alt"></i> Offline</span>
                                         @else
-                                            <span class="type-badge type-offline">{{ $booking->type ?? 'N/A' }}</span>
+                                            <span class="type-badge type-offline">{{ $booking->type ?? 'Not specified' }}</span>
                                         @endif
-                                    </div>
+                                    </span>
                                 </div>
-                                
                                 <div class="info-item">
-                                    <div class="info-label">Persons</div>
-                                    <div class="info-value">{{ $booking->persons ?? 'N/A' }}</div>
+                                    <span class="info-label">Attendees</span>
+                                    <span class="info-value">{{ $booking->persons ?? 'Not specified' }}</span>
                                 </div>
-                                
                                 <div class="info-item">
-                                    <div class="info-label">Price</div>
-                                    <div class="info-value">
-                                        <span class="price-text">₹{{ number_format($booking->total_price, 2) }}</span>
-                                    </div>
+                                    <span class="info-label">Total Price</span>
+                                    <span class="info-value price-text">₹{{ number_format($booking->total_price, 2) }}</span>
                                 </div>
                             </div>
-                            
-                            <div class="card-footer">
+
+                            <footer class="event-card__footer">
                                 <div>
                                     @if($booking->payment_status == 'success')
-                                        <span class="status-badge status-success">
-                                            <i class="fas fa-check-circle"></i> Confirmed
-                                        </span>
+                                        <span class="status-badge status-success"><i class="fas fa-check-circle"></i> Confirmed</span>
                                     @elseif($booking->payment_status == 'failed')
-                                        <span class="status-badge status-warning">
-                                            <i class="fas fa-exclamation-triangle"></i> Failed
-                                        </span>
+                                        <span class="status-badge status-warning"><i class="fas fa-exclamation-triangle"></i> Failed</span>
                                     @else
-                                        <span class="status-badge status-danger">
-                                            <i class="fas fa-times-circle"></i> Unknown
-                                        </span>
+                                        <span class="status-badge status-danger"><i class="fas fa-times-circle"></i> Unknown</span>
                                     @endif
                                 </div>
-                                
                                 @if($booking->event && $booking->event->meet_link)
-                                    <a href="{{ $booking->event->meet_link }}" target="_blank" class="join-btn">
+                                    <a href="{{ $booking->event->meet_link }}" target="_blank" class="btn join-btn">
                                         <i class="fas fa-video"></i> Join Event
                                     </a>
                                 @elseif($booking->gmeet_link)
-                                    <a href="{{ $booking->gmeet_link }}" target="_blank" class="join-btn">
+                                    <a href="{{ $booking->gmeet_link }}" target="_blank" class="btn join-btn">
                                         <i class="fas fa-video"></i> Join Event
                                     </a>
                                 @else
-                                    <span class="text-muted">No Link Available</span>
+                                    <span class="info-value" style="color: var(--neutral-500);">No link available</span>
                                 @endif
-                            </div>
-                        </div>
+                            </footer>
+                        </article>
                     @endforeach
                 </div>
             </div>
 
-            <!-- Desktop Table View -->
             <div class="table-view">
                 <div class="table-container">
                     <table class="table">
@@ -602,47 +723,31 @@
                                     <td>{{ $booking->location ?? 'N/A' }}</td>
                                     <td>
                                         @if($booking->type == 'online')
-                                            <span class="type-badge type-online">
-                                                <i class="fas fa-video"></i> Online
-                                            </span>
+                                            <span class="type-badge type-online"><i class="fas fa-video"></i> Online</span>
                                         @elseif($booking->type == 'offline')
-                                            <span class="type-badge type-offline">
-                                                <i class="fas fa-map-marker-alt"></i> Offline
-                                            </span>
+                                            <span class="type-badge type-offline"><i class="fas fa-map-marker-alt"></i> Offline</span>
                                         @else
                                             <span class="type-badge type-offline">{{ $booking->type ?? 'N/A' }}</span>
                                         @endif
                                     </td>
                                     <td>{{ $booking->persons ?? 'N/A' }}</td>
-                                    <td>
-                                        <span class="price-text">₹{{ number_format($booking->total_price, 2) }}</span>
-                                    </td>
+                                    <td><span class="price-text">₹{{ number_format($booking->total_price, 2) }}</span></td>
                                     <td>
                                         @if($booking->event && $booking->event->meet_link)
-                                            <a href="{{ $booking->event->meet_link }}" target="_blank" class="join-btn">
-                                                <i class="fas fa-video"></i> Join
-                                            </a>
+                                            <a href="{{ $booking->event->meet_link }}" target="_blank" class="btn join-btn"><i class="fas fa-video"></i> Join</a>
                                         @elseif($booking->gmeet_link)
-                                            <a href="{{ $booking->gmeet_link }}" target="_blank" class="join-btn">
-                                                <i class="fas fa-video"></i> Join
-                                            </a>
+                                            <a href="{{ $booking->gmeet_link }}" target="_blank" class="btn join-btn"><i class="fas fa-video"></i> Join</a>
                                         @else
-                                            <span class="text-muted">No Link</span>
+                                            <span class="info-value" style="color: var(--neutral-500);">No link</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($booking->payment_status == 'success')
-                                            <span class="status-badge status-success">
-                                                <i class="fas fa-check-circle"></i> Confirmed
-                                            </span>
+                                            <span class="status-badge status-success"><i class="fas fa-check-circle"></i> Confirmed</span>
                                         @elseif($booking->payment_status == 'failed')
-                                            <span class="status-badge status-warning">
-                                                <i class="fas fa-exclamation-triangle"></i> Failed
-                                            </span>
+                                            <span class="status-badge status-warning"><i class="fas fa-exclamation-triangle"></i> Failed</span>
                                         @else
-                                            <span class="status-badge status-danger">
-                                                <i class="fas fa-times-circle"></i> Unknown
-                                            </span>
+                                            <span class="status-badge status-danger"><i class="fas fa-times-circle"></i> Unknown</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -651,19 +756,18 @@
                     </table>
                 </div>
             </div>
-            
         @else
             <div class="empty-state">
                 <i class="fas fa-calendar-times"></i>
                 <h4>No Events Found</h4>
-                <p>You haven't booked any events yet. Start exploring our events to book your first one!</p>
+                <p>You haven't booked any events yet. Start exploring our events to confirm your first session!</p>
             </div>
         @endif
-    </div>
+    </section>
 
 </div>
-
 @endsection
+
 @section('scripts')
 
 @endsection
