@@ -441,7 +441,7 @@
                         </a>
                         <button type="submit" class="btn btn-primary">
                             <i class="ri-send-plane-line"></i>
-                            Submit for Approval
+                            Submit & Next
                         </button>
                     </div>
                 </form>

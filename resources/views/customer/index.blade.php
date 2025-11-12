@@ -3,210 +3,507 @@
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/styles.css') }}" />
 <style>
-    /* Enhanced Dashboard Cards */
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(320px, 1fr));
-        gap: 32px;
-        margin-bottom: 40px;
-        justify-content: center;
-        width: max-content;
-        margin-left: auto;
-        margin-right: auto;
+    :root {
+        --primary: #fbd1ad;
+        --primary-dark: #f7a86c;
+        --primary-light: #fff1e2;
+        --accent: #ffe1b8;
+        --success: #22c55e;
+        --warning: #fbbf24;
+        --danger: #fbcfe8;
+        --surface: #ffffff;
+        --muted: #a08873;
+        --text-dark: #2c1b0f;
+        --shadow-lg: 0 18px 38px rgba(122, 63, 20, 0.1);
+        --shadow-md: 0 8px 20px rgba(122, 63, 20, 0.08);
+        --border-soft: rgba(247, 168, 108, 0.2);
     }
-    .card {
-        position: relative;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        padding: 22px 18px;
+
+    html,
+    body,
+    .content-wrapper {
+        background: linear-gradient(180deg, #fff9f3 0%, #fff4e8 100%);
+        overflow-x: hidden;
+    }
+
+    .customer-dashboard {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .customer-dashboard {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2.8rem 1.6rem 3.4rem;
         display: flex;
-        transition: all 0.3s ease;
-        cursor: pointer;
+        flex-direction: column;
+        gap: 2.4rem;
+    }
+
+    .dashboard-hero {
+        background: linear-gradient(135deg, rgba(255, 239, 224, 0.92), rgba(255, 245, 233, 0.88));
+        border-radius: 32px;
+        padding: 2.6rem 2.8rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.4rem 2.2rem;
+        position: relative;
         overflow: hidden;
-        border: none;
-        height: 100%;
-        min-width: 360px;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .dashboard-hero::before,
+    .dashboard-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .dashboard-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -140px;
+        right: -160px;
+        background: rgba(255, 225, 193, 0.46);
+    }
+
+    .dashboard-hero::after {
+        width: 240px;
+        height: 240px;
+        bottom: -160px;
+        left: -120px;
+        background: rgba(255, 236, 214, 0.4);
+    }
+
+    .dashboard-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: rgba(15, 23, 42, 0.95);
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.42rem 1.2rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(247, 168, 108, 0.26);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dark);
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2.32rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .hero-meta p {
+        margin: 0;
         max-width: 520px;
-        background: #f5e9da;
-        color: #a67c52;
+        line-height: 1.6;
+        color: rgba(44, 27, 15, 0.6);
     }
-    .card-primary, .card-success, .card-warning, .card-danger {
-        background: #f5e9da !important;
-        color: #a67c52 !important;
-    }
-    .card-icon {
+
+    .hero-actions {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.95rem 1.9rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .btn-pill--primary {
+        background: linear-gradient(135deg, rgba(251, 209, 173, 1), rgba(247, 168, 108, 0.9));
+        color: #7a4a1b;
+        box-shadow: 0 16px 28px rgba(247, 168, 108, 0.24);
+    }
+
+    .btn-pill--primary:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-pill--outline {
+        background: rgba(255, 255, 255, 0.97);
+        color: #b36b31;
+        border: 1px solid rgba(251, 209, 173, 0.6);
+    }
+
+    .btn-pill--outline:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.99);
+    }
+
+    .metrics-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .section-heading h2 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .section-heading h2 i {
+        color: #f3a76b;
+        font-size: 1.4rem;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.6rem;
+    }
+
+    .metric-card {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border-soft);
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.18s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .metric-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(247, 168, 108, 0.12), rgba(255, 238, 221, 0.05));
+        opacity: 0;
+        transition: opacity 0.18s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 60px rgba(15, 23, 42, 0.16);
+    }
+
+    .metric-card:hover::after {
+        opacity: 1;
+    }
+
+    .metric-card__icon {
         width: 56px;
         height: 56px;
-        border-radius: 50%;
-        background: #f3d6c2;
-        margin-right: 16px;
-        flex-shrink: 0;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(251, 209, 173, 0.55);
+        color: var(--primary-dark);
+        font-size: 1.4rem;
     }
-    .card-icon i {
-        font-size: 28px;
-        color: #a67c52;
+
+    .metric-card__label {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        color: var(--muted);
     }
-    .card-info h4 {
-        font-size: 17px;
-        margin-bottom: 7px;
-        color: #a67c52;
+
+    .metric-card__value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
     }
-    .card-info h2 {
-        font-size: 30px;
-        margin-bottom: 10px;
-        color: #a67c52;
-    }
-    .card p {
-        font-size: 15px;
-        color: #a67c52;
-    }
-    .view-btn {
-        padding: 7px 18px;
-        border-radius: 18px;
-        background: #f3d6c2;
-        color: #a67c52;
-        font-size: 15px;
-        margin-top: 10px;
-    }
-    .view-btn i {
-        margin-right: 6px;
-        font-size: 15px;
-    }
-    @media (max-width: 768px) {
-        .card-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-            width: 100%;
-            margin-left: 0;
-            margin-right: 0;
-        }
-        .card {
-            padding: 12px;
-            min-width: 120px;
-            max-width: 100%;
-        }
-    }
-    .card:hover .card-icon {
-        animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.10); }
-        100% { transform: scale(1); }
-    }
-    
-    /* Recent events section */
-    .recent-events {
-        margin-top: 40px;
-    }
-    
-    .section-title {
-        font-size: 20px;
-        margin-bottom: 20px;
+
+    .metric-card__trend {
+        font-size: 0.95rem;
         font-weight: 600;
-        color: #333;
-        border-left: 4px solid #3498db;
-        padding-left: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--success);
     }
-    
-    .event-cards {
+
+    .metric-card__trend.negative {
+        color: #f18b9c;
+    }
+
+    .metric-card__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.92rem;
+        color: #d58c4e;
+        font-weight: 600;
+        margin-top: auto;
+    }
+
+    .metric-card__cta i {
+        font-size: 1rem;
+    }
+
+    .insight-panels {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.6rem;
     }
-    
+
+    .insight-card {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border-soft);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+    }
+
+    .insight-card header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+    }
+
+    .insight-card header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .insight-card header span {
+        font-size: 0.82rem;
+        color: var(--muted);
+        font-weight: 600;
+    }
+
+    .appointment-list,
+    .event-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .appointment-item,
     .event-card {
-        background-color: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .event-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-    
-    .event-img {
-        height: 160px;
-        overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid rgba(249, 208, 175, 0.5);
+        padding: 1.2rem 1.4rem;
+        background: linear-gradient(135deg, rgba(255, 244, 229, 0.96), rgba(255, 237, 219, 0.92));
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
         position: relative;
+        overflow: hidden;
     }
-    
-    .event-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-    
-    .event-card:hover .event-img img {
-        transform: scale(1.1);
-    }
-    
-    .event-date {
+
+    .appointment-item::after,
+    .event-card::after {
+        content: '';
         position: absolute;
         bottom: 0;
         left: 0;
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 5px 10px;
-        font-size: 14px;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(135deg, rgba(247, 168, 108, 0.18), rgba(255, 236, 214, 0.28));
     }
-    
-    .event-body {
-        padding: 15px;
-    }
-    
-    .event-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: #333;
-    }
-    
-    .event-desc {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 15px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .event-footer {
-        display: flex;
-        justify-content: space-between;
+
+    .appointment-item h4,
+    .event-card h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: inline-flex;
         align-items: center;
-        padding: 10px 15px;
-        background-color: #f9f9f9;
-        border-top: 1px solid #eee;
+        gap: 0.5rem;
     }
-    
-    .event-price {
-        font-weight: 600;
-        color: #2980b9;
+
+    .appointment-item p,
+    .event-card p {
+        margin: 0;
+        font-size: 0.92rem;
+        color: var(--muted);
+        line-height: 1.5;
     }
-    
-    .book-btn {
-        padding: 5px 15px;
-        background: #2980b9;
-        color: white;
-        border-radius: 20px;
-        text-decoration: none;
-        font-size: 14px;
-        transition: all 0.3s ease;
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.38rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(251, 209, 173, 0.36);
+        color: #b36b31;
     }
-    
-    .book-btn:hover {
-        background: #3498db;
-        transform: scale(1.05);
+
+    .badge--warning {
+        background: rgba(255, 224, 196, 0.46);
+        color: #c46a1e;
+    }
+
+    .badge--outline {
+        border: 1px solid rgba(251, 209, 173, 0.5);
+        background: transparent;
+    }
+
+    .empty-state {
+        border-radius: 18px;
+        padding: 2.2rem 1.8rem;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px dashed rgba(247, 168, 108, 0.28);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: flex-start;
+        color: var(--muted);
+    }
+
+    .empty-state i {
+        font-size: 1.6rem;
+        color: #d58c4e;
+    }
+
+    @media (max-width: 1024px) {
+        .customer-dashboard {
+            padding: 2.4rem 1.4rem 2.8rem;
+        }
+
+        .dashboard-hero {
+            padding: 2.2rem 2.4rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .customer-dashboard {
+            padding: 2rem 1rem 2.4rem;
+        }
+
+        
+        .dashboard-hero {
+            grid-template-columns: 1fr;
+            padding: 1.8rem 1.6rem;
+        }
+
+        .hero-actions {
+            width: 100%;
+            justify-content: flex-start;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .btn-pill {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .metrics-grid,
+        .insight-panels {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .dashboard-hero {
+            padding: 1.6rem 1.3rem;
+        }
+
+        .hero-meta h1 {
+            font-size: 1.8rem;
+        }
+
+        .hero-meta p {
+            font-size: 0.94rem;
+        }
+
+        .metric-card {
+            padding: 1.6rem 1.4rem;
+        }
+
+        .insight-card {
+            padding: 1.6rem 1.4rem;
+        }
+    }
+
+    @media (max-width: 540px) {
+        .customer-dashboard {
+            padding: 1.8rem 0.85rem 2.1rem;
+            margin: -8px;
+        }
+
+        .dashboard-hero {
+            padding: 1.5rem 1.15rem;
+        }
+
+        .hero-meta h1 {
+            font-size: 1.68rem;
+        }
+
+        .hero-meta p {
+            font-size: 0.92rem;
+        }
+
+        .metric-card {
+            padding: 1.6rem;
+        }
+
+        .metric-card__value {
+            font-size: 1.8rem;
+        }
+
+        .appointment-item,
+        .event-card {
+            padding: 1.1rem 1.2rem;
+        }
     }
 </style>
 @endsection
@@ -217,6 +514,7 @@
     $userId = Auth::guard('user')->id();
     $today = \Carbon\Carbon::today();
     $threeDaysLater = \Carbon\Carbon::today()->addDays(3);
+    $user = Auth::guard('user')->user();
     
     // Get upcoming appointments (future dates)
     $upcomingAppointments = \App\Models\Booking::where('user_id', $userId)
@@ -224,11 +522,14 @@
             $query->where('date', '>=', $today->format('Y-m-d'))
                   ->whereIn('status', ['pending', 'confirmed']);
         })
-        ->with(['timedates' => function($query) use ($today) {
+        ->with([
+            'professional',
+            'timedates' => function($query) use ($today) {
             $query->where('date', '>=', $today->format('Y-m-d'))
                   ->whereIn('status', ['pending', 'confirmed'])
                   ->orderBy('date', 'asc');
-        }])
+            }
+        ])
         ->get();
         
     // Count total upcoming appointments
@@ -332,92 +633,144 @@
         ->get();
 @endphp
 
-<div class="content-wrapper">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Dashboard</h3>
+<div class="customer-dashboard">
+    <section class="dashboard-hero">
+        <div class="hero-meta">
+            <span class="hero-eyebrow"><i class="fas fa-home"></i> Customer Hub</span>
+            <h1>Welcome back, {{ optional($user)->name ?? 'Guest' }}!</h1>
+            <p>Track your upcoming appointments, explore curated events and stay on top of your payments all from one place.</p>
         </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">Dashboard</li>
-        </ul>
-    </div>
+        <div class="hero-actions">
+            <a href="{{ route('user.upcoming-appointment.index') }}" class="btn-pill btn-pill--outline">
+                <i class="fas fa-calendar-plus"></i>
+                Manage Appointments
+            </a>
+            <a href="{{ route('user.customer-event.index') }}" class="btn-pill btn-pill--primary">
+                <i class="fas fa-search"></i>
+                Discover Events
+            </a>
+        </div>
+    </section>
 
-    <!-- Dashboard Cards -->
-    <div class="card-grid">
-        <!-- Upcoming Appointments Card -->
-        <a href="{{ route('user.upcoming-appointment.index') }}" class="card card-primary">
-            <div class="card-icon">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="card-info">
-                <h4>Upcoming Appointments</h4>
-                <h2>{{ $upcomingCount }}</h2>
-                <p class="positive">
-                    <i class="fas fa-arrow-up"></i> 
-                    {{ $todayCount }} {{ $todayCount == 1 ? 'Today' : 'Today' }}
-                </p>
-                <div class="view-btn">
-                    <i class="fas fa-eye"></i> View Appointments
-                </div>
-            </div>
-        </a>
+    <section class="metrics-section">
+        <div class="section-heading">
+            <h2><i class="fas fa-chart-line"></i>Snapshot Overview</h2>
+            <span class="badge badge--outline"><i class="fas fa-sync"></i> Updated {{ now()->diffForHumans() }}</span>
+        </div>
+        <div class="metrics-grid">
+            <a href="{{ route('user.upcoming-appointment.index') }}" class="metric-card">
+                <span class="metric-card__icon"><i class="fas fa-calendar-check"></i></span>
+                <span class="metric-card__label">Upcoming Appointments</span>
+                <span class="metric-card__value">{{ $upcomingCount }}</span>
+                <span class="metric-card__trend">
+                    <i class="fas fa-clock"></i>{{ $todayCount }} today
+                </span>
+                <span class="metric-card__cta">
+                    View appointments <i class="fas fa-arrow-right"></i>
+                </span>
+            </a>
 
-        <!-- Total Appointments Card -->
-        <a href="{{ route('user.all-appointment.index') }}" class="card card-success">
-            <div class="card-icon">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="card-info">
-                <h4>Total Appointments</h4>
-                <h2>{{ $totalAppointments }}</h2>
-                <p class="positive">
-                    <i class="fas fa-check-circle"></i> 
-                    {{ $completedAppointments }} Completed
-                </p>
-                <div class="view-btn">
-                    <i class="fas fa-eye"></i> View All
-                </div>
-            </div>
-        </a>
+            <a href="{{ route('user.all-appointment.index') }}" class="metric-card">
+                <span class="metric-card__icon"><i class="fas fa-calendar-alt"></i></span>
+                <span class="metric-card__label">Total Appointments</span>
+                <span class="metric-card__value">{{ $totalAppointments }}</span>
+                <span class="metric-card__trend">
+                    <i class="fas fa-check-circle"></i>{{ $completedAppointments }} completed
+                </span>
+                <span class="metric-card__cta">
+                    Review history <i class="fas fa-arrow-right"></i>
+                </span>
+            </a>
 
-        <!-- Upcoming Events Card -->
-        <a href="{{ route('user.customer-event.index') }}" class="card card-warning">
-            <div class="card-icon">
-                <i class="fas fa-calendar-day"></i>
-            </div>
-            <div class="card-info">
-                <h4>Upcoming Events</h4>
-                <h2>{{ $totalEventCount }}</h2>
-                <p class="positive">
-                    <i class="fas fa-calendar"></i> 
-                    {{ $upcomingBookedEvents }} in next 3 days
-                </p>
-                <div class="view-btn">
-                    <i class="fas fa-eye"></i> View Events
-                </div>
-            </div>
-        </a>
+            <a href="{{ route('user.customer-event.index') }}" class="metric-card">
+                <span class="metric-card__icon"><i class="fas fa-calendar-day"></i></span>
+                <span class="metric-card__label">Upcoming Events</span>
+                <span class="metric-card__value">{{ $totalEventCount }}</span>
+                <span class="metric-card__trend">
+                    <i class="fas fa-bolt"></i>{{ $upcomingBookedEvents }} in 3 days
+                </span>
+                <span class="metric-card__cta">
+                    Explore events <i class="fas fa-arrow-right"></i>
+                </span>
+            </a>
 
-        <!-- Total Payments Card -->
-        <a href="{{ route('user.billing.index') }}" class="card card-danger">
-            <div class="card-icon">
-                <i class="fas fa-dollar-sign"></i>
+            <a href="{{ route('user.billing.index') }}" class="metric-card">
+                <span class="metric-card__icon"><i class="fas fa-wallet"></i></span>
+                <span class="metric-card__label">Total Payments</span>
+                <span class="metric-card__value">₹{{ number_format($totalPayments, 0) }}</span>
+                <span class="metric-card__trend negative">
+                    <i class="fas fa-hourglass-half"></i>₹{{ number_format($pendingPayments, 0) }} pending
+                </span>
+                <span class="metric-card__cta">
+                    View payment history <i class="fas fa-arrow-right"></i>
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <section class="insight-panels">
+        <div class="insight-card">
+            <header>
+                <h3><i class="fas fa-clipboard-list"></i>Upcoming Appointments</h3>
+                <span>{{ $upcomingAppointments->count() }} scheduled</span>
+            </header>
+
+            <div class="appointment-list">
+                @php
+                    $upcomingPreview = $upcomingAppointments->take(3);
+                @endphp
+                @forelse($upcomingPreview as $appointment)
+                    @php
+                        $nextSlot = $appointment->timedates->first();
+                        $professionalName = optional($appointment->professional)->name ?? ($appointment->professional_name ?? 'Professional');
+                    @endphp
+                    <div class="appointment-item">
+                        <h4><i class="fas fa-user-md"></i>{{ $professionalName }}</h4>
+                        @if($nextSlot)
+                            <p><i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($nextSlot->date)->format('M d, Y') }} &bull; {{ \Carbon\Carbon::parse($nextSlot->start_time)->format('h:i A') }}</p>
+                            <span class="badge"><i class="fas fa-info-circle"></i>{{ ucfirst($nextSlot->status) }}</span>
+                        @else
+                            <p>No time slot available</p>
+                        @endif
+                    </div>
+                @empty
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <strong>No appointments scheduled.</strong>
+                        <span>Book a session with your preferred professional to see it appear here.</span>
+                    </div>
+                @endforelse
             </div>
-            <div class="card-info">
-                <h4>Total Payments</h4>
-                <h2>₹{{ number_format($totalPayments, 0) }}</h2>
-                <p class="negative">
-                    <i class="fas fa-arrow-down"></i> 
-                    ₹{{ number_format($pendingPayments, 0) }} Pending
-                </p>
-                <div class="view-btn">
-                    <i class="fas fa-eye"></i> View Payments
-                </div>
+        </div>
+
+        <div class="insight-card">
+            <header>
+                <h3><i class="fas fa-star"></i>Featured Events</h3>
+                <span>{{ $events->count() }} highlighted</span>
+            </header>
+
+            <div class="event-grid">
+                @forelse($events as $event)
+                    <div class="event-card">
+                        <h4><i class="fas fa-microphone-alt"></i>{{ $event->heading }}</h4>
+                        <p>{{ \Illuminate\Support\Str::limit($event->short_description, 110) }}</p>
+                        <div class="badge badge--warning">
+                            <i class="far fa-calendar"></i>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}
+                        </div>
+                        <div class="metric-card__cta" style="margin-top: 0.8rem;">
+                            Starting at ₹{{ number_format($event->starting_fees ?? 0, 0) }}
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-state">
+                        <i class="fas fa-rocket"></i>
+                        <strong>No events to display right now.</strong>
+                        <span>Check back soon or explore more events from the marketplace.</span>
+                    </div>
+                @endforelse
             </div>
-        </a>
-    </div>
+        </div>
+    </section>
 </div>
 
 @endsection

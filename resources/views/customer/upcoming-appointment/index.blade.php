@@ -3,924 +3,747 @@
 @section('styles')
 <link rel="stylesheet" href="{{ asset('customer-css/assets/css/upcoming-appointment.css') }}" />
 <style>
-/* Layout fixes to prevent header shifting */
-.main-content {
-    margin-left: var(--sidebar-width, 250px) !important;
-    width: calc(100% - var(--sidebar-width, 250px)) !important;
-    max-width: none !important;
-    overflow-x: hidden;
-}
-
-/* Additional layout fixes */
-.content-section {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden;
-    box-sizing: border-box;
-}
-
-.table-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto;
-    box-sizing: border-box;
-}
-
-.page-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f8f9fa;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-/* Mobile-specific fixes */
-@media (max-width: 768px) {
-    /* Override sidebar layout for mobile */
-    .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-        padding: 0 !important;
+    :root {
+        --primary: #f7a86c;
+        --primary-dark: #eb8640;
+        --primary-soft: #fde5cd;
+        --accent: #7dd3fc;
+        --accent-dark: #0f4a6e;
+        --success: #16a34a;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --neutral-900: #1f2937;
+        --neutral-700: #374151;
+        --neutral-500: #6b7280;
+        --neutral-300: #d1d5db;
+        --surface: #ffffff;
+        --surface-muted: rgba(255, 255, 255, 0.92);
+        --border-soft: rgba(247, 168, 108, 0.28);
+        --shadow-lg: 0 24px 48px rgba(122, 63, 20, 0.14);
+        --shadow-md: 0 16px 32px rgba(122, 63, 20, 0.12);
+        --shadow-sm: 0 8px 18px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 20px;
+        --radius-sm: 12px;
     }
-    
+
+    body,
+    .app-content {
+        background: linear-gradient(180deg, #fff8f1 0%, #fdf2e9 100%);
+        font-family: 'Inter', sans-serif;
+    }
+
     .content-wrapper {
-        padding: 10px 5px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2.8rem 1.6rem 3.2rem;
     }
-    
-    .page-header {
-        padding: 8px 10px !important;
-        margin: 0 !important;
-    }
-    
-    .page-title h3 {
-        font-size: 20px !important;
-        margin: 0 !important;
-    }
-    
-    .breadcrumb {
-        font-size: 14px !important;
-        margin: 5px 0 0 0 !important;
-    }
-    
-    .search-container {
-        padding: 10px !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .search-form {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    
-    .search-form .form-group {
-        min-width: 100% !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .search-buttons {
-        flex-direction: column !important;
-        gap: 8px !important;
-    }
-    
-    .search-buttons button,
-    .search-buttons a {
-        width: 100% !important;
-        text-align: center !important;
-    }
-    
-    /* Table responsive improvements */
-    .table-wrapper {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .data-table {
-        min-width: 800px !important;
-        font-size: 12px !important;
-    }
-    
-    .data-table th,
-    .data-table td {
-        padding: 6px 4px !important;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-    
-    .data-table th {
-        background-color: #f8f9fa !important;
-        font-weight: 600 !important;
-        font-size: 11px !important;
-    }
-    
-    /* Button improvements for mobile */
-    .btn-sm {
-        padding: 4px 6px !important;
-        font-size: 10px !important;
-    }
-    
-    /* Section header mobile fix */
-    .section-header h4 {
-        font-size: 14px !important;
-        line-height: 1.3 !important;
-    }
-    
-    .section-header small {
-        font-size: 11px !important;
-    }
-}
 
-@media (max-width: 480px) {
-    .content-wrapper {
-        padding: 5px 2px !important;
+    .upcoming-hero {
+        background: linear-gradient(135deg, rgba(251, 209, 173, 0.95), rgba(255, 244, 232, 0.95));
+        border-radius: var(--radius-lg);
+        padding: 2.6rem 2.4rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.6rem 2rem;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
     }
-    
-    .page-header {
-        padding: 5px 8px !important;
+
+    .upcoming-hero::before,
+    .upcoming-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 999px;
+        pointer-events: none;
     }
-    
-    .page-title h3 {
-        font-size: 14px !important;
+
+    .upcoming-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -200px;
+        right: -120px;
+        background: rgba(247, 168, 108, 0.26);
     }
-    
-    .search-container {
-        padding: 8px !important;
-        margin-bottom: 8px !important;
+
+    .upcoming-hero::after {
+        width: 240px;
+        height: 240px;
+        bottom: -160px;
+        left: -120px;
+        background: rgba(255, 236, 214, 0.36);
     }
-    
-    .data-table {
-        min-width: 900px !important;
-        font-size: 11px !important;
+
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        position: relative;
+        z-index: 1;
+        color: var(--neutral-900);
     }
-    
-    .data-table th,
-    .data-table td {
-        padding: 4px 3px !important;
+
+    .hero-meta h3 {
+        margin: 0;
+        font-size: 2.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
     }
-    
-    .btn-sm {
-        padding: 3px 5px !important;
-        font-size: 12px !important;
+
+    .hero-meta p {
+        margin: 0;
+        max-width: 540px;
+        line-height: 1.6;
+        color: rgba(47, 47, 47, 0.7);
     }
-}
-        
-/* Make table container scrollable horizontally */
-.table-wrapper {
-    overflow-x: auto;
-    max-width: 100%;
-    -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
-}
 
-/* Ensure the table takes full width of container */
-.data-table {
-    width: 100%;
-    table-layout: auto;
-}
+    .hero-breadcrumb {
+        display: flex;
+        gap: 0.6rem;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        flex-wrap: wrap;
+    }
 
-/* Fix the search container from overflowing */
-.search-container {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-}
+    .hero-breadcrumb li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.88rem;
+        color: var(--neutral-500);
+    }
 
-/* Ensure content wrapper doesn't cause horizontal scroll */
-.content-wrapper {
-    overflow-x: hidden;
-    width: 100%;
-    max-width: 100vw;
-    padding: 20px 10px;
-}
+    .hero-breadcrumb li a {
+        text-decoration: none;
+        color: var(--neutral-500);
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(247, 168, 108, 0.2);
+        transition: background 0.18s ease, color 0.18s ease;
+    }
 
-/* Fix card width */
-.card {
-    width: 100%;
-    overflow-x: hidden;
-}
+    .hero-breadcrumb li a:hover {
+        background: rgba(247, 168, 108, 0.18);
+        color: var(--neutral-900);
+    }
 
-/* Ensure the card body doesn't cause overflow */
-.card-body {
-    padding: 10px 5px;
-}
+    .hero-breadcrumb li.active {
+        padding: 0.35rem 0.95rem;
+        border-radius: 999px;
+        background: rgba(247, 168, 108, 0.26);
+        color: var(--neutral-900);
+        font-weight: 600;
+    }
 
-/* Optional: Make some table columns width-responsive */
-.data-table th,
-.data-table td {
-    white-space: nowrap;
-}
+    .stats-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 999px;
+        background: rgba(247, 168, 108, 0.16);
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
 
-.search-container {
-    background: #f5f7fa;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    .filter-card {
+        margin-top: 2.2rem;
+        background: var(--surface);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-soft);
+        padding: 2rem 2.2rem;
+    }
+
+    .filter-card header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.6rem;
+    }
+
+    .filter-card header h4 {
+        margin: 0;
+        font-size: 1.28rem;
+        font-weight: 700;
+        color: var(--neutral-900);
 }
 
 .search-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: flex-end;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem 1.4rem;
 }
 
 .search-form .form-group {
-    flex: 1;
-    min-width: 200px;
     display: flex;
     flex-direction: column;
+        gap: 0.45rem;
 }
 
 .search-form label {
-    margin-bottom: 5px;
     font-weight: 600;
-    color: #333;
+        font-size: 0.9rem;
+        color: var(--neutral-700);
 }
 
 .search-form input[type="text"],
 .search-form input[type="date"],
 .search-form select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        background: rgba(247, 249, 252, 0.92);
+        transition: border 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .search-form input:focus,
+    .search-form select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(247, 168, 108, 0.18);
+        outline: none;
+        background: var(--surface);
 }
 
 .search-buttons {
     display: flex;
-    gap: 10px;
-}
+        gap: 0.8rem;
+        align-items: center;
+    }
 
-.search-buttons button,
-.search-buttons a {
-    padding: 10px 20px;
-    font-size: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-}
+    .search-buttons .btn-primary,
+    .search-buttons .btn-secondary {
+        width: auto;
+    }
 
-.btn-success {
-    background-color: #28a745;
-    color: white;
-}
+    .content-section {
+        margin-top: 2.4rem;
+        background: var(--surface);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-md);
+        padding: 1.9rem 1.6rem;
+    }
 
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-success:hover {
-    background-color: #218838;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-}
-
-/* Highlight row for filtered service */
-.service-highlight {
-    background-color: #e7f3ff;
-}
-
-/* Highlight row for filtered plan type */
-.plan-highlight {
-    background-color: #f0fff0;
-}
-
-/* Plan Type Badge Styles */
-.plan-type-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    background-color: #e3f2fd;
-    color: #0d47a1;
-    border: 1px solid #bbdefb;
-}
-
-.plan-type-premium {
-    background-color: #fce4ec;
-    color: #c2185b;
-    border-color: #f8bbd0;
-}
-
-.plan-type-standard {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    border-color: #c8e6c9;
-}
-
-.plan-type-basic {
-    background-color: #ede7f6;
-    color: #4527a0;
-    border-color: #d1c4e9;
-}
-
-.plan-type-corporate {
-    background-color: #fff3e0;
-    color: #e65100;
-    border-color: #ffe0b2;
-}
-
-.plan-type-one-time {
-    background-color: #e1f5fe;
-    color: #0277bd;
-    border-color: #b3e5fc;
-}
-
-@media screen and (max-width: 767px) {
-    /* Mobile responsive fixes - enhanced */
-    .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-    
-    .page-header {
-        padding: 8px 10px;
-        margin: 0;
-    }
-    
-    .page-title h3 {
-        font-size: 22px;
-        margin: 0;
-    }
-    
-    .breadcrumb {
-        font-size: 16px;
-        margin: 5px 0 0 0;
-    }
-    
-    .content-wrapper {
-        padding: 10px 5px;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    .search-container {
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-    
-    .search-form {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .search-form .form-group {
-        min-width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .search-buttons {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .search-buttons button,
-    .search-buttons a {
-        width: 100%;
-        text-align: center;
-    }
-    
-    /* Enhanced table responsive */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .data-table {
-        min-width: 800px;
-        font-size: 12px;
-    }
-    
-    .data-table th,
-    .data-table td {
-        padding: 6px 4px;
-        white-space: nowrap;
-        vertical-align: middle;
-        font-size: 12px;
-    }
-    
-    .data-table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        font-size: 13px;
-    }
-    
-    /* Button improvements */
-    .btn-sm {
-        padding: 4px 6px;
-        font-size: 12px;
-    }
-    
-    /* Section header fix */
     .section-header h4 {
-        font-size: 14px;
-        line-height: 1.3;
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--neutral-900);
     }
-    
-    .section-header small {
-        font-size: 11px;
-    }
-}
 
-/* Modal Styles */
+    .section-header small {
+        font-size: 0.84rem;
+        color: var(--neutral-500);
+    }
+
+    .table-wrapper {
+        margin-top: 1.2rem;
+        overflow-x: auto;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: var(--surface);
+        min-width: 1024px;
+    }
+
+    .data-table thead th {
+        background: rgba(255, 244, 232, 0.7);
+        color: var(--neutral-700);
+    font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.9rem 0.95rem;
+        border-bottom: 1px solid rgba(247, 168, 108, 0.18);
+        white-space: nowrap;
+    }
+
+    .data-table tbody td {
+        padding: 0.95rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+        color: var(--neutral-700);
+        vertical-align: middle;
+        background: var(--surface);
+    }
+
+    .data-table tbody tr:hover td {
+        background: rgba(251, 209, 173, 0.12);
+    }
+
+    .subservice-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(125, 211, 252, 0.2);
+        color: var(--accent-dark);
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .plan-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: rgba(251, 209, 173, 0.26);
+        color: var(--primary-dark);
+        border: 1px solid rgba(247, 168, 108, 0.32);
+    }
+
+    .plan-type-premium { background: rgba(244, 187, 213, 0.24); color: #9c2f64; border-color: rgba(244, 187, 213, 0.4); }
+    .plan-type-standard { background: rgba(187, 247, 208, 0.26); color: #166534; border-color: rgba(187, 247, 208, 0.42); }
+    .plan-type-basic { background: rgba(221, 214, 254, 0.24); color: #4338ca; border-color: rgba(221, 214, 254, 0.42); }
+    .plan-type-corporate { background: rgba(254, 215, 170, 0.26); color: #9a3412; border-color: rgba(254, 215, 170, 0.42); }
+    .plan-type-one-time { background: rgba(200, 250, 230, 0.3); color: #0f766e; border-color: rgba(200, 250, 230, 0.46); }
+
+    .meet-link-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(125, 211, 252, 0.32), rgba(14, 165, 233, 0.32));
+        color: var(--accent-dark);
+        font-weight: 600;
+        border: 1px solid rgba(125, 211, 252, 0.42);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .meet-link-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+        color: var(--accent-dark);
+    }
+
+    .document-actions {
+        display: flex;
+        gap: 0.45rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.45rem;
+        align-items: center;
+    }
+
+    .btn-sm {
+        border-radius: 999px;
+        padding: 0.55rem 1rem;
+        font-weight: 600;
+        font-size: 0.83rem;
+        border: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-sm.btn-info {
+        background: rgba(125, 211, 252, 0.22);
+        color: var(--accent-dark);
+        border: 1px solid rgba(125, 211, 252, 0.35);
+    }
+
+    .btn-sm.btn-warning {
+        background: rgba(250, 204, 21, 0.22);
+        color: #92400e;
+        border: 1px solid rgba(250, 204, 21, 0.35);
+    }
+
+    .btn-sm.btn-primary {
+        background: rgba(147, 197, 253, 0.22);
+        color: #1d4ed8;
+        border: 1px solid rgba(147, 197, 253, 0.35);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        font-weight: 600;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: var(--surface);
+        border: none;
+        padding: 0.75rem 1.4rem;
+        box-shadow: 0 14px 30px rgba(247, 168, 108, 0.28);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--neutral-700);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 0.75rem 1.4rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .empty-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--neutral-500);
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.38rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: capitalize;
+        letter-spacing: 0.04em;
+    }
+
+    .service-highlight {
+        background: rgba(125, 211, 252, 0.12);
+    }
+
+    .plan-highlight {
+        background: rgba(187, 247, 208, 0.14);
+    }
+
 .custom-modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+        inset: 0;
     z-index: 1050;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 20px 0;
-}
-
-.custom-modal.show {
-    opacity: 1;
+        background-color: rgba(17, 24, 39, 0.55);
+        backdrop-filter: blur(6px);
+        padding: 1.5rem;
 }
 
 .custom-modal-content {
-    position: relative;
-    background-color: #fff;
-    margin: 20px auto;
-    padding: 0;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    transform: translateY(-30px) scale(0.95);
-    transition: transform 0.3s ease-in-out;
-    max-height: calc(100vh - 40px);
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-lg);
+        width: min(640px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: fadeIn 0.24s ease;
     display: flex;
     flex-direction: column;
 }
 
-.custom-modal.show .custom-modal-content {
-    transform: translateY(0) scale(1);
-}
-
 .custom-modal-header {
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
+        padding: 1.6rem 1.9rem;
+        border-bottom: 1px solid rgba(247, 168, 108, 0.22);
+        background: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-shrink: 0;
 }
 
 .custom-modal-title {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: #333;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--neutral-900);
 }
 
 .custom-modal-close {
     background: none;
     border: none;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #666;
+        color: var(--neutral-500);
     cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.custom-modal-close:hover {
-    color: #333;
 }
 
 .custom-modal-body {
-    padding: 1.5rem;
+        padding: 1.8rem 1.9rem;
     flex: 1;
-    overflow-y: auto;
-    min-height: 0;
 }
 
 .custom-modal-footer {
-    padding: 1rem;
-    border-top: 1px solid #dee2e6;
+        padding: 1.4rem 1.9rem;
+        border-top: 1px solid rgba(247, 168, 108, 0.22);
+        background: rgba(255, 255, 255, 0.95);
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    flex-shrink: 0;
-    background: white;
+        gap: 0.75rem;
 }
 
 .file-preview {
     margin-top: 1rem;
     padding: 0.75rem;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
+        background: rgba(255, 244, 232, 0.45);
+        border-radius: var(--radius-sm);
+        color: var(--neutral-700);
+    }
 
-.file-preview h6 {
-    margin-bottom: 0.5rem;
-    color: #495057;
-}
+    .reschedule-calendar {
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: var(--radius-sm);
+        padding: 1.2rem;
+        background: var(--surface);
+    }
 
-/* Form Styles */
-.form-label {
-    font-weight: 500;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
 
-.form-control {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 0.5rem;
-    width: 100%;
-}
-
-.form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
-
-/* Button Styles */
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: 500;
+    .calendar-nav {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 999px;
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-dark);
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
+    }
 
-.btn-primary {
-    background-color: #007bff;
-    border: 1px solid #007bff;
-    color: #fff;
-}
+    .calendar-month-year {
+        font-weight: 600;
+        color: var(--neutral-900);
+    }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
 
-.btn-secondary {
-    background-color: #6c757d;
-    border: 1px solid #6c757d;
-    color: #fff;
-}
+    .calendar-day-header {
+        background: rgba(255, 244, 232, 0.6);
+        padding: 0.5rem 0.25rem;
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--neutral-500);
+    }
 
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-
-/* Animation Classes */
-.modal-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.modal-fade-out {
-    animation: fadeOut 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
-    }
-}
-
-@media only screen and (min-width: 768px) and (max-width: 1024px) {
-    /* Tablet responsive fixes */
-    .main-content {
-        margin-left: var(--sidebar-width, 250px) !important;
-        width: calc(100% - var(--sidebar-width, 250px)) !important;
-    }
-    
-    .page-header {
-        padding: 8px 15px;
-    }
-    
-    .content-wrapper {
-        padding: 15px 10px;
-    }
-    
-    .search-container {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    
-    .search-form {
-        gap: 12px;
-    }
-    
-    .search-form .form-group {
-        min-width: 180px;
-    }
-    
-    /* Make table container scrollable horizontally */
-    .table-wrapper {
-        overflow-x: auto;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch;
+    .calendar-day {
+        padding: 0.55rem 0.25rem;
+        text-align: center;
+        background: var(--surface);
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    /* Ensure the table takes full width of container */
-    .data-table {
-        min-width: 800px;
-        font-size: 13px;
-    }
-    
-    /* Make table columns width-responsive */
-    .data-table th,
-    .data-table td {
-        padding: 8px 6px;
-        white-space: nowrap;
-    }
-    
-    /* Adjust button sizes for tablet */
-    .btn-sm {
-        padding: 5px 8px;
-        font-size: 11px;
-    }
-    
-    /* Ensure modal content is properly sized on tablet */
-    .custom-modal-content {
-        width: 90%;
-        max-width: 700px;
-    }
-}
-
-/* Mobile Responsive Styles */
-@media (max-width: 576px) {
-    .custom-modal {
-        padding: 5px 0;
-    }
-    
-    .custom-modal-content {
-        width: 98%;
-        margin: 5px auto;
-        max-height: calc(100vh - 10px);
+        cursor: pointer;
+        font-size: 0.9rem;
     }
 
-    .custom-modal-header {
-        padding: 0.5rem;
-    }
-    
-    .custom-modal-title {
-        font-size: 1rem;
+    .calendar-day.available {
+        background: rgba(187, 247, 208, 0.32);
+        color: #166534;
+        font-weight: 600;
     }
 
-    .custom-modal-body {
-        padding: 0.75rem;
+    .calendar-day.selected {
+        background: rgba(125, 211, 252, 0.35);
+        border: 1px solid rgba(125, 211, 252, 0.45);
+        color: var(--accent-dark);
     }
 
-    .custom-modal-footer {
-        padding: 0.5rem;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .custom-modal-footer .btn {
-        width: 100%;
-        margin: 0;
-    }
-}
-
-/* Reschedule Specific Styles */
-.action-buttons {
-    display: flex;
-    gap: 5px;
-    align-items: center;
+    .calendar-day.unavailable,
+    .calendar-day.other-month,
+    .calendar-day.past-date {
+        background: rgba(243, 244, 246, 0.8);
+        color: var(--neutral-500);
+        cursor: not-allowed;
 }
 
 .time-slots-container {
-    max-height: 200px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: var(--radius-sm);
+        padding: 0.9rem;
+        max-height: 220px;
     overflow-y: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 10px;
+        background: rgba(255, 255, 255, 0.9);
 }
 
 .time-slot-option {
-    display: inline-block;
-    margin: 5px;
-    padding: 8px 12px;
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        margin: 0.35rem;
+        background: rgba(125, 211, 252, 0.18);
+        color: var(--accent-dark);
+        border: 1px solid rgba(125, 211, 252, 0.32);
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-}
-
-.time-slot-option:hover {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
+        font-size: 0.85rem;
+        font-weight: 600;
 }
 
 .time-slot-option.selected {
-    background-color: #28a745;
-    color: white;
-    border-color: #28a745;
+        border-color: rgba(247, 168, 108, 0.45);
+        background: rgba(247, 168, 108, 0.28);
+        color: var(--primary-dark);
 }
 
 .time-slot-option.disabled {
-    background-color: #f8f9fa;
-    color: #6c757d;
+        background: rgba(243, 244, 246, 0.8);
+        color: var(--neutral-500);
+        border-color: rgba(229, 231, 235, 0.8);
     cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.loading-slots {
-    text-align: center;
-    padding: 20px;
-    color: #6c757d;
-}
-
-.no-slots-available {
-    text-align: center;
-    padding: 20px;
-    color: #dc3545;
-}
-
-@media (max-width: 576px) {
-    .time-slot-option {
-        width: 100%;
-        margin: 3px 0;
-        text-align: center;
     }
-}
 
-/* Calendar Styles */
-.reschedule-calendar {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    background: white;
-    max-width: 100%;
-    margin: 0 auto;
-}
+    @media (max-width: 992px) {
+        .content-wrapper {
+            padding: 2.4rem 1.2rem 2.8rem;
+        }
 
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 0 10px;
-}
+        .filter-card {
+            padding: 1.8rem 1.6rem;
+        }
 
-.calendar-nav {
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #007bff;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
+        .search-form {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
 
-.calendar-nav:hover {
-    background-color: #f8f9fa;
-}
+        .data-table {
+            min-width: 960px;
+        }
+    }
 
-.calendar-nav:disabled {
-    color: #6c757d;
-    cursor: not-allowed;
-}
+    @media (max-width: 768px) {
+        html,
+        body {
+            overflow-x: hidden;
+        }
 
-.calendar-month-year {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-}
+        .content-wrapper {
+            padding: 2rem 1rem 2.4rem;
+        }
 
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    padding: 2px;
-}
+        .upcoming-hero {
+            padding: 2.1rem 1.8rem;
+        }
 
-.calendar-day-header {
-    background-color: #f8f9fa;
-    padding: 8px 4px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 12px;
-    color: #495057;
-}
+        .hero-meta h3 {
+            font-size: 1.85rem;
+        }
 
-.calendar-day {
-    background-color: white;
-    padding: 8px 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-    min-height: 35px;
-    display: flex;
-    align-items: center;
+        .search-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-buttons .btn-primary,
+        .search-buttons .btn-secondary {
+            width: 100%;
+            text-align: center;
+        }
+
+        .content-section {
+            padding: 1.6rem 1.2rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .data-table {
+            min-width: 840px;
+        }
+
+        .custom-modal-content {
+            width: 100%;
+        }
+
+        .time-slot-option {
+            width: calc(50% - 0.8rem);
     justify-content: center;
-    position: relative;
-}
-
-.calendar-day:hover {
-    background-color: #e3f2fd;
-}
-
-.calendar-day.other-month {
-    color: #adb5bd;
-    background-color: #f8f9fa;
-}
-
-.calendar-day.past-date {
-    color: #adb5bd;
-    background-color: #f8f9fa;
-    cursor: not-allowed;
-}
-
-.calendar-day.available {
-    background-color: #d4edda;
-    color: #155724;
-    font-weight: 600;
-}
-
-.calendar-day.available:hover {
-    background-color: #c3e6cb;
-}
-
-.calendar-day.selected {
-    background-color: #007bff;
-    color: white;
-    font-weight: 600;
-}
-
-.calendar-day.unavailable {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-}
-
-.calendar-loading {
-    text-align: center;
-    padding: 40px;
-    color: #6c757d;
-}
-
-@media (max-width: 576px) {
-    .reschedule-calendar {
-        padding: 10px;
+        }
     }
-    
-    .calendar-day {
-        min-height: 30px;
-        font-size: 12px;
+
+    @media (max-width: 540px) {
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
+        .content-wrapper {
+            padding: 1.8rem 0.9rem 2.2rem;
+            width: 362px;
+        }
+
+        .upcoming-hero {
+            padding: 1.9rem 1.5rem;
+        }
+
+        .filter-card {
+            padding: 1.6rem 1.4rem;
+        }
+
+        .search-form {
+            grid-template-columns: 1fr;
+        }
+
+        .content-section {
+            padding: 1.4rem 1.1rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .data-table {
+            min-width: 780px;
+        }
+
+        .custom-modal-content {
+            margin: 8% auto;
+        }
+
+        .time-slot-option {
+            width: 100%;
+        }
     }
-    
-    .calendar-day-header {
-        font-size: 10px;
-        padding: 6px 2px;
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
     }
 }
 </style>
@@ -928,24 +751,31 @@
 
 @section('content')
 <div class="content-wrapper">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-title">
-            <h3>Upcoming Details of Your Appointments</h3>
+    <section class="upcoming-hero">
+        <div class="hero-meta">
+            <h3>Upcoming Appointments</h3>
+            <p>Stay ahead of your schedule by reviewing pending consultations, joining upcoming sessions, and keeping documents up to date.</p>
+            <span class="stats-pill">
+                <i class="fas fa-clock"></i>
+                {{ $bookings->count() }} {{ Str::plural('upcoming appointment', $bookings->count()) }}
+            </span>
         </div>
-        <ul class="breadcrumb">
-            <li>Home</li>
-            <li class="active">upcoming-appointment</li>
+        <ul class="hero-breadcrumb">
+            <li><a href="{{ route('user.dashboard') }}">Home</a></li>
+            <li class="active">Upcoming Appointments</li>
         </ul>
-    </div>
-    <div class="search-container">
+    </section>
+
+    <section class="filter-card">
+        <header>
+            <h4>Filter Upcoming Sessions</h4>
+        </header>
         <form action="{{ route('user.upcoming-appointment.index') }}" method="GET" class="search-form">
             <div class="form-group">
                 <label for="search_name">Search</label>
                 <input type="text" name="search_name" id="search_name" value="{{ request('search_name') }}" placeholder="Search appointment">
             </div>
 
-            <!-- Service Filter -->
             <div class="form-group">
                 <label for="service">Service</label>
                 <select name="service" id="service" class="form-control">
@@ -958,7 +788,6 @@
                 </select>
             </div>
             
-            <!-- Plan Type Filter -->
             <div class="form-group">
                 <label for="plan_type">Plan Type</label>
                 <select name="plan_type" id="plan_type" class="form-control">
@@ -982,13 +811,13 @@
             </div>
 
             <div class="search-buttons">
-                <button type="submit" class="btn-success">Search</button>
+                <button type="submit" class="btn-primary">Search</button>
                 <a href="{{ route('user.upcoming-appointment.index') }}" class="btn-secondary">Reset</a>
             </div>
         </form>
-    </div>
+    </section>
 
-    <div class="content-section">
+    <section class="content-section">
         <div class="section-header mb-3 d-flex justify-content-between align-items-center">
             <h4>
                 Results: {{ $bookings->count() }} {{ Str::plural('appointment', $bookings->count()) }}
@@ -998,9 +827,10 @@
                 @if(request('plan_type') && request('plan_type') != 'all')
                     with plan <strong>{{ $formattedPlanTypes[request('plan_type')] ?? request('plan_type') }}</strong>
                 @endif
-                <small class="d-block text-muted mt-1">Showing all pending and confirmed future appointments</small>
+                <small class="d-block">Showing all pending and confirmed future appointments</small>
             </h4>   
         </div>
+
         <div class="table-wrapper">
             <table class="data-table">
                 <thead>
@@ -1025,16 +855,9 @@
                 <tbody>
                     @forelse($bookings as $index => $booking)
                         @php
-                            // The timedate is already filtered to be the next upcoming one
                             $upcomingTimedate = $booking->timedates->first();
-                            
-                            // Check if this service is being filtered
                             $isFilteredService = request('service') == $booking->service_name;
-                            
-                            // Check if this plan type is being filtered
                             $isFilteredPlan = request('plan_type') == $booking->plan_type;
-                            
-                            // Determine plan type class
                             $planTypeClass = 'plan-type-badge';
                             $planTypeLower = strtolower($booking->plan_type ?? '');
                             
@@ -1075,25 +898,27 @@
                                 </td>
                                 <td>
                                     @if($booking->sub_service_name)
-                                        <span class="badge bg-info">{{ $booking->sub_service_name }}</span>
+                                        <span class="subservice-pill">{{ $booking->sub_service_name }}</span>
                                     @else
-                                        <span class="text-muted">-</span>
+                                        <span class="empty-state">-</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($booking->plan_type)
                                         <span class="{{ $planTypeClass }}">{{ $booking->formatted_plan_type }}</span>
                                     @else
-                                        <span class="text-muted">No Plan</span>
+                                        <span class="empty-state">No Plan</span>
                                     @endif
                                 </td>
                                 <td>{{ $booking->sessions_taken ?? 0 }}</td>
                                 <td>{{ $booking->sessions_remaining ?? 0 }}</td>
                                 <td>
                                     @if($upcomingTimedate->meeting_link)
-                                        <a href="{{ $upcomingTimedate->meeting_link }}" target="_blank" class="btn btn-primary" style="padding: 4px 8px;">Join</a>
+                                        <a href="{{ $upcomingTimedate->meeting_link }}" target="_blank" class="meet-link-btn">
+                                            <i class="fas fa-video"></i> Join
+                                        </a>
                                     @else
-                                        <span class="text-muted">No link</span>
+                                        <span class="empty-state">No link</span>
                                     @endif
                                 </td>
                                 <td>
@@ -1125,7 +950,7 @@
                                             </a>
                                         @endforeach
                                     @else
-                                        <span class="text-muted">No documents</span>
+                                        <span class="empty-state">No documents</span>
                                     @endif
                                 </td>
                                 <td>
@@ -1134,7 +959,6 @@
                                             $rescheduleEnabled = $booking->reschedule_count < $booking->max_reschedules_allowed;
                                             $remainingReschedules = $booking->max_reschedules_allowed - $booking->reschedule_count;
                                         @endphp
-                                        
                                         @if($rescheduleEnabled)
                                             <button type="button" 
                                                     class="btn btn-sm btn-warning reschedule-btn" 
@@ -1159,7 +983,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </section>
 </div>
 
 <!-- Custom Upload Modal -->
