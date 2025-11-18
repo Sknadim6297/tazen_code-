@@ -137,6 +137,9 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     });
 
     Route::resource('testimonials', TestimonialController::class);
+    Route::resource('careers', \App\Http\Controllers\Admin\CareerController::class);
+    Route::resource('job-applications', \App\Http\Controllers\Admin\JobApplicationController::class)->only(['index', 'show', 'destroy']);
+    Route::put('job-applications/{id}/update-status', [\App\Http\Controllers\Admin\JobApplicationController::class, 'updateStatus'])->name('job-applications.update-status');
     Route::resource('servicemcq', ServiceMCQController::class);
 
     Route::resource('banner', BannerController::class);

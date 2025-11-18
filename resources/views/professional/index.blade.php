@@ -863,108 +863,186 @@
     .commission-card {
         display: flex;
         flex-direction: column;
-        gap: 1.8rem;
+        gap: 2rem;
     }
     
     .commission-card__head {
         display: flex;
-        align-items: center;
-        gap: 1.1rem;
+        align-items: flex-start;
+        gap: 1.2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.15);
     }
     
     .commission-card__head h2 {
         margin: 0;
-        font-size: 1.18rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #0f172a;
+        line-height: 1.3;
     }
     
     .commission-card__head p {
-        margin: 0.35rem 0 0;
+        margin: 0.5rem 0 0;
         color: #64748b;
-        font-size: 0.92rem;
+        font-size: 0.94rem;
+        line-height: 1.5;
     }
     
     .commission-card__icon {
-        width: 54px;
-        height: 54px;
+        width: 56px;
+        height: 56px;
         border-radius: 16px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: rgba(79, 70, 229, 0.12);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.08));
         color: #4338ca;
-        font-size: 1.4rem;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
     }
     
     .commission-card__grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.4rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
     }
     
     .commission-pill {
-        border-radius: 18px;
-        padding: 1.6rem 1.4rem;
+        border-radius: 14px;
+        padding: 1.1rem 1rem;
         background: #f8fafc;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .commission-pill:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
     }
     
     .commission-pill h3 {
         margin: 0;
-        font-size: 0.98rem;
+        font-size: 0.88rem;
         font-weight: 700;
         color: #0f172a;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
+        line-height: 1.3;
     }
     
     .commission-pill__value {
-        font-size: 2rem;
+        font-size: 1.85rem;
         font-weight: 700;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        margin: 0.2rem 0;
     }
     
     .commission-pill p {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.82rem;
         color: #475569;
-        line-height: 1.48;
+        line-height: 1.5;
     }
     
     .commission-pill--blue {
-        background: linear-gradient(145deg, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.05));
-        border-color: rgba(59, 130, 246, 0.35);
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.04));
+        border-color: rgba(59, 130, 246, 0.25);
+    }
+    
+    .commission-pill--blue h3 {
+        color: #1e40af;
+    }
+    
+    .commission-pill--blue .commission-pill__value {
         color: #1d4ed8;
     }
     
-    .commission-pill--blue .commission-pill__value { color: #1d4ed8; }
+    .commission-pill--blue p {
+        color: #1e3a8a;
+    }
     
     .commission-pill--red {
-        background: linear-gradient(145deg, rgba(239, 68, 68, 0.15), rgba(248, 113, 113, 0.05));
-        border-color: rgba(239, 68, 68, 0.35);
-        color: #b91c1c;
+        background: linear-gradient(145deg, rgba(239, 68, 68, 0.12), rgba(248, 113, 113, 0.04));
+        border-color: rgba(239, 68, 68, 0.25);
     }
     
-    .commission-pill--red .commission-pill__value { color: #b91c1c; }
+    .commission-pill--red h3 {
+        color: #991b1b;
+    }
+    
+    .commission-pill--red .commission-pill__value {
+        color: #dc2626;
+    }
+    
+    .commission-pill--red p {
+        color: #991b1b;
+    }
     
     .commission-pill--green {
-        background: linear-gradient(145deg, rgba(34, 197, 94, 0.16), rgba(34, 197, 94, 0.05));
-        border-color: rgba(34, 197, 94, 0.35);
-        color: #047857;
+        background: linear-gradient(145deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.04));
+        border-color: rgba(34, 197, 94, 0.25);
     }
     
-    .commission-pill--green .commission-pill__value { color: #047857; }
+    .commission-pill--green h3 {
+        color: #14532d;
+    }
+    
+    .commission-pill--green .commission-pill__value {
+        color: #16a34a;
+    }
+    
+    .commission-pill--green p {
+        color: #14532d;
+    }
     
     @media (max-width: 768px) {
         .commission-card__head {
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.8rem;
+            gap: 1rem;
+            padding-bottom: 1.2rem;
+        }
+        
+        .commission-card__icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.3rem;
+        }
+        
+        .commission-card__head h2 {
+            font-size: 1.15rem;
+        }
+        
+        .commission-card__head p {
+            font-size: 0.88rem;
+        }
+        
+        .commission-card__grid {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+        
+        .commission-pill {
+            padding: 1.5rem 1.3rem;
+        }
+        
+        .commission-pill__value {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .commission-card__grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
     
@@ -1323,28 +1401,22 @@
                 <h2>Commission & Fees</h2>
                 <p>Understand how each booking and service request contributes to your earnings.</p>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
-                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Main Margin</h5>
-                    <div style="margin: 8px 0;">
-                        <span style="font-size: 24px; font-weight: bold; color: #28a745;">{{ number_format($marginRate, 2) }}%</span>
-                    </div>
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Platform commission on completed bookings</p>
-                </div>
-                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
-                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Service Request Margin</h5>
-                    <div style="margin: 8px 0;">
-                        <span style="font-size: 24px; font-weight: bold; color: #3498db;">{{ number_format($serviceRequestMargin, 2) }}%</span>
-                    </div>
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Commission for additional service requests</p>
-                </div>
-                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #e74c3c;">
-                    <h5 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: 600; font-size: 16px;">Negotiation Offset</h5>
-                    <div style="margin: 8px 0;">
-                        <span style="font-size: 24px; font-weight: bold; color: #e74c3c;">{{ number_format($negotiationOffset, 2) }}%</span>
-                    </div>
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Maximum negotiation limit for customers</p>
-                </div>
+        </header>
+        <div class="commission-card__grid">
+            <div class="commission-pill commission-pill--green">
+                <h3>Main Margin</h3>
+                <div class="commission-pill__value">{{ number_format($marginRate, 2) }}%</div>
+                <p>Platform commission on completed bookings</p>
+            </div>
+            <div class="commission-pill commission-pill--blue">
+                <h3>Service Request Margin</h3>
+                <div class="commission-pill__value">{{ number_format($serviceRequestMargin, 2) }}%</div>
+                <p>Commission for additional service requests</p>
+            </div>
+            <div class="commission-pill commission-pill--red">
+                <h3>Negotiation Offset</h3>
+                <div class="commission-pill__value">{{ number_format($negotiationOffset, 2) }}%</div>
+                <p>Maximum negotiation limit for customers</p>
             </div>
         </div>
     </div>

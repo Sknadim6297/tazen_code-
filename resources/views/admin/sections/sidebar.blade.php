@@ -316,6 +316,27 @@
                         </ul>
                     </li>
 
+                            @php
+                                $pendingApplicationsCount = \App\Models\JobApplication::where('status', 'pending')->count();
+                            @endphp
+                            <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">Career Page
+                                    <i class="ri-arrow-down-s-line side-menu__angle"></i></a>
+                        <ul class="slide-menu child2">
+                            <li class="slide">
+                                <a href="{{ route('admin.careers.index') }}" class="side-menu__item">Career Jobs</a>
+                            </li>
+                            <li class="slide">
+                                <a href="{{ route('admin.job-applications.index') }}" class="side-menu__item">
+                                    Job Applications
+                                    @if($pendingApplicationsCount > 0)
+                                        <span class="badge bg-danger rounded-pill ms-2">{{ $pendingApplicationsCount }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                         </ul>
                     @endif
                      <!-- Download Reports Menu -->

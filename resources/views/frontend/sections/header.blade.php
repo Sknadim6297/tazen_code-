@@ -117,50 +117,126 @@
         <div class="category-nav" id="categoryNav">
             <div class="category-container">
                 <ul class="category-list" id="categoryList">
-                    <li class="category-item trending">
-                        <a href="{{ route('gridlisting') }}" class="category-link">
-                            <i class="fas fa-fire"></i>
-                            <span>Trending</span>
-                        </a>
-                        <!-- Proper Dropdown -->
-                        <div class="mega-dropdown">
-                            <div class="dropdown-header">
-                                <h3>Trending Services</h3>
-                                <p>Most popular services right now</p>
-                            </div>
-                            <div class="dropdown-columns">
-                                @php
-                                    // Get first 10 sub-services across all services for trending
-                                    $trending_subservices = \App\Models\SubService::with('service')
-                                        ->take(10)
-                                        ->get()
-                                        ->chunk(5);
-                                @endphp
-                                @foreach($trending_subservices as $chunk)
-                                <div class="dropdown-column">
-                                    <h4>{{ $loop->first ? 'Popular Services' : 'More Services' }}</h4>
-                                    <ul>
-                                        @foreach($chunk as $subService)
-                                        <li>
-                                            <a href="{{ route('service.show', $subService->service?->slug) }}">{{ $subService->name }}</a>
-                                        </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </li>
-                    
                     @php
                         // Fetch active headers with their features and services
                         $activeHeaders = \App\Models\Header::where('status', 'active')
                             ->with(['features.services'])
                             ->latest()
                             ->get();
+                        
+                        // Find trending header (case-insensitive match)
+                        $trendingHeader = $activeHeaders->first(function($header) {
+                            return strtolower(trim($header->tagline)) === 'trending';
+                        });
+                        
+                        // Get other headers (excluding trending)
+                        $otherHeaders = $activeHeaders->filter(function($header) {
+                            return strtolower(trim($header->tagline)) !== 'trending';
+                        });
                     @endphp
                     
-                    @foreach($activeHeaders as $header)
+                    {{-- Dynamic Trending Header --}}
+                    @if($trendingHeader)
+                        <li class="category-item trending">
+                            <a href="{{ route('gridlisting') }}" class="category-link">
+                                <i class="fas fa-fire"></i>
+                                <span>{{ $trendingHeader->tagline }}</span>
+                            </a>
+                            <!-- Dynamic Dropdown from Database -->
+                            <div class="mega-dropdown">
+                                @if($trendingHeader->features->count() > 0)
+                                    <div class="dropdown-header">
+                                        <h3>{{ $trendingHeader->tagline }} Services</h3>
+                                        {{-- <p>Most popular services right now</p> --}}
+                                    </div>
+                                    <div class="dropdown-columns">
+                                        @foreach($trendingHeader->features as $feature)
+                                        <div class="dropdown-column">
+                                            <h4>{{ $feature->feature_heading }}</h4>
+                                            <ul>
+                                                @if($feature->services->count() > 0)
+                                                    @foreach($feature->services as $service)
+                                                    <li>
+                                                        <a href="{{ route('service.show', $service->slug) }}">{{ $service->name }}</a>
+                                                    </li>
+                                                    @endforeach
+                                                @else
+                                                    <li><span style="padding: 4px 0; color: #74767e; font-size: 13px;">No services available</span></li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    {{-- Fallback if no features configured --}}
+                                    <div class="dropdown-header">
+                                        <h3>{{ $trendingHeader->tagline }} Services</h3>
+                                        {{-- <p>Most popular services right now</p> --}}
+                                    </div>
+                                    <div class="dropdown-columns">
+                                        @php
+                                            // Get first 10 sub-services across all services for trending
+                                            $trending_subservices = \App\Models\SubService::with('service')
+                                                ->take(10)
+                                                ->get()
+                                                ->chunk(5);
+                                        @endphp
+                                        @foreach($trending_subservices as $chunk)
+                                        <div class="dropdown-column">
+                                            <h4>{{ $loop->first ? 'Popular Services' : 'More Services' }}</h4>
+                                            <ul>
+                                                @foreach($chunk as $subService)
+                                                <li>
+                                                    <a href="{{ route('service.show', $subService->service?->slug) }}">{{ $subService->name }}</a>
+                                                </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </li>
+                    @else
+                        {{-- Fallback: Hardcoded Trending if no database entry exists --}}
+                        <li class="category-item trending">
+                            <a href="{{ route('gridlisting') }}" class="category-link">
+                                <i class="fas fa-fire"></i>
+                                <span>Trending</span>
+                            </a>
+                            <!-- Proper Dropdown -->
+                            <div class="mega-dropdown">
+                                <div class="dropdown-header">
+                                    <h3>Trending Services</h3>
+                                    <p>Most popular services right now</p>
+                                </div>
+                                <div class="dropdown-columns">
+                                    @php
+                                        // Get first 10 sub-services across all services for trending
+                                        $trending_subservices = \App\Models\SubService::with('service')
+                                            ->take(10)
+                                            ->get()
+                                            ->chunk(5);
+                                    @endphp
+                                    @foreach($trending_subservices as $chunk)
+                                    <div class="dropdown-column">
+                                        <h4>{{ $loop->first ? 'Popular Services' : 'More Services' }}</h4>
+                                        <ul>
+                                            @foreach($chunk as $subService)
+                                            <li>
+                                                <a href="{{ route('service.show', $subService->service?->slug) }}">{{ $subService->name }}</a>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </li>
+                    @endif
+                    
+                    {{-- Other Active Headers (excluding Trending) --}}
+                    @foreach($otherHeaders as $header)
                     <li class="category-item">
                         <a href="{{ route('gridlisting') }}" class="category-link">
                             <span>{{ $header->tagline }}</span>

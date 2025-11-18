@@ -384,6 +384,15 @@ Route::get('stylist', function () {
 Route::get('job', function () {
     return view('frontend.sections.job');
 });
+Route::get('career', function () {
+    $careers = \App\Models\Career::where('status', 'active')->latest()->get();
+    return view('frontend.sections.career', compact('careers'));
+})->name('career');
+Route::get('job-details/{id}', function ($id) {
+    $career = \App\Models\Career::findOrFail($id);
+    return view('frontend.sections.job-details', compact('career'));
+})->name('job.details');
+Route::post('job-application/store', [\App\Http\Controllers\Frontend\JobApplicationController::class, 'store'])->name('job.application.store');
 Route::get('astro', function () {
     return view('frontend.sections.astro');
 });

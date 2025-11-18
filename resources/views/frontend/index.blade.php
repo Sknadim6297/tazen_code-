@@ -7,6 +7,15 @@
 	<link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive2.css') }}" media="screen and (max-width: 992px)">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 	 <style>
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        main {
+            overflow-x: hidden;
+        }
+
         /* Hide video and show image on mobile */
         @media (max-width: 992px) {
             .header-video--media {
@@ -3988,76 +3997,74 @@
 					<p class="section-subtitle">Stay Updated with the Latest Workshops, Webinars, and Expert-Led Sessions</p>
 				</div>
 				
-			<div class="row fiverr-grid justify-content-center g-3">
-				@php
-					$displayedEvents = 0;
-					$maxEventsToShow = 6;
-				@endphp
-				
-				@foreach($eventDetails as $eventDetail)
-					@if($displayedEvents < $maxEventsToShow)
-					<div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-						<div class="fiverr-card">
-							<div class="fiverr-image">
-								@php
-									// Determine image path based on creator type
-									if ($eventDetail->creator_type === 'admin') {
-										$imagePath = is_array($eventDetail->banner_image) && count($eventDetail->banner_image) > 0 
-											? $eventDetail->banner_image[0] 
-											: ($eventDetail->event->card_image ?? 'default-event.jpg');
-									} else {
-										$imagePath = $eventDetail->event->card_image ?? 'default-event.jpg';
-									}
-								@endphp
-								<img src="{{ asset('storage/' . $imagePath) }}" 
-									 data-src="{{ asset('storage/' . $imagePath) }}"
-									 class="img-fluid" alt="{{ $eventDetail->event->heading }}">
-									<div class="fiverr-overlay">
-										<div class="fiverr-content">
-											<h3 class="fiverr-title">{{ $eventDetail->event->heading }}</h3>
-											<p class="fiverr-description">{{ $eventDetail->event->mini_heading }}</p>
-											<div class="fiverr-meta-column">
-												<div class="fiverr-meta-item">
-													<span class="fiverr-price">₹{{ number_format($eventDetail->starting_fees, 2) }}</span>
-												</div>
-												<div class="fiverr-meta-item">
-													@php
-														$eventDate = $eventDetail->creator_type === 'admin' 
-															? $eventDetail->event->date 
-															: $eventDetail->starting_date;
-													@endphp
-													<span class="fiverr-date">{{ $eventDate ? \Carbon\Carbon::parse($eventDate)->format('d M, Y') : '-' }}</span>
-												</div>
-												@if($eventDetail->creator_type === 'professional')
-													<div class="fiverr-meta-item">
-														<span class="badge bg-info text-white">By {{ $eventDetail->professional->name ?? 'Professional' }}</span>
-													</div>
-												@else
-													<div class="fiverr-meta-item">
-														<span class="badge bg-primary text-white">By Tazen</span>
-													</div>
-												@endif
-												<div class="fiverr-meta-item fiverr-btn-container">
-													<a href="{{ url('/allevent/' . $eventDetail->event_id) }}" class="fiverr-btn">View Event</a>
-												</div>
-											</div>
-										</div>
-									</div>
-							</div>
-						</div>
-					</div>
-					@php $displayedEvents++; @endphp
-					@endif
-				@endforeach
-				
-				
-				@if($displayedEvents === 0)
-					{{-- Show message when no events available --}}
+			@php
+				$eventChunks = collect($eventDetails ?? [])->take(6)->chunk(3);
+			@endphp
+
+			@if($eventChunks->isEmpty())
+				<div class="row justify-content-center">
 					<div class="col-12 text-center py-5">
 						<p class="text-muted">No events available at the moment. Check back soon!</p>
 					</div>
-				@endif
-			</div>
+				</div>
+			@else
+				@foreach($eventChunks as $chunk)
+					<div class="row fiverr-grid justify-content-center g-3 mb-2">
+						@foreach($chunk as $eventDetail)
+							<div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+								<div class="fiverr-card">
+									<div class="fiverr-image">
+										@php
+											// Determine image path based on creator type
+											if ($eventDetail->creator_type === 'admin') {
+												$imagePath = is_array($eventDetail->banner_image) && count($eventDetail->banner_image) > 0 
+													? $eventDetail->banner_image[0] 
+													: ($eventDetail->event->card_image ?? 'default-event.jpg');
+											} else {
+												$imagePath = $eventDetail->event->card_image ?? 'default-event.jpg';
+											}
+										@endphp
+										<img src="{{ asset('storage/' . $imagePath) }}" 
+											 data-src="{{ asset('storage/' . $imagePath) }}"
+											 class="img-fluid" alt="{{ $eventDetail->event->heading }}">
+											<div class="fiverr-overlay">
+												<div class="fiverr-content">
+													<h3 class="fiverr-title">{{ $eventDetail->event->heading }}</h3>
+													<p class="fiverr-description">{{ $eventDetail->event->mini_heading }}</p>
+													<div class="fiverr-meta-column">
+														<div class="fiverr-meta-item">
+															<span class="fiverr-price">₹{{ number_format($eventDetail->starting_fees, 2) }}</span>
+														</div>
+														<div class="fiverr-meta-item">
+															@php
+																$eventDate = $eventDetail->creator_type === 'admin' 
+																	? $eventDetail->event->date 
+																	: $eventDetail->starting_date;
+															@endphp
+															<span class="fiverr-date">{{ $eventDate ? \Carbon\Carbon::parse($eventDate)->format('d M, Y') : '-' }}</span>
+														</div>
+														@if($eventDetail->creator_type === 'professional')
+															<div class="fiverr-meta-item">
+																<span class="badge bg-info text-white">By {{ $eventDetail->professional->name ?? 'Professional' }}</span>
+															</div>
+														@else
+															<div class="fiverr-meta-item">
+																<span class="badge bg-primary text-white">By Tazen</span>
+															</div>
+														@endif
+														<div class="fiverr-meta-item fiverr-btn-container">
+															<a href="{{ url('/allevent/' . $eventDetail->event_id) }}" class="fiverr-btn">View Event</a>
+														</div>
+													</div>
+												</div>
+											</div>
+									</div>
+								</div>
+							</div>
+						@endforeach
+					</div>
+				@endforeach
+			@endif
 
 				<div class="text-center mt-5">
 					<a href="{{ route('event.list') }}" class="btn btn-view-all-events btn-lg" style="background: linear-gradient(135deg, #152a70, #c51010, #f39c12); color: white; border: none; border-radius: 4px; font-weight: 500; font-size: 1rem; transition: all 0.3s ease; text-decoration: none; padding: 12px 24px;">View All Events</a>
@@ -4120,6 +4127,43 @@
 		<div class="bg_gray">
 			<div class="container margin_60_40 how">
 				@foreach($howworks as $howwork)
+				@php
+					$howworkImages = [
+						'image1' => $howwork->image1 ?? null,
+						'image2' => $howwork->image2 ?? null,
+						'image3' => $howwork->image3 ?? null,
+					];
+
+					foreach ($howworkImages as $key => $path) {
+						if (empty($path)) {
+							$howworkImages[$key] = asset('frontend/assets/img/placeholders/howwork-' . $key . '.png');
+							continue;
+						}
+
+						if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])) {
+							$howworkImages[$key] = $path;
+							continue;
+						}
+
+						$cleanPath = ltrim($path, '/');
+
+						if (\Illuminate\Support\Str::startsWith($cleanPath, 'storage/')) {
+							$storagePath = \Illuminate\Support\Str::after($cleanPath, 'storage/');
+						} else {
+							$storagePath = $cleanPath;
+						}
+
+						if (\Illuminate\Support\Facades\Storage::disk('public')->exists($storagePath)) {
+							$howworkImages[$key] = \Illuminate\Support\Facades\Storage::url($storagePath);
+						} elseif (file_exists(public_path($cleanPath))) {
+							$howworkImages[$key] = asset($cleanPath);
+						} elseif (file_exists(public_path('storage/' . $storagePath))) {
+							$howworkImages[$key] = asset('storage/' . $storagePath);
+						} else {
+							$howworkImages[$key] = asset('frontend/assets/img/placeholders/howwork-' . $key . '.png');
+						}
+					}
+				@endphp
 				<div class="main_title center">
 					<span><em></em></span>
 					<h2>How does it work?</h2>
@@ -4131,17 +4175,14 @@
 							<strong>1</strong>
 							<h3>{{ $howwork->heading1 }}</h3>
 							<p>{{ $howwork->description1 }}</p>
-							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-
-								data-src="url('{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}')" alt="" class="arrow_1 lazy">
+							<img src="{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}" alt="" class="arrow_1">
 						</div>
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
 						<figure><img
-							src="{{ asset('storage/'.$howwork->image1) }}" 
-							data-src="{{ asset('storage/'.$howwork->image1) }}"  
+							src="{{ $howworkImages['image1'] }}"  
 							alt="How it works"
-							class="img-fluid lazy"
+							class="img-fluid"
 							width="180"
 							height="180">
 						</figure>
@@ -4151,10 +4192,9 @@
 				<div class="row justify-content-center align-items-center add_bottom_45">
 					<div class="col-lg-5 pr-lg-5 text-center d-none d-lg-block">
 						<figure><img
-							src="{{ asset('storage/'.$howwork->image2) }}" 
-							data-src="{{ asset('storage/'.$howwork->image2) }}"  
+							src="{{ $howworkImages['image2'] }}"  
 							alt="How it works"
-							class="img-fluid lazy"
+							class="img-fluid"
 							width="180"
 							height="180"></figure>
 					</div>
@@ -4163,8 +4203,7 @@
 							<strong>2</strong>
 							<h3>{{ $howwork->heading2 }}</h3>
 							<p>{{ $howwork->description2 }}</p>
-							<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-								data-src="img/services-pic/arrow_about.png" alt="" class="arrow_2 lazy">
+							<img src="{{ asset('frontend/assets/img/services-pic/arrow_about.png') }}" alt="" class="arrow_2">
 						</div>
 					</div>
 				</div>
@@ -4179,10 +4218,9 @@
 					</div>
 					<div class="col-lg-5 pl-lg-5 text-center d-none d-lg-block">
 						<figure><img
-							src="{{ asset('storage/'.$howwork->image3) }}" 
-							data-src="{{ asset('storage/'.$howwork->image3) }}"  
+							src="{{ $howworkImages['image3'] }}"  
 							alt="How it works"
-							class="img-fluid lazy"
+							class="img-fluid"
 							width="180"
 							height="180"></figure>
 					</div>
@@ -4569,6 +4607,7 @@
     @endsection
 	@section('script')
 	<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+	
 	<script>
 $(document).ready(function(){
   $('.testimonial_slider').slick({
