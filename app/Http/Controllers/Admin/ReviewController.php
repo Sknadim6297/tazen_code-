@@ -20,6 +20,16 @@ class ReviewController extends Controller
     public function index(Request $request)
     {
         $query = Review::with(['user', 'professional']);
+        
+        // Filter by type (customer/professional)
+        if ($request->filled('type')) {
+            if ($request->type === 'customer') {
+                $query->whereHas('user');
+            } elseif ($request->type === 'professional') {
+                $query->whereHas('professional');
+            }
+        }
+        
         if ($request->filled('rating')) {
             $query->where('rating', '=', (int)$request->rating);
         }
@@ -36,10 +46,19 @@ class ReviewController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
+        
         $query->orderBy('created_at', 'desc');
         $reviews = $query->paginate(10)->appends($request->all());
-
-        return view('admin.reviews.index', compact('reviews'));
+        
+        // Get statistics
+        $totalReviews = Review::count();
+        $customerReviews = Review::whereHas('user')->count();
+        $professionalReviews = Review::whereHas('professional')->count();
+        $averageRating = Review::avg('rating');
+        
+        $filterType = $request->get('type', 'all');
+        
+        return view('admin.reviews.index', compact('reviews', 'totalReviews', 'customerReviews', 'professionalReviews', 'averageRating', 'filterType'));
     }
 
     /**
@@ -218,5 +237,31 @@ class ReviewController extends Controller
 
         return redirect()->route('admin.reviews.index')
             ->with('success', 'Review deleted successfully.');
+    }
+    
+    /**
+     * Approve a review.
+     *
+     * @param Review $review
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function approve(Review $review)
+    {
+        $review->update(['is_approved' => true]);
+        
+        return redirect()->back()->with('success', 'Review approved successfully.');
+    }
+    
+    /**
+     * Reject/Disapprove a review.
+     *
+     * @param Review $review
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function reject(Review $review)
+    {
+        $review->update(['is_approved' => false]);
+        
+        return redirect()->back()->with('success', 'Review rejected successfully.');
     }
 }

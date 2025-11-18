@@ -151,6 +151,9 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     // Send email to customers or professionals
     Route::post('send-email', [ManageProfessionalController::class, 'sendEmail'])->name('send-email');
+    
+    // Preview email template (for testing)
+    Route::get('preview-email-template', [ManageProfessionalController::class, 'previewEmailTemplate'])->name('preview-email-template');
 
     // Professional bank details and payment routes
     Route::get('/professional/bank-details/export', [ManageProfessionalController::class, 'exportBankDetails'])->name('professional.bank-details.export');
@@ -231,6 +234,17 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
 
     Route::get('event/export', [App\Http\Controllers\Admin\EventController::class, 'export'])
         ->name('event.export');
+    
+    // Admin Reviews Management Routes
+    Route::prefix('reviews')->name('reviews.')->group(function () {
+        Route::get('/', [ReviewController::class, 'index'])->name('index');
+        Route::delete('/{review}', [ReviewController::class, 'destroy'])->name('destroy');
+        Route::post('/{review}/approve', [ReviewController::class, 'approve'])->name('approve');
+        Route::post('/{review}/reject', [ReviewController::class, 'reject'])->name('reject');
+        Route::get('/export-pdf', [ReviewController::class, 'exportReviewsToPdf'])->name('export-pdf');
+        Route::get('/export-excel', [ReviewController::class, 'exportReviewsToExcel'])->name('export-excel');
+    });
+    
     Route::get('reviews/export', [App\Http\Controllers\Admin\ReviewController::class, 'export'])
         ->name('reviews.export');
 

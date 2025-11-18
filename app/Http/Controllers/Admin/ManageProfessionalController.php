@@ -10,6 +10,7 @@ use App\Models\ProfessionalService;
 use App\Models\Service;
 use App\Models\Profile;
 use App\Models\Rate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ProfessionalDeactivated;
@@ -1186,23 +1187,57 @@ class ManageProfessionalController extends Controller
             $messageContent = $request->message;
             $recipientType = $request->recipient_type;
 
-            // Send email using Laravel's Mail facade
-            Mail::send([], [], function ($message) use ($recipientEmail, $subject, $messageContent) {
+            // Get recipient name based on type
+            $recipientName = 'Valued Customer'; // Default fallback
+            
+            if ($recipientType === 'customer') {
+                $customer = \App\Models\User::where('email', $recipientEmail)->first();
+                if ($customer) {
+                    $recipientName = $customer->name;
+                }
+            } elseif ($recipientType === 'professional') {
+                $professional = \App\Models\Professional::where('email', $recipientEmail)->first();
+                if ($professional) {
+                    $recipientName = $professional->name;
+                }
+            }
+
+            // Send email using the professional template
+            Mail::send('emails.admin-notification', [
+                'recipientName' => $recipientName,
+                'messageContent' => $messageContent,
+                'subject' => $subject
+            ], function ($message) use ($recipientEmail, $subject) {
                 $message->to($recipientEmail)
                     ->subject($subject)
-                    ->html($messageContent);
+                    ->from(config('mail.from.address', 'admin@tazen.com'), 'Tazen Admin');
             });
 
             return response()->json([
                 'success' => true,
-                'message' => 'Email sent successfully to ' . ucfirst($recipientType) . '!'
+                'message' => 'Email sent successfully to ' . $recipientName . ' (' . ucfirst($recipientType) . ')!'
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Email sending failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send email. Please check your email configuration.'
+                'message' => 'Failed to send email. Please check your email configuration. Error: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Preview the email template (for testing purposes)
+     */
+    public function previewEmailTemplate()
+    {
+        $sampleData = [
+            'recipientName' => 'Nadeem Hossain',
+            'messageContent' => 'We are pleased to inform you that your account has been successfully verified and approved. You can now access all the features available on our platform. If you have any questions or need assistance, please feel free to contact our support team.',
+            'subject' => 'Account Verification Completed'
+        ];
+
+        return view('emails.admin-notification', $sampleData);
     }
 }

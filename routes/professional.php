@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\Frontend\AuthController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\Professional\ProfileController;
 use App\Http\Controllers\Professional\RateController;
 use App\Http\Controllers\Professional\RequestedServiceController;
 use App\Http\Controllers\Professional\ServiceController;
+use App\Http\Controllers\Professional\EventBookingController;
+use App\Http\Controllers\Professional\ReviewController;
 use App\Http\Controllers\BookingChatController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -124,6 +127,19 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         Route::get('/{eventDetail}/edit', [App\Http\Controllers\Professional\EventDetailController::class, 'edit'])->name('edit');
         Route::put('/{eventDetail}', [App\Http\Controllers\Professional\EventDetailController::class, 'update'])->name('update');
         Route::delete('/{eventDetail}', [App\Http\Controllers\Professional\EventDetailController::class, 'destroy'])->name('destroy');
+    });
+
+    // Professional Event Bookings routes
+    Route::prefix('event-bookings')->name('event-bookings.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\EventBookingController::class, 'index'])->name('index');
+        Route::get('/{eventBooking}', [App\Http\Controllers\Professional\EventBookingController::class, 'show'])->name('show');
+        Route::put('/{eventBooking}/status', [App\Http\Controllers\Professional\EventBookingController::class, 'updateStatus'])->name('update-status');
+    });
+
+    // Reviews routes
+    Route::prefix('reviews')->name('reviews.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\ReviewController::class, 'index'])->name('index');
+        Route::get('/{review}', [App\Http\Controllers\Professional\ReviewController::class, 'show'])->name('show');
     });
 
     // Booking Chat Routes for Professional

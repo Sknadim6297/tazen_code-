@@ -18,7 +18,7 @@ class AdminLoginController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::guard('admin')->attempt($credentials)) {
-            return  redirect()->intended('/admin/dashboard')->with('status', 'You are logged in as admin!');
+            return redirect()->intended(route('admin.dashboard'))->with('status', 'You are logged in as admin!');
         }
 
         return redirect()->back()->withErrors([

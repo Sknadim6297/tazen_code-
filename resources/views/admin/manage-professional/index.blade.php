@@ -834,7 +834,13 @@
                     </div>
                     <div class="alert alert-info">
                         <i class="ri-information-line me-2"></i>
-                        <strong>Note:</strong> This email will be sent from the admin email address configured in your system.
+                        <strong>Professional Email Format:</strong> Your message will be formatted with:
+                        <ul class="mb-0 mt-2">
+                            <li>Personalized greeting: "Dear [Professional Name],"</li>
+                            <li>Admin introduction: "Admin wants to inform you that..."</li>
+                            <li>Your message content in a styled format</li>
+                            <li>Professional signature with Tazen branding</li>
+                        </ul>
                     </div>
                 </div>
                 <div class="modal-footer">

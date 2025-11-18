@@ -55,8 +55,17 @@ class ManageAdminController extends Controller
             'is_active' => true,
         ]);
 
+        // Give new admin basic dashboard access by default
+        $dashboardMenu = AdminMenu::where('route_name', 'admin.dashboard')->first();
+        if ($dashboardMenu) {
+            AdminMenuPermission::create([
+                'admin_id' => $admin->id,
+                'admin_menu_id' => $dashboardMenu->id
+            ]);
+        }
+
         return redirect()->route('admin.manage_admins.index')
-            ->with('success', 'Admin created successfully');
+            ->with('success', 'Admin created successfully. Default dashboard permission has been granted.');
     }
 
     /**

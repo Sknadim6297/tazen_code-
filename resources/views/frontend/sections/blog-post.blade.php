@@ -1,25 +1,32 @@
 @extends('layouts.layout')
 
 @section('meta')
+@php
+    // Get meta title and description from related blog, with fallbacks
+    $metaTitle = $relatedBlog->meta_title ?? $relatedBlog->title;
+    $metaDescription = $relatedBlog->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150);
+    $pageTitle = $relatedBlog->meta_title ? $relatedBlog->meta_title . ' | Tazen.in Blog' : $relatedBlog->title . ' | Tazen.in Blog';
+@endphp
+
 <!-- Blog-specific Meta Tags -->
-<meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta name="description" content="{{ $metaDescription }}">
 <meta name="keywords" content="{{ $blogPost->category }}, {{ $relatedBlog->title }}, blog, Tazen">
 
 <!-- Open Graph Meta Tags for Social Media -->
-<meta property="og:title" content="{{ $relatedBlog->title }}">
+<meta property="og:title" content="{{ $metaTitle }}">
 <meta property="og:site_name" content="Tazen.in">
 <meta property="og:url" content="{{ route('blog.show', \Illuminate\Support\Str::slug($relatedBlog->title)) }}">
-<meta property="og:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta property="og:description" content="{{ $metaDescription }}">
 <meta property="og:type" content="article">
 <meta property="og:image" content="{{ asset('storage/' . $blogPost->image) }}">
 
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ $relatedBlog->title }}">
-<meta name="twitter:description" content="{{ \Illuminate\Support\Str::limit(strip_tags($blogPost->content), 150) }}">
+<meta name="twitter:title" content="{{ $metaTitle }}">
+<meta name="twitter:description" content="{{ $metaDescription }}">
 <meta name="twitter:image" content="{{ asset('storage/' . $blogPost->image) }}">
 
-<title>{{ $relatedBlog->title }} | Tazen.in Blog</title>
+<title>{{ $pageTitle }}</title>
 @endsection
 
 @section('styles')

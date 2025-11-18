@@ -1,4 +1,9 @@
 @extends('admin.layouts.layout')
+
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endpush
+
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
@@ -504,8 +509,47 @@
     function toggleHomepageDisplay(eventId, showOnHomepage) {
         console.log('Toggling homepage display for event:', eventId, 'show:', showOnHomepage);
         
-        // Show loading state
         const checkbox = document.getElementById(`homepage_${eventId}`);
+        
+        // If trying to show on homepage, show confirmation dialog
+        if (showOnHomepage) {
+            // Show confirmation popup using SweetAlert2 (if available) or native confirm
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Show Event on Homepage?',
+                    text: 'Are you sure you want to display this approved event on the homepage? This will make it visible to all website visitors.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Show on Homepage!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User confirmed, proceed with the toggle
+                        performToggle(eventId, showOnHomepage, checkbox);
+                    } else {
+                        // User cancelled, revert checkbox
+                        checkbox.checked = false;
+                    }
+                });
+            } else {
+                // Fallback to native confirm dialog
+                if (confirm('Are you sure you want to show this approved event on the homepage? This will make it visible to all website visitors.')) {
+                    performToggle(eventId, showOnHomepage, checkbox);
+                } else {
+                    checkbox.checked = false;
+                }
+            }
+        } else {
+            // If hiding from homepage, no confirmation needed
+            performToggle(eventId, showOnHomepage, checkbox);
+        }
+    }
+    
+    // Perform the actual toggle operation
+    function performToggle(eventId, showOnHomepage, checkbox) {
+        // Show loading state
         checkbox.disabled = true;
         
         fetch(`{{ url('admin/allevents') }}/${eventId}/toggle-homepage`, {
@@ -543,17 +587,43 @@
                 }
                 
                 // Show success message
-                alert(data.message);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    alert(data.message);
+                }
             } else {
                 console.error('Server returned error:', data.message);
-                alert(data.message || 'Error updating homepage display');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Error updating homepage display',
+                        icon: 'error'
+                    });
+                } else {
+                    alert(data.message || 'Error updating homepage display');
+                }
                 // Revert the checkbox
                 checkbox.checked = !showOnHomepage;
             }
         })
         .catch(error => {
             console.error('Network or parsing error:', error);
-            alert('Error updating homepage display: ' + error.message);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Error updating homepage display: ' + error.message,
+                    icon: 'error'
+                });
+            } else {
+                alert('Error updating homepage display: ' + error.message);
+            }
             // Revert the checkbox
             checkbox.checked = !showOnHomepage;
         })
@@ -591,5 +661,10 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
 </script>
 @endsection

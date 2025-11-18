@@ -34,6 +34,7 @@
                         ->where('is_system_message', false)
                         ->select('booking_id', DB::raw('COUNT(*) as unread_count'), DB::raw('MAX(created_at) as last_message_at'))
                         ->groupBy('booking_id')
+                        ->orderBy('last_message_at', 'desc')
                         ->get();
                     
                     // Load booking relationships separately to avoid groupBy issues
@@ -71,6 +72,40 @@
                         ->get();
                     
                     $unreadAdminMessagesCount = $unreadAdminMessages->count();
+                    
+                    // Merge all notifications with timestamps for proper sorting
+                    $allNotifications = collect();
+                    
+                    // Add additional service notifications
+                    foreach($unreadNotifications as $notification) {
+                        $allNotifications->push([
+                            'type' => 'service_notification',
+                            'timestamp' => $notification->created_at,
+                            'data' => $notification
+                        ]);
+                    }
+                    
+                    // Add admin messages
+                    foreach($unreadAdminMessages as $adminMessage) {
+                        $allNotifications->push([
+                            'type' => 'admin_message',
+                            'timestamp' => $adminMessage->created_at,
+                            'data' => $adminMessage
+                        ]);
+                    }
+                    
+                    // Add chat notifications
+                    foreach($unreadBookingChats as $chatGroup) {
+                        $allNotifications->push([
+                            'type' => 'chat_notification',
+                            'timestamp' => \Carbon\Carbon::parse($chatGroup->last_message_at),
+                            'data' => $chatGroup
+                        ]);
+                    }
+                    
+                    // Sort all notifications by timestamp (newest first)
+                    $allNotifications = $allNotifications->sortByDesc('timestamp');
+                    
                 } catch (\Exception $e) {
                     $unreadBookingChats = collect();
                     $unreadChatCount = 0;
@@ -78,6 +113,7 @@
                     $unreadNotificationsCount = 0;
                     $unreadAdminMessages = collect();
                     $unreadAdminMessagesCount = 0;
+                    $allNotifications = collect();
                 }
                 
                 // Total notifications (chat + additional service notifications + admin messages)
@@ -137,94 +173,89 @@
             <button class="notification-modal-close">&times;</button>
         </div>
         <div class="notification-modal-body">
-            {{-- Additional Service Notifications --}}
-            @if($unreadNotificationsCount > 0)
-                @foreach($unreadNotifications as $notification)
-                    @php
-                        $data = $notification->data;
-                        $serviceId = $data['additional_service_id'] ?? null;
-                        $serviceName = $data['service_name'] ?? 'Additional Service';
-                        $type = $data['type'] ?? 'update';
-                        $icon = $data['icon'] ?? 'fas fa-bell';
-                        $color = $data['color'] ?? '#3498db';
-                    @endphp
-                    <div class="notification-item service-notification" data-notification-id="{{ $notification->id }}">
-                        <div class="notification-icon-wrapper" style="background-color: {{ $color }};">
-                            <i class="{{ $icon }}"></i>
+            {{-- All Notifications Sorted by Timestamp (Newest First) --}}
+            @if($allNotifications && $allNotifications->count() > 0)
+                @foreach($allNotifications as $notificationItem)
+                    @if($notificationItem['type'] == 'service_notification')
+                        @php
+                            $notification = $notificationItem['data'];
+                            $data = $notification->data;
+                            $serviceId = $data['additional_service_id'] ?? null;
+                            $serviceName = $data['service_name'] ?? 'Additional Service';
+                            $type = $data['type'] ?? 'update';
+                            $icon = $data['icon'] ?? 'fas fa-bell';
+                            $color = $data['color'] ?? '#3498db';
+                        @endphp
+                        <div class="notification-item service-notification" data-notification-id="{{ $notification->id }}">
+                            <div class="notification-icon-wrapper" style="background-color: {{ $color }};">
+                                <i class="{{ $icon }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>{{ $data['title'] ?? 'Service Update' }}</h5>
+                                <p>{{ $data['message'] ?? 'You have a new update regarding your additional service.' }}</p>
+                                <p><small>Service: {{ $serviceName }} - {{ $notification->created_at->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    @if($serviceId)
+                                        <a href="{{ route('user.additional-services.show', $serviceId) }}" class="notification-btn view-btn">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    @endif
+                                    <button class="notification-btn mark-read-btn" onclick="markNotificationAsRead('{{ $notification->id }}')">
+                                        <i class="fas fa-check"></i> Mark as Read
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="notification-content">
-                            <h5>{{ $data['title'] ?? 'Service Update' }}</h5>
-                            <p>{{ $data['message'] ?? 'You have a new update regarding your additional service.' }}</p>
-                            <p><small>Service: {{ $serviceName }} - {{ $notification->created_at->diffForHumans() }}</small></p>
-                            <div class="button-container">
-                                @if($serviceId)
-                                    <a href="{{ route('user.additional-services.show', $serviceId) }}" class="notification-btn view-btn">
-                                        <i class="fas fa-eye"></i> View Details
+                    @elseif($notificationItem['type'] == 'admin_message')
+                        @php
+                            $adminMessage = $notificationItem['data'];
+                            $messagePreview = $adminMessage->message ? 
+                                (strlen($adminMessage->message) > 100 ? substr($adminMessage->message, 0, 100) . '...' : $adminMessage->message) : 
+                                'File attachment';
+                        @endphp
+                        <div class="notification-item admin-chat-notification" data-message-id="{{ $adminMessage->id }}">
+                            <div class="notification-icon-wrapper" style="background-color: #e74c3c;">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>New Message from Admin</h5>
+                                <p>{{ $messagePreview }}</p>
+                                <p><small>{{ $adminMessage->created_at->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    <button class="notification-btn view-btn admin-chat-btn">
+                                        <i class="fas fa-comments"></i> Open Admin Chat
+                                    </button>
+                                    <button class="notification-btn mark-read-btn" onclick="markAdminMessageAsRead('{{ $adminMessage->id }}')">
+                                        <i class="fas fa-check"></i> Mark as Read
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($notificationItem['type'] == 'chat_notification')
+                        @php
+                            $chatGroup = $notificationItem['data'];
+                            $booking = $chatGroup->booking ?? null;
+                            if (!$booking) continue;
+                            
+                            $professionalName = optional($booking->professional)->name ?? 'Professional';
+                            $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
+                        @endphp
+                        <div class="notification-item chat-notification">
+                            <div class="notification-icon-wrapper">
+                                <i class="fas fa-message"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>New Message from {{ $professionalName }}</h5>
+                                <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
+                                <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    <a href="{{ route('user.chat.open', $booking->id) }}" class="notification-btn view-btn">
+                                        <i class="fas fa-comments"></i> Open Chat
                                     </a>
-                                @endif
-                                <button class="notification-btn mark-read-btn" onclick="markNotificationAsRead('{{ $notification->id }}')">
-                                    <i class="fas fa-check"></i> Mark as Read
-                                </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            @endif
-
-            {{-- Admin Message Notifications --}}
-            @if($unreadAdminMessagesCount > 0)
-                @foreach($unreadAdminMessages as $adminMessage)
-                    @php
-                        $messagePreview = $adminMessage->message ? 
-                            (strlen($adminMessage->message) > 100 ? substr($adminMessage->message, 0, 100) . '...' : $adminMessage->message) : 
-                            'File attachment';
-                    @endphp
-                    <div class="notification-item admin-chat-notification" data-message-id="{{ $adminMessage->id }}">
-                        <div class="notification-icon-wrapper" style="background-color: #e74c3c;">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <div class="notification-content">
-                            <h5>New Message from Admin</h5>
-                            <p>{{ $messagePreview }}</p>
-                            <p><small>{{ $adminMessage->created_at->diffForHumans() }}</small></p>
-                            <div class="button-container">
-                                <button class="notification-btn view-btn admin-chat-btn">
-                                    <i class="fas fa-comments"></i> Open Admin Chat
-                                </button>
-                                <button class="notification-btn mark-read-btn" onclick="markAdminMessageAsRead('{{ $adminMessage->id }}')">
-                                    <i class="fas fa-check"></i> Mark as Read
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            @endif
-
-            {{-- Chat Notifications --}}
-            @if($unreadChatCount > 0)
-                @foreach($unreadBookingChats as $chatGroup)
-                    @php
-                        $booking = $chatGroup->booking ?? null;
-                        if (!$booking) continue;
-                        
-                        $professionalName = optional($booking->professional)->name ?? 'Professional';
-                        $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
-                    @endphp
-                    <div class="notification-item chat-notification">
-                        <div class="notification-icon-wrapper">
-                            <i class="fas fa-message"></i>
-                        </div>
-                        <div class="notification-content">
-                            <h5>New Message from {{ $professionalName }}</h5>
-                            <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
-                            <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
-                            <div class="button-container">
-                                <a href="{{ route('user.chat.open', $booking->id) }}" class="notification-btn view-btn">
-                                    <i class="fas fa-comments"></i> Open Chat
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                 @endforeach
             @endif
             

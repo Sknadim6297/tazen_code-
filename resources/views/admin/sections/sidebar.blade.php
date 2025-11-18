@@ -28,15 +28,15 @@
                     <!-- End::slide__category -->
 
                     <!-- Start::slide -->
-                    <li class="slide has-sub">
+                    @if($isMenuAccessible('dashboard'))
+                    <li class="slide">
                         <a href="{{ route('admin.dashboard') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
-                            <span class="side-menu__label">Dashboards</span>
+                            <span class="side-menu__label">Dashboard</span>
                         </a>
-                        <ul class="slide-menu child1">
-                          
-                        </ul>
                     </li>
+                    @endif
+                    @if($isMenuAccessible('professionals'))
                     <li class="slide has-sub">
                         <a href="javascript:void(0);" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 18c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C3.689 14 4.46 14 6 14s2.31 0 2.876.347c.317.194.583.46.777.777C10 15.689 10 16.46 10 18s0 2.31-.347 2.877c-.194.316-.46.582-.777.776C8.311 22 7.54 22 6 22s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.776C2 20.31 2 19.54 2 18m12 0c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C15.689 14 16.46 14 18 14s2.31 0 2.877.347c.316.194.582.46.776.777C22 15.689 22 16.46 22 18s0 2.31-.347 2.877a2.36 2.36 0 0 1-.776.776C20.31 22 19.54 22 18 22s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.776C14 20.31 14 19.54 14 18M2 6c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C3.689 2 4.46 2 6 2s2.31 0 2.876.347c.317.194.583.46.777.777C10 3.689 10 4.46 10 6s0 2.31-.347 2.876c-.194.317-.46.583-.777.777C8.311 10 7.54 10 6 10s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.777C2 8.311 2 7.54 2 6m12 0c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C15.689 2 16.46 2 18 2s2.31 0 2.877.347c.316.194.582.46.776.777C22 3.689 22 4.46 22 6s0 2.31-.347 2.876c-.194.317-.46.583-.776.777C20.31 10 19.54 10 18 10s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.777C14 8.311 14 7.54 14 6" color="currentColor"/></svg>
@@ -45,17 +45,28 @@
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide side-menu__label1">
-                                <a href="javascript:void(0)">Apps</a>
+                                <a href="javascript:void(0)">Professional Management</a>
                             </li>
-                        
-                            <li class="slide has-sub">
+                            @if($isMenuAccessible('professional.requests'))
+                            <li class="slide">
                                 <a href="{{ route('admin.professional.requests') }}" class="side-menu__item">Manage Professional</a>
-                                <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professional</a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('professional.all'))
+                            <li class="slide">
+                                <a href="{{ route('admin.manage-professional.index') }}" class="side-menu__item">All Professionals</a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('professional.billing'))
+                            <li class="slide">
                                 <a href="{{ route('admin.professional.billing') }}" class="side-menu__item">Professional Billing</a>
                             </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
 
+                    @if($isMenuAccessible('customers'))
                     <li class="slide has-sub">
                         <a href="javascript:void(0);" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 18c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C3.689 14 4.46 14 6 14s2.31 0 2.876.347c.317.194.583.46.777.777C10 15.689 10 16.46 10 18s0 2.31-.347 2.877c-.194.316-.46.582-.777.776C8.311 22 7.54 22 6 22s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.776C2 20.31 2 19.54 2 18m12 0c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C15.689 14 16.46 14 18 14s2.31 0 2.877.347c.316.194.582.46.776.777C22 15.689 22 16.46 22 18s0 2.31-.347 2.877a2.36 2.36 0 0 1-.776.776C20.31 22 19.54 22 18 22s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.776C14 20.31 14 19.54 14 18M2 6c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C3.689 2 4.46 2 6 2s2.31 0 2.876.347c.317.194.583.46.777.777C10 3.689 10 4.46 10 6s0 2.31-.347 2.876c-.194.317-.46.583-.777.777C8.311 10 7.54 10 6 10s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.777C2 8.311 2 7.54 2 6m12 0c0-1.54 0-2.31.347-2.876c.194-.317.46-.583.777-.777C15.689 2 16.46 2 18 2s2.31 0 2.877.347c.316.194.582.46.776.777C22 3.689 22 4.46 22 6s0 2.31-.347 2.876c-.194.317-.46.583-.776.777C20.31 10 19.54 10 18 10s-2.31 0-2.876-.347a2.35 2.35 0 0 1-.777-.777C14 8.311 14 7.54 14 6" color="currentColor"/></svg>
@@ -64,15 +75,21 @@
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide side-menu__label1">
-                                <a href="javascript:void(0)">Apps</a>
+                                <a href="javascript:void(0)">Customer Management</a>
                             </li>
-                        
-                            <li class="slide has-sub">
+                            @if($isMenuAccessible('customer.all'))
+                            <li class="slide">
                                 <a href="{{ route('admin.manage-customer.index') }}" class="side-menu__item">Manage Customer</a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('customer.billing'))
+                            <li class="slide">
                                 <a href="{{ route('admin.customer.billing') }}" class="side-menu__item">Customer Billing</a>
                             </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
 
                                       @php
     $onetimeCount = \App\Models\Booking::whereIn('plan_type', ['one_time', 'One Time'])->count();
@@ -90,23 +107,36 @@
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide side-menu__label1">
-                                <a href="javascript:void(0)">Apps</a>
+                                <a href="javascript:void(0)">Booking Management</a>
                             </li>
-                        
-                            <li class="slide has-sub">
+                            @if($isMenuAccessible('bookings.onetime'))
+                            <li class="slide">
                                 <a href="{{ route('admin.onetime') }}" class="side-menu__item">
                                     One Time ({{ $onetimeCount }})
                                 </a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('bookings.monthly'))
+                            <li class="slide">
                                 <a href="{{ route('admin.monthly') }}" class="side-menu__item">
                                     Monthly ({{ $monthlyCount }})
                                 </a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('bookings.freehand'))
+                            <li class="slide">
                                 <a href="{{ route('admin.freehand') }}" class="side-menu__item">
                                     Free Hand ({{ $freehandCount }})
                                 </a>
+                            </li>
+                            @endif
+                            @if($isMenuAccessible('bookings.quarterly'))
+                            <li class="slide">
                                 <a href="{{ route('admin.quaterly') }}" class="side-menu__item">
                                     Quarterly ({{ $quarterlyCount }})
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </li>
                     @endif
@@ -359,22 +389,20 @@
                     @endif
                     
                     @if($isMenuAccessible('events'))
-                        <li class="slide has-sub">
+                    <li class="slide">
                         <a href="{{ route('admin.eventpage.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
                             <span class="side-menu__label">Events</span>
                         </a>
-                        <ul class="slide-menu child1">
-                          
-                        </ul>
                     </li>
                     @endif
                     
                     @if($isMenuAccessible('mcq'))
                     <li class="slide has-sub">
-                        <a href="#" class="side-menu__item">
+                        <a href="javascript:void(0);" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
                             <span class="side-menu__label">MCQ</span>
+                            <i class="ri-arrow-down-s-line side-menu__angle"></i>
                         </a>
                         <ul class="slide-menu child1">
                             <li class="slide">
@@ -385,26 +413,20 @@
                     @endif
                     
                     @if($isMenuAccessible('contacts'))
-                    <li class="slide has-sub">
+                    <li class="slide">
                         <a href="{{ route('admin.contact-forms.index') }}" class="side-menu__item">
                             <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
                             <span class="side-menu__label">Contacts</span>
                         </a>
-                        <ul class="slide-menu child1">
-                          
-                        </ul>
                     </li>
                     @endif
                     
                     @if($isMenuAccessible('blog_comments'))
-                    <li class="slide has-sub">
+                    <li class="slide">
                         <a href="{{ route('admin.comments.index') }}" class="side-menu__item">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m9 22l-.251-3.509a3.259 3.259 0 1 1 6.501 0L15 22"/><path d="M2.352 13.214c-.354-2.298-.53-3.446-.096-4.465s1.398-1.715 3.325-3.108L7.021 4.6C9.418 2.867 10.617 2 12.001 2c1.382 0 2.58.867 4.978 2.6l1.44 1.041c1.927 1.393 2.89 2.09 3.325 3.108c.434 1.019.258 2.167-.095 4.464l-.301 1.96c-.5 3.256-.751 4.884-1.919 5.856S16.554 22 13.14 22h-2.28c-3.415 0-5.122 0-6.29-.971c-1.168-.972-1.418-2.6-1.918-5.857z"/></g></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="m3 20l1.3-3.9A9 9 0 1 1 12 21H3z"/></g></svg>
                             <span class="side-menu__label">Blog Comments</span>
                         </a>
-                        <ul class="slide-menu child1">
-                          
-                        </ul>
                     </li>
                     @endif
                     
@@ -414,7 +436,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5z" />
         </svg>
-        <span class="side-menu__label">Reviews</span>
+        <span class="side-menu__label">Reviews Management</span>
         <i class="ri-arrow-down-s-line side-menu__angle"></i>
     </a>
     <ul class="slide-menu child1">
@@ -422,7 +444,13 @@
             <a href="javascript:void(0)">Reviews</a>
         </li>
         <li class="slide">
-            <a href="{{ route('admin.reviews.index') }}" class="side-menu__item">Manage Reviews</a>
+            <a href="{{ route('admin.reviews.index') }}" class="side-menu__item">All Reviews</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.reviews.index', ['type' => 'customer']) }}" class="side-menu__item">Customer Reviews</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.reviews.index', ['type' => 'professional']) }}" class="side-menu__item">Professional Reviews</a>
         </li>
     </ul>
 </li>

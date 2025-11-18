@@ -256,8 +256,25 @@
                             </div>
                         </div>
                         
+                        <!-- Review Type Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="typeFilter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-user-settings-line me-1"></i>Review Type
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-group-line text-muted"></i>
+                                </span>
+                                <select class="form-select border-start-0" name="type" id="typeFilter">
+                                    <option value="">All Reviews</option>
+                                    <option value="customer" {{ request('type') == 'customer' ? 'selected' : '' }}>Customer Reviews</option>
+                                    <option value="professional" {{ request('type') == 'professional' ? 'selected' : '' }}>Professional Reviews</option>
+                                </select>
+                            </div>
+                        </div>
+                        
                         <!-- Professional Name Search -->
-                        <div class="col-lg-6 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <label for="professionalSearch" class="form-label fw-medium text-muted mb-2">
                                 <i class="ri-search-line me-1"></i>Professional Name
                             </label>
@@ -298,6 +315,42 @@
             </div>
         </div>
 
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <div class="card-body text-center">
+                        <h4 class="mb-1 text-primary">{{ $totalReviews }}</h4>
+                        <small class="text-muted">Total Reviews</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <div class="card-body text-center">
+                        <h4 class="mb-1 text-success">{{ $customerReviews }}</h4>
+                        <small class="text-muted">Customer Reviews</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <div class="card-body text-center">
+                        <h4 class="mb-1 text-info">{{ $professionalReviews }}</h4>
+                        <small class="text-muted">Professional Reviews</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card custom-card">
+                    <div class="card-body text-center">
+                        <h4 class="mb-1 text-warning">{{ number_format($averageRating, 1) }}</h4>
+                        <small class="text-muted">Average Rating</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Add this hidden form for export -->
         <form id="export-form" method="GET" action="{{ route('admin.reviews.export') }}">
             <!-- Hidden inputs to carry over current filters -->
@@ -328,6 +381,7 @@
                                 <th>Professional Name</th>
                                 <th>Rating</th>
                                 <th>Review</th>
+                                <th>Status</th>
                                 <th>Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -346,20 +400,47 @@
                                             <i class="ri-star-fill text-muted"></i>
                                         @endif
                                     @endfor
+                                    <span class="ms-1">({{ $review->rating }})</span>
                                 </td>
                                 <td>{{ Str::limit($review->review_text, 100) }}</td>
+                                <td>
+                                    @if($review->is_approved)
+                                        <span class="badge bg-success">Approved</span>
+                                    @else
+                                        <span class="badge bg-warning">Pending</span>
+                                    @endif
+                                </td>
                                 <td>{{ $review->created_at->format('d M Y') }}</td>
                                 <td>
-                                    <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this review?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
+                                    <div class="btn-group" role="group">
+                                        @if($review->is_approved)
+                                            <form action="{{ route('admin.reviews.reject', $review) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to reject this review?');">
+                                                    <i class="ri-close-line"></i> Reject
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.reviews.approve', $review) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to approve this review?');">
+                                                    <i class="ri-check-line"></i> Approve
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this review?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger ms-1">
+                                                <i class="ri-delete-bin-line"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center">No reviews found</td>
+                                <td colspan="8" class="text-center">No reviews found</td>
                             </tr>
                             @endforelse
                         </tbody>

@@ -822,6 +822,181 @@
             padding-top: 122px;
             padding-bottom: 15px;
         }
+
+        /* Enhanced Review System Styles */
+        .review_card {
+            background: #fff !important;
+            border-radius: 12px !important;
+            padding: 24px !important;
+            margin-bottom: 24px !important;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08) !important;
+            border: 1px solid #f0f0f0 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .review_card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* Star Rating Styles for Modal */
+        .star-rating {
+            display: flex !important;
+            flex-direction: row-reverse !important;
+            justify-content: center !important;
+            gap: 5px !important;
+            margin: 20px 0 !important;
+        }
+
+        .star-rating input {
+            display: none !important;
+        }
+
+        .star-rating label {
+            cursor: pointer !important;
+            font-size: 2rem !important;
+            color: #ddd !important;
+            transition: all 0.3s ease !important;
+            padding: 5px !important;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffa500 !important;
+            transform: scale(1.1) !important;
+        }
+
+        .star-rating label:hover {
+            text-shadow: 0 0 10px rgba(255, 165, 0, 0.5) !important;
+        }
+
+        .rating-value {
+            text-align: center !important;
+            font-weight: 600 !important;
+            color: #333 !important;
+            font-size: 1.1rem !important;
+        }
+
+        .rating-container {
+            background: #f8f9fa !important;
+            border-radius: 10px !important;
+            padding: 20px !important;
+            margin: 20px 0 !important;
+        }
+
+        .rating-title {
+            font-weight: 600 !important;
+            color: #333 !important;
+            font-size: 1.1rem !important;
+        }
+
+        /* Review Summary Styles */
+        #review_summary {
+            text-align: center !important;
+            padding: 20px !important;
+            background: linear-gradient(135deg, #ffa500, #ff6b35) !important;
+            color: white !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3) !important;
+        }
+
+        #review_summary strong {
+            font-size: 2.5rem !important;
+            display: block !important;
+            font-weight: 700 !important;
+            margin-bottom: 5px !important;
+        }
+
+        #review_summary em {
+            font-size: 1.1rem !important;
+            font-style: normal !important;
+            font-weight: 600 !important;
+            display: block !important;
+            margin-bottom: 8px !important;
+        }
+
+        #review_summary small {
+            font-size: 0.9rem !important;
+            opacity: 0.9 !important;
+        }
+
+        /* Review Content Improvements */
+        .user_info h5 {
+            color: #333 !important;
+            font-weight: 600 !important;
+            margin-bottom: 8px !important;
+            font-size: 1rem !important;
+        }
+
+        .review_content .rating {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .review_content .rating i {
+            font-size: 1.1rem !important;
+            color: #ffa500 !important;
+        }
+
+        .review_content p {
+            color: #555 !important;
+            line-height: 1.7 !important;
+            font-size: 0.95rem !important;
+        }
+
+        .review_content em {
+            color: #888 !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Modal Improvements */
+        .modal-content {
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ffa500, #ff6b35) !important;
+            color: white !important;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 24px !important;
+        }
+
+        .modal-title {
+            font-weight: 600 !important;
+            font-size: 1.3rem !important;
+        }
+
+        .btn-close {
+            filter: brightness(0) invert(1) !important;
+            opacity: 0.8 !important;
+        }
+
+        .btn-close:hover {
+            opacity: 1 !important;
+        }
+
+        /* Progress Bar Improvements */
+        .progress {
+            height: 8px !important;
+            background-color: #f0f0f0 !important;
+            border-radius: 4px !important;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #ffa500, #ff6b35) !important;
+            border-radius: 4px !important;
+        }
+
+        .reviews_sum_details h6 {
+            color: #333 !important;
+            font-weight: 600 !important;
+            margin-bottom: 10px !important;
+        }
     </style>
     <style>
         /* Client Requirements Styles */
@@ -2067,7 +2242,7 @@
                                         @forelse($reviews as $review)
                                             <div class="review_card">
                                                 <div class="row">
-                                                    <div class="col-md-2 user_info">
+                                                    <div class="col-md-2 col-sm-3 user_info text-center">
                                                         @php
                                                             // Try to get profile image from customer_profiles table
                                                             $userPhoto = null;
@@ -2079,32 +2254,51 @@
                                                                 $userPhoto = 'img/avatar-placeholder.jpg';
                                                             }
                                                         @endphp
-                                                        <figure class="mb-2">
-                                                            <img src="{{ asset($userPhoto) }}" alt="{{ $review->user->name ?? 'Anonymous' }}" class="img-fluid rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
+                                                        <figure class="mb-3">
+                                                            <img src="{{ asset($userPhoto) }}" alt="{{ $review->user->name ?? 'Anonymous' }}" 
+                                                                 class="img-fluid rounded-circle" 
+                                                                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #f0f0f0;">
                                                         </figure>
-                                                        <h5>{{ $review->user->name ?? 'Anonymous' }}</h5>
+                                                        <h5 style="font-size: 1rem; margin-bottom: 0;">{{ $review->user->name ?? 'Anonymous' }}</h5>
+                                                        <small class="text-muted">Customer</small>
                                                     </div>
-                                                    <div class="col-md-10 review_content">
-                                                        <div class="clearfix add_bottom_15">
-                                                            <span class="rating">
+                                                    <div class="col-md-10 col-sm-9 review_content">
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <div class="rating">
                                                                 @for ($i = 1; $i <= 5; $i++)
                                                                     @if ($i <= $review->rating)
-                                                                        <i class="fas fa-star text-warning"></i>
+                                                                        <i class="fas fa-star" style="color: #ffa500;"></i>
                                                                     @else
-                                                                        <i class="far fa-star text-muted"></i>
+                                                                        <i class="far fa-star" style="color: #ddd;"></i>
                                                                     @endif
                                                                 @endfor
-                                                                <small class="ms-2">({{ $review->rating }}/5)</small>
-                                                            </span>
-                                                            <em>Published {{ $review->created_at->diffForHumans() }}</em>
+                                                                <span class="rating-text ms-2 fw-bold" style="color: #333;">
+                                                                    @switch($review->rating)
+                                                                        @case(5) Excellent @break
+                                                                        @case(4) Very Good @break  
+                                                                        @case(3) Good @break
+                                                                        @case(2) Fair @break
+                                                                        @case(1) Poor @break
+                                                                        @default {{ $review->rating }}/5 @break
+                                                                    @endswitch
+                                                                    <small class="text-muted">({{ $review->rating }}/5)</small>
+                                                                </span>
+                                                            </div>
+                                                            <em class="text-muted" style="font-size: 0.85rem;">{{ $review->created_at->diffForHumans() }}</em>
                                                         </div>
-                                                        <p>{{ $review->review_text }}</p>
+                                                        <p style="font-size: 0.95rem; line-height: 1.7; color: #555; margin-bottom: 0;">
+                                                            "{{ $review->review_text }}"
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                         @empty
-                                            <div class="alert alert-info">
-                                                <p class="mb-0 text-center">This professional doesn't have any reviews yet. Be the first to leave a review!</p>
+                                            <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #e3f2fd, #f0f7ff); border-radius: 12px;">
+                                                <div class="text-center py-4">
+                                                    <i class="fas fa-star-half-alt text-warning mb-3" style="font-size: 3rem; opacity: 0.7;"></i>
+                                                    <h5 class="mb-2" style="color: #333;">No Reviews Yet</h5>
+                                                    <p class="mb-0 text-muted">This professional doesn't have any reviews yet. Be the first to share your experience!</p>
+                                                </div>
                                             </div>
                                         @endforelse
                                     </div>
@@ -2394,25 +2588,34 @@
                             
                             <!-- Rating Stars -->
                             <div class="rating-container text-center mb-4">
-                                <p class="rating-title mb-2">How would you rate this professional?</p>
+                                <p class="rating-title mb-3"><i class="fas fa-star text-warning me-2"></i>How would you rate this professional?</p>
                                 <div class="star-rating">
                                     <input type="radio" id="star5" name="rating" value="5" />
-                                    <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                                    <label for="star5" title="Excellent - 5 stars"><i class="fas fa-star"></i></label>
                                     
                                     <input type="radio" id="star4" name="rating" value="4" />
-                                    <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                                    <label for="star4" title="Very Good - 4 stars"><i class="fas fa-star"></i></label>
                                     
                                     <input type="radio" id="star3" name="rating" value="3" />
-                                    <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                                    <label for="star3" title="Good - 3 stars"><i class="fas fa-star"></i></label>
                                     
                                     <input type="radio" id="star2" name="rating" value="2" />
-                                    <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                                    <label for="star2" title="Fair - 2 stars"><i class="fas fa-star"></i></label>
                                     
                                     <input type="radio" id="star1" name="rating" value="1" />
-                                    <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                                    <label for="star1" title="Poor - 1 star"><i class="fas fa-star"></i></label>
                                 </div>
-                                <div class="rating-value mt-2">
-                                    <span id="selected-rating">Select a rating</span>
+                                <div class="rating-value mt-3">
+                                    <span id="selected-rating" style="color: #666; font-style: italic;">Click on stars above to rate (1-5)</span>
+                                </div>
+                                <div class="rating-helper mt-2">
+                                    <small class="text-muted">
+                                        <strong>5 stars:</strong> Excellent &nbsp;|&nbsp; 
+                                        <strong>4 stars:</strong> Very Good &nbsp;|&nbsp; 
+                                        <strong>3 stars:</strong> Good &nbsp;|&nbsp; 
+                                        <strong>2 stars:</strong> Fair &nbsp;|&nbsp; 
+                                        <strong>1 star:</strong> Poor
+                                    </small>
                                 </div>
                             </div>
                             
@@ -3235,29 +3438,96 @@
                 });
             }
 
-            // Star rating selection
+            // Star rating selection with enhanced feedback
             const starInputs = document.querySelectorAll('.star-rating input');
             const ratingValue = document.getElementById('selected-rating');
             
             starInputs.forEach(input => {
                 input.addEventListener('change', function() {
-                    const value = this.value;
+                    const value = parseInt(this.value);
                     let text = '';
+                    let emoji = '';
                     
                     switch(value) {
-                        case '5': text = 'Excellent'; break;
-                        case '4': text = 'Very Good'; break;
-                        case '3': text = 'Good'; break;
-                        case '2': text = 'Fair'; break;
-                        case '1': text = 'Poor'; break;
-                        default: text = 'Select a rating';
+                        case 5: 
+                            text = 'Excellent'; 
+                            emoji = '⭐⭐⭐⭐⭐'; 
+                            break;
+                        case 4: 
+                            text = 'Very Good'; 
+                            emoji = '⭐⭐⭐⭐'; 
+                            break;
+                        case 3: 
+                            text = 'Good'; 
+                            emoji = '⭐⭐⭐'; 
+                            break;
+                        case 2: 
+                            text = 'Fair'; 
+                            emoji = '⭐⭐'; 
+                            break;
+                        case 1: 
+                            text = 'Poor'; 
+                            emoji = '⭐'; 
+                            break;
+                        default: 
+                            text = 'Select a rating';
+                            emoji = '';
                     }
                     
-                    ratingValue.textContent = `${text} (${value}/5)`;
+                    if (value >= 1 && value <= 5) {
+                        ratingValue.innerHTML = `<span style="color: #ffa500; font-weight: 600;">${emoji} ${text}</span> <span style="color: #666;">(${value}/5)</span>`;
+                        
+                        // Visual feedback with animation
+                        ratingValue.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            ratingValue.style.transform = 'scale(1)';
+                        }, 200);
+                        
+                        // Show success message for higher ratings
+                        if (value >= 4) {
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(`Thanks for rating ${value} stars! Your feedback is valuable.`);
+                            }
+                        }
+                    }
+                });
+                
+                // Add hover effect for better UX
+                input.addEventListener('mouseover', function() {
+                    const value = parseInt(this.value);
+                    const labels = document.querySelectorAll('.star-rating label');
+                    
+                    labels.forEach((label, index) => {
+                        const starValue = 5 - index; // Since we're using reverse order
+                        if (starValue <= value) {
+                            label.style.color = '#ffa500';
+                            label.style.transform = 'scale(1.1)';
+                        } else {
+                            label.style.color = '#ddd';
+                            label.style.transform = 'scale(1)';
+                        }
+                    });
+                });
+            });
+            
+            // Reset stars on mouse leave
+            document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+                const checkedInput = document.querySelector('.star-rating input:checked');
+                const labels = document.querySelectorAll('.star-rating label');
+                
+                labels.forEach((label, index) => {
+                    const starValue = 5 - index;
+                    if (checkedInput && starValue <= parseInt(checkedInput.value)) {
+                        label.style.color = '#ffa500';
+                        label.style.transform = 'scale(1.1)';
+                    } else {
+                        label.style.color = '#ddd';
+                        label.style.transform = 'scale(1)';
+                    }
                 });
             });
 
-            // Submit review
+            // Submit review with enhanced validation and feedback
             const submitReviewBtn = document.getElementById('submitReview');
             if (submitReviewBtn) {
                 submitReviewBtn.addEventListener('click', function() {
@@ -3266,20 +3536,67 @@
                     const rating = formData.get('rating');
                     const reviewText = formData.get('review_text');
                     
-                    // Validate form
+                    // Enhanced validation
                     if (!rating) {
-                        toastr.error('Please select a rating');
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Please select a star rating (1-5 stars)', 'Rating Required');
+                        } else {
+                            alert('Please select a star rating (1-5 stars)');
+                        }
+                        
+                        // Highlight the rating section
+                        const ratingContainer = document.querySelector('.rating-container');
+                        ratingContainer.style.border = '2px solid #dc3545';
+                        ratingContainer.style.backgroundColor = '#fff5f5';
+                        setTimeout(() => {
+                            ratingContainer.style.border = '';
+                            ratingContainer.style.backgroundColor = '';
+                        }, 3000);
+                        return;
+                    }
+                    
+                    // Validate rating is between 1-5
+                    const ratingValue = parseInt(rating);
+                    if (ratingValue < 1 || ratingValue > 5) {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Rating must be between 1 and 5 stars', 'Invalid Rating');
+                        } else {
+                            alert('Rating must be between 1 and 5 stars');
+                        }
                         return;
                     }
                     
                     if (!reviewText.trim()) {
-                        toastr.error('Please write your review');
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Please write your review experience', 'Review Text Required');
+                        } else {
+                            alert('Please write your review experience');
+                        }
+                        
+                        // Focus on textarea
+                        document.getElementById('review_text').focus();
                         return;
                     }
                     
-                    // Show loading state
+                    if (reviewText.trim().length < 10) {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Please write at least 10 characters in your review', 'Review Too Short');
+                        } else {
+                            alert('Please write at least 10 characters in your review');
+                        }
+                        return;
+                    }
+                    
+                    // Show loading state with better UX
                     submitReviewBtn.disabled = true;
-                    submitReviewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Submitting...';
+                    const originalHTML = submitReviewBtn.innerHTML;
+                    submitReviewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Submitting Review...';
+                    submitReviewBtn.style.opacity = '0.7';
+                    
+                    // Show progress message
+                    if (typeof toastr !== 'undefined') {
+                        toastr.info('Submitting your review...', 'Please Wait');
+                    }
                     
                     // Submit the review
                     fetch('{{ route("user.review.store") }}', {
@@ -3291,32 +3608,85 @@
                         },
                         body: JSON.stringify({
                             professional_id: formData.get('professional_id'),
-                            rating: rating,
-                            review_text: reviewText
+                            rating: ratingValue,
+                            review_text: reviewText.trim()
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
+                        // Reset button state
+                        submitReviewBtn.disabled = false;
+                        submitReviewBtn.innerHTML = originalHTML;
+                        submitReviewBtn.style.opacity = '1';
+                        
                         if (data.success) {
-                            toastr.success(data.message || 'Review submitted successfully!');
+                            // Show success message with star rating
+                            const rating = formData.get('rating');
+                            let ratingEmoji = '⭐'.repeat(parseInt(rating));
                             
-                            // Close modal and reset form
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
-                            modal.hide();
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(`${ratingEmoji} Thank you for your ${rating}-star review!`, 'Review Submitted Successfully');
+                            } else {
+                                alert(`Thank you for your ${rating}-star review! Your feedback has been submitted successfully.`);
+                            }
+                            
+                            // Reset form
+                            form.reset();
+                            document.getElementById('selected-rating').innerHTML = '<span style="color: #666; font-style: italic;">Click on stars above to rate (1-5)</span>';
+                            
+                            // Clear star selection visually
+                            const labels = document.querySelectorAll('.star-rating label');
+                            labels.forEach(label => {
+                                label.style.color = '#ddd';
+                                label.style.transform = 'scale(1)';
+                            });
+                            
+                            // Close modal with delay for user to see success message
                             setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+                                if (modal) {
+                                    modal.hide();
+                                }
+                                
+                                // Reload page to show new review
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            }, 2000);
+                            
                         } else {
-                            toastr.error(data.message || 'Something went wrong');
-                            submitReviewBtn.disabled = false;
-                            submitReviewBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Submit Review';
+                            // Handle validation errors
+                            const message = data.message || 'Something went wrong while submitting your review';
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error(message, 'Submission Failed');
+                            } else {
+                                alert(message);
+                            }
+                            
+                            // Handle specific errors
+                            if (data.errors) {
+                                Object.keys(data.errors).forEach(field => {
+                                    if (typeof toastr !== 'undefined') {
+                                        toastr.error(data.errors[field][0], 'Validation Error');
+                                    }
+                                });
+                            }
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('An error occurred. Please try again.');
+                        console.error('Review submission error:', error);
+                        
+                        // Reset button state
                         submitReviewBtn.disabled = false;
-                        submitReviewBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Submit Review';
+                        submitReviewBtn.innerHTML = originalHTML;
+                        submitReviewBtn.style.opacity = '1';
+                        
+                        // Show error message
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('Network error occurred. Please check your connection and try again.', 'Connection Failed');
+                        } else {
+                            alert('Network error occurred. Please check your connection and try again.');
+                        }
                     });
                 });
             }
