@@ -32,6 +32,12 @@ class AdminMenuAccess
         // Get current route name
         $routeName = $request->route()->getName();
 
+        // Always allow access to essential routes
+        $alwaysAllowedRoutes = ['admin.dashboard', 'admin.logout'];
+        if (in_array($routeName, $alwaysAllowedRoutes)) {
+            return $next($request);
+        }
+
         // Find menu by route name
         $menu = AdminMenu::where('route_name', $routeName)->first();
 

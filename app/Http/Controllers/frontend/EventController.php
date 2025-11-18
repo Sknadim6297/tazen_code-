@@ -9,7 +9,7 @@ use App\Models\EventFAQ;
 class EventController extends Controller
 {
     /**
-     * Display all approved events (admin + professional)
+     * Display all approved events (admin + professional) - homepage toggle not required for event listing
      */
     public function index()
     {
@@ -22,7 +22,7 @@ class EventController extends Controller
     }
 
     /**
-     * Display a specific event
+     * Display a specific approved event
      */
     public function show($id)
     {

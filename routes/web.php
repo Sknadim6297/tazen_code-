@@ -116,10 +116,12 @@ Route::get('/eventlist', function (Request $request) {
     $city = $request->query('city');
     $event_mode = $request->query('event_mode');
 
-    // Get admin events - ONLY admin created event details
+    // Get admin events - ONLY approved admin created event details (no homepage toggle requirement for event list)
     $adminEvents = EventDetail::with('event')
         ->where('creator_type', 'admin')
         ->whereHas('event', function ($query) use ($filter, $category, $price_range) {
+        // Only show approved events (homepage toggle not required for event list page)
+        $query->where('status', 'approved');
         if ($filter == 'today') {
             $query->whereDate('date', Carbon::today()->toDateString());
         } elseif ($filter == 'tomorrow') {
@@ -167,7 +169,7 @@ Route::get('/eventlist', function (Request $request) {
 
     $adminEvents = $adminEvents->latest()->get();
 
-    // Get approved professional events from AllEvent model
+    // Get approved professional events from AllEvent model (no homepage toggle requirement for event list)
     $professionalEvents = AllEvent::with('professional')
         ->where('created_by_type', 'professional')
         ->where('status', 'approved');
@@ -225,9 +227,15 @@ Route::get('/eventlist', function (Request $request) {
 
     $services = Service::latest()->get();
 
-    // Get unique categories for the filter (from both admin and professional events)
-    $adminCategories = AllEvent::where('created_by_type', 'admin')->distinct()->pluck('mini_heading');
-    $professionalCategories = AllEvent::where('created_by_type', 'professional')->where('status', 'approved')->distinct()->pluck('mini_heading');
+    // Get unique categories for the filter (from both admin and professional events that are approved)
+    $adminCategories = AllEvent::where('created_by_type', 'admin')
+        ->where('status', 'approved')
+        ->distinct()
+        ->pluck('mini_heading');
+    $professionalCategories = AllEvent::where('created_by_type', 'professional')
+        ->where('status', 'approved')
+        ->distinct()
+        ->pluck('mini_heading');
     $categories = $adminCategories->merge($professionalCategories)->unique();
 
     // Get unique cities for the filter
@@ -240,10 +248,12 @@ Route::get('/eventlist', function (Request $request) {
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
     // First try to find in AllEvent (for professional events)
-    $allEvent = AllEvent::find($id);
+    $allEvent = AllEvent::where('id', $id)
+        ->where('status', 'approved')
+        ->first();
 
     if ($allEvent && $allEvent->created_by_type === 'professional') {
-        // This is a professional event from AllEvent
+        // This is an approved professional event from AllEvent
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
         
@@ -254,8 +264,17 @@ Route::get('/allevent/{id}', function ($id) {
 
         return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs', 'eventDetail'));
     } else {
-        // This is an admin event from Event model
-        $event = Event::with('eventDetails')->findOrFail($id);
+        // Try to find this as an admin event from Event model, but only if it's approved
+        $event = Event::with(['eventDetails' => function($query) {
+                $query->whereHas('event', function($subQuery) {
+                    $subQuery->where('status', 'approved');
+                });
+            }])
+            ->whereHas('eventDetails.event', function($query) {
+                $query->where('status', 'approved');
+            })
+            ->findOrFail($id);
+            
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
 

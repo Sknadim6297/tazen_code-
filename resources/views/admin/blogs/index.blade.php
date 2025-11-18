@@ -49,6 +49,20 @@
                                                         <label for="blog-title" class="form-label">Blog Title</label>
                                                         <input type="text" class="form-control" name="title" id="blog-title" placeholder="Enter blog title" required>
                                                     </div>
+
+                                                    <!-- Meta Title -->
+                                                    <div class="col-xl-12">
+                                                        <label for="meta-title" class="form-label">Meta Title (SEO)</label>
+                                                        <input type="text" class="form-control" name="meta_title" id="meta-title" placeholder="Enter meta title for SEO" maxlength="60">
+                                                        <small class="text-muted">Recommended: 50-60 characters</small>
+                                                    </div>
+
+                                                    <!-- Meta Description -->
+                                                    <div class="col-xl-12">
+                                                        <label for="meta-description" class="form-label">Meta Description (SEO)</label>
+                                                        <textarea class="form-control" name="meta_description" id="meta-description" rows="3" placeholder="Enter meta description for SEO" maxlength="160"></textarea>
+                                                        <small class="text-muted">Recommended: 150-160 characters</small>
+                                                    </div>
                                     
                                                     <!-- Short Description (to display on homepage) -->
                                                    <!-- Short Description -->
@@ -104,6 +118,8 @@
                                             <input class="form-check-input check-all" type="checkbox" id="all-tasks" value="" aria-label="...">
                                         </th>
                                         <th scope="col">Blog Title</th>
+                                        <th scope="col">Meta Title</th>
+                                        <th scope="col">Meta Description</th>
                                         <th scope="col">Short Description</th>
                                         <th scope="col">Image</th>
                                         <th scope="col">Created By</th>
@@ -119,6 +135,12 @@
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ $blog->title }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-medium">{{ Str::limit($blog->meta_title ?? 'Not Set', 30) }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-medium">{{ Str::limit($blog->meta_description ?? 'Not Set', 40) }}</span>
                                             </td>
                                             <td>
                                                 <span class="fw-medium">{{ Str::limit($blog->description_short, 50) }}</span>
@@ -196,6 +218,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var textarea = document.getElementById('short_description');
     var countDisplay = document.getElementById('short_description_count');
     var errorDisplay = document.getElementById('short_description_error');
+    
+    // Meta title character counter
+    var metaTitleInput = document.getElementById('meta-title');
+    var metaDescriptionInput = document.getElementById('meta-description');
+    
     function updateWordCount() {
         let words = textarea.value.match(/\S+/g) || [];
         let wordCount = words.length;
@@ -208,9 +235,41 @@ document.addEventListener('DOMContentLoaded', function() {
             errorDisplay.style.display = 'none';
         }
     }
+    
+    function updateMetaTitleCount() {
+        var length = metaTitleInput.value.length;
+        var existingCounter = document.getElementById('meta-title-counter');
+        if (!existingCounter) {
+            existingCounter = document.createElement('small');
+            existingCounter.id = 'meta-title-counter';
+            existingCounter.className = 'text-muted d-block';
+            metaTitleInput.parentNode.insertBefore(existingCounter, metaTitleInput.nextSibling);
+        }
+        existingCounter.textContent = length + '/60 characters';
+        existingCounter.className = length > 60 ? 'text-danger d-block' : 'text-muted d-block';
+    }
+    
+    function updateMetaDescriptionCount() {
+        var length = metaDescriptionInput.value.length;
+        var existingCounter = document.getElementById('meta-description-counter');
+        if (!existingCounter) {
+            existingCounter = document.createElement('small');
+            existingCounter.id = 'meta-description-counter';
+            existingCounter.className = 'text-muted d-block';
+            metaDescriptionInput.parentNode.insertBefore(existingCounter, metaDescriptionInput.nextSibling.nextSibling);
+        }
+        existingCounter.textContent = length + '/160 characters';
+        existingCounter.className = length > 160 ? 'text-danger d-block' : 'text-muted d-block';
+    }
+    
     textarea.addEventListener('input', updateWordCount);
+    metaTitleInput.addEventListener('input', updateMetaTitleCount);
+    metaDescriptionInput.addEventListener('input', updateMetaDescriptionCount);
+    
     // Initialize on page load
     updateWordCount();
+    updateMetaTitleCount();
+    updateMetaDescriptionCount();
 });
 </script>
 @endsection

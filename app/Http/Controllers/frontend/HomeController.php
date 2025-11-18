@@ -56,17 +56,25 @@ class HomeController extends Controller
         $serviceId = 1; // Change this based on which service you're targeting (dynamic or static)
         $mcqs = ServiceMCQ::where('service_id', $serviceId)->get();
         
-        // Fetch admin events (EventDetail with event relationship) - ONLY admin created events
-        $adminEvents = EventDetail::with('event')
+        // Fetch admin events (EventDetail with event relationship) - ONLY admin created events that are approved and set to show on homepage
+        $adminEvents = EventDetail::with(['event' => function($query) {
+                $query->where('status', 'approved')
+                      ->where('show_on_homepage', true);
+            }])
             ->where('creator_type', 'admin')
+            ->whereHas('event', function($query) {
+                $query->where('status', 'approved')
+                      ->where('show_on_homepage', true);
+            })
             ->latest()
             ->take(6)
             ->get();
         
-        // Fetch approved professional events (AllEvent)
+        // Fetch approved professional events (AllEvent) that are also set to show on homepage
         $professionalEvents = AllEvent::with('professional')
             ->where('created_by_type', 'professional')
             ->where('status', 'approved')
+            ->where('show_on_homepage', true)
             ->latest()
             ->take(6)
             ->get();
@@ -256,16 +264,9 @@ class HomeController extends Controller
         if ($request->has('experience') && !empty($request->experience)) {
             $expRange = $request->experience;
 
-            if ($expRange == '10+') {
-                $professionalsQuery->whereHas('profile', function ($query) {
-                    $query->where('experience', '>=', 10);
-                });
-            } else {
-                list($minExp, $maxExp) = explode('-', $expRange);
-                $professionalsQuery->whereHas('profile', function ($query) use ($minExp, $maxExp) {
-                    $query->whereBetween('experience', [$minExp, $maxExp]);
-                });
-            }
+            $professionalsQuery->whereHas('profile', function ($query) use ($expRange) {
+                $query->where('experience', $expRange);
+            });
         }
 
         // Filter by price range

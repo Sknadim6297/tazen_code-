@@ -836,7 +836,7 @@
         <!-- /page_header -->
         <!-- Filter Section with Custom CSS -->
 <div class="filter-container">
-    <form id="filterForm" action="{{ route('professionals') }}" method="GET">
+    <form id="filterForm" action="{{ route('gridlisting') }}" method="GET">
         <div class="filter-row">
             <!-- Experience Filter -->
             <div class="filter-group">
@@ -871,7 +871,7 @@
             <!-- Buttons -->
             <div class="filter-buttons">
                 <button type="submit" class="filter-btn apply-btn">Apply Filters</button>
-                <a href="{{ route('professionals') }}" class="filter-btn clear-btn">Clear All</a>
+                <a href="{{ route('gridlisting') }}" class="filter-btn clear-btn">Clear All</a>
             </div>
         </div>
     </form>
@@ -884,13 +884,13 @@
     @if(request('experience'))
         <span class="active-filter-badge">
             Experience: {{ request('experience') }} years
-            <a href="{{ route('professionals', array_merge(request()->except('experience'), request()->only(['price_range']))) }}" class="filter-remove">×</a>
+            <a href="{{ route('gridlisting', array_merge(request()->except('experience'), request()->only(['price_range']))) }}" class="filter-remove">×</a>
         </span>
     @endif
     @if(request('price_range'))
         <span class="active-filter-badge">
             Price: {{ request('price_range') }}
-            <a href="{{ route('professionals', array_merge(request()->except('price_range'), request()->only(['experience']))) }}" class="filter-remove">×</a>
+            <a href="{{ route('gridlisting', array_merge(request()->except('price_range'), request()->only(['experience']))) }}" class="filter-remove">×</a>
         </span>
     @endif
 </div>

@@ -36,8 +36,8 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web')
             ->group(base_path('routes/web.php'));
 
-        // Admin routes with the correct guard
-        Route::middleware(['web', 'auth:admin'])
+        // Admin routes (auth middleware applied individually in routes file)
+        Route::middleware(['web'])
             ->prefix('admin')
             ->name('admin.')
             ->group(base_path('routes/admin.php'));

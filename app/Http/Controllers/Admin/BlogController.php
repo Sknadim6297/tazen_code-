@@ -35,6 +35,8 @@ class BlogController extends Controller
     {
     $validated = $request->validate([
         'title' => 'required|string|max:255',
+        'meta_title' => 'nullable|string|max:60',
+        'meta_description' => 'nullable|string|max:160',
         'short_description' => 'required|string', // Ensure validation for short_description
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         'created_by' => 'required|string',
@@ -45,6 +47,8 @@ class BlogController extends Controller
     }
     Blog::create([
         'title' => $validated['title'],
+        'meta_title' => $validated['meta_title'],
+        'meta_description' => $validated['meta_description'],
         'description_short' => $validated['short_description'], // Pass the short description
         'image' => isset($imagePath) ? $imagePath : null, // Handle image path
         'created_by' => $validated['created_by'],
@@ -70,13 +74,15 @@ class BlogController extends Controller
         $request->validate([
             'image' => 'nullable|image',
             'title' => 'required|string|max:255',
+            'meta_title' => 'nullable|string|max:60',
+            'meta_description' => 'nullable|string|max:160',
             'description_short' => 'required|string',
             'created_by' => 'required|string|max:255',
             'status' => 'required|in:active,inactive',
         ]);
 
         // Prepare data for update - exclude image initially
-        $data = $request->only(['title', 'description_short', 'created_by', 'status']);
+        $data = $request->only(['title', 'meta_title', 'meta_description', 'description_short', 'created_by', 'status']);
 
         // Handle image upload only if a new image is provided
         if ($request->hasFile('image')) {

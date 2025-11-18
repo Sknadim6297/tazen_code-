@@ -84,6 +84,7 @@
                         ->where('is_system_message', false)
                         ->select('booking_id', DB::raw('COUNT(*) as unread_count'), DB::raw('MAX(created_at) as last_message_at'))
                         ->groupBy('booking_id')
+                        ->orderBy('last_message_at', 'desc')
                         ->get();
                     
                     // Load booking relationships separately to avoid groupBy issues
@@ -101,10 +102,46 @@
                     }
                     
                     $unreadChatCount = $unreadBookingChats->sum('unread_count');
+                    
+                    // Merge all notifications with timestamps for proper sorting
+                    $allNotifications = collect();
+                    
+                    // Add additional service notifications
+                    foreach($unreadNotifications as $notification) {
+                        $allNotifications->push([
+                            'type' => 'service_notification',
+                            'timestamp' => $notification->created_at,
+                            'data' => $notification
+                        ]);
+                    }
+                    
+                    // Add reschedule notifications
+                    foreach($rescheduleNotifications as $notification) {
+                        $allNotifications->push([
+                            'type' => 'reschedule_notification',
+                            'timestamp' => \Carbon\Carbon::parse($notification->created_at),
+                            'data' => $notification
+                        ]);
+                    }
+                    
+                    // Add chat notifications
+                    foreach($unreadBookingChats as $chatGroup) {
+                        $allNotifications->push([
+                            'type' => 'chat_notification',
+                            'timestamp' => \Carbon\Carbon::parse($chatGroup->last_message_at),
+                            'data' => $chatGroup
+                        ]);
+                    }
+                    
+                    // Sort all notifications by timestamp (newest first)
+                    $allNotifications = $allNotifications->sortByDesc('timestamp');
+                    
                 } catch (\Exception $e) {
                     $unreadBookingChats = collect();
                     $unreadChatCount = 0;
                     $unreadNotifications = collect();
+                    $rescheduleNotifications = collect();
+                    $allNotifications = collect();
                     // Log error for debugging
                     \Log::error('Professional notification fetch error: ' . $e->getMessage());
                 }
@@ -183,94 +220,100 @@
             <button class="notification-modal-close">&times;</button>
         </div>
         <div class="notification-modal-body">
-            {{-- Additional Service Notifications --}}
-            @if($unreadNotifications && $unreadNotifications->count() > 0)
-                @foreach($unreadNotifications as $notification)
-                    @php
-                        $data = $notification->data;
-                        $serviceId = $data['additional_service_id'] ?? null;
-                        $serviceName = $data['service_name'] ?? 'Additional Service';
-                        $type = $data['type'] ?? 'update';
-                        $icon = $data['icon'] ?? 'fas fa-bell';
-                        $color = $data['color'] ?? '#3498db';
-                    @endphp
-                    <div class="notification-item service-notification" data-notification-id="{{ $notification->id }}">
-                        <div class="notification-icon-wrapper" style="background-color: {{ $color }};">
-                            <i class="{{ $icon }}"></i>
+            {{-- All Notifications Sorted by Timestamp (Newest First) --}}
+            @if($allNotifications && $allNotifications->count() > 0)
+                @foreach($allNotifications as $notificationItem)
+                    @if($notificationItem['type'] == 'service_notification')
+                        @php
+                            $notification = $notificationItem['data'];
+                            $data = $notification->data;
+                            $serviceId = $data['additional_service_id'] ?? null;
+                            $serviceName = $data['service_name'] ?? 'Additional Service';
+                            $type = $data['type'] ?? 'update';
+                            $icon = $data['icon'] ?? 'fas fa-bell';
+                            $color = $data['color'] ?? '#3498db';
+                        @endphp
+                        <div class="notification-item service-notification" data-notification-id="{{ $notification->id }}">
+                            <div class="notification-icon-wrapper" style="background-color: {{ $color }};">
+                                <i class="{{ $icon }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>{{ $data['title'] ?? 'Service Update' }}</h5>
+                                <p>{{ $data['message'] ?? 'You have a new update regarding an additional service.' }}</p>
+                                <p><small>Service: {{ $serviceName }} - {{ $notification->created_at->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    @if($serviceId)
+                                        <a href="{{ route('professional.additional-services.show', $serviceId) }}" class="notification-btn view-btn">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    @endif
+                                    <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">
+                                        <i class="fas fa-check"></i> Mark as Read
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="notification-content">
-                            <h5>{{ $data['title'] ?? 'Service Update' }}</h5>
-                            <p>{{ $data['message'] ?? 'You have a new update regarding an additional service.' }}</p>
-                            <p><small>Service: {{ $serviceName }} - {{ $notification->created_at->diffForHumans() }}</small></p>
-                            <div class="button-container">
-                                @if($serviceId)
-                                    <a href="{{ route('professional.additional-services.show', $serviceId) }}" class="notification-btn view-btn">
-                                        <i class="fas fa-eye"></i> View Details
+                    @elseif($notificationItem['type'] == 'chat_notification')
+                        @php
+                            $chatGroup = $notificationItem['data'];
+                            $booking = $chatGroup->booking ?? null;
+                            if (!$booking) continue;
+                            
+                            $customerName = optional($booking->user)->name ?? 'Customer';
+                            $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
+                        @endphp
+                        <div class="notification-item chat-notification">
+                            <div class="notification-icon-wrapper">
+                                <i class="fas fa-message"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>New Message from {{ $customerName }}</h5>
+                                <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
+                                <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    <a href="{{ route('professional.chat.open', $booking->id) }}" class="notification-btn view-btn">
+                                        <i class="fas fa-comments"></i> Open Chat
                                     </a>
-                                @endif
-                                <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">
-                                    <i class="fas fa-check"></i> Mark as Read
-                                </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            @endif
-
-            {{-- Chat Notifications --}}
-            @if($unreadChatCount > 0)
-                @foreach($unreadBookingChats as $chatGroup)
-                    @php
-                        $booking = $chatGroup->booking ?? null;
-                        if (!$booking) continue;
-                        
-                        $customerName = optional($booking->user)->name ?? 'Customer';
-                        $serviceName = $booking->service_name ?? (optional($booking->service)->name ?? 'Service');
-                    @endphp
-                    <div class="notification-item chat-notification">
-                        <div class="notification-icon-wrapper">
-                            <i class="fas fa-message"></i>
-                        </div>
-                        <div class="notification-content">
-                            <h5>New Message from {{ $customerName }}</h5>
-                            <p>{{ $chatGroup->unread_count }} unread message(s) for Booking #{{ $booking->id }}</p>
-                            <p><small>Service: {{ $serviceName }} - {{ \Carbon\Carbon::parse($chatGroup->last_message_at)->diffForHumans() }}</small></p>
-                            <div class="button-container">
-                                <a href="{{ route('professional.chat.open', $booking->id) }}" class="notification-btn view-btn">
-                                    <i class="fas fa-comments"></i> Open Chat
-                                </a>
+                    @elseif($notificationItem['type'] == 'reschedule_notification')
+                        @php
+                            $notification = $notificationItem['data'];
+                            $data = json_decode($notification->data, true);
+                        @endphp
+                        <div class="notification-item reschedule">
+                            <div class="notification-icon-wrapper">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>Appointment Rescheduled</h5>
+                                <p><strong>{{ $data['customer_name'] ?? 'Customer' }}</strong> rescheduled their appointment</p>
+                                <p><small>Service: {{ $data['service_name'] ?? 'N/A' }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    <a href="{{ route('professional.booking.index') }}" class="notification-btn view-btn">View Bookings</a>
+                                    <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">Mark as Read</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 @endforeach
             @endif
             
-            {{-- Other Notifications --}}
+            {{-- Static Notifications (New Bookings & Profile Completion) --}}
             @if($newBookings > 0)
                 <div class="notification-item new">
-                    <h5>New Booking Alert!</h5>
-                    <p>You have {{ $newBookings }} new booking(s) in the last 24 hours.</p>
-                    <div class="button-container">
-                        <a href="{{ route('professional.booking.index') }}" class="notification-btn view-btn">View Bookings</a>
+                    <div class="notification-icon-wrapper">
+                        <i class="fas fa-calendar-plus"></i>
                     </div>
-                </div>
-            @endif
-            
-            @if($rescheduleCount > 0)
-                @foreach($rescheduleNotifications as $notification)
-                    @php
-                        $data = json_decode($notification->data, true);
-                    @endphp
-                    <div class="notification-item reschedule">
-                        <h5>Appointment Rescheduled</h5>
-                        <p><strong>{{ $data['customer_name'] ?? 'Customer' }}</strong> rescheduled their appointment</p>
-                        <p><small>Service: {{ $data['service_name'] ?? 'N/A' }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small></p>
+                    <div class="notification-content">
+                        <h5>New Booking Alert!</h5>
+                        <p>You have {{ $newBookings }} new booking(s) in the last 24 hours.</p>
                         <div class="button-container">
                             <a href="{{ route('professional.booking.index') }}" class="notification-btn view-btn">View Bookings</a>
-                            <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">Mark as Read</button>
                         </div>
                     </div>
-                @endforeach
+                </div>
             @endif
             
             @if(!$hasServices)

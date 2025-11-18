@@ -124,7 +124,18 @@
             visibility: visible;
             opacity: 1;
         }
-    </style>    
+    </style>
+    
+    <!-- Tazen Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('tazen-favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <link rel="shortcut icon" href="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <meta name="msapplication-TileImage" content="{{ asset('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}">
+    <meta name="theme-color" content="#ffffff">
+    
 </head>
 
 <body>

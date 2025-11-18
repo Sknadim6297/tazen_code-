@@ -20,6 +20,18 @@
         </div>
 
         <div class="mb-3">
+            <label for="meta-title" class="form-label">Meta Title (SEO)</label>
+            <input type="text" class="form-control" name="meta_title" id="meta-title" value="{{ old('meta_title', $blog->meta_title) }}" maxlength="60" placeholder="Enter meta title for SEO">
+            <small class="text-muted">Recommended: 50-60 characters</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="meta-description" class="form-label">Meta Description (SEO)</label>
+            <textarea class="form-control" name="meta_description" id="meta-description" rows="3" maxlength="160" placeholder="Enter meta description for SEO">{{ old('meta_description', $blog->meta_description) }}</textarea>
+            <small class="text-muted">Recommended: 150-160 characters</small>
+        </div>
+
+        <div class="mb-3">
             <label for="description_short" class="form-label">Short Description</label>
             <textarea class="form-control" name="description_short" id="description_short" required>{{ old('description_short', $blog->description_short) }}</textarea>
         </div>
@@ -60,4 +72,49 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Meta title character counter
+    var metaTitleInput = document.getElementById('meta-title');
+    var metaDescriptionInput = document.getElementById('meta-description');
+    
+    function updateMetaTitleCount() {
+        var length = metaTitleInput.value.length;
+        var existingCounter = document.getElementById('meta-title-counter');
+        if (!existingCounter) {
+            existingCounter = document.createElement('small');
+            existingCounter.id = 'meta-title-counter';
+            existingCounter.className = 'text-muted d-block';
+            metaTitleInput.parentNode.appendChild(existingCounter);
+        }
+        existingCounter.textContent = length + '/60 characters';
+        existingCounter.className = length > 60 ? 'text-danger d-block' : 'text-muted d-block';
+    }
+    
+    function updateMetaDescriptionCount() {
+        var length = metaDescriptionInput.value.length;
+        var existingCounter = document.getElementById('meta-description-counter');
+        if (!existingCounter) {
+            existingCounter = document.createElement('small');
+            existingCounter.id = 'meta-description-counter';
+            existingCounter.className = 'text-muted d-block';
+            metaDescriptionInput.parentNode.appendChild(existingCounter);
+        }
+        existingCounter.textContent = length + '/160 characters';
+        existingCounter.className = length > 160 ? 'text-danger d-block' : 'text-muted d-block';
+    }
+    
+    if (metaTitleInput) {
+        metaTitleInput.addEventListener('input', updateMetaTitleCount);
+        updateMetaTitleCount(); // Initialize
+    }
+    
+    if (metaDescriptionInput) {
+        metaDescriptionInput.addEventListener('input', updateMetaDescriptionCount);
+        updateMetaDescriptionCount(); // Initialize
+    }
+});
+</script>
+
 @endsection
