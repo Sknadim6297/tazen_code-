@@ -222,6 +222,9 @@
                             
                             // Get the appropriate date
                             $eventDate = $event->event->date ?? ($event->event->starting_date ?? now());
+                            
+                            // Get the appropriate time
+                            $eventTime = $event->event->time ?? null;
                         @endphp
                         
                         <div class="col-lg-3 col-md-6 col-sm-12 ttm-box-col-wrapper">
@@ -232,7 +235,12 @@
                                     </a>
                                     <div class="ttm-box-date">
                                         <i class="fa fa-calendar ttm-textcolor-skincolor"></i>
-                                        <span class="ttm-entry-date">{{ \Carbon\Carbon::parse($eventDate)->format('M d, Y') }}</span>
+                                        <span class="ttm-entry-date">
+                                            {{ \Carbon\Carbon::parse($eventDate)->format('M d, Y') }}
+                                            @if($eventTime)
+                                                <br><small style="font-size: 11px;"><i class="fa fa-clock"></i> {{ \Carbon\Carbon::parse($eventTime)->format('h:i A') }}</small>
+                                            @endif
+                                        </span>
                                     </div>
                                     
                                     {{-- Badge to show event creator type --}}

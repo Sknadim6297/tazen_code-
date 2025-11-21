@@ -390,6 +390,15 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="time" class="form-label">Event Time <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control @error('time') is-invalid @enderror"
+                                   id="time" name="time" value="{{ old('time') }}" required>
+                            @error('time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="starting_fees" class="form-label">Event Fees (₹) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control @error('starting_fees') is-invalid @enderror"
                                    id="starting_fees" name="starting_fees" placeholder="Enter event fees"
@@ -428,7 +437,6 @@
                                   id="short_description" name="short_description" rows="6"
                                   placeholder="Provide a detailed description of your event, including what participants will learn, duration, agenda, etc."
                                   maxlength="1000" required>{{ old('short_description') }}</textarea>
-                        <div class="form-text"><span id="charCount">0</span>/1000 characters</div>
                         @error('short_description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -472,26 +480,6 @@ document.addEventListener('DOMContentLoaded', function() {
             preview.style.display = 'none';
         }
     });
-
-    // Character count for description
-    const textarea = document.getElementById('short_description');
-    const charCount = document.getElementById('charCount');
-
-    function updateCharCount() {
-        const count = textarea.value.length;
-        charCount.textContent = count;
-        
-        if (count > 800) {
-            charCount.className = 'text-warning';
-        } else if (count > 950) {
-            charCount.className = 'text-danger';
-        } else {
-            charCount.className = '';
-        }
-    }
-
-    textarea.addEventListener('input', updateCharCount);
-    updateCharCount(); // Initial count
 
     // Form validation enhancement
     const form = document.querySelector('form');

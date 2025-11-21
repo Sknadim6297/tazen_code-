@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\AllEvent;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewProfessionalEvent;
 
 class ProfessionalEventController extends Controller
 {
@@ -49,6 +52,7 @@ class ProfessionalEventController extends Controller
         $request->validate([
             'card_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date|after:today',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',
@@ -62,6 +66,7 @@ class ProfessionalEventController extends Controller
             'professional_id' => $professional->id,
             'card_image' => $imagePath,
             'date' => $request->date,
+            'time' => $request->time,
             'mini_heading' => $request->mini_heading,
             'heading' => $request->heading,
             'short_description' => $request->short_description,
@@ -69,6 +74,12 @@ class ProfessionalEventController extends Controller
             'status' => 'pending',
             'created_by_type' => 'professional',
         ]);
+
+        // Notify all admins about the new event
+        $admins = Admin::where('is_active', true)->get();
+        $professionalName = $professional->name ?? $professional->email;
+        
+        Notification::send($admins, new NewProfessionalEvent($event, $professionalName));
 
         return redirect()
             ->route('professional.event-details.create', ['event_id' => $event->id])
@@ -122,6 +133,7 @@ class ProfessionalEventController extends Controller
         $request->validate([
             'card_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date|after:today',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',
@@ -130,6 +142,7 @@ class ProfessionalEventController extends Controller
 
         $updateData = [
             'date' => $request->date,
+            'time' => $request->time,
             'mini_heading' => $request->mini_heading,
             'heading' => $request->heading,
             'short_description' => $request->short_description,

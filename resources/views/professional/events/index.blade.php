@@ -496,7 +496,12 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</td>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}
+                                            @if($event->time)
+                                                <br><small class="text-muted"><i class="ri-time-line"></i> {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}</small>
+                                            @endif
+                                        </td>
                                         <td><span class="badge bg-info">{{ $event->mini_heading }}</span></td>
                                         <td>₹{{ number_format($event->starting_fees, 2) }}</td>
                                         <td>

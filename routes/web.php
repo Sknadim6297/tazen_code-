@@ -264,21 +264,22 @@ Route::get('/allevent/{id}', function ($id) {
 
         return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs', 'eventDetail'));
     } else {
-        // Try to find this as an admin event from Event model, but only if it's approved
-        $event = Event::with(['eventDetails' => function($query) {
-                $query->whereHas('event', function($subQuery) {
-                    $subQuery->where('status', 'approved');
-                });
+        // Try to find this as an admin event - EventDetail doesn't have status, Event does
+        $eventDetail = EventDetail::with(['event' => function($query) {
+                $query->where('status', 'approved');
             }])
-            ->whereHas('eventDetails.event', function($query) {
+            ->whereHas('event', function($query) {
                 $query->where('status', 'approved');
             })
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->where('creator_type', 'admin')
+            ->firstOrFail();
             
+        $event = $eventDetail->event;
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
 
-        return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs'));
+        return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs', 'eventDetail'));
     }
 })->name('event.details');
 Route::get('allevent', function ($id) {

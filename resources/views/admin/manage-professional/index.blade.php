@@ -779,6 +779,7 @@
                                                         data-professional-id="{{ $professional->id }}" 
                                                         data-professional-name="{{ $professional->name }}"
                                                         data-professional-email="{{ $professional->email }}"
+                                                        data-professional-service="{{ $professional->profile && $professional->profile->specialization ? $professional->profile->specialization : 'N/A' }}"
                                                         data-bs-toggle="tooltip" 
                                                         data-bs-title="Chat with Professional">
                                                     <i class="ri-message-3-line"></i>
@@ -863,6 +864,7 @@
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="chatModalLabel">
                     <i class="ri-message-3-line me-2"></i>Chat with <span id="chatProfessionalName">Professional</span>
+                    <span id="chatProfessionalService" class="ms-2" style="font-size: 0.85em; opacity: 0.9;"></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1065,6 +1067,7 @@
                                                 data-professional-id="${professional.id}" 
                                                 data-professional-name="${professional.name}"
                                                 data-professional-email="${professional.email}"
+                                                data-professional-service="${professional.profile && professional.profile.specialization ? professional.profile.specialization : 'N/A'}"
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-title="Chat with Professional">
                                             <i class="ri-message-3-line"></i>
@@ -1395,11 +1398,19 @@
         const professionalId = $(this).data('professional-id');
         const professionalName = $(this).data('professional-name');
         const professionalEmail = $(this).data('professional-email');
+        const professionalService = $(this).data('professional-service');
         
         currentProfessionalId = professionalId;
         
         // Update modal title
         $('#chatProfessionalName').text(professionalName);
+        
+        // Update service display
+        if (professionalService && professionalService !== 'N/A') {
+            $('#chatProfessionalService').html(`<br><small style="font-size: 0.75em; font-weight: normal;">Service: ${professionalService}</small>`);
+        } else {
+            $('#chatProfessionalService').text('');
+        }
         
         // Show modal
         $('#chatModal').modal('show');

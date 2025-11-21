@@ -388,11 +388,17 @@
                     
                     @if($subServices->hasPages())
                     <div class="card-footer border-top-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="text-muted">
-                                Showing {{ $subServices->firstItem() }} to {{ $subServices->lastItem() }} of {{ $subServices->total() }} results
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="text-muted">
+                                    Showing {{ $subServices->firstItem() }} to {{ $subServices->lastItem() }} of {{ $subServices->total() }} results
+                                </div>
                             </div>
-                            {{ $subServices->appends(request()->query())->links() }}
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+                                    {{ $subServices->appends(request()->query())->links('pagination::bootstrap-4') }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @endif
@@ -404,7 +410,68 @@
     </div>
 </div>
 
+<style>
+    /* Custom Pagination Styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+    .page-link {
+        color: #667eea;
+        padding: 0.5rem 0.75rem;
+        margin: 0 3px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #f0f2ff;
+        color: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    @media (max-width: 768px) {
+        .pagination .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
 @section('scripts')
+<script>
+// Enhanced pagination experience
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading state when clicking pagination links
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (!this.parentElement.classList.contains('active') && !this.parentElement.classList.contains('disabled')) {
+                // Add loading state
+                const spinner = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+                this.innerHTML = spinner + 'Loading...';
+                this.style.pointerEvents = 'none';
+            }
+        });
+    });
+    
+    // Smooth scroll to top when pagination is clicked
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            setTimeout(() => {
+                document.querySelector('.main-content').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
+        });
+    });
+});
+</script>
 <script>
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
