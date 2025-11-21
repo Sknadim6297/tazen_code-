@@ -859,17 +859,33 @@
                                     <div class="profile-gallery__grid">
                                         @foreach($gallery as $img)
                                             @php
-                                                if (str_starts_with($img, 'gallery/')) {
-                                                    $imagePath = asset('storage/'.$img);
-                                                } elseif (str_starts_with($img, 'uploads/')) {
-                                                    $imagePath = asset($img);
-                                                } else {
-                                                    $imagePath = asset('uploads/professionals/gallery/'.$img);
+                                                $imagePath = null;
+                                                
+                                                if (!empty($img)) {
+                                                    // Check if it's already a full URL
+                                                    if (filter_var($img, FILTER_VALIDATE_URL)) {
+                                                        $imagePath = $img;
+                                                    } elseif (str_starts_with($img, 'storage/') || str_starts_with($img, '/storage/')) {
+                                                        // If path already includes storage/, use asset() directly
+                                                        $imagePath = asset(ltrim($img, '/'));
+                                                    } elseif (str_starts_with($img, 'uploads/')) {
+                                                        // If path starts with uploads/, prepend storage/
+                                                        $imagePath = asset('storage/' . $img);
+                                                    } elseif (str_starts_with($img, 'gallery/')) {
+                                                        // If path starts with gallery/, prepend storage/uploads/profiles/
+                                                        $imagePath = asset('storage/uploads/profiles/' . $img);
+                                                    } else {
+                                                        // Default: assume path is relative to storage/app/public
+                                                        // This handles paths like: uploads/profiles/gallery/filename.jpg
+                                                        $imagePath = asset('storage/' . $img);
+                                                    }
                                                 }
                                             @endphp
-                                            <div class="profile-gallery__item">
-                                                <img src="{{ $imagePath }}" alt="Gallery image">
-                                            </div>
+                                            @if($imagePath)
+                                                <div class="profile-gallery__item">
+                                                    <img src="{{ $imagePath }}" alt="Gallery image" onerror="this.style.display='none'; this.parentElement.style.display='none';">
+                                                </div>
+                                            @endif
                                         @endforeach
                                     </div>
                                 @else

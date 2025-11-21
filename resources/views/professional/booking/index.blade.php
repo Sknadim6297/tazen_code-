@@ -42,14 +42,14 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 1.25rem;
+        gap: 1.4rem;
         padding: 2rem 2.4rem;
-        border-radius: 26px;
+        border-radius: 28px;
         border: 1px solid rgba(79, 70, 229, 0.18);
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(14, 165, 233, 0.12));
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
         position: relative;
         overflow: hidden;
-        box-shadow: 0 24px 48px rgba(79, 70, 229, 0.18);
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
     }
 
     .bookings-header::before,
@@ -65,53 +65,63 @@
         height: 320px;
         top: -45%;
         right: -12%;
-        background: rgba(79, 70, 229, 0.18);
+        background: rgba(79, 70, 229, 0.2);
     }
 
     .bookings-header::after {
         width: 220px;
         height: 220px;
-        bottom: -42%;
-        left: -8%;
-        background: rgba(59, 130, 246, 0.16);
+        bottom: -40%;
+        left: -10%;
+        background: rgba(59, 130, 246, 0.18);
     }
 
-    .header-content,
-    .header-actions {
+    .bookings-header > * {
         position: relative;
         z-index: 1;
     }
 
-    .bookings-header .pretitle {
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .hero-eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        padding: 0.4rem 1.1rem;
+        padding: 0.35rem 1rem;
         border-radius: 999px;
-        text-transform: uppercase;
         font-size: 0.72rem;
-        letter-spacing: 0.14em;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
         background: rgba(255, 255, 255, 0.35);
         border: 1px solid rgba(255, 255, 255, 0.45);
-        color: var(--text-dark);
+        color: #0f172a;
     }
 
-    .bookings-header h1 {
-        margin: 1.1rem 0 0.5rem;
-        font-size: 2.05rem;
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
         font-weight: 700;
-        color: var(--text-dark);
+        color: #0f172a;
     }
 
-    .bookings-header .breadcrumb {
+    .hero-breadcrumb {
         margin: 0;
         padding: 0;
-        font-size: 0.9rem;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
         color: var(--text-muted);
-        background: transparent;
     }
 
-    .bookings-header .breadcrumb a {
+    .hero-breadcrumb li a {
         color: var(--primary);
         text-decoration: none;
     }
@@ -123,23 +133,25 @@
         flex-wrap: wrap;
     }
 
-    .header-actions .btn {
+    .bookings-header .btn {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.85rem 1.6rem;
         border-radius: 999px;
-        border: none;
+        padding: 0.75rem 1.6rem;
         font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
         background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         color: #ffffff;
-        box-shadow: 0 16px 32px rgba(79, 70, 229, 0.24);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
     }
 
-    .header-actions .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.28);
+    .bookings-header .btn:hover {
+        transform: translateY(-1px);
     }
 
     .filter-card {
@@ -807,15 +819,12 @@
 <div class="content-wrapper bookings-page">
     <div class="bookings-shell">
         <header class="bookings-header">
-            <div class="header-content">
-                <span class="pretitle">
-                    <i class="fas fa-calendar-check"></i>
-                    Bookings
-                </span>
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="fas fa-calendar-check"></i>Bookings</span>
                 <h1>All Bookings</h1>
-                <ul class="breadcrumb">
-                    <li><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-                    <li class="active">Bookings</li>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Bookings</li>
                 </ul>
             </div>
             <div class="header-actions">

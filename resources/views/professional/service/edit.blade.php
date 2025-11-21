@@ -200,9 +200,21 @@
         padding: 1.1rem;
         background: rgba(248, 250, 252, 0.85);
         min-height: 64px;
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 0.8rem;
+    }
+    
+    @media (max-width: 992px) {
+        .sub-service-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .sub-service-container {
+            grid-template-columns: 1fr;
+        }
     }
 
     .sub-service-loading {

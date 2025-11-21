@@ -31,79 +31,111 @@
     .availability-header {
         display: flex;
         flex-wrap: wrap;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        padding: 2rem 2.5rem;
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(59, 130, 246, 0.08));
-        border-radius: 20px;
-        border: 1px solid rgba(79, 70, 229, 0.12);
-        margin-bottom: 2rem;
+        gap: 1.4rem;
+        padding: 2rem 2.4rem;
+        border-radius: 28px;
+        border: 1px solid rgba(79, 70, 229, 0.18);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.16));
         position: relative;
         overflow: hidden;
+        box-shadow: 0 24px 54px rgba(79, 70, 229, 0.16);
     }
 
+    .availability-header::before,
     .availability-header::after {
         content: "";
         position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.16), transparent 55%);
+        border-radius: 50%;
         pointer-events: none;
     }
 
-    .header-content,
-    .header-actions {
+    .availability-header::before {
+        width: 320px;
+        height: 320px;
+        top: -45%;
+        right: -12%;
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .availability-header::after {
+        width: 220px;
+        height: 220px;
+        bottom: -40%;
+        left: -10%;
+        background: rgba(59, 130, 246, 0.18);
+    }
+
+    .availability-header > * {
         position: relative;
         z-index: 1;
     }
 
-    .availability-header h1 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin: 0;
-    }
-
-    .availability-header .breadcrumb {
-        margin: 0.35rem 0 0;
-        padding: 0;
-        background: transparent;
-        font-size: 0.88rem;
+    .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
         color: var(--text-muted);
     }
 
-    .availability-header .breadcrumb a {
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #0f172a;
+    }
+
+    .hero-meta h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .hero-breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+    }
+
+    .hero-breadcrumb li a {
         color: var(--primary);
         text-decoration: none;
     }
 
-    .header-actions {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .header-actions .btn {
+    .availability-header .btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.75rem 1.4rem;
+        gap: 0.5rem;
         border-radius: 999px;
+        padding: 0.75rem 1.6rem;
         font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .header-actions .btn.btn-primary {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         border: none;
-        color: #fff;
-        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.25);
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #ffffff;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.22);
     }
 
-    .header-actions .btn.btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 18px 35px rgba(79, 70, 229, 0.28);
+    .availability-header .btn:hover {
+        transform: translateY(-1px);
     }
 
     .filter-card {
@@ -458,21 +490,18 @@
     <div class="availability-page">
         <div class="availability-shell">
         <header class="availability-header">
-            <div class="header-content">
+            <div class="hero-meta">
+                <span class="hero-eyebrow"><i class="ri-calendar-line"></i>Availability</span>
                 <h1>My Availability</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('professional.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Availability</li>
-                    </ol>
-                </nav>
+                <ul class="hero-breadcrumb">
+                    <li><a href="{{ route('professional.dashboard') }}">Home</a></li>
+                    <li class="active" aria-current="page">Availability</li>
+                </ul>
             </div>
-            <div class="header-actions">
-                <a href="{{ route('professional.availability.create') }}" class="btn btn-primary">
-                    <i class="ri-add-line"></i>
-                    <span>Add New Availability</span>
-                </a>
-            </div>
+            <a href="{{ route('professional.availability.create') }}" class="btn btn-primary">
+                <i class="ri-add-line"></i>
+                Add New Availability
+            </a>
         </header>
 
         <section class="filter-card">
