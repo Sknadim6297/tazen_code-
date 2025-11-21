@@ -32,6 +32,7 @@
         margin-top: 120px !important;
         margin-bottom: 30px;
         max-width: 1200px;
+        overflow: visible;
     }
 
     /* Page Header Adjustments - Fiverr Style */
@@ -41,6 +42,8 @@
         border-radius: 0;
         margin-bottom: 30px;
         box-shadow: none;
+        overflow: visible;
+        width: 100%;
     }
 
     /* Breadcrumbs - Fiverr Style */
@@ -103,12 +106,18 @@
         line-height: 1.5;
     }
 
-    /* Sub-category Bubbles - Fiverr Style */
-    .sub-categories {
+    /* Sub-category Bubbles - Fiverr Style (Desktop) */
+    .sub-categories-desktop,
+    .sub-categories.sub-categories-desktop {
         display: flex;
         gap: 12px;
         margin-bottom: 24px;
         flex-wrap: wrap;
+    }
+    
+    /* Mobile Sub-categories - Hidden on Desktop */
+    .sub-categories-mobile {
+        display: none;
     }
 
     .sub-category-bubble {
@@ -610,10 +619,19 @@
         .container.margin_30_40 {
             padding: 15px;
             margin-top: 100px !important;
+            overflow: visible;
         }
         
         .page_header {
             margin-bottom: 20px;
+            overflow: visible !important;
+            width: 100% !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        .page_header > * {
+            overflow: visible !important;
         }
         
         .page_header h1 {
@@ -625,14 +643,149 @@
             margin-bottom: 20px;
         }
         
-        .sub-categories {
-            gap: 10px;
-            margin-bottom: 20px;
+        /* Show Desktop Sub-categories on Mobile with Mobile Styling */
+        .sub-categories.sub-categories-desktop,
+        .sub-categories-desktop,
+        div.sub-categories.sub-categories-desktop {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            gap: 6px !important;
+            margin-bottom: 15px !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            padding-bottom: 10px !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #6c5ce7 #f1f1f1;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 36px !important;
+            position: relative !important;
+            z-index: 10 !important;
         }
         
-        .sub-category-bubble {
-            padding: 6px 12px;
+        .sub-categories.sub-categories-desktop::-webkit-scrollbar,
+        .sub-categories-desktop::-webkit-scrollbar,
+        div.sub-categories.sub-categories-desktop::-webkit-scrollbar {
+            height: 4px !important;
+            display: block !important;
+        }
+        
+        .sub-categories.sub-categories-desktop::-webkit-scrollbar-track,
+        .sub-categories-desktop::-webkit-scrollbar-track,
+        div.sub-categories.sub-categories-desktop::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+            border-radius: 10px !important;
+        }
+        
+        .sub-categories.sub-categories-desktop::-webkit-scrollbar-thumb,
+        .sub-categories-desktop::-webkit-scrollbar-thumb,
+        div.sub-categories.sub-categories-desktop::-webkit-scrollbar-thumb {
+            background: #6c5ce7 !important;
+            border-radius: 10px !important;
+        }
+        
+        .sub-categories.sub-categories-desktop::-webkit-scrollbar-thumb:hover,
+        .sub-categories-desktop::-webkit-scrollbar-thumb:hover,
+        div.sub-categories.sub-categories-desktop::-webkit-scrollbar-thumb:hover {
+            background: #5a4fcf !important;
+        }
+        
+        .sub-categories.sub-categories-desktop .sub-category-bubble,
+        .sub-categories-desktop .sub-category-bubble,
+        div.sub-categories.sub-categories-desktop .sub-category-bubble,
+        div.sub-categories.sub-categories-desktop a.sub-category-bubble {
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            min-width: fit-content !important;
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            border-radius: 16px !important;
+        }
+        
+        .sub-categories.sub-categories-desktop .sub-category-bubble span,
+        .sub-categories-desktop .sub-category-bubble span {
+            font-size: 11px !important;
+        }
+        
+        /* Hide Mobile Sub-categories on Mobile (use desktop version instead) */
+        .sub-categories-mobile {
+            display: none !important;
+        }
+        
+        .mobile-sub-categories-wrapper {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #6c5ce7 #f1f1f1;
+        }
+        
+        .mobile-sub-categories-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .mobile-sub-categories-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .mobile-sub-categories-wrapper::-webkit-scrollbar-thumb {
+            background: #6c5ce7;
+            border-radius: 10px;
+        }
+        
+        .mobile-sub-categories-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #5a4fcf;
+        }
+        
+        .mobile-sub-category-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #152a70, #c51010, #f39c12);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: white !important;
             font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(21, 42, 112, 0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: fit-content;
+        }
+        
+        .mobile-sub-category-item:hover {
+            background: linear-gradient(135deg, #1a3585, #e01515, #ffa726);
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-sub-category-item.active {
+            background: linear-gradient(135deg, #0d1f4f, #a00d0d, #d68910);
+            border: 2px solid #152a70;
+            box-shadow: 0 4px 15px rgba(21, 42, 112, 0.4);
+            color: white !important;
+        }
+        
+        .mobile-sub-category-item span {
+            color: white !important;
         }
         
         .filter-container {
@@ -681,10 +834,13 @@
         .container.margin_30_40 {
             padding: 12px;
             margin-top: 80px !important;
+            overflow: visible;
         }
         
         .page_header {
             margin-bottom: 18px;
+            overflow: visible;
+            width: 100%;
         }
         
         .page_header h1 {
@@ -696,14 +852,57 @@
             margin-bottom: 18px;
         }
         
-        .sub-categories {
-            gap: 8px;
-            margin-bottom: 18px;
+        /* Show Desktop Sub-categories on Small Mobile with Mobile Styling */
+        .sub-categories.sub-categories-desktop,
+        .sub-categories-desktop {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            gap: 5px !important;
+            margin-bottom: 12px !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            padding-bottom: 8px !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #6c5ce7 #f1f1f1;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 32px !important;
         }
         
-        .sub-category-bubble {
-            padding: 5px 10px;
-            font-size: 12px;
+        .sub-categories-desktop::-webkit-scrollbar {
+            height: 4px !important;
+        }
+        
+        .sub-categories-desktop::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+            border-radius: 10px !important;
+        }
+        
+        .sub-categories-desktop::-webkit-scrollbar-thumb {
+            background: #6c5ce7 !important;
+            border-radius: 10px !important;
+        }
+        
+        .sub-categories-desktop .sub-category-bubble {
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            min-width: fit-content !important;
+            border-radius: 14px !important;
+        }
+        
+        .sub-categories-desktop .sub-category-bubble span {
+            font-size: 10px !important;
+        }
+        
+        /* Hide Mobile Sub-categories on Small Mobile (use desktop version instead) */
+        .sub-categories-mobile {
+            display: none !important;
+        }
         }
         
         .filter-container {
@@ -817,16 +1016,102 @@
             Find the perfect professional for your project needs. Connect with skilled experts who deliver quality results.
         </div>
         
-        <div class="sub-categories">
+        <style>
+            @media (max-width: 768px) {
+                .sub-categories.sub-categories-desktop {
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    gap: 6px !important;
+                    margin-bottom: 15px !important;
+                    flex-wrap: nowrap !important;
+                    overflow-x: auto !important;
+                    overflow-y: hidden !important;
+                    padding-bottom: 10px !important;
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    min-height: 36px !important;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: thin;
+                    scrollbar-color: #6c5ce7 #f1f1f1;
+                }
+                .sub-categories.sub-categories-desktop::-webkit-scrollbar {
+                    height: 4px !important;
+                }
+                .sub-categories.sub-categories-desktop::-webkit-scrollbar-track {
+                    background: #f1f1f1 !important;
+                    border-radius: 10px !important;
+                }
+                .sub-categories.sub-categories-desktop::-webkit-scrollbar-thumb {
+                    background: #6c5ce7 !important;
+                    border-radius: 10px !important;
+                }
+                .sub-categories.sub-categories-desktop .sub-category-bubble {
+                    display: inline-flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    padding: 6px 12px !important;
+                    font-size: 11px !important;
+                    white-space: nowrap !important;
+                    flex-shrink: 0 !important;
+                    border-radius: 16px !important;
+                    font-weight: 500 !important;
+                }
+                .sub-categories.sub-categories-desktop .sub-category-bubble span {
+                    font-size: 11px !important;
+                }
+            }
+            @media (max-width: 576px) {
+                .sub-categories.sub-categories-desktop {
+                    gap: 5px !important;
+                    margin-bottom: 12px !important;
+                    padding-bottom: 8px !important;
+                    min-height: 32px !important;
+                }
+                .sub-categories.sub-categories-desktop .sub-category-bubble {
+                    padding: 5px 10px !important;
+                    font-size: 10px !important;
+                    border-radius: 14px !important;
+                }
+                .sub-categories.sub-categories-desktop .sub-category-bubble span {
+                    font-size: 10px !important;
+                }
+            }
+        </style>
+        
+        <!-- Desktop Sub-categories -->
+        <div class="sub-categories sub-categories-desktop" style="display: flex !important; visibility: visible !important; opacity: 1 !important; width: 100% !important;">
             @if($subServices && $subServices->count() > 0)
                 @foreach($subServices as $subService)
                     <a href="{{ route('gridlisting', ['service_id' => $selectedServiceId, 'sub_service_id' => $subService->id]) }}" 
-                       class="sub-category-bubble {{ request('sub_service_id') == $subService->id ? 'active' : '' }}">
-                        <span>{{ $subService->name }}</span>
+                       class="sub-category-bubble {{ request('sub_service_id') == $subService->id ? 'active' : '' }}"
+                       style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important; flex-shrink: 0 !important; white-space: nowrap !important;">
+                        <span style="display: inline !important; visibility: visible !important;">{{ $subService->name }}</span>
                     </a>
                 @endforeach
             @else
-                <span style="color: #74767e; font-size: 14px;">No sub-categories available</span>
+                <span style="color: #74767e; font-size: 14px; display: block !important; visibility: visible !important;">No sub-categories available</span>
+            @endif
+        </div>
+        
+        <!-- Mobile Sub-categories - Different Structure -->
+        <div class="sub-categories-mobile">
+            @if($subServices && $subServices->count() > 0)
+                <div class="mobile-sub-categories-wrapper">
+                    @foreach($subServices as $subService)
+                        <a href="{{ route('gridlisting', ['service_id' => $selectedServiceId, 'sub_service_id' => $subService->id]) }}" 
+                           class="mobile-sub-category-item {{ request('sub_service_id') == $subService->id ? 'active' : '' }}">
+                            <span>{{ $subService->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <div class="mobile-sub-categories-wrapper">
+                    <span style="color: #74767e; font-size: 14px;">No sub-categories available</span>
+                </div>
             @endif
         </div>
         
@@ -920,7 +1205,24 @@
                                     </div>
                                 @endif
 
-                                <img src="{{ $professional->profile && $professional->profile->photo ? asset('storage/' . $professional->profile->photo) : asset('img/lazy-placeholder.png') }}" class="img-fluid lazy" alt="{{ $professional->first_name }}">
+                                @if($professional->profile && !empty($professional->profile->photo))
+                                    @php
+                                        $photoPath = $professional->profile->photo;
+                                        // Check if it's already a full URL
+                                        if (filter_var($photoPath, FILTER_VALIDATE_URL)) {
+                                            $imageUrl = $photoPath;
+                                        } else {
+                                            // The photo path is stored relative to storage/app/public
+                                            // Use asset() to generate URL through storage link (same as professional-details.blade.php)
+                                            $imageUrl = asset('storage/' . $photoPath);
+                                        }
+                                    @endphp
+                                    <img src="{{ $imageUrl }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'220\'%3E%3Crect fill=\'%23f5f5f5\' width=\'400\' height=\'220\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23ccc\' font-family=\'Arial\' font-size=\'48\'%3E%3C/tspan%3E%3C/text%3E%3C/svg%3E';">
+                                @else
+                                    <div style="width: 100%; height: 220px; background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); display: flex; align-items: center; justify-content: center;">
+                                        <i class="icon-user" style="font-size: 48px; color: #ccc;"></i>
+                                    </div>
+                                @endif
                             </figure>
 
                         
@@ -1057,4 +1359,5 @@ document.querySelectorAll('#filterForm select').forEach(select => {
 });
 </script>
 @endsection
+ 
  
