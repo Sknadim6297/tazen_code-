@@ -34,6 +34,14 @@ class ServiceController extends Controller
     {
         // Get professional's profile and specialization
         $professional = Auth::guard('professional')->user();
+        
+        // Check if professional already has a service
+        $existingServices = ProfessionalService::where('professional_id', $professional->id)->count();
+        if ($existingServices > 0) {
+            return redirect()->route('professional.service.index')
+                ->with('error', 'You can only add one service. Please edit your existing service instead.');
+        }
+        
         $profile = $professional->profile;
         $specialization = $profile ? $profile->specialization : null;
         
@@ -115,6 +123,14 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if professional already has a service
+        $professional = Auth::guard('professional')->user();
+        $existingServices = ProfessionalService::where('professional_id', $professional->id)->count();
+        if ($existingServices > 0) {
+            return redirect()->route('professional.service.index')
+                ->with('error', 'You can only add one service. Please edit your existing service instead.');
+        }
+        
         $request->validate([
             'serviceId' => 'required|integer|exists:services,id',
             'serviceDuration' => 'required|integer',
@@ -126,7 +142,6 @@ class ServiceController extends Controller
         ]);
         
         // Validate that the professional can only create services in their specialization
-        $professional = Auth::guard('professional')->user();
         $profile = $professional->profile;
         $specialization = $profile ? $profile->specialization : null;
         

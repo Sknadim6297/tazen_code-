@@ -266,21 +266,21 @@
                     <li class="active" aria-current="page">All Services</li>
                 </ul>
             </div>
-            <a href="{{ route('professional.service.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i>
-                Add Service
-            </a>
+            @if(count($services) == 0)
+                <a href="{{ route('professional.service.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Service
+                </a>
+            @else
+                <div class="alert alert-info mb-0" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); color: #0369a1; border-radius: 12px; padding: 0.75rem 1rem;">
+                    <i class="fas fa-info-circle"></i> You can only add one service. Edit your existing service below.
+                </div>
+            @endif
         </section>
 
         <section class="services-card">
             <header class="services-card__head">
                 <h2>Service List</h2>
-                @if(count($services) == 0)
-                    <a href="{{ route('professional.service.create') }}">
-                        <i class="fas fa-plus-circle"></i>
-                        Add Service
-                    </a>
-                @endif
             </header>
             <div class="services-card__body">
                 <div class="table-wrapper">
@@ -329,7 +329,7 @@
                                     <td colspan="6">
                                         <div class="empty-state">
                                             <i class="fas fa-info-circle"></i>
-                                            <p>No services added yet. Click "Add Service" to create your first service.</p>
+                                            <p>No services added yet. Click "Add Service" button above to create your service.</p>
                                         </div>
                                     </td>
                                 </tr>

@@ -176,6 +176,41 @@
                                             </a>
                                         </div>
                                     </li>
+                                @elseif($type === 'App\Notifications\NewProfessionalEvent')
+                                    <li class="dropdown-item position-relative">
+                                        <a href="{{ route('admin.allevents.show', $data['event_id'] ?? 0) }}" 
+                                           class="d-flex align-items-start gap-3 text-decoration-none" 
+                                           onclick="markAdminNotificationAsRead('{{ $notification->id }}')">
+                                            <span class="avatar avatar-md flex-shrink-0 bg-warning-transparent">
+                                                <i class="ri-calendar-event-line fs-18 lh-1 align-middle text-warning"></i>
+                                            </span>
+                                            <div class="flex-grow-1">
+                                                <div class="fs-13">
+                                                    <div class="text-dark fw-medium">
+                                                        New Event by {{ $data['professional_name'] ?? 'Professional' }}
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-12 mt-1">
+                                                        {{ $data['event_heading'] ?? 'Event' }}
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-11 mt-1">
+                                                        <i class="ri-calendar-line me-1"></i>{{ isset($data['event_date']) ? date('M d, Y', strtotime($data['event_date'])) : 'N/A' }}
+                                                        @if(isset($data['event_time']))
+                                                            <span class="ms-2"><i class="ri-time-line me-1"></i>{{ date('g:i A', strtotime($data['event_time'])) }}</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-11 mt-1">
+                                                        <i class="ri-time-line me-1"></i>{{ $notification->created_at->diffForHumans() }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <a href="javascript:void(0);" class="min-w-fit-content text-muted dropdown-item-close" 
+                                               onclick="event.stopPropagation(); markAdminNotificationAsRead('{{ $notification->id }}')">
+                                                <i class="ri-close-line fs-16"></i>
+                                            </a>
+                                        </div>
+                                    </li>
                                 @else
                                     <li class="dropdown-item">
                                         <div class="d-flex align-items-start gap-3">

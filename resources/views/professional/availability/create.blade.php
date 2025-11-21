@@ -474,14 +474,27 @@
                                 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
                                 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
                             ];
+                            // Calculate 6 months ahead from current date
+                            $endDate = strtotime('+6 months');
+                            $endYear = date('Y', $endDate);
+                            $endMonth = date('n', $endDate);
                         @endphp
 
-                        @for($year = $currentYear; $year <= $currentYear + 1; $year++)
+                        @for($year = $currentYear; $year <= $endYear; $year++)
                             @foreach($months as $monthNum => $monthName)
-                                @if($year == $currentYear && $monthNum < $currentMonth)
-                                    @continue
-                                @endif
                                 @php
+                                    // Skip past months
+                                    if($year == $currentYear && $monthNum < $currentMonth) {
+                                        continue;
+                                    }
+                                    // Skip months beyond 6 months from now
+                                    if($year == $endYear && $monthNum > $endMonth) {
+                                        continue;
+                                    }
+                                    // Skip if year is beyond end year
+                                    if($year > $endYear) {
+                                        continue;
+                                    }
                                     $monthValue = sprintf('%04d-%02d', $year, $monthNum);
                                 @endphp
                                 <div class="month-card" onclick="toggleMonth('{{ $monthValue }}')">

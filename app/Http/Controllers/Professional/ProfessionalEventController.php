@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Professional;
 
 use App\Http\Controllers\Controller;
 use App\Models\AllEvent;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewProfessionalEvent;
 
 class ProfessionalEventController extends Controller
 {
@@ -71,6 +74,12 @@ class ProfessionalEventController extends Controller
             'status' => 'pending',
             'created_by_type' => 'professional',
         ]);
+
+        // Notify all admins about the new event
+        $admins = Admin::where('is_active', true)->get();
+        $professionalName = $professional->name ?? $professional->email;
+        
+        Notification::send($admins, new NewProfessionalEvent($event, $professionalName));
 
         return redirect()
             ->route('professional.event-details.create', ['event_id' => $event->id])

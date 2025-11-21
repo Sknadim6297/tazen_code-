@@ -437,7 +437,6 @@
                                   id="short_description" name="short_description" rows="6"
                                   placeholder="Provide a detailed description of your event, including what participants will learn, duration, agenda, etc."
                                   maxlength="1000" required>{{ old('short_description') }}</textarea>
-                        <div class="form-text"><span id="charCount">0</span>/1000 characters</div>
                         @error('short_description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -481,26 +480,6 @@ document.addEventListener('DOMContentLoaded', function() {
             preview.style.display = 'none';
         }
     });
-
-    // Character count for description
-    const textarea = document.getElementById('short_description');
-    const charCount = document.getElementById('charCount');
-
-    function updateCharCount() {
-        const count = textarea.value.length;
-        charCount.textContent = count;
-        
-        if (count > 800) {
-            charCount.className = 'text-warning';
-        } else if (count > 950) {
-            charCount.className = 'text-danger';
-        } else {
-            charCount.className = '';
-        }
-    }
-
-    textarea.addEventListener('input', updateCharCount);
-    updateCharCount(); // Initial count
 
     // Form validation enhancement
     const form = document.querySelector('form');

@@ -460,12 +460,10 @@
                 <section class="form-card">
                     <header>
                         <i class="ri-calendar-line"></i>
-                        Select Months
+                        Editing Month
                     </header>
-                    <p class="description">Choose the months you want this availability to apply to.</p>
-                    <div class="month-selector">
-                        <div class="months-grid" id="monthGrid"></div>
-                    </div>
+                    <p class="description">You are editing availability for <strong>{{ date('F Y', strtotime($availability->month . '-01')) }}</strong>. This will only update this specific month.</p>
+                    <input type="hidden" name="months[]" value="{{ $availability->month }}">
                 </section>
 
                 <section class="form-card">
@@ -580,20 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const availabilityData = @json($availability);
     selectedMonths = availabilityData.month ? [availabilityData.month] : [];
 
-    populateMonthGrid();
     loadExistingSlots();
-
-    window.toggleMonth = function(monthValue) {
-        const card = event.currentTarget;
-        const checkbox = card.querySelector('input[type="checkbox"]');
-        checkbox.checked = !checkbox.checked;
-        card.classList.toggle('selected', checkbox.checked);
-        if (checkbox.checked) {
-            selectedMonths.push(monthValue);
-        } else {
-            selectedMonths = selectedMonths.filter(m => m !== monthValue);
-        }
-    };
 
     window.calculateEndTime = function(day) {
         const startInput = document.getElementById('start-' + day);
@@ -728,29 +713,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
     }
 
-    function populateMonthGrid() {
-        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        const monthGrid = document.getElementById('monthGrid');
-        monthGrid.innerHTML = '';
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        for (let year = currentYear; year <= currentYear + 1; year++) {
-            months.forEach((month, index) => {
-                const monthNum = index + 1;
-                const monthValue = `${year}-${String(monthNum).padStart(2,'0')}`;
-                const isSelected = selectedMonths.includes(monthValue);
-                const colDiv = document.createElement('div');
-                colDiv.className = 'col-md-3 mb-3';
-                colDiv.innerHTML = `
-                    <div class="month-card ${isSelected ? 'selected' : ''}" onclick="toggleMonth('${monthValue}')">
-                        <input type="checkbox" name="months[]" value="${monthValue}" ${isSelected ? 'checked' : ''} style="display:none;">
-                        <label>${month} ${year}</label>
-                    </div>`;
-                monthGrid.appendChild(colDiv);
-            });
-        }
-    }
-
     function loadExistingSlots() {
         if (availabilityData.availability_slots) {
             availabilityData.availability_slots.forEach(slot => {
@@ -808,10 +770,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('editAvailabilityForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        if (selectedMonths.length === 0) {
-            alert('Please select at least one month');
-            return;
-        }
         const totalSlots = Object.values(weeklySlots).reduce((sum, daySlots) => sum + daySlots.length, 0);
         if (totalSlots === 0) {
             alert('Please add at least one time slot');
@@ -826,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('_token', document.querySelector('input[name="_token"]').value);
         formData.append('_method', 'PUT');
         formData.append('session_duration', sessionDuration);
-        selectedMonths.forEach(month => formData.append('months[]', month));
+        formData.append('months[]', '{{ $availability->month }}');
         const slotsArray = [];
         Object.keys(weeklySlots).forEach(day => {
             weeklySlots[day].forEach(slot => {
