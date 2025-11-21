@@ -355,7 +355,12 @@
 <div class="col-lg-12">
     <div class="event-date" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 30px;">
         @if(isset($allEvent))
-            <p>{{ \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') }} onwards</p>
+            <p>{{ \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') }}
+                @if($allEvent->time)
+                    at {{ \Carbon\Carbon::parse($allEvent->time)->format('h:i A') }}
+                @endif
+                onwards
+            </p>
             <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>
                 @if(isset($eventDetail) && $eventDetail && $eventDetail->event_mode)
                     {{ ucfirst($eventDetail->event_mode) }}
@@ -368,7 +373,12 @@
             </p>
             <p><span>₹{{ isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees }}</span> onwards</p>
         @else
-            <p>{{ \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }} onwards</p>
+            <p>{{ \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }}
+                @if(isset($event->eventDetails->time))
+                    at {{ \Carbon\Carbon::parse($event->eventDetails->time)->format('h:i A') }}
+                @endif
+                onwards
+            </p>
             <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->eventDetails->event_mode ?? $event->event_mode ?? 'To be announced' }}</p>
             <p><span>₹{{ $event->eventDetails->starting_fees ?? $event->starting_fees ?? '0' }}</span> onwards</p>
         @endif

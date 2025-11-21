@@ -105,8 +105,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Event Date</label>
-                                    <p class="mb-0">{{ \Carbon\Carbon::parse($allevent->date)->format('l, F d, Y') }}</p>
+                                    <label class="form-label fw-bold">Event Date & Time</label>
+                                    <p class="mb-0">
+                                        {{ \Carbon\Carbon::parse($allevent->date)->format('l, F d, Y') }}
+                                        @if($allevent->time)
+                                            <br><small class="text-muted"><i class="ri-time-line"></i> {{ \Carbon\Carbon::parse($allevent->time)->format('h:i A') }}</small>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-md-6">

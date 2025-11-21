@@ -75,6 +75,7 @@ class AllEventController extends Controller
         $request->validate([
             'card_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',
@@ -111,6 +112,7 @@ class AllEventController extends Controller
         $request->validate([
             'card_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',

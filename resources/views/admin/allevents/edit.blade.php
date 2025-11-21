@@ -22,7 +22,13 @@
                 {{-- Date --}}
                 <div class="col-xl-6">
                     <label for="date" class="form-label">Event Date</label>
-                    <input type="text" class="form-control" id="date" name="date" value="{{ old('date', $allevent->date) }}" required>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ old('date', $allevent->date) }}" required>
+                </div>
+    
+                {{-- Time --}}
+                <div class="col-xl-6">
+                    <label for="time" class="form-label">Event Time</label>
+                    <input type="time" class="form-control" id="time" name="time" value="{{ old('time', $allevent->time) }}" required>
                 </div>
     
                 {{-- Starting Fees --}}

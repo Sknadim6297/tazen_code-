@@ -478,6 +478,13 @@
                             @enderror
                         </div>
                         <div class="form-group-custom">
+                            <label for="time">Event Time <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control form-control-custom @error('time') is-invalid @enderror" id="time" name="time" value="{{ old('time', $event->time) }}" required>
+                            @error('time')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group-custom">
                             <label for="starting_fees">Starting Fees (₹) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control form-control-custom @error('starting_fees') is-invalid @enderror" id="starting_fees" name="starting_fees" value="{{ old('starting_fees', $event->starting_fees) }}" min="0" step="0.01" placeholder="0.00" required>
                             <span class="form-text">Enter the base price participants will see.</span>

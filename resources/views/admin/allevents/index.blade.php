@@ -171,7 +171,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Event Image</th>
-                                        <th scope="col">Date</th>
+                                        <th scope="col">Date & Time</th>
                                         <th scope="col">Event Type</th>
                                         <th scope="col">Event Name</th>
                                         <th scope="col">Short Description</th>
@@ -190,7 +190,12 @@
                                             <td>
                                                 <img src="{{ asset('storage/' . $event->card_image) }}" alt="Event Image" width="80" height="80" class="rounded">
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($event->date)->format('d M, Y') }}</td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($event->date)->format('d M, Y') }}
+                                                @if($event->time)
+                                                    <br><small class="text-muted"><i class="ri-time-line"></i> {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}</small>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <span class="badge bg-info">{{ $event->mini_heading }}</span>
                                             </td>

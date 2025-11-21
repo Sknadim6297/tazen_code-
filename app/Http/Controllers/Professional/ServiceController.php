@@ -121,7 +121,7 @@ class ServiceController extends Controller
             'features' => 'nullable|array',
             'serviceTags' => 'nullable|string',
             'serviceRequirements' => 'nullable|string',
-            'subServices' => 'nullable|array|max:2',
+            'subServices' => 'nullable|array|',
             'subServices.*' => 'exists:sub_services,id',
         ]);
         

@@ -49,6 +49,7 @@ class ProfessionalEventController extends Controller
         $request->validate([
             'card_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date|after:today',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',
@@ -62,6 +63,7 @@ class ProfessionalEventController extends Controller
             'professional_id' => $professional->id,
             'card_image' => $imagePath,
             'date' => $request->date,
+            'time' => $request->time,
             'mini_heading' => $request->mini_heading,
             'heading' => $request->heading,
             'short_description' => $request->short_description,
@@ -122,6 +124,7 @@ class ProfessionalEventController extends Controller
         $request->validate([
             'card_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date' => 'required|date|after:today',
+            'time' => 'required',
             'mini_heading' => 'required|string|max:100',
             'heading' => 'required|string|max:150',
             'short_description' => 'required|string|max:1000',
@@ -130,6 +133,7 @@ class ProfessionalEventController extends Controller
 
         $updateData = [
             'date' => $request->date,
+            'time' => $request->time,
             'mini_heading' => $request->mini_heading,
             'heading' => $request->heading,
             'short_description' => $request->short_description,

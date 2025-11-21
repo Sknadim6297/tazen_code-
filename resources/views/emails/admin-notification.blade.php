@@ -133,10 +133,11 @@
 <body>
     <div class="email-container">
         <!-- Header -->
-        <div class="email-header">
+        {{-- <div class="email-header">
+            <img src="{{ url('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="Tazen Logo" class="logo" style="max-width: 120px; height: auto; margin-bottom: 10px;">
             <div class="company-name">TAZEN</div>
             <p style="margin: 0; font-size: 14px; opacity: 0.9;">Professional Services Platform</p>
-        </div>
+        </div> --}}
         
         <!-- Body -->
         <div class="email-body">
@@ -176,9 +177,7 @@
             
             <!-- Company Logo -->
             <div style="margin: 20px 0;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
-                    T
-                </div>
+                <img src="{{ url('frontend/assets/img/tazen_logo-01-removebg-preview.png') }}" alt="Tazen Logo" style="max-width: 100px; height: auto; filter: brightness(0) invert(1);">
             </div>
             
             <div class="footer-info">

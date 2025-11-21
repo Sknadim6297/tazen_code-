@@ -17,6 +17,7 @@ class EventDetail extends Model
         'event_type',
         'event_details',
         'starting_date',
+        'time',
         'starting_fees',
         'event_gallery',
         'city',

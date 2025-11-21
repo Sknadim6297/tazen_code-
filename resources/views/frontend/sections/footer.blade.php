@@ -12,6 +12,7 @@
                         <li><a href="{{ url('/contact') }}">Contacts</a></li>
                         <li><a href="{{ url('/about') }}">About Us</a></li>
                         <li><a href="{{ route('event.list') }}">Events</a></li>
+                        <li><a href="{{ route('career') }}">Career</a></li>
                     </ul>
                 </div>
             </div>

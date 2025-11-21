@@ -13,6 +13,7 @@ class AllEvent extends Model
         'professional_id',
         'card_image',
         'date',
+        'time',
         'mini_heading',
         'heading',
         'short_description',

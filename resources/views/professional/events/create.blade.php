@@ -390,6 +390,15 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="time" class="form-label">Event Time <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control @error('time') is-invalid @enderror"
+                                   id="time" name="time" value="{{ old('time') }}" required>
+                            @error('time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="starting_fees" class="form-label">Event Fees (₹) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control @error('starting_fees') is-invalid @enderror"
                                    id="starting_fees" name="starting_fees" placeholder="Enter event fees"

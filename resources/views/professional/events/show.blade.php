@@ -596,8 +596,13 @@
                             <li class="event-details-item">
                                 <span class="event-details-icon"><i class="ri-calendar-line"></i></span>
                                 <div class="event-details-content">
-                                    <span class="event-details-label">Event Date</span>
-                                    <div class="event-details-value">{{ \Carbon\Carbon::parse($event->date)->format('l, F j, Y') }}</div>
+                                    <span class="event-details-label">Event Date & Time</span>
+                                    <div class="event-details-value">
+                                        {{ \Carbon\Carbon::parse($event->date)->format('l, F j, Y') }}
+                                        @if($event->time)
+                                            at {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}
+                                        @endif
+                                    </div>
                                 </div>
                             </li>
                             <li class="event-details-item">
