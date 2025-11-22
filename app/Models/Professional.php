@@ -62,4 +62,10 @@ class Professional extends Authenticatable
     {
         return (bool) $this->active;
     }
+
+    // Availability relationship for day-wise filtering
+    public function availabilities()
+    {
+        return $this->hasMany(Availability::class, 'professional_id');
+    }
 }

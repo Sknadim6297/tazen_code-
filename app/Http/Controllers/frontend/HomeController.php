@@ -288,12 +288,32 @@ class HomeController extends Controller
             }
         }
 
+        // Filter by availability weekday (mon, tue, wed, thu, fri, sat, sun)
+        if ($request->has('weekday') && !empty($request->weekday)) {
+            $weekday = strtolower($request->weekday);
+
+            $validWeekdays = ['mon','tue','wed','thu','fri','sat','sun'];
+            if (in_array($weekday, $validWeekdays, true)) {
+                $professionalsQuery->where(function($outer) use ($weekday) {
+                    // Match new slot-based weekday records
+                    $outer->whereHas('availabilities.availabilitySlots', function($slotQ) use ($weekday) {
+                        $slotQ->where('weekday', $weekday);
+                    })
+                    // Or legacy JSON weekdays stored in availability.weekdays
+                    ->orWhereHas('availabilities', function($availQ) use ($weekday) {
+                        // Stored as JSON string, do a LIKE match for the quoted value
+                        $availQ->where('weekdays', 'LIKE', '%"'.$weekday.'"%');
+                    });
+                });
+            }
+        }
+
         // Paginate results instead of getting all at once
         $professionals = $professionalsQuery->latest()->paginate(12);
 
         // When using filters, we need to append them to pagination links
-        if ($request->hasAny(['experience', 'price_range', 'service_id', 'sub_service_id'])) {
-            $professionals->appends($request->only(['experience', 'price_range', 'service_id', 'sub_service_id']));
+        if ($request->hasAny(['experience', 'price_range', 'service_id', 'sub_service_id', 'weekday'])) {
+            $professionals->appends($request->only(['experience', 'price_range', 'service_id', 'sub_service_id', 'weekday']));
         }
 
         // Get sub-services for the selected service to populate the filter dropdown
