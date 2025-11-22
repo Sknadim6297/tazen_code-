@@ -224,10 +224,10 @@
                                 <label class="form-label">Location</label>
                                 <select id="location_filter" class="form-select filter-input">
                                     <option value="">All Locations</option>
-                                    <option value="online">Online</option>
-                                    <option value="mumbai">Mumbai</option>
-                                    <option value="delhi">Delhi</option>
-                                    <option value="bangalore">Bangalore</option>
+                                    @foreach(($locations ?? collect()) as $loc)
+                                        @php $val = strtolower($loc); @endphp
+                                        <option value="{{ $val }}">{{ $loc }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -334,15 +334,24 @@
                                     
                                     // Get proper location from profile or professional table
                                     $location = '';
-                                    if($prof->profile && $prof->profile->city) {
-                                        $location = $prof->profile->city;
-                                    } elseif($prof->city) {
+                                    if($prof->profile && !empty($prof->profile->address)) {
+                                        $location = $prof->profile->address;
+                                    } elseif($prof->profile && !empty($prof->profile->state_name)) {
+                                        $location = $prof->profile->state_name;
+                                    } elseif($prof->profile && !empty($prof->profile->city)) {
+                                        $location = $prof->profile->city; // fallback
+                                    } elseif(!empty($prof->city)) {
                                         $location = $prof->city;
-                                    } elseif($prof->location) {
+                                    } elseif(!empty($prof->location)) {
                                         $location = $prof->location;
+                                    } elseif($prof->profile && !empty($prof->profile->location)) {
+                                        $location = $prof->profile->location;
                                     } else {
-                                        $location = 'online';
+                                        $location = 'Online';
                                     }
+                                    // Normalize whitespace
+                                    $location = preg_replace('/\s+/',' ', trim($location));
+                                    $location = ucfirst(strtolower($location));
                                     
                                     // Get proper rating from ratings/reviews table
                                     $rating = 4; // default
@@ -372,11 +381,14 @@
                                         
                                         <div class="d-flex">
                                             @php
-                                                $profilePhoto = null;
+                                                $profilePhoto = asset('admin/assets/images/faces/1.jpg'); // default
                                                 if($prof->profile && $prof->profile->photo) {
-                                                    $profilePhoto = asset('storage/' . $prof->profile->photo);
-                                                } else {
-                                                    $profilePhoto = asset('admin/assets/images/faces/1.jpg');
+                                                    $photoPath = $prof->profile->photo;
+                                                    // Check if file exists using public_path
+                                                    $fullPath = public_path('storage/' . $photoPath);
+                                                    if(file_exists($fullPath)) {
+                                                        $profilePhoto = asset('storage/' . $photoPath);
+                                                    }
                                                 }
                                             @endphp
                                             <img src="{{ $profilePhoto }}" 

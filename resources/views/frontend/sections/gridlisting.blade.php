@@ -1152,6 +1152,30 @@
                     </select>
                 </div>
             </div>
+
+            <!-- Weekday Availability Filter -->
+            <div class="filter-group">
+                <label for="weekday">Available Day</label>
+                <div class="select-wrapper">
+                    <select id="weekday" name="weekday">
+                        <option value="">Any Day</option>
+                        @php
+                            $weekdayOptions = [
+                                'mon' => 'Monday',
+                                'tue' => 'Tuesday',
+                                'wed' => 'Wednesday',
+                                'thu' => 'Thursday',
+                                'fri' => 'Friday',
+                                'sat' => 'Saturday',
+                                'sun' => 'Sunday',
+                            ];
+                        @endphp
+                        @foreach($weekdayOptions as $code => $label)
+                            <option value="{{ $code }}" {{ request('weekday') == $code ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
             
             <!-- Buttons -->
             <div class="filter-buttons">
@@ -1163,19 +1187,37 @@
 </div>
 
 <!-- Active Filters Display -->
-@if(request('experience') || request('price_range'))
+@if(request('experience') || request('price_range') || request('weekday'))
 <div class="active-filters-container">
     <span class="active-filters-label">Active Filters:</span>
     @if(request('experience'))
         <span class="active-filter-badge">
             Experience: {{ request('experience') }} years
-            <a href="{{ route('gridlisting', array_merge(request()->except('experience'), request()->only(['price_range']))) }}" class="filter-remove">×</a>
+            <a href="{{ route('gridlisting', array_merge(request()->except('experience'), request()->only(['price_range','weekday']))) }}" class="filter-remove">×</a>
         </span>
     @endif
     @if(request('price_range'))
         <span class="active-filter-badge">
             Price: {{ request('price_range') }}
-            <a href="{{ route('gridlisting', array_merge(request()->except('price_range'), request()->only(['experience']))) }}" class="filter-remove">×</a>
+            <a href="{{ route('gridlisting', array_merge(request()->except('price_range'), request()->only(['experience','weekday']))) }}" class="filter-remove">×</a>
+        </span>
+    @endif
+    @if(request('weekday'))
+        @php
+            $weekdayOptions = [
+                'mon' => 'Monday',
+                'tue' => 'Tuesday',
+                'wed' => 'Wednesday',
+                'thu' => 'Thursday',
+                'fri' => 'Friday',
+                'sat' => 'Saturday',
+                'sun' => 'Sunday',
+            ];
+            $weekdayLabel = $weekdayOptions[request('weekday')] ?? ucfirst(request('weekday'));
+        @endphp
+        <span class="active-filter-badge">
+            Day: {{ $weekdayLabel }}
+            <a href="{{ route('gridlisting', array_merge(request()->except('weekday'), request()->only(['experience','price_range']))) }}" class="filter-remove">×</a>
         </span>
     @endif
 </div>
@@ -1282,7 +1324,20 @@
                             
                             <a href="{{ $detailsUrl }}" class="strip_info">
                                 <div class="item_title">
-                                    <h3>{{ $professional->name }}</h3>
+                                    @php
+                                        // Match professional-details name formatting
+                                        $rawName = trim(optional($professional->profile)->name ?? $professional->name ?? '');
+                                        $parts = $rawName !== '' ? preg_split('/\s+/', $rawName) : [];
+                                        if (empty($parts)) {
+                                            $displayName = '';
+                                        } elseif (count($parts) === 1) {
+                                            $displayName = $parts[0];
+                                        } else {
+                                            $surname = end($parts);
+                                            $displayName = $parts[0] . ' ' . strtoupper(substr($surname, 0, 1)) . '.';
+                                        }
+                                    @endphp
+                                    <h3>{{ $displayName }}</h3>
                                     <p class="about">{{ $professional->bio ?: 'Professional service provider with expertise in your field.' }}</p>
                                     <small>From ₹{{ $displayPrice }}</small>
                                     <small>{{ $professional->professionalServices->pluck('tags')->filter()->implode(', ') ?: 'Professional Services' }}</small>

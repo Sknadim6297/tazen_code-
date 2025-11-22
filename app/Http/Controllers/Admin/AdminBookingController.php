@@ -479,7 +479,32 @@ class AdminBookingController extends Controller
         // Extract unique professionals with their rates
         $professionals = $professionalServices->pluck('professional')->unique('id')->filter();
 
-        return view('admin.admin-booking.select-professional', compact('customer', 'professionals'));
+        // Collect distinct locations prioritizing profile address, then state_name, then legacy fields
+        $locations = $professionals->map(function($prof) {
+            $loc = null;
+            if ($prof->profile && !empty($prof->profile->address)) {
+                $loc = trim($prof->profile->address);
+            } elseif ($prof->profile && !empty($prof->profile->state_name)) {
+                $loc = trim($prof->profile->state_name);
+            } elseif ($prof->profile && !empty($prof->profile->city)) { // fallback
+                $loc = trim($prof->profile->city);
+            } elseif (!empty($prof->city)) {
+                $loc = trim($prof->city);
+            } elseif (!empty($prof->location)) {
+                $loc = trim($prof->location);
+            } elseif ($prof->profile && !empty($prof->profile->location)) {
+                $loc = trim($prof->profile->location);
+            }
+            if (!$loc) {
+                $loc = 'Online';
+            }
+            // Normalize excessive whitespace
+            $loc = preg_replace('/\s+/',' ', $loc);
+            return $loc;
+        })->filter()->map(function($l){ return ucfirst(strtolower($l)); })
+          ->unique()->sort()->values();
+
+        return view('admin.admin-booking.select-professional', compact('customer', 'professionals', 'locations'));
     }
 
     public function storeProfessionalSelection(Request $request)
