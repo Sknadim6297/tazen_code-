@@ -69,33 +69,45 @@
 
                                                     {{-- Service Selection --}}
                                                     <div class="col-xl-12">
-                                                        <label for="main_service" class="form-label">Select Main Service</label>
+                                                        <label for="main_service" class="form-label">Select Main Service <span class="text-danger">*</span></label>
                                                         <select class="form-control" id="main_service" name="main_service_id" required>
                                                             <option value="">Select Service</option>
                                                             @foreach($services as $service)
                                                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                                                             @endforeach
                                                         </select>
+                                                        <small class="text-muted">Select the main service for this category</small>
                                                     </div>
 
-                                                    {{-- Category Image --}}
+                                                    {{-- Main Service Image --}}
                                                     <div class="col-xl-12">
-                                                        <label for="service_image" class="form-label">Category Image</label>
-                                                        <input type="file" class="form-control" id="service_image" name="service_image" accept="image/*">
-                                                        <small class="text-muted">Upload an image for this category (optional)</small>
+                                                        <label for="service_image" class="form-label">Main Service Image</label>
+                                                        <input type="file" class="form-control" id="service_image" name="service_image" accept="image/*" onchange="previewMainImage(this)">
+                                                        <small class="text-muted d-block mt-1">Upload an image for the main service (optional). This will be used if no sub-services are added.</small>
+                                                        <div id="main-image-preview" class="mt-2" style="display: none;">
+                                                            <img id="main-image-preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                                                            <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeMainImagePreview()">
+                                                                <i class="ri-delete-bin-line"></i> Remove
+                                                            </button>
+                                                        </div>
                                                     </div>
 
                                                     {{-- Subcategories Section --}}
                                                     <div class="col-xl-12">
                                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                                            <h6 class="mb-0">Select Sub-Services (Optional)</h6>
+                                                            <h6 class="mb-0">Sub-Services (Optional)</h6>
                                                             <button type="button" class="btn btn-sm btn-success" id="add-subcategory" disabled>
                                                                 <i class="ri-add-line"></i> Add Sub-Service
                                                             </button>
                                                         </div>
                                                         <div class="alert alert-info">
                                                             <i class="ri-information-line me-2"></i>
-                                                            <strong>Note:</strong> You can create a category with just the main service and image. Sub-services are optional.
+                                                            <strong>Note:</strong> You can add:
+                                                            <ul class="mb-0 mt-2">
+                                                                <li>Main service with image only (no sub-services)</li>
+                                                                <li>Sub-services with images (each sub-service can have its own image)</li>
+                                                                <li>Both main service image and sub-services</li>
+                                                            </ul>
                                                         </div>
                                                         <div id="subcategories-container">
                                                             <!-- Sub-services will be loaded here dynamically -->
@@ -295,14 +307,17 @@ document.addEventListener('DOMContentLoaded', function() {
         newSubcategory.innerHTML = `
             <div class="row">
                 <div class="col-md-5">
-                    <label class="form-label">Select Sub-Service</label>
+                    <label class="form-label">Select Sub-Service <span class="text-danger">*</span></label>
                     <select class="form-control sub-service-select" name="subcategories[${subcategoryIndex}][sub_service_id]" required>
                         ${subServicesOptions}
                     </select>
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">Sub-Service Image</label>
-                    <input type="file" class="form-control" name="subcategories[${subcategoryIndex}][image]" accept="image/*">
+                    <input type="file" class="form-control sub-service-image-input" name="subcategories[${subcategoryIndex}][image]" accept="image/*" onchange="previewSubServiceImage(this, ${subcategoryIndex})">
+                    <div class="sub-image-preview-${subcategoryIndex} mt-2" style="display: none;">
+                        <img class="sub-image-preview-img" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
+                    </div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="button" class="btn btn-sm btn-danger remove-subcategory">
@@ -334,6 +349,84 @@ document.addEventListener('DOMContentLoaded', function() {
                         <strong>No sub-services selected.</strong> You can add sub-services using the "Add Sub-Service" button, or upload a main service image using the "Category Image" field above.
                     </div>
                 `;
+            }
+        }
+    });
+    
+    // Preview main service image
+    window.previewMainImage = function(input) {
+        const preview = document.getElementById('main-image-preview');
+        const previewImg = document.getElementById('main-image-preview-img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+    
+    // Remove main image preview
+    window.removeMainImagePreview = function() {
+        const preview = document.getElementById('main-image-preview');
+        const input = document.getElementById('service_image');
+        preview.style.display = 'none';
+        previewImg.src = '';
+        if (input) {
+            input.value = '';
+        }
+    };
+    
+    // Preview sub-service image
+    window.previewSubServiceImage = function(input, index) {
+        const preview = document.querySelector(`.sub-image-preview-${index}`);
+        const previewImg = preview.querySelector('.sub-image-preview-img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+    
+    // Form validation before submit
+    document.querySelector('form[action="{{ route('admin.categorybox.store') }}"]').addEventListener('submit', function(e) {
+        const mainService = document.getElementById('main_service').value;
+        const mainImage = document.getElementById('service_image').files.length;
+        const subCategories = document.querySelectorAll('.subcategory-item').length;
+        
+        if (!mainService) {
+            e.preventDefault();
+            alert('Please select a main service.');
+            return false;
+        }
+        
+        // Check if at least one sub-service is selected when subcategories exist
+        if (subCategories > 0) {
+            let hasValidSubService = false;
+            document.querySelectorAll('.sub-service-select').forEach(select => {
+                if (select.value) {
+                    hasValidSubService = true;
+                }
+            });
+            
+            if (!hasValidSubService) {
+                e.preventDefault();
+                alert('Please select at least one sub-service or remove all sub-service rows.');
+                return false;
+            }
+        }
+        
+        // If no sub-services and no main image, show warning but allow (controller will create basic entry)
+        if (subCategories === 0 && mainImage === 0) {
+            if (!confirm('No image or sub-services selected. A basic category entry will be created. Continue?')) {
+                e.preventDefault();
+                return false;
             }
         }
     });
