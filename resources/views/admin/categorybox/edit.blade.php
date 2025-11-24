@@ -71,27 +71,80 @@
 
                                 {{-- Service Selection --}}
                                 <div class="col-xl-12">
-                                    <label for="main_service" class="form-label">Select Main Service</label>
+                                    <label for="main_service" class="form-label">Select Main Service <span class="text-danger">*</span></label>
                                     <select class="form-control" id="main_service" name="main_service_id" required>
                                         <option value="">Select Service</option>
                                         @foreach($services as $service)
-                                            <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                            <option value="{{ $service->id }}" {{ old('main_service_id', $categoryBox->subCategories->first()->service_id ?? '') == $service->id ? 'selected' : '' }}>{{ $service->name }}</option>
                                         @endforeach
                                     </select>
-                                    <small class="text-muted">Note: Changing the service will reset sub-services</small>
+                                    <small class="text-muted">Select the main service for this category</small>
+                                </div>
+
+                                {{-- Main Service Image --}}
+                                <div class="col-xl-12">
+                                    <label for="new_service_image" class="form-label">Main Service Image</label>
+                                    <input type="file" class="form-control" id="new_service_image" name="new_service_image" accept="image/*" onchange="previewMainImage(this)">
+                                    <small class="text-muted d-block mt-1">Upload or update the main service image (optional). This will be used if no sub-services are added.</small>
+                                    @php
+                                        // Find main service subcategory (one that matches the service name exactly)
+                                        $firstSubCategory = $categoryBox->subCategories->first();
+                                        $mainServiceSubCategory = null;
+                                        if ($firstSubCategory) {
+                                            $service = \App\Models\Service::find($firstSubCategory->service_id);
+                                            if ($service && $service->name === $firstSubCategory->name) {
+                                                $mainServiceSubCategory = $firstSubCategory;
+                                            }
+                                        }
+                                    @endphp
+                                    @if($mainServiceSubCategory && $mainServiceSubCategory->image)
+                                        <div class="mt-2">
+                                            <small class="text-muted">Current Main Service Image:</small>
+                                            <img src="{{ asset('storage/' . $mainServiceSubCategory->image) }}" 
+                                                 alt="Current Image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd; margin-left: 10px;">
+                                        </div>
+                                    @endif
+                                    <div id="main-image-preview" class="mt-2" style="display: none;">
+                                        <img id="main-image-preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                                        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeMainImagePreview()">
+                                            <i class="ri-delete-bin-line"></i> Remove
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {{-- Subcategories Section --}}
                                 <div class="col-xl-12">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="mb-0">Current Subcategories / Images</h6>
-                                        <button type="button" class="btn btn-sm btn-success" id="add-subcategory">
-                                            <i class="ri-add-line"></i> Add More
+                                        <button type="button" class="btn btn-sm btn-success" id="add-subcategory" disabled>
+                                            <i class="ri-add-line"></i> Add Sub-Service
                                         </button>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <i class="ri-information-line me-2"></i>
+                                        <strong>Note:</strong> You can update:
+                                        <ul class="mb-0 mt-2">
+                                            <li>Main service image</li>
+                                            <li>Existing sub-service images</li>
+                                            <li>Add new sub-services with images</li>
+                                        </ul>
                                     </div>
                                     <div id="subcategories-container">
                                         @if($categoryBox->subCategories->count() > 0)
-                                            @foreach($categoryBox->subCategories as $index => $subcategory)
+                                            @php
+                                                // Filter out main service subcategory (one that matches service name)
+                                                $firstSubCategory = $categoryBox->subCategories->first();
+                                                $serviceName = null;
+                                                if ($firstSubCategory) {
+                                                    $service = \App\Models\Service::find($firstSubCategory->service_id);
+                                                    $serviceName = $service ? $service->name : null;
+                                                }
+                                                $subServiceCategories = $categoryBox->subCategories->filter(function($sub) use ($serviceName) {
+                                                    return $sub->name !== $serviceName;
+                                                });
+                                            @endphp
+                                            @if($subServiceCategories->count() > 0)
+                                                @foreach($subServiceCategories as $index => $subcategory)
                                                 <div class="subcategory-item border p-3 mb-3 rounded">
                                                     <div class="row">
                                                         <div class="col-md-5">
@@ -103,14 +156,17 @@
                                                         </div>
                                                         <div class="col-md-5">
                                                             <label class="form-label">Update Image</label>
-                                                            <input type="file" class="form-control" 
+                                                            <input type="file" class="form-control existing-image-input" 
                                                                    name="existing_subcategories[{{ $index }}][image]" 
-                                                                   accept="image/*">
+                                                                   accept="image/*"
+                                                                   onchange="previewExistingImage(this, {{ $index }})">
                                                             @if($subcategory->image)
-                                                                <div class="mt-2">
+                                                                <div class="mt-2 existing-image-preview-{{ $index }}">
                                                                     <small class="text-muted">Current Image:</small>
                                                                     <img src="{{ asset('storage/' . $subcategory->image) }}" 
-                                                                         alt="Current Image" width="50" height="50" class="ms-2">
+                                                                         alt="Current Image" 
+                                                                         class="current-image-{{ $index }}"
+                                                                         style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd; margin-left: 10px;">
                                                                 </div>
                                                             @endif
                                                         </div>
@@ -121,7 +177,10 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endforeach
+                                                @endforeach
+                                            @else
+                                                <div class="alert alert-info">No sub-service categories found. You can add new sub-services using the "Add Sub-Service" button above.</div>
+                                            @endif
                                         @else
                                             <div class="alert alert-info">No subcategories found. Select a service above to add new ones.</div>
                                         @endif
@@ -159,8 +218,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('main_service').addEventListener('change', function() {
         const serviceId = this.value;
         const addButton = document.getElementById('add-subcategory');
+        const container = document.getElementById('new-subcategories-container');
         
         if (serviceId) {
+            // Show loading message
+            container.innerHTML = '<div class="alert alert-info">Loading sub-services...</div>';
+            
             // Fetch sub-services for the selected service
             const url = `/admin/get-sub-services/${serviceId}`;
             
@@ -173,23 +236,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 credentials: 'same-origin'
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     availableSubServices = data.subServices || [];
+                    container.innerHTML = ''; // Clear container
+                    subcategoryIndex = 0; // Reset index
                     
                     if (availableSubServices.length > 0) {
                         addButton.disabled = false;
                         addButton.style.display = 'inline-block';
+                        addButton.innerHTML = '<i class="ri-add-line"></i> Add Sub-Service';
                     } else {
-                        addButton.style.display = 'inline-block';
-                        addButton.disabled = false;
+                        addButton.style.display = 'none';
+                        container.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="ri-check-line me-2"></i>
+                                <strong>Note:</strong> This service doesn't have sub-services. You can upload a main service image using the "Main Service Image" field above.
+                            </div>
+                        `;
                     }
                 })
                 .catch(error => {
                     console.error('Error loading sub-services:', error);
+                    container.innerHTML = '<div class="alert alert-danger">Error loading sub-services. Please try again.</div>';
+                    addButton.disabled = true;
                 });
         } else {
+            container.innerHTML = '';
             addButton.disabled = true;
+            availableSubServices = [];
         }
     });
     
@@ -209,14 +289,17 @@ document.addEventListener('DOMContentLoaded', function() {
             newSubcategory.innerHTML = `
                 <div class="row">
                     <div class="col-md-5">
-                        <label class="form-label">Select Sub-Service</label>
+                        <label class="form-label">Select Sub-Service <span class="text-danger">*</span></label>
                         <select class="form-control" name="new_subcategories[${subcategoryIndex}][sub_service_id]" required>
                             ${subServicesOptions}
                         </select>
                     </div>
                     <div class="col-md-5">
                         <label class="form-label">Sub-Service Image</label>
-                        <input type="file" class="form-control" name="new_subcategories[${subcategoryIndex}][image]" accept="image/*">
+                        <input type="file" class="form-control sub-service-image-input" name="new_subcategories[${subcategoryIndex}][image]" accept="image/*" onchange="previewSubServiceImage(this, ${subcategoryIndex})">
+                        <div class="sub-image-preview-${subcategoryIndex} mt-2" style="display: none;">
+                            <img class="sub-image-preview-img" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
+                        </div>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="button" class="btn btn-sm btn-danger remove-new">
@@ -253,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.closest('.subcategory-item').remove();
         }
         
-        // Mark existing subcategory for deletion
+            // Mark existing subcategory for deletion
         if (e.target.closest('.delete-existing')) {
             const id = e.target.closest('.delete-existing').getAttribute('data-id');
             deletedIds.push(id);
@@ -261,6 +344,75 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.closest('.subcategory-item').remove();
         }
     });
+    
+    // Preview main service image
+    window.previewMainImage = function(input) {
+        const preview = document.getElementById('main-image-preview');
+        const previewImg = document.getElementById('main-image-preview-img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+    
+    // Remove main image preview
+    window.removeMainImagePreview = function() {
+        const preview = document.getElementById('main-image-preview');
+        const input = document.getElementById('new_service_image');
+        preview.style.display = 'none';
+        const previewImg = document.getElementById('main-image-preview-img');
+        previewImg.src = '';
+        if (input) {
+            input.value = '';
+        }
+    };
+    
+    // Preview existing sub-service image
+    window.previewExistingImage = function(input, index) {
+        const previewContainer = document.querySelector(`.existing-image-preview-${index}`);
+        const currentImg = previewContainer.querySelector(`.current-image-${index}`);
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Hide current image and show preview
+                if (currentImg) {
+                    currentImg.style.display = 'none';
+                }
+                // Create or update preview image
+                let previewImg = previewContainer.querySelector('.new-preview-img');
+                if (!previewImg) {
+                    previewImg = document.createElement('img');
+                    previewImg.className = 'new-preview-img';
+                    previewImg.style.cssText = 'max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ddd; margin-left: 10px;';
+                    previewContainer.appendChild(previewImg);
+                }
+                previewImg.src = e.target.result;
+                previewImg.alt = 'New Preview';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+    
+    // Preview new sub-service image
+    window.previewSubServiceImage = function(input, index) {
+        const preview = document.querySelector(`.sub-image-preview-${index}`);
+        const previewImg = preview.querySelector('.sub-image-preview-img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
 });
 </script>
 @endsection

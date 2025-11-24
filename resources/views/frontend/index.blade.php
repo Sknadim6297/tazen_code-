@@ -2153,13 +2153,142 @@
         line-height: 1.5;
     }
 
-    /* Custom 5-column layout for categories */
+    /* Custom 5-column layout for categories with auto-sliding - Desktop */
     @media (min-width: 992px) {
-        .col-lg-custom-5 {
-            flex: 0 0 auto;
-            width: 20%;
-            max-width: 20%;
+        .top-services-section .row {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            /* Hide scrollbar completely */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
+        
+        .top-services-section .row::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        
+        .col-lg-custom-5 {
+            flex: 0 0 20% !important;
+            max-width: 20% !important;
+            width: 20% !important;
+            min-width: 20% !important;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            box-sizing: border-box;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        .auto-slide-container .col-lg-custom-5:first-child {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+        
+        .auto-slide-container .col-lg-custom-5:last-child {
+            padding-right: 0 !important;
+            margin-right: 0 !important;
+        }
+    }
+    
+    /* Mobile: 2 cards per row with smaller size */
+    @media (max-width: 991px) {
+        .top-services-section .row.auto-slide-container {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .top-services-section .row.auto-slide-container::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        
+        .auto-slide-container .col-lg-custom-5 {
+            flex: 0 0 50% !important;
+            max-width: 50% !important;
+            width: 50% !important;
+            min-width: 50% !important;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            box-sizing: border-box;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        .auto-slide-container .col-lg-custom-5:first-child {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+        
+        .auto-slide-container .col-lg-custom-5:last-child {
+            padding-right: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        /* Make cards smaller on mobile */
+        .auto-slide-container .category-card-square,
+        .auto-slide-container .launch-card-square,
+        .auto-slide-container .discover-card-square,
+        .auto-slide-container .top-services-card-square,
+        .auto-slide-container .popular-picks-card-square {
+            transform: scale(0.85);
+            transform-origin: center;
+        }
+        
+        .auto-slide-container .category-image-square,
+        .auto-slide-container .launch-image-square,
+        .auto-slide-container .discover-image-square,
+        .auto-slide-container .top-services-image-square,
+        .auto-slide-container .popular-picks-image-square {
+            aspect-ratio: 1;
+        }
+        
+        .auto-slide-container .category-title-outside,
+        .auto-slide-container .launch-title-outside,
+        .auto-slide-container .discover-title-outside,
+        .auto-slide-container .top-services-title-outside,
+        .auto-slide-container .popular-picks-title-outside {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+    }
+    
+    /* Ensure row doesn't wrap and auto-slides */
+    .top-services-section .row.justify-content-center {
+        flex-wrap: nowrap !important;
+        display: flex !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .top-services-section .row.justify-content-center::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
     }
 
     /* Square Category Cards */
@@ -3689,11 +3818,11 @@
 							<div class="pro-branding">
 								<div class="pro-logo-compact mb-3">
 									<span class="brand-name-compact">tazen</span>
-									<span class="pro-badge">PRO</span>
+									{{-- <span class="pro-badge">PRO</span> --}}
 								</div>
 								<p class="pro-subtitle">Enterprise solutions for modern businesses</p>
 								<button class="btn-pro-cta">
-									<span>Explore Pro</span>
+									<span>Explore</span>
 									<i class="fas fa-arrow-right ms-2"></i>
 								</button>
 							</div>
@@ -3751,22 +3880,33 @@
 
 	<!-- Dynamic Category Sections - Loop through all CategoryBoxes -->
 	@if(isset($categoryBoxes) && $categoryBoxes->count() > 0)
-		@foreach($categoryBoxes as $index => $categoryBox)
+		@php
+			// Sort category boxes: "trending" sections first, then others
+			$sortedCategoryBoxes = $categoryBoxes->sortBy(function($categoryBox) {
+				$name = strtolower(trim($categoryBox->name));
+				// Return 0 for "trending" (appears first), 1 for others
+				return $name === 'trending' ? 0 : 1;
+			})->values(); // Reset keys to get sequential index
+			$displayIndex = 0; // Counter for styling classes
+		@endphp
+		@foreach($sortedCategoryBoxes as $categoryBox)
 			@if($categoryBox->subCategories->count() > 0)
 				@php
-					// Determine wrapper class based on index
+					// Determine wrapper class based on display index
 					$wrapperClasses = ['category-wrapper', 'launch-wrapper', 'discover-wrapper', 'top-services-wrapper', 'popular-picks-wrapper'];
 					$cardClasses = ['category-card-square', 'launch-card-square', 'discover-card-square', 'top-services-card-square', 'popular-picks-card-square'];
 					$imageClasses = ['category-image-square', 'launch-image-square', 'discover-image-square', 'top-services-image-square', 'popular-picks-image-square'];
 					$titleClasses = ['category-title-outside', 'launch-title-outside', 'discover-title-outside', 'top-services-title-outside', 'popular-picks-title-outside'];
 					
-					$wrapperClass = $wrapperClasses[$index % count($wrapperClasses)];
-					$cardClass = $cardClasses[$index % count($cardClasses)];
-					$imageClass = $imageClasses[$index % count($imageClasses)];
-					$titleClass = $titleClasses[$index % count($titleClasses)];
+					$currentIndex = $displayIndex; // Store current index before incrementing
+					$wrapperClass = $wrapperClasses[$currentIndex % count($wrapperClasses)];
+					$cardClass = $cardClasses[$currentIndex % count($cardClasses)];
+					$imageClass = $imageClasses[$currentIndex % count($imageClasses)];
+					$titleClass = $titleClasses[$currentIndex % count($titleClasses)];
+					$displayIndex++; // Increment for next iteration
 				@endphp
 				<section class="top-services-section py-3" style="background-color: white;">
-					<div class="container" style="width: 90%; max-width: 1400px; margin: 0 auto;">
+					<div class="container" style="width: 90%; max-width: 1400px; margin: 0 auto; padding-left: 0; padding-right: 0;">
 						<div class="section-header text-start mb-3">
 							<h2 class="section-title-with-line">
 								<span class="title-content">
@@ -3781,7 +3921,7 @@
 							</h2>
 						</div>
 						
-						<div class="row justify-content-center g-3">
+						<div class="row justify-content-center g-3 auto-slide-container" data-category-index="{{ $currentIndex }}" data-slide-index="0" style="display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; position: relative; scrollbar-width: none; -ms-overflow-style: none; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0;">
 							@foreach($categoryBox->subCategories as $subCategory)
 								@php
 									// Find matching SubService by name for filtering with flexible matching
@@ -4930,7 +5070,187 @@ document.addEventListener('DOMContentLoaded', function() {
 		document.addEventListener('DOMContentLoaded', function() {
 			// Auto scroll every 3 seconds
 			setInterval(autoScrollServices, 3000);
+			
+			// Auto-slide category sections - wait a bit longer for mobile layout
+			setTimeout(() => {
+				initCategoryAutoSlide();
+			}, 300);
 		});
+		
+		// Also reinitialize on window resize to handle mobile/desktop switching
+		let resizeTimer;
+		window.addEventListener('resize', function() {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(() => {
+				// Reinitialize auto-slide on resize
+				initCategoryAutoSlide();
+			}, 500);
+		});
+		
+		// Store intervals for cleanup
+		const slideIntervals = new Map();
+		
+		// Auto-slide function for category sections with infinite loop
+		function initCategoryAutoSlide() {
+			// Clear any existing intervals first
+			slideIntervals.forEach((interval, container) => {
+				clearInterval(interval);
+			});
+			slideIntervals.clear();
+			
+			const categoryContainers = document.querySelectorAll('.auto-slide-container');
+			
+			// Remove any existing cloned cards first
+			categoryContainers.forEach(container => {
+				const clonedCards = container.querySelectorAll('.cloned-card');
+				clonedCards.forEach(clone => clone.remove());
+			});
+			
+			categoryContainers.forEach((container, containerIndex) => {
+				// Wait for layout to be ready - increased delay for mobile
+				setTimeout(() => {
+					// Function to check if mobile - check dynamically
+					function checkIsMobile() {
+						return window.innerWidth < 992;
+					}
+					
+					const cards = container.querySelectorAll('.col-lg-custom-5:not(.cloned-card)');
+					const totalCards = cards.length;
+					
+					if (totalCards === 0) {
+						console.log('No cards found in container', containerIndex);
+						return;
+					}
+					
+					// Determine cards per view based on screen size
+					const isMobile = checkIsMobile();
+					const cardsPerView = isMobile ? 2 : 5;
+					
+					// For mobile: start sliding only if MORE than 2 cards (3+ cards)
+					// For desktop: start sliding only if MORE than 5 cards (6+ cards)
+					if (totalCards <= cardsPerView) {
+						// Ensure first cards are visible but don't slide
+						container.scrollLeft = 0;
+						return; // No need to slide if not enough cards
+					}
+					
+					// Duplicate cards multiple times for seamless infinite loop
+					const cardsArray = Array.from(cards);
+					// Duplicate 2 times to ensure smooth continuous loop
+					for (let i = 0; i < 2; i++) {
+						cardsArray.forEach(card => {
+							const clone = card.cloneNode(true);
+							clone.classList.add('cloned-card');
+							container.appendChild(clone);
+						});
+					}
+					
+					// Ensure we start at the beginning (first card visible)
+					container.scrollLeft = 0;
+					
+					// Calculate card width including gap more accurately
+					const firstCard = cards[0];
+					if (!firstCard) return;
+					
+					// Get computed styles for accurate width
+					const cardStyle = window.getComputedStyle(firstCard);
+					const cardWidth = firstCard.offsetWidth;
+					const marginLeft = parseFloat(cardStyle.marginLeft) || 0;
+					const marginRight = parseFloat(cardStyle.marginRight) || 0;
+					const paddingLeft = parseFloat(cardStyle.paddingLeft) || 0;
+					const paddingRight = parseFloat(cardStyle.paddingRight) || 0;
+					
+					// Calculate total width per card including margins and padding
+					const totalCardWidth = cardWidth + marginLeft + marginRight + paddingLeft + paddingRight;
+					
+					// Calculate original content width (before duplication)
+					const originalWidth = totalCardWidth * totalCards;
+					
+					// Auto-slide function - slide 1 card at a time continuously
+					function slideNext() {
+						// Get current scroll position
+						const currentScroll = container.scrollLeft;
+						
+						// Calculate next scroll position (move by 1 card width)
+						let nextScroll = currentScroll + totalCardWidth;
+						
+						// If we've scrolled past the original content, reset seamlessly
+						if (nextScroll >= originalWidth) {
+							// Calculate how far past we've gone
+							const excess = nextScroll - originalWidth;
+							// Reset to start instantly (no animation) but maintain the excess
+							container.style.scrollBehavior = 'auto';
+							container.scrollLeft = excess;
+							// Wait a bit then continue with smooth scrolling
+							setTimeout(() => {
+								container.style.scrollBehavior = 'smooth';
+							}, 50);
+						} else {
+							// Slide to next card smoothly (1 card at a time)
+							container.style.scrollBehavior = 'smooth';
+							container.scrollLeft = nextScroll;
+						}
+					}
+					
+					// Pause on hover
+					let slideInterval;
+					function startSliding() {
+						// Clear existing interval if any
+						if (slideInterval) {
+							clearInterval(slideInterval);
+						}
+						slideInterval = setInterval(slideNext, 3000);
+						// Store interval for cleanup
+						slideIntervals.set(container, slideInterval);
+					}
+					
+					function stopSliding() {
+						if (slideInterval) {
+							clearInterval(slideInterval);
+							slideIntervals.delete(container);
+							slideInterval = null;
+						}
+					}
+					
+					// Start auto-sliding after a short delay to ensure initial position is set
+					setTimeout(() => {
+						container.scrollLeft = 0; // Ensure we start at the beginning
+						startSliding();
+					}, 200);
+					
+					// Pause on hover
+					container.addEventListener('mouseenter', stopSliding);
+					container.addEventListener('mouseleave', startSliding);
+					
+					// Also pause when user manually interacts
+					let userInteracting = false;
+					container.addEventListener('touchstart', function() {
+						userInteracting = true;
+						stopSliding();
+					});
+					
+					container.addEventListener('touchend', function() {
+						setTimeout(() => {
+							userInteracting = false;
+							startSliding();
+						}, 5000);
+					});
+					
+					// Handle scroll event to detect when user manually scrolls
+					let isScrolling = false;
+					container.addEventListener('scroll', function() {
+						if (!isScrolling) {
+							stopSliding();
+							isScrolling = true;
+							setTimeout(() => {
+								isScrolling = false;
+								startSliding();
+							}, 5000);
+						}
+					});
+				}, 100);
+			});
+		}
 	</script>
  @endsection
 
@@ -4945,6 +5265,18 @@ document.addEventListener('DOMContentLoaded', function() {
 @media (max-width: 991px) {
     .carousel-arrow.left-arrow { left: 0; }
     .carousel-arrow.right-arrow { right: 0; }
+}
+
+/* Hide scrollbar for auto-slide containers */
+.auto-slide-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.auto-slide-container::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 </style>
 <script>

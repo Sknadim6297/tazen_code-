@@ -51,7 +51,23 @@ class CategoryBoxController extends Controller
             'status' => $request->status
         ]);
 
-        // Check if service has sub-services
+        // Handle main service image (always create if image is provided)
+        if ($request->hasFile('service_image')) {
+            $imagePath = $request->file('service_image')->store('subcategories', 'public');
+            
+            // Get service name
+            $service = Service::find($request->main_service_id);
+            
+            SubCategory::create([
+                'category_box_id' => $categoryBox->id,
+                'service_id' => $request->main_service_id,
+                'name' => $service ? $service->name : 'Service',
+                'image' => $imagePath,
+                'status' => true
+            ]);
+        }
+        
+        // Handle sub-services (can be added along with main service image)
         if ($request->has('subcategories') && is_array($request->subcategories) && count($request->subcategories) > 0) {
             // Service WITH sub-services
             foreach ($request->subcategories as $subcategoryData) {
@@ -73,22 +89,8 @@ class CategoryBoxController extends Controller
                     'status' => true
                 ]);
             }
-        } elseif ($request->hasFile('service_image')) {
-            // Service WITHOUT sub-services - use main service image
-            $imagePath = $request->file('service_image')->store('subcategories', 'public');
-            
-            // Get service name
-            $service = Service::find($request->main_service_id);
-            
-            SubCategory::create([
-                'category_box_id' => $categoryBox->id,
-                'service_id' => $request->main_service_id,
-                'name' => $service ? $service->name : 'Service',
-                'image' => $imagePath,
-                'status' => true
-            ]);
-        } else {
-            // No sub-services and no image - create a basic entry with service name
+        } elseif (!$request->hasFile('service_image')) {
+            // No sub-services and no main image - create a basic entry with service name
             $service = Service::find($request->main_service_id);
             
             SubCategory::create([
@@ -181,7 +183,37 @@ class CategoryBoxController extends Controller
             }
         }
 
-        // Add new subcategories
+        // Handle main service image update (check if main service subcategory exists)
+        if ($request->hasFile('new_service_image')) {
+            $service = Service::find($request->main_service_id);
+            $imagePath = $request->file('new_service_image')->store('subcategories', 'public');
+            
+            // Check if main service subcategory already exists (name matches service name)
+            $service = Service::find($request->main_service_id);
+            $mainServiceSubCategory = $categoryBox->subCategories()
+                ->where('service_id', $request->main_service_id)
+                ->where('name', $service ? $service->name : 'Service')
+                ->first();
+            
+            if ($mainServiceSubCategory) {
+                // Update existing main service image
+                if ($mainServiceSubCategory->image) {
+                    Storage::disk('public')->delete($mainServiceSubCategory->image);
+                }
+                $mainServiceSubCategory->update(['image' => $imagePath]);
+            } else {
+                // Create new main service subcategory
+                SubCategory::create([
+                    'category_box_id' => $categoryBox->id,
+                    'service_id' => $request->main_service_id,
+                    'name' => $service ? $service->name : 'Service',
+                    'image' => $imagePath,
+                    'status' => true
+                ]);
+            }
+        }
+        
+        // Add new subcategories (can be added along with main service image)
         if ($request->has('new_subcategories') && is_array($request->new_subcategories)) {
             foreach ($request->new_subcategories as $newSubData) {
                 $imagePath = null;
@@ -194,23 +226,12 @@ class CategoryBoxController extends Controller
                 
                 SubCategory::create([
                     'category_box_id' => $categoryBox->id,
+                    'service_id' => $request->main_service_id,
                     'name' => $subService ? $subService->name : 'Unknown',
                     'image' => $imagePath,
                     'status' => true
                 ]);
             }
-        } elseif ($request->hasFile('new_service_image')) {
-            // Add service image for services without sub-services
-            $imagePath = $request->file('new_service_image')->store('subcategories', 'public');
-            $service = Service::find($request->main_service_id);
-            
-            SubCategory::create([
-                'category_box_id' => $categoryBox->id,
-                'service_id' => $request->main_service_id,
-                'name' => $service ? $service->name : 'Service',
-                'image' => $imagePath,
-                'status' => true
-            ]);
         }
 
         return redirect()->route('admin.categorybox.index')->with('success', 'Category updated successfully!');
