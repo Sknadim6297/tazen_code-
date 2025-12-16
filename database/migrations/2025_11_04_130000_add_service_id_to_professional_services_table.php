@@ -13,14 +13,22 @@ return new class extends Migration
     {
         Schema::table('professional_services', function (Blueprint $table) {
             // Add service_id column after professional_id
-            $table->unsignedBigInteger('service_id')->nullable()->after('professional_id');
-            
-            // Add foreign key constraint
-            $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
-            
-            // Add index for better query performance
-            $table->index('service_id');
+            if (!Schema::hasColumn('professional_services', 'service_id')) {
+                $table->unsignedBigInteger('service_id')->nullable()->after('professional_id');
+            }
         });
+        
+        // Add foreign key and index with try-catch
+        try {
+            Schema::table('professional_services', function (Blueprint $table) {
+                if (Schema::hasColumn('professional_services', 'service_id')) {
+                    $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
+                    $table->index('service_id');
+                }
+            });
+        } catch (\Exception $e) {
+            // Foreign key/index might already exist
+        }
     }
 
     /**

@@ -73,6 +73,16 @@
             <i class="fas fa-star"></i>
             <span>My Reviews</span>
         </a>
+
+        <div class="menu-title">Plans & Features</div>
+        <a href="{{ route('professional.plans.index') }}" class="menu-item {{ Route::is('professional.plans.index') ? 'active' : '' }}">
+            <i class="fas fa-gift"></i>
+            <span>Browse Plans</span>
+        </a>
+        <a href="{{ route('professional.plans.my-plan') }}" class="menu-item {{ Route::is('professional.plans.my-plan') ? 'active' : '' }}">
+            <i class="fas fa-crown"></i>
+            <span>My Current Plan</span>
+        </a>
     </div>
 </div>
 

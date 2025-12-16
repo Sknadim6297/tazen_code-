@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('professionals', function (Blueprint $table) {
-            $table->decimal('service_request_margin', 5, 2)->default(0.00)->after('margin');
+            if (!Schema::hasColumn('professionals', 'service_request_margin')) {
+                $table->decimal('service_request_margin', 5, 2)->default(0.00)->after('margin');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('professionals', function (Blueprint $table) {
-            $table->dropColumn('service_request_margin');
+            if (Schema::hasColumn('professionals', 'service_request_margin')) {
+                $table->dropColumn('service_request_margin');
+            }
         });
     }
 };

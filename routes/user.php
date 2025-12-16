@@ -68,6 +68,7 @@ Route::middleware(['auth:user'])->group(function () {
 
     Route::resource('profile', ProfileController::class);
     Route::resource('customer-event', EventController::class);
+    Route::get('/customer-event/{id}/invoice', [EventController::class, 'downloadInvoice'])->name('customer-event.invoice');
     Route::get('/booking/summary', [BookingController::class, 'bookingSummary'])->name('booking.summary');
 
     Route::post('/booking/payment/init', [BookingController::class, 'initPayment'])->name('booking.payment.init');

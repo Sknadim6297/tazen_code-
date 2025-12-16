@@ -68,4 +68,10 @@ class Professional extends Authenticatable
     {
         return $this->hasMany(Availability::class, 'professional_id');
     }
+
+    // Plan purchases relationship
+    public function planPurchases()
+    {
+        return $this->hasMany(ProfessionalPlanPurchase::class, 'professional_id');
+    }
 }

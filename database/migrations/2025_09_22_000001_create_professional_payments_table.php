@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('professional_payments', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('professional_id');
-            $table->unsignedBigInteger('admin_id');
-            $table->decimal('amount', 10, 2);
-            $table->enum('payment_type', ['consultation_fee', 'bonus', 'referral_commission', 'other']);
-            $table->enum('payment_method', ['bank_transfer', 'upi', 'cheque']);
-            $table->text('description')->nullable();
-            $table->string('transaction_reference')->nullable();
-            $table->enum('status', ['recorded', 'pending', 'completed', 'failed'])->default('recorded');
-            $table->timestamp('payment_date')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('professional_payments')) {
+            Schema::create('professional_payments', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('professional_id');
+                $table->unsignedBigInteger('admin_id');
+                $table->decimal('amount', 10, 2);
+                $table->enum('payment_type', ['consultation_fee', 'bonus', 'referral_commission', 'other']);
+                $table->enum('payment_method', ['bank_transfer', 'upi', 'cheque']);
+                $table->text('description')->nullable();
+                $table->string('transaction_reference')->nullable();
+                $table->enum('status', ['recorded', 'pending', 'completed', 'failed'])->default('recorded');
+                $table->timestamp('payment_date')->nullable();
+                $table->timestamps();
 
-            $table->foreign('professional_id')->references('id')->on('professionals')->onDelete('cascade');
-            $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
-        });
+                $table->foreign('professional_id')->references('id')->on('professionals')->onDelete('cascade');
+                $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
+            });
+        }
     }
 
     /**

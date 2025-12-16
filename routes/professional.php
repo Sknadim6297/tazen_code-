@@ -159,4 +159,15 @@ Route::middleware(['auth:professional', 'professional.status'])->group(function 
         Route::get('/unread-count', [App\Http\Controllers\Professional\ChatController::class, 'getUnreadCount'])->name('unread-count');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Professional\ChatController::class, 'downloadAttachment'])->name('attachment.download');
     });
+
+    // Plans & Features Routes
+    Route::prefix('plans')->name('plans.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Professional\PlanController::class, 'index'])->name('index');
+        Route::get('/my-plan', [App\Http\Controllers\Professional\PlanController::class, 'myPlan'])->name('my-plan');
+        Route::get('/{id}/purchase', [App\Http\Controllers\Professional\PlanController::class, 'purchase'])->name('purchase');
+        Route::post('/{id}/process-purchase', [App\Http\Controllers\Professional\PlanController::class, 'processPurchase'])->name('process-purchase');
+        Route::post('/razorpay-callback', [App\Http\Controllers\Professional\PlanController::class, 'razorpayCallback'])->name('razorpay-callback');
+        Route::get('/{id}/success', [App\Http\Controllers\Professional\PlanController::class, 'success'])->name('success');
+        Route::get('/{id}/failed', [App\Http\Controllers\Professional\PlanController::class, 'failed'])->name('failed');
+    });
 });

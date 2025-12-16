@@ -12,11 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('category_boxes', function (Blueprint $table) {
-            $table->string('name')->after('id');
-            $table->text('description')->nullable()->after('name');
-            $table->string('image')->nullable()->after('description');
-            $table->boolean('status')->default(true)->after('image');
-            $table->integer('order')->default(0)->after('status');
+            if (!Schema::hasColumn('category_boxes', 'name')) {
+                $table->string('name')->after('id');
+            }
+            if (!Schema::hasColumn('category_boxes', 'description')) {
+                $table->text('description')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('category_boxes', 'image')) {
+                $table->string('image')->nullable()->after('description');
+            }
+            if (!Schema::hasColumn('category_boxes', 'status')) {
+                $table->boolean('status')->default(true)->after('image');
+            }
+            if (!Schema::hasColumn('category_boxes', 'order')) {
+                $table->integer('order')->default(0)->after('status');
+            }
         });
     }
 

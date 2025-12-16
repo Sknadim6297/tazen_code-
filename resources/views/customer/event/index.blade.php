@@ -681,17 +681,30 @@
                                         <span class="status-badge status-danger"><i class="fas fa-times-circle"></i> Unknown</span>
                                     @endif
                                 </div>
-                                @if($booking->event && $booking->event->meet_link)
-                                    <a href="{{ $booking->event->meet_link }}" target="_blank" class="btn join-btn">
-                                        <i class="fas fa-video"></i> Join Event
-                                    </a>
-                                @elseif($booking->gmeet_link)
-                                    <a href="{{ $booking->gmeet_link }}" target="_blank" class="btn join-btn">
-                                        <i class="fas fa-video"></i> Join Event
-                                    </a>
-                                @else
-                                    <span class="info-value" style="color: var(--neutral-500);">No link available</span>
-                                @endif
+                                <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                    @if($booking->event && $booking->event->meet_link)
+                                        <a href="{{ $booking->event->meet_link }}" target="_blank" class="btn join-btn">
+                                            <i class="fas fa-video"></i> Join Event
+                                        </a>
+                                    @elseif($booking->gmeet_link)
+                                        <a href="{{ $booking->gmeet_link }}" target="_blank" class="btn join-btn">
+                                            <i class="fas fa-video"></i> Join Event
+                                        </a>
+                                    @endif
+                                    
+                                    @if($booking->payment_status == 'success' || $booking->payment_status == 'paid')
+                                        <a href="{{ route('user.customer-event.invoice', $booking->id) }}" 
+                                           class="btn btn-outline" 
+                                           style="font-size: 0.85rem; padding: 0.4rem 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem;"
+                                           title="Download Invoice">
+                                            <i class="fas fa-download"></i> Invoice
+                                        </a>
+                                    @endif
+                                    
+                                    @if(!($booking->event && $booking->event->meet_link) && !$booking->gmeet_link)
+                                        <span class="info-value" style="color: var(--neutral-500); font-size: 0.85rem;">No link available</span>
+                                    @endif
+                                </div>
                             </footer>
                         </article>
                     @endforeach
@@ -712,6 +725,7 @@
                                 <th>Price</th>
                                 <th>Link</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -748,6 +762,18 @@
                                             <span class="status-badge status-warning"><i class="fas fa-exclamation-triangle"></i> Failed</span>
                                         @else
                                             <span class="status-badge status-danger"><i class="fas fa-times-circle"></i> Unknown</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($booking->payment_status == 'success' || $booking->payment_status == 'paid')
+                                            <a href="{{ route('user.customer-event.invoice', $booking->id) }}" 
+                                               class="btn btn-outline" 
+                                               style="font-size: 0.8rem; padding: 0.35rem 0.7rem; display: inline-flex; align-items: center; gap: 0.25rem;"
+                                               title="Download Invoice">
+                                                <i class="fas fa-download"></i> Invoice
+                                            </a>
+                                        @else
+                                            <span class="info-value" style="color: var(--neutral-400); font-size: 0.85rem;">-</span>
                                         @endif
                                     </td>
                                 </tr>

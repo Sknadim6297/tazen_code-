@@ -90,19 +90,19 @@
                 <div class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
                     <div class="p-3">
                         <div class="d-flex align-items-center justify-content-between">
-                            <p class="mb-0 fs-16">Notifications</p>
+                            <p class="mb-0 fs-16 fw-medium">Notifications</p>
                             @if($notificationCount > 0)
-                                <span class="badge bg-secondary-transparent">{{ $notificationCount }} Unread</span>
+                                <span class="badge bg-primary text-white">{{ $notificationCount > 99 ? '99+' : $notificationCount }} New</span>
                             @else
-                                <span class="badge bg-secondary-transparent">No New</span>
+                                <span class="badge bg-success-transparent text-success">All Clear</span>
                             @endif
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>
                     
                     @if($notificationCount > 0)
-                        <ul class="list-unstyled mb-0" id="header-notification-scroll" style="max-height: 300px; overflow-y: auto;">
-                            @foreach($unreadNotifications->take(5) as $notification)
+                        <ul class="list-unstyled mb-0" id="header-notification-scroll" style="max-height: 400px; overflow-y: auto;">
+                            @foreach($unreadNotifications->take(10) as $notification)
                                 @php
                                     $data = $notification->data;
                                     $type = $notification->type;
@@ -211,6 +211,38 @@
                                             </a>
                                         </div>
                                     </li>
+                                @elseif($type === 'App\Notifications\EventBookingNotification')
+                                    <li class="dropdown-item position-relative">
+                                        <a href="{{ route('admin.manage-customer.show', $data['customer_id'] ?? 0) }}" 
+                                           class="d-flex align-items-start gap-3 text-decoration-none" 
+                                           onclick="markAdminNotificationAsRead('{{ $notification->id }}')">
+                                            <span class="avatar avatar-md flex-shrink-0 bg-success-transparent">
+                                                <i class="ri-calendar-event-line fs-18 lh-1 align-middle text-success"></i>
+                                            </span>
+                                            <div class="flex-grow-1">
+                                                <div class="fs-13">
+                                                    <div class="text-dark fw-medium">
+                                                        New Event Booking from {{ $data['customer_name'] ?? 'Customer' }}
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-12 mt-1">
+                                                        Event: {{ $data['event_name'] ?? 'N/A' }}
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-12 mt-1">
+                                                        Amount: ₹{{ number_format($data['total_amount'] ?? 0, 2) }} | {{ $data['persons'] ?? 1 }} person(s)
+                                                    </div>
+                                                    <div class="text-muted fw-normal fs-11 mt-1">
+                                                        <i class="ri-time-line me-1"></i>{{ $notification->created_at->diffForHumans() }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <a href="javascript:void(0);" class="min-w-fit-content text-muted dropdown-item-close" 
+                                               onclick="event.stopPropagation(); markAdminNotificationAsRead('{{ $notification->id }}')">
+                                                <i class="ri-close-line fs-16"></i>
+                                            </a>
+                                        </div>
+                                    </li>
                                 @else
                                     <li class="dropdown-item">
                                         <div class="d-flex align-items-start gap-3">
@@ -238,8 +270,13 @@
                             @endforeach
                         </ul>
                         <div class="p-3 empty-header-item1 border-top">
-                            <div class="d-grid">
-                                <a href="javascript:void(0);" class="btn btn-primary btn-wave" onclick="markAllAdminNotificationsAsRead()">Mark All as Read</a>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-primary btn-wave flex-fill">
+                                    <i class="ri-notification-line me-1"></i>View All
+                                </a>
+                                <a href="javascript:void(0);" class="btn btn-primary btn-wave flex-fill" onclick="markAllAdminNotificationsAsRead()">
+                                    <i class="ri-check-double-line me-1"></i>Mark All Read
+                                </a>
                             </div>
                         </div>
                     @else

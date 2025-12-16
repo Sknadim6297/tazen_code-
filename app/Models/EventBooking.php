@@ -47,4 +47,12 @@ class EventBooking extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the professional associated with this booking through the event.
+     */
+    public function professional()
+    {
+        return $this->hasOneThrough(Professional::class, AllEvent::class, 'id', 'id', 'event_id', 'professional_id');
+    }
 }

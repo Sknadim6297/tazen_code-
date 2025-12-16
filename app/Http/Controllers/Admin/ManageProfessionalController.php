@@ -36,7 +36,19 @@ class ManageProfessionalController extends Controller
             ->pluck('specialization');
 
         // Build base query with filters
-        $query = Professional::with(['professionalServices.service', 'profile']);
+        $query = Professional::with([
+            'professionalServices.service', 
+            'profile',
+            'planPurchases' => function($q) {
+                $q->where('payment_status', 'success')
+                  ->where(function($query) {
+                      $query->whereNull('end_date')
+                            ->orWhere('end_date', '>', now());
+                  })
+                  ->orderBy('created_at', 'desc')
+                  ->limit(1);
+            }
+        ]);
         
         // Apply search filters
         if ($request->has('search') && $request->search) {
@@ -61,6 +73,11 @@ class ManageProfessionalController extends Controller
             });
         }
         
+        // Filter by status if selected
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+        
         // Get the professionals with filters
         $professionals = $query->latest();
 
@@ -75,22 +92,59 @@ class ManageProfessionalController extends Controller
             }
         }
 
+        // Determine if we should paginate or show all results
+        // Show all results when specialization or status filter is applied
+        $shouldPaginate = !(
+            ($request->has('specialization') && $request->specialization) || 
+            ($request->has('status') && $request->status)
+        );
+        
+        // Get total count for filtered results
+        $totalCount = $professionals->count();
+        
         // If AJAX request, return JSON
         if ($request->ajax()) {
-            $paginated = $professionals->paginate(10);
-            return response()->json([
-                'professionals' => $paginated->toArray(),
-                'pagination' => $paginated->links()->render(),
-            ]);
+            if ($shouldPaginate) {
+                $paginated = $professionals->paginate(10);
+                return response()->json([
+                    'professionals' => $paginated->toArray(),
+                    'pagination' => $paginated->appends($request->query())->links()->render(),
+                    'totalCount' => $totalCount,
+                    'filteredService' => $request->specialization ?? null,
+                    'filteredStatus' => $request->status ?? null,
+                ]);
+            } else {
+                // Return all results without pagination when filter is active
+                $allProfessionals = $professionals->get();
+                return response()->json([
+                    'professionals' => [
+                        'data' => $allProfessionals->toArray(),
+                        'current_page' => 1,
+                        'last_page' => 1,
+                        'per_page' => $allProfessionals->count(),
+                        'total' => $allProfessionals->count(),
+                    ],
+                    'pagination' => '', // No pagination needed
+                    'totalCount' => $totalCount,
+                    'filteredService' => $request->specialization ?? null,
+                    'filteredStatus' => $request->status ?? null,
+                ]);
+            }
         }
 
-        // Paginate for view rendering
-        $professionals = $professionals->paginate(10);
+        // For initial page load
+        if ($shouldPaginate) {
+            $professionals = $professionals->paginate(10);
+        } else {
+            // Get all professionals when filter is applied
+            $professionals = $professionals->get();
+        }
         
-        // Return the view for initial page load with pagination
+        // Return the view for initial page load
         return view('admin.manage-professional.index', compact(
             'professionals', 
-            'specializations'
+            'specializations',
+            'totalCount'
         ));
     }
 

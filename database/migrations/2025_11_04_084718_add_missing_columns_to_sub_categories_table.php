@@ -12,16 +12,36 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sub_categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('category_box_id')->after('id');
-            $table->unsignedBigInteger('service_id')->nullable()->after('category_box_id');
-            $table->string('name')->after('service_id');
-            $table->string('image')->nullable()->after('name');
-            $table->boolean('status')->default(true)->after('image');
-            
-            // Add foreign key constraints
-            $table->foreign('category_box_id')->references('id')->on('category_boxes')->onDelete('cascade');
-            $table->foreign('service_id')->references('id')->on('services')->onDelete('set null');
+            if (!Schema::hasColumn('sub_categories', 'category_box_id')) {
+                $table->unsignedBigInteger('category_box_id')->after('id');
+            }
+            if (!Schema::hasColumn('sub_categories', 'service_id')) {
+                $table->unsignedBigInteger('service_id')->nullable()->after('category_box_id');
+            }
+            if (!Schema::hasColumn('sub_categories', 'name')) {
+                $table->string('name')->after('service_id');
+            }
+            if (!Schema::hasColumn('sub_categories', 'image')) {
+                $table->string('image')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('sub_categories', 'status')) {
+                $table->boolean('status')->default(true)->after('image');
+            }
         });
+        
+        // Add foreign key constraints with try-catch to handle if they already exist
+        try {
+            Schema::table('sub_categories', function (Blueprint $table) {
+                if (Schema::hasColumn('sub_categories', 'category_box_id')) {
+                    $table->foreign('category_box_id')->references('id')->on('category_boxes')->onDelete('cascade');
+                }
+                if (Schema::hasColumn('sub_categories', 'service_id')) {
+                    $table->foreign('service_id')->references('id')->on('services')->onDelete('set null');
+                }
+            });
+        } catch (\Exception $e) {
+            // Foreign keys might already exist, continue
+        }
     }
 
     /**

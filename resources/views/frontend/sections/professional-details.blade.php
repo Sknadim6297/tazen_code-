@@ -1725,7 +1725,7 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="box_general">
                     <div class="profile-header-flex">
-                        <img src="{{ $profile && $profile->photo ? asset('storage/' . $profile->photo) : asset('img/lazy-placeholder.png') }}" alt="" class="profile-main-image">
+                        <img src="{{ $profile && $profile->photo ? asset('storage/' . $profile->photo) : asset('img/default-avatar.png') }}" alt="" class="profile-main-image" onerror="this.onerror=null; this.src='{{ asset('img/default-avatar.png') }}';">
                         <div class="profile-header-details">
                                                     @php
                                     $fullName = trim($profile->name ?? '');

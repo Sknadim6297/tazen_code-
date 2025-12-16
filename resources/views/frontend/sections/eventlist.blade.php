@@ -20,6 +20,15 @@
     .event-card-img { height: 160px; }
     .featured-content-inner { min-height: 120px; }
 }
+
+/* Force consistent site font on this page (overrides event-list.css fonts) */
+body,
+h1, h2, h3, h4, h5, h6,
+p, a, button, input, select, textarea, label,
+.event-card, .page_header, .filter_col, .ttm-row, .ttm-bg,
+.featured-content-inner, .ttm-btn {
+    font-family: 'Poppins', sans-serif !important;
+}
 </style>
 
 
@@ -246,11 +255,11 @@
                                     {{-- Badge to show event creator type --}}
                                     @if($isProfessionalEvent)
                                         <span class="badge bg-info text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
-                                            <i class="fa fa-user"></i> Professional
+                                            <i class="fa fa-user"></i> {{ $event->event->professional->name ?? 'Professional' }}
                                         </span>
                                     @else
-                                        <span class="badge bg-primary text-white position-absolute" style="top: 10px; right: 10px; z-index: 10;">
-                                            <i class="fa fa-shield-alt"></i> Admin
+                                        <span class="badge bg-primary text-white position-absolute" style="top: 10px; left: 10px; z-index: 10;">
+                                            <i class="fa fa-shield-alt"></i> Tazen
                                         </span>
                                     @endif
                                 </div>
@@ -268,6 +277,12 @@
                                         <div class="mb-2">
                                             <small class="text-muted">
                                                 <i class="fa fa-user-tie"></i> By {{ $event->event->professional->name }}
+                                            </small>
+                                        </div>
+                                    @else
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fa fa-user-tie"></i> By Tazen
                                             </small>
                                         </div>
                                     @endif

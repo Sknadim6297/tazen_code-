@@ -456,6 +456,32 @@
 </li>
 @endif
 
+@if($isMenuAccessible('plans'))
+<li class="slide has-sub">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" width="1em" height="1em" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6.5 2C4.5 4.5 3 7.5 3 12s1.5 7.5 3.5 10m11-20c2 2.5 3.5 5.5 3.5 10s-1.5 7.5-3.5 10" color="currentColor"/>
+        </svg>
+        <span class="side-menu__label">Plans & Features</span>
+        <i class="ri-arrow-down-s-line side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu child1">
+        <li class="slide side-menu__label1">
+            <a href="javascript:void(0)">Plans Management</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.plans.index') }}" class="side-menu__item">Manage Plans</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.plans.create') }}" class="side-menu__item">Create New Plan</a>
+        </li>
+        <li class="slide">
+            <a href="{{ route('admin.purchased-plans.index') }}" class="side-menu__item">Purchased Plans</a>
+        </li>
+    </ul>
+</li>
+@endif
+
 @if($isMenuAccessible('manage_control'))
 <li class="slide has-sub">
     <a href="javascript:void(0);" class="side-menu__item">

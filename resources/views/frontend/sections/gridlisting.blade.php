@@ -1247,24 +1247,23 @@
                                     </div>
                                 @endif
 
-                                @if($professional->profile && !empty($professional->profile->photo))
-                                    @php
+                                @php
+                                    $defaultAvatar = asset('img/default-avatar.png');
+                                    
+                                    if($professional->profile && !empty($professional->profile->photo)) {
                                         $photoPath = $professional->profile->photo;
                                         // Check if it's already a full URL
                                         if (filter_var($photoPath, FILTER_VALIDATE_URL)) {
                                             $imageUrl = $photoPath;
                                         } else {
                                             // The photo path is stored relative to storage/app/public
-                                            // Use asset() to generate URL through storage link (same as professional-details.blade.php)
                                             $imageUrl = asset('storage/' . $photoPath);
                                         }
-                                    @endphp
-                                    <img src="{{ $imageUrl }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'220\'%3E%3Crect fill=\'%23f5f5f5\' width=\'400\' height=\'220\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23ccc\' font-family=\'Arial\' font-size=\'48\'%3E%3C/tspan%3E%3C/text%3E%3C/svg%3E';">
-                                @else
-                                    <div style="width: 100%; height: 220px; background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); display: flex; align-items: center; justify-content: center;">
-                                        <i class="icon-user" style="font-size: 48px; color: #ccc;"></i>
-                                    </div>
-                                @endif
+                                    } else {
+                                        $imageUrl = $defaultAvatar;
+                                    }
+                                @endphp
+                                <img src="{{ $imageUrl }}" class="img-fluid lazy" alt="{{ $professional->first_name }}" onerror="this.onerror=null; this.src='{{ $defaultAvatar }}';" style="width: 100%; height: 220px; object-fit: cover;">
                             </figure>
 
                         

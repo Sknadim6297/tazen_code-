@@ -103,13 +103,14 @@
     .fiverr-search-container {
         max-width: 700px;
         margin: 0 0 2rem 0;
+        position: relative;
     }
 
     .fiverr-search-box {
         display: flex;
         background: white;
         border-radius: 8px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         height: 60px;
     }
@@ -117,6 +118,8 @@
     .search-input-wrapper {
         flex: 1;
         position: relative;
+        border-radius: 8px 0 0 8px;
+        overflow: hidden;
     }
 
     .fiverr-search-input {
@@ -133,6 +136,54 @@
     .fiverr-search-input::placeholder {
         color: #999;
         font-weight: 400;
+    }
+
+    /* Search Results Dropdown Styling */
+    #searchResults {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 5px;
+        z-index: 9999 !important;
+        position: absolute;
+        width: 100%;
+        top: calc(100% + 5px);
+        left: 0;
+    }
+
+    #searchResults .list-group {
+        border-radius: 8px;
+        border: none;
+    }
+
+    #searchResults .list-group-item {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 12px 20px;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    #searchResults .list-group-item:last-child {
+        border-bottom: none;
+    }
+
+    #searchResults .list-group-item:hover {
+        background: #f8f9fa;
+        color: #152a70;
+        padding-left: 25px;
+    }
+
+    #searchResults .list-group-item.text-muted {
+        cursor: default;
+    }
+
+    #searchResults .list-group-item.text-muted:hover {
+        background: white;
+        padding-left: 20px;
     }
 
     .fiverr-search-btn {
@@ -258,10 +309,12 @@
         .fiverr-search-container {
             max-width: 100%;
             margin: 0 0 2rem 0;
+            position: relative;
         }
         
         .fiverr-search-box {
             height: 55px;
+            overflow: visible;
         }
         
         .fiverr-search-input {
@@ -273,6 +326,17 @@
         .fiverr-search-btn {
             width: 70px;
             height: 55px;
+        }
+
+        /* Mobile Search Results */
+        #searchResults {
+            margin-top: 3px;
+            max-height: 300px;
+        }
+
+        #searchResults .list-group-item {
+            padding: 10px 15px;
+            font-size: 0.95rem;
         }
         
         .fiverr-categories {
@@ -3732,13 +3796,13 @@
 									<div class="fiverr-search-box">
 										<div class="search-input-wrapper">
 											<input class="fiverr-search-input" type="text" id="serviceSearch" placeholder="Search for any service..." autocomplete="off">
-											<div id="searchResults" class="position-absolute w-100 mt-1 d-none" style="z-index: 1050;">
-												<!-- Search results will appear here -->
-											</div>
 										</div>
 										<button type="submit" id="searchButton" class="fiverr-search-btn">
 											<i class="fas fa-search"></i>
 										</button>
+									</div>
+									<div id="searchResults" class="d-none" style="z-index: 9999;">
+										<!-- Search results will appear here -->
 									</div>
 								</div>
 								
@@ -4872,6 +4936,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Changed from query.length < 2 to query.length < 1
         if (query.length < 1) {
             searchResults.classList.add('d-none');
+            searchResults.style.display = 'none';
             searchResults.innerHTML = '';
             currentResults = [];
             return;
@@ -4886,6 +4951,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (currentResults.length > 0) {
                     // Display search results
                     searchResults.classList.remove('d-none');
+                    searchResults.style.display = 'block';
                     searchResults.innerHTML = `
                         <div class="list-group shadow">
                             ${currentResults.map(service => `
@@ -4895,19 +4961,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             `).join('')}
                         </div>
                     `;
+                    console.log('Search results displayed:', currentResults.length, 'results');
                 } else {
                     // No results found
                     searchResults.classList.remove('d-none');
+                    searchResults.style.display = 'block';
                     searchResults.innerHTML = `
                         <div class="list-group shadow">
                             <div class="list-group-item text-muted">No result found</div>
                         </div>
                     `;
+                    console.log('No results found for query');
                 }
                 
                 // Ensure proper positioning
                 searchResults.style.left = '0';
                 searchResults.style.right = 'auto';
+                searchResults.style.width = '100%';
             })
             .catch(error => {
                 console.error('Error fetching search results:', error);
@@ -4949,6 +5019,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(event) {
         if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
             searchResults.classList.add('d-none');
+            searchResults.style.display = 'none';
         }
     });
 
