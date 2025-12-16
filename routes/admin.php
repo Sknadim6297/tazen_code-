@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\ProfessionalEventController;
 use App\Http\Controllers\Admin\CategoryBoxController;
 use App\Http\Controllers\Admin\FAQController;
 use App\Http\Controllers\Admin\HeaderController;
+use App\Http\Controllers\Admin\PlanPurchaseController;
 use App\Http\Controllers\frontend\HomeController;
 
 Route::get('/run-migrate-seed', function () {
@@ -87,6 +88,15 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     Route::resource('manage_admins', ManageAdminController::class);
     Route::resource('admin_menus', AdminMenuController::class);
     Route::resource('categorybox', CategoryBoxController::class);
+    
+    // Plan Purchase Management Routes
+    Route::prefix('plans/purchases')->name('plans.purchases.')->group(function () {
+        Route::get('/', [PlanPurchaseController::class, 'index'])->name('index');
+        Route::get('/{id}', [PlanPurchaseController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [PlanPurchaseController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [PlanPurchaseController::class, 'reject'])->name('reject');
+        Route::post('/{id}/update-status', [PlanPurchaseController::class, 'updateStatus'])->name('update-status');
+    });
     Route::get('/get-sub-services/{serviceId}', [\App\Http\Controllers\Admin\CategoryBoxController::class, 'getSubServices'])->name('get.sub.services');
     Route::resource('faq', FAQController::class);
     Route::resource('header', HeaderController::class);
@@ -287,7 +297,14 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
     });
 
     // Notification routes
-    Route::post('/notifications/{notification}/mark-as-read', function ($notificationId) {
+    Route::get('/notifications', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/mark-as-read', [App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read-single');
+    Route::post('/notifications/mark-all-as-read', [App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+    Route::post('/notifications/delete-old', [App\Http\Controllers\Admin\NotificationController::class, 'deleteOld'])->name('notifications.delete-old');
+    Route::delete('/notifications/{notification}', [App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    
+    // Legacy notification routes (keeping for backward compatibility)
+    Route::post('/notifications/{notification}/mark-as-read-legacy', function ($notificationId) {
         $admin = Auth::guard('admin')->user();
 
         // Use DB query to find and update notification
@@ -440,4 +457,24 @@ Route::middleware(['auth:admin', 'admin.menu'])->group(function () {
         Route::get('/chats', [App\Http\Controllers\Admin\CustomerChatController::class, 'getChats'])->name('chats');
         Route::post('/mark-as-read/{chatId}', [App\Http\Controllers\Admin\CustomerChatController::class, 'markAsRead'])->name('mark-as-read');
         Route::get('/attachment/{id}/download', [App\Http\Controllers\Admin\CustomerChatController::class, 'downloadAttachment'])->name('attachment.download');
+    });
+
+    // Plans Management
+    Route::prefix('plans')->name('plans.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\PlanController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Admin\PlanController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Admin\PlanController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\Admin\PlanController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\PlanController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [App\Http\Controllers\Admin\PlanController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Purchased Plans Management
+    Route::prefix('purchased-plans')->name('purchased-plans.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\PurchasedPlanController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Admin\PurchasedPlanController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\PurchasedPlanController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\Admin\PurchasedPlanController::class, 'update'])->name('update');
+        Route::post('/{id}/extend', [App\Http\Controllers\Admin\PurchasedPlanController::class, 'extend'])->name('extend');
     });

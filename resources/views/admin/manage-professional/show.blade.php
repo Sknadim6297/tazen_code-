@@ -683,6 +683,96 @@
             justify-content: center;
         }
     }
+
+    /* QR Code Styles */
+    .qr-code-section {
+        padding: 1rem 0;
+    }
+
+    .qr-code-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .qr-code-container {
+        position: relative;
+        cursor: pointer;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s ease;
+        background: var(--white);
+        border: 3px solid var(--gray-200);
+    }
+
+    .qr-code-container:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 48px rgba(79, 70, 229, 0.2);
+        border-color: var(--primary);
+    }
+
+    .qr-code-image {
+        width: 220px;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .qr-code-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(79, 70, 229, 0.9);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 14px;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .qr-code-container:hover .qr-code-overlay {
+        opacity: 1;
+    }
+
+    .qr-code-overlay i {
+        font-size: 28px;
+    }
+
+    .qr-code-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--gray-400);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h4 {
+        margin: 0 0 0.5rem 0;
+        color: var(--gray-600);
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
 </style>
 @endsection
 
@@ -852,6 +942,45 @@
                                         @endif
                                     </div>
                                 </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Payment QR Code -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h3 class="section-title">
+                                    <i class="fas fa-qrcode"></i>
+                                    Payment QR Code
+                                </h3>
+                            </div>
+                            
+                            <div class="qr-code-section">
+                                @if($professional->payment_qr_code)
+                                    <div class="qr-code-display">
+                                        <div class="qr-code-container" onclick="viewFullQRCode('{{ asset('storage/'.$professional->payment_qr_code) }}', '{{ $professional->name }}')">
+                                            <img src="{{ asset('storage/'.$professional->payment_qr_code) }}" 
+                                                 alt="Payment QR Code" 
+                                                 class="qr-code-image">
+                                            <div class="qr-code-overlay">
+                                                <i class="fas fa-expand"></i>
+                                                <span>Click to enlarge</span>
+                                            </div>
+                                        </div>
+                                        <div class="qr-code-actions">
+                                            <button onclick="downloadQRCode('{{ asset('storage/'.$professional->payment_qr_code) }}', '{{ $professional->name }}')" 
+                                                    class="btn btn-outline">
+                                                <i class="fas fa-download"></i>
+                                                Download QR Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="empty-state">
+                                        <i class="fas fa-qrcode"></i>
+                                        <h4>No Payment QR Code</h4>
+                                        <p>This professional hasn't uploaded a payment QR code yet.</p>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -1847,6 +1976,60 @@ $(document).ready(function() {
     // Initial calculator update
     updateCalculator();
 });
+
+// QR Code Functions
+function viewFullQRCode(imageUrl, professionalName) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 40px; border-radius: 20px; max-width: 550px; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h3 style="margin-bottom: 10px; color: #333; font-size: 24px;">${professionalName}'s Payment QR Code</h3>
+            <p style="color: #666; margin-bottom: 30px; font-size: 14px;">Scan this QR code to send payments directly to the professional</p>
+            <img src="${imageUrl}" style="max-width: 100%; max-height: 450px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid #f0f0f0;">
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                <button onclick="this.closest('div').parentElement.remove()" 
+                        style="background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                <button onclick="downloadQRCode('${imageUrl}', '${professionalName}')" 
+                        style="background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function downloadQRCode(imageUrl, professionalName) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${professionalName.replace(/[^a-zA-Z0-9]/g, '_')}_payment_qr_code.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 
 @endsection

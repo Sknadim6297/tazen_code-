@@ -102,6 +102,57 @@
         margin-bottom: 1rem;
     }
 
+    .qr-code-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .qr-code-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .qr-code-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        border-radius: 12px;
+    }
+
+    .qr-code-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 14px;
+        text-align: center;
+        border-radius: 12px;
+    }
+
+    .qr-code-container:hover .qr-code-overlay {
+        opacity: 1;
+    }
+
+    .qr-code-overlay i {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
     .actions {
         display: flex;
         gap: 1rem;
@@ -255,6 +306,35 @@
                     <label for="gst_address" class="form-label">GST Address</label>
                     <textarea class="form-control" id="gst_address" name="gst_address" rows="3">{{ old('gst_address', optional($professional->profile)->gst_address) }}</textarea>
                 </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-qrcode"></i>
+                    Payment QR Code
+                </h3>
+                
+                @if($professional->payment_qr_code)
+                    <div class="mb-3">
+                        <label class="form-label">Current Payment QR Code</label><br>
+                        <div class="qr-code-container">
+                            <img src="{{ asset('storage/'.$professional->payment_qr_code) }}" 
+                                 class="qr-code-image" 
+                                 alt="Payment QR Code"
+                                 onclick="viewFullQRCode('{{ asset('storage/'.$professional->payment_qr_code) }}')">
+                            <div class="qr-code-overlay">
+                                <i class="fas fa-expand"></i>
+                                Click to view full size
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        No payment QR code uploaded by the professional yet.
+                    </div>
+                @endif
             </div>
 
             <!-- Bank Account Details -->
@@ -501,5 +581,49 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     // Optional: Show preview of selected files
     console.log(`Selected ${files.length} images for upload`);
 });
+
+// Function to view QR code in full size
+function viewFullQRCode(imageUrl) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; text-align: center; position: relative;">
+            <h4 style="margin-bottom: 20px; color: #333;">Professional's Payment QR Code</h4>
+            <img src="${imageUrl}" style="max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <div style="margin-top: 20px;">
+                <button onclick="this.closest('div').parentElement.remove()" 
+                        style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                <a href="${imageUrl}" download="payment-qr-code.jpg" 
+                   style="background: #3498db; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; display: inline-block;">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
 </script>
 @endsection

@@ -172,6 +172,7 @@ class ProfileController extends Controller
             'account_type' => 'nullable|in:savings,current',
             'bank_branch' => 'nullable|string|max:255',
             'bank_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'payment_qr_code' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $profile = Profile::findOrFail($id);
@@ -311,10 +312,23 @@ class ProfileController extends Controller
         
         $profile->save();
 
-        // Update Professional name also
+        // Update Professional name also and handle payment QR code
         $professional = Professional::findOrFail($professionalId);
         $professional->name = $data['name'];
         $professional->email = $data['email']; // Also update email in professionals table
+        
+        // Handle payment QR code upload
+        if ($request->hasFile('payment_qr_code')) {
+            // Delete old QR code if exists
+            if ($professional->payment_qr_code) {
+                Storage::disk('public')->delete($professional->payment_qr_code);
+            }
+            
+            // Upload new QR code
+            $qrCodePath = $this->uploadImage($request, 'payment_qr_code', 'uploads/professionals/qr_codes');
+            $professional->payment_qr_code = $qrCodePath;
+        }
+        
         $professionalSaved = $professional->save();
 
         // Log for debugging

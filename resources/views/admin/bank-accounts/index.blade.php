@@ -210,6 +210,82 @@
         font-size: 0.75rem;
         color: #6c757d;
     }
+
+    /* QR Code Styles for Bank Accounts */
+    .qr-code-mini {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .qr-mini-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+    }
+
+    .qr-mini-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(52, 152, 219, 0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 8px;
+    }
+
+    .qr-code-mini:hover .qr-mini-overlay {
+        opacity: 1;
+    }
+
+    .qr-code-mobile {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .qr-code-mobile:hover {
+        border-color: #3498db;
+        background: #e3f2fd;
+    }
+
+    .qr-mobile-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+
+    .qr-mobile-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .qr-mobile-info i {
+        color: #3498db;
+    }
 </style>
 @endsection
 
@@ -345,6 +421,7 @@
                                             <th>IFSC Code</th>
                                             <th>Account Type</th>
                                             <th>Professional Status</th>
+                                            <th>Payment QR Code</th>
                                             <th>Verification</th>
                                             <th>Created</th>
                                             <th>Actions</th>
@@ -389,6 +466,23 @@
                                                     <span class="badge1 status-{{ $account->professional->status }}">
                                                         {{ ucfirst($account->professional->status) }}
                                                     </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($account->professional->payment_qr_code)
+                                                        <div class="qr-code-mini" onclick="viewBankQRCode('{{ asset('storage/'.$account->professional->payment_qr_code) }}', '{{ $account->professional->name }}')">
+                                                            <img src="{{ asset('storage/'.$account->professional->payment_qr_code) }}" 
+                                                                 alt="Payment QR Code" 
+                                                                 class="qr-mini-image">
+                                                            <div class="qr-mini-overlay">
+                                                                <i class="fas fa-expand"></i>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted">
+                                                            <i class="fas fa-qrcode"></i>
+                                                            <small>No QR Code</small>
+                                                        </span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <span class="badge verification-{{ $account->verification_status ?? 'pending' }}">
@@ -484,6 +578,25 @@
                                     <span class="badge status-{{ $account->professional->status }}">
                                         {{ ucfirst($account->professional->status) }}
                                     </span>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <strong>Payment QR Code:</strong><br>
+                                    @if($account->professional->payment_qr_code)
+                                        <div class="qr-code-mobile" onclick="viewBankQRCode('{{ asset('storage/'.$account->professional->payment_qr_code) }}', '{{ $account->professional->name }}')">
+                                            <img src="{{ asset('storage/'.$account->professional->payment_qr_code) }}" 
+                                                 alt="Payment QR Code" 
+                                                 class="qr-mobile-image">
+                                            <div class="qr-mobile-info">
+                                                <i class="fas fa-qrcode"></i>
+                                                <span>Tap to view QR code</span>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="text-muted">
+                                            <i class="fas fa-qrcode"></i>
+                                            <span>No QR Code uploaded</span>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="col-12 mt-2">
                                     <div class="btn-group w-100" role="group">
@@ -695,6 +808,64 @@ function verifyAccount(accountId) {
             });
         }
     });
+}
+
+// Function to view QR code in bank accounts
+function viewBankQRCode(imageUrl, professionalName) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 40px; border-radius: 20px; max-width: 550px; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px; gap: 10px;">
+                <i class="fas fa-university" style="color: #3498db; font-size: 24px;"></i>
+                <h3 style="margin: 0; color: #333; font-size: 24px;">Payment QR Code</h3>
+            </div>
+            <h4 style="margin-bottom: 10px; color: #555; font-size: 18px;">${professionalName}</h4>
+            <p style="color: #666; margin-bottom: 30px; font-size: 14px;">Scan this QR code to send payments to this professional's bank account</p>
+            <img src="${imageUrl}" style="max-width: 100%; max-height: 450px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid #f0f0f0;">
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                <button onclick="this.closest('div').parentElement.remove()" 
+                        style="background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                <button onclick="downloadBankQRCode('${imageUrl}', '${professionalName}')" 
+                        style="background: #27ae60; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                    <i class="fas fa-download"></i> Download QR Code
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function downloadBankQRCode(imageUrl, professionalName) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${professionalName.replace(/[^a-zA-Z0-9]/g, '_')}_payment_qr_code.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 @endsection

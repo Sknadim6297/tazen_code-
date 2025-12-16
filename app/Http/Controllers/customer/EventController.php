@@ -104,4 +104,45 @@ class EventController extends Controller
     public function destroy(string $id)
     {
     }
+
+    /**
+     * Generate PDF invoice for a paid event booking
+     */
+    public function downloadInvoice($id)
+    {
+        $eventBooking = EventBooking::with(['event.professional', 'user'])
+            ->where('id', $id)
+            ->where('user_id', auth()->guard('user')->id())
+            ->whereIn('payment_status', ['paid', 'success'])
+            ->first();
+
+        if (!$eventBooking) {
+            return redirect()->back()->with('error', 'Event booking not found or not eligible for invoice generation.');
+        }
+
+        // Prepare invoice data
+        $invoiceNumber = 'INV-EVT-' . str_pad($eventBooking->id, 6, '0', STR_PAD_LEFT) . '-' . date('Y');
+        $invoiceDate = $eventBooking->created_at->format('d M, Y');
+        
+        // Get pricing details
+        $pricing = [
+            'base_price' => $eventBooking->price,
+            'cgst' => $eventBooking->cgst ?? 0,
+            'sgst' => $eventBooking->sgst ?? 0,
+            'igst' => $eventBooking->igst ?? 0,
+            'total_price' => $eventBooking->total_price ?? $eventBooking->price
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.event.invoice-pdf', [
+            'eventBooking' => $eventBooking,
+            'customer' => auth()->guard('user')->user(),
+            'professional' => $eventBooking->event->professional ?? null,
+            'event' => $eventBooking->event,
+            'invoice_no' => $invoiceNumber,
+            'invoice_date' => $invoiceDate,
+            'pricing' => $pricing
+        ]);
+
+        return $pdf->download('event-invoice-' . $invoiceNumber . '.pdf');
+    }
 }

@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_services', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->string('image')->nullable();
-            $table->decimal('price', 10, 2)->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('sub_services')) {
+            Schema::create('sub_services', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+                $table->string('name');
+                $table->text('description')->nullable();
+                $table->string('image')->nullable();
+                $table->decimal('price', 10, 2)->nullable();
+                $table->enum('status', ['active', 'inactive'])->default('active');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

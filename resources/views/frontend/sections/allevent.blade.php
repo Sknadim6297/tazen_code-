@@ -265,6 +265,15 @@
 @endsection
 @section('content')
 
+@php
+    // Ensure we always have a single detail record handy for admin events
+    if (!isset($eventDetail) || !$eventDetail) {
+        if (isset($event) && method_exists($event, 'eventDetails')) {
+            $eventDetail = $event->eventDetails->first();
+        }
+    }
+@endphp
+
 <main>
   <!-- Improved Banner Section -->
   <div class="hero_single event-slide">
@@ -293,7 +302,8 @@
         @else
             {{-- Admin Event - use banner_image array --}}
             @php
-                $banners = $event->eventDetails->banner_image ?? $event->banner_image ?? '[]';
+                $adminDetail = $eventDetail ?? ($event->eventDetails->first() ?? null);
+                $banners = $adminDetail->banner_image ?? $event->banner_image ?? '[]';
                 if (is_string($banners)) {
                     $banners = json_decode($banners, true);
                     if (is_string($banners)) {
@@ -307,7 +317,7 @@
             @if (is_array($banners) && count($banners))
                 @foreach ($banners as $banner)
                     <div class="item">
-                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $event->eventDetails->heading ?? $event->heading ?? 'Event' }}" />
+                        <img src="{{ asset('storage/' . str_replace('\\/', '/', $banner)) }}" alt="{{ $adminDetail->heading ?? $event->heading ?? 'Event' }}" />
                     </div>
                 @endforeach
             @else
@@ -332,19 +342,19 @@
                             <p>{{ $allEvent->mini_heading }}</p>
                         @endif
                     @else
-                        <h3>{{ $event->eventDetails->heading ?? $event->heading ?? 'Event' }}</h3>
-                        <p>{{ $event->eventDetails->event_type ?? $event->event_type ?? 'Event' }}</p>
+                        <h3>{{ ($eventDetail->heading ?? null) ?? ($event->heading ?? 'Event') }}</h3>
+                        <p>{{ ($eventDetail->event_type ?? null) ?? ($event->event_type ?? 'Event') }}</p>
                     @endif
                 </div>
             </div>
             <div class="col-lg-4 text-end">
                 <button class="btn unique-btn" id="bookNowBtn"
                     data-event-id="{{ isset($allEvent) ? $allEvent->id : ($event->event_id ?? $event->id) }}"
-                    data-event-name="{{ isset($allEvent) ? $allEvent->heading : ($event->eventDetails->heading ?? $event->heading ?? 'Event') }}"
-                    data-location="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->city ? $eventDetail->city : 'To be announced') : ($event->eventDetails->city ?? $event->city ?? 'Kolkata') }}"
-                    data-type="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->event_mode ? $eventDetail->event_mode : 'TBD') : ($event->eventDetails->event_mode ?? $event->event_mode ?? 'offline') }}"
-                    data-event-date="{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }}"
-                    data-amount="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees) : ($event->eventDetails->starting_fees ?? $event->starting_fees ?? 0) }}">
+                    data-event-name="{{ isset($allEvent) ? $allEvent->heading : (($eventDetail->heading ?? null) ?? ($event->heading ?? 'Event')) }}"
+                    data-location="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->city ? $eventDetail->city : 'To be announced') : (($eventDetail->city ?? null) ?? ($event->city ?? 'Kolkata')) }}"
+                    data-type="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail && $eventDetail->event_mode ? $eventDetail->event_mode : 'TBD') : (($eventDetail->event_mode ?? null) ?? ($event->event_mode ?? 'offline')) }}"
+                    data-event-date="{{ isset($allEvent) ? \Carbon\Carbon::parse($allEvent->date)->format('d-m-Y') : \Carbon\Carbon::parse(($eventDetail->starting_date ?? null) ?? ($event->starting_date ?? $event->date))->format('d-m-Y') }}"
+                    data-amount="{{ isset($allEvent) ? (isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees) : (($eventDetail->starting_fees ?? null) ?? ($event->starting_fees ?? 0)) }}">
                     Book Now
                 </button>
             </div>
@@ -373,14 +383,16 @@
             </p>
             <p><span>₹{{ isset($eventDetail) && $eventDetail ? $eventDetail->starting_fees : $allEvent->starting_fees }}</span> onwards</p>
         @else
-            <p>{{ \Carbon\Carbon::parse($event->eventDetails->starting_date ?? $event->starting_date ?? $event->date)->format('d-m-Y') }}
-                @if(isset($event->eventDetails->time))
-                    at {{ \Carbon\Carbon::parse($event->eventDetails->time)->format('h:i A') }}
+            <p>{{ \Carbon\Carbon::parse(($eventDetail->starting_date ?? null) ?? ($event->starting_date ?? $event->date))->format('d-m-Y') }}
+                @if(isset($eventDetail) && $eventDetail && $eventDetail->time)
+                    at {{ \Carbon\Carbon::parse($eventDetail->time)->format('h:i A') }}
+                @elseif(isset($event->time))
+                    at {{ \Carbon\Carbon::parse($event->time)->format('h:i A') }}
                 @endif
                 onwards
             </p>
-            <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ $event->eventDetails->event_mode ?? $event->event_mode ?? 'To be announced' }}</p>
-            <p><span>₹{{ $event->eventDetails->starting_fees ?? $event->starting_fees ?? '0' }}</span> onwards</p>
+            <p><i class="fa-solid fa-location-check" style="margin-right: 10px;"></i>{{ ($eventDetail->event_mode ?? null) ?? ($event->event_mode ?? 'To be announced') }}</p>
+            <p><span>₹{{ ($eventDetail->starting_fees ?? null) ?? ($event->starting_fees ?? '0') }}</span> onwards</p>
         @endif
     </div>
 </div>
@@ -397,12 +409,12 @@
                            class="share-link facebook">
                             <i class="fa-brands fa-square-facebook"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?text={{ urlencode(isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading) }}&url={{ urlencode(Request::url()) }}" 
+                        <a href="https://twitter.com/intent/tweet?text={{ urlencode(isset($allEvent) ? $allEvent->heading : (($eventDetail->heading ?? null) ?? ($event->heading ?? 'Event'))) }}&url={{ urlencode(Request::url()) }}" 
                            target="_blank" 
                            class="share-link twitter">
                             <i class="fa-brands fa-square-x-twitter"></i>
                         </a>
-                        <a href="https://api.whatsapp.com/send?text={{ urlencode((isset($allEvent) ? $allEvent->heading : $event->eventDetails->heading) . ' - ' . Request::url()) }}" 
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode((isset($allEvent) ? $allEvent->heading : (($eventDetail->heading ?? null) ?? ($event->heading ?? 'Event'))) . ' - ' . Request::url()) }}" 
                            target="_blank" 
                            class="share-link whatsapp">
                             <i class="fa-brands fa-square-whatsapp"></i>
@@ -448,7 +460,7 @@
                         @endif
                     @else
                         {{-- Admin event --}}
-                        <p>{{ $event->eventDetails->event_details ?? $event->event_details ?? 'Event details not available' }}</p>
+                        <p>{{ ($eventDetail->event_details ?? null) ?? ($event->event_details ?? 'Event details not available') }}</p>
                     @endif
                 </div>
             </div>
@@ -481,7 +493,7 @@
                         @else
                             {{-- Admin event gallery --}}
                             @php
-                                $decoded = json_decode($event->eventDetails->event_gallery ?? $event->event_gallery ?? '[]', true);
+                                $decoded = json_decode(($eventDetail->event_gallery ?? null) ?? ($event->event_gallery ?? '[]'), true);
                                 $galleryImages = is_string($decoded) ? json_decode($decoded, true) : $decoded;
                             @endphp
                 
@@ -593,8 +605,8 @@
                             $mapLink = $allEvent->map_link ?? null;
                         } else {
                             // Admin Event
-                            $eventMode = $event->eventDetails->event_mode ?? $event->event_mode ?? 'offline';
-                            $eventCity = $event->eventDetails->city ?? $event->city ?? '';
+                            $eventMode = ($eventDetail->event_mode ?? null) ?? ($event->event_mode ?? 'offline');
+                            $eventCity = ($eventDetail->city ?? null) ?? ($event->city ?? '');
                             $mapLink = $event->map_link ?? null;
                         }
                     @endphp
@@ -1142,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function copyToClipboard() {
-    const eventTitle = `{{ isset($allEvent) ? addslashes($allEvent->heading) : (isset($event) && isset($event->eventDetails) ? addslashes($event->eventDetails->heading) : 'Event') }}`;
+    const eventTitle = `{{ isset($allEvent) ? addslashes($allEvent->heading) : (isset($eventDetail) && $eventDetail ? addslashes($eventDetail->heading) : (isset($event) ? addslashes($event->heading ?? 'Event') : 'Event')) }}`;
     const eventDate = `{{ isset($allEvent) ? ($allEvent->date ?? '') : ($event->starting_date ?? '') }}`;
     const eventLocation = `{{ isset($allEvent) ? ($allEvent->mini_heading ?? '') : ($event->event_mode ?? '') }}`;
     const eventPrice = `{{ isset($allEvent) ? ($allEvent->starting_fees ?? '') : ($event->starting_fees ?? '') }}`;

@@ -601,20 +601,49 @@
                             </div>
                         </div>
                         
-                        <!-- Date Range -->
-                        <div class="col-lg-6 col-md-12">
+                        <!-- Status Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <label for="statusFilter" class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-check-line me-1"></i>Status
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-user-check-line text-muted"></i>
+                                </span>
+                                <select name="status" class="form-select border-start-0" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Approved</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Start Date -->
+                        <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-medium text-muted mb-2">
-                                <i class="ri-calendar-line me-1"></i>Date Range
+                                <i class="ri-calendar-line me-1"></i>Start Date
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
                                     <i class="ri-calendar-event-line text-muted"></i>
                                 </span>
-                                <input type="date" class="form-control border-start-0 border-end-0" 
-                                       placeholder="Start Date" name="start_date" id="start_date">
-                                <span class="input-group-text bg-light border-start-0 border-end-0 text-muted">to</span>
                                 <input type="date" class="form-control border-start-0" 
-                                       placeholder="End Date" name="end_date" id="end_date">
+                                       placeholder="Start Date" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                            </div>
+                        </div>
+                        
+                        <!-- End Date -->
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-medium text-muted mb-2">
+                                <i class="ri-calendar-line me-1"></i>End Date
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ri-calendar-event-line text-muted"></i>
+                                </span>
+                                <input type="date" class="form-control border-start-0" 
+                                       placeholder="End Date" name="end_date" id="end_date" value="{{ request('end_date') }}">
                             </div>
                         </div>
                         
@@ -651,6 +680,7 @@
             <!-- Hidden inputs to carry over current filters -->
             <input type="hidden" name="search" id="export-search">
             <input type="hidden" name="specialization" id="export-specialization">
+            <input type="hidden" name="status" id="export-status">
             <input type="hidden" name="start_date" id="export-start-date">
             <input type="hidden" name="end_date" id="export-end-date">
             <input type="hidden" name="export" id="export-type">
@@ -660,8 +690,22 @@
             <div class="col-xxl-12 col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header justify-content-between">
-                        <div class="card-title">
-                            Total Professionals
+                        <div class="card-title" id="professionals-title">
+                            @php
+                                $count = $totalCount ?? (is_object($professionals) && method_exists($professionals, 'total') ? $professionals->total() : count($professionals));
+                                $title = 'Total Professionals';
+                                
+                                if(request('status')) {
+                                    $statusLabels = ['accepted' => 'Approved', 'pending' => 'Pending', 'rejected' => 'Rejected'];
+                                    $title = $statusLabels[request('status')] ?? request('status');
+                                    if(request('specialization')) {
+                                        $title .= ' ' . request('specialization');
+                                    }
+                                } elseif(request('specialization')) {
+                                    $title = request('specialization');
+                                }
+                            @endphp
+                            {{ $title }} ({{ $count }})
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -675,6 +719,7 @@
                                         <th scope="col">Email</th>
                                         <th scope="col">Send Email</th>
                                         <th scope="col">Service Offered</th>
+                                        <th scope="col">Subscription Plan</th>
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Active</th> 
@@ -712,6 +757,19 @@
                                                     <span class="specialization-badge">{{ $professional->profile->specialization }}</span>
                                                 @else
                                                     <span class="text-muted">Not specified</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <!-- Subscription Plan Column -->
+                                                @php
+                                                    $activePlan = $professional->planPurchases->first();
+                                                @endphp
+                                                @if($activePlan)
+                                                    <span class="badge bg-success">{{ $activePlan->plan_name }}</span>
+                                                    <br><small class="text-muted">{{ $activePlan->remaining_leads }}/{{ $activePlan->lead_limit }} leads</small>
+                                                    <br><small class="text-muted">Expires: {{ $activePlan->end_date ? $activePlan->end_date->format('d M, Y') : 'N/A' }}</small>
+                                                @else
+                                                    <span class="badge bg-warning text-dark">No Active Plan</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -792,9 +850,12 @@
                         </div>
                     </div>
                     <div class="card-footer border-top-0">
-                        <div class="d-flex justify-content-center">
-                            {{ $professionals->appends(request()->query())->links('pagination::bootstrap-4') }}
-                        </div>
+                        @if(is_object($professionals) && method_exists($professionals, 'links'))
+                            <!-- Show pagination for non-filtered results -->
+                            <div class="d-flex justify-content-center">
+                                {{ $professionals->appends(request()->query())->links('pagination::bootstrap-4') }}
+                            </div>
+                        @endif
                         <div id="pagination-links" class="d-flex justify-content-center"></div>
                     </div>
                 </div>
@@ -920,6 +981,7 @@
             e.preventDefault();
             let searchTerm = $('#autoComplete').val();
             let specializationFilter = $('#specializationFilter').val();
+            let statusFilter = $('#statusFilter').val();
             let startDate = $('#start_date').val();
             let endDate = $('#end_date').val();
             
@@ -932,7 +994,7 @@
                 }
             }
             
-            filterData(startDate, endDate, searchTerm, specializationFilter);
+            filterData(startDate, endDate, searchTerm, specializationFilter, statusFilter);
         });
 
         // Individual filter change handlers for immediate filtering
@@ -948,6 +1010,10 @@
             $('#filter-form').submit();
         });
 
+        $('#statusFilter').on('change', function() {
+            $('#filter-form').submit();
+        });
+
         $('#start_date, #end_date').on('change', function() {
             // Only trigger if both dates have values
             if($('#start_date').val() && $('#end_date').val()) {
@@ -956,7 +1022,7 @@
         });
 
         // Function to fetch data based on filters
-        function filterData(startDate = '', endDate = '', searchTerm = '', specializationFilter = '', page = 1) {
+        function filterData(startDate = '', endDate = '', searchTerm = '', specializationFilter = '', statusFilter = '', page = 1) {
             // Show loading indicator
             $('#professional-table-body').html('<tr><td colspan="12" class="text-center"><i class="ri-loader-4-line fa-spin me-2"></i> Loading...</td></tr>');
             
@@ -979,13 +1045,27 @@
                     start_date: startDate,
                     end_date: endDate,
                     specialization: specializationFilter,
+                    status: statusFilter,
                     page: page
                 },
                 success: function(response) {
                     let professionalsHtml = '';
                     
+                    // Update the title with count and service/status name
+                    let title = 'Total Professionals';
+                    if (response.filteredStatus) {
+                        const statusLabels = {'accepted': 'Approved', 'pending': 'Pending', 'rejected': 'Rejected'};
+                        title = statusLabels[response.filteredStatus] || response.filteredStatus;
+                        if (response.filteredService) {
+                            title += ' ' + response.filteredService;
+                        }
+                    } else if (response.filteredService) {
+                        title = response.filteredService;
+                    }
+                    $('#professionals-title').text(title + ' (' + response.totalCount + ')');
+                    
                     if (response.professionals.data.length === 0) {
-                        professionalsHtml = '<tr><td colspan="12" class="text-center">No professionals found matching your criteria</td></tr>';
+                        professionalsHtml = '<tr><td colspan="13" class="text-center">No professionals found matching your criteria</td></tr>';
                     } else {
                         $.each(response.professionals.data, function(index, professional) {
                             // Generate specialization HTML
@@ -1033,6 +1113,22 @@
                                     </label>
                                 </form>
                             `;
+
+                            // Generate subscription plan HTML
+                            let subscriptionPlanHtml = '';
+                            if (professional.plan_purchases && professional.plan_purchases.length > 0) {
+                                const activePlan = professional.plan_purchases[0];
+                                const remainingLeads = activePlan.lead_limit - activePlan.leads_used;
+                                const expiryDate = activePlan.end_date ? new Date(activePlan.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+                                subscriptionPlanHtml = `
+                                    <span class="badge bg-success">${activePlan.plan_name}</span>
+                                    <br><small class="text-muted">${remainingLeads}/${activePlan.lead_limit} leads</small>
+                                    <br><small class="text-muted">Expires: ${expiryDate}</small>
+                                `;
+                            } else {
+                                subscriptionPlanHtml = '<span class="badge bg-warning text-dark">No Active Plan</span>';
+                            }
+
                             // Build the row
                             professionalsHtml += `
                                 <tr class="professional-list">
@@ -1052,6 +1148,7 @@
                                         </button>
                                     </td>
                                     <td>${specializationHtml}</td>
+                                    <td>${subscriptionPlanHtml}</td>
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
                                     <td>${toggleSwitchHtml}</td>
@@ -1078,11 +1175,17 @@
                     }
                     
                     $('#professional-table-body').html(professionalsHtml);
+                    
                     // Update pagination links and center them
-                    $('#pagination-links').html(response.pagination).addClass('d-flex justify-content-center');
+                    if (response.pagination) {
+                        $('#pagination-links').html(response.pagination).addClass('d-flex justify-content-center');
+                    } else {
+                        // Hide pagination if showing all results (filtered view)
+                        $('#pagination-links').html('');
+                    }
                 },
                 error: function() {
-                    $('#professional-table-body').html('<tr><td colspan="11" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
+                    $('#professional-table-body').html('<tr><td colspan="13" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
                 }
             });
         }
@@ -1293,6 +1396,7 @@
             // Set the values of the hidden inputs to current filter values
             document.getElementById('export-search').value = document.getElementById('autoComplete').value;
             document.getElementById('export-specialization').value = document.getElementById('specializationFilter').value;
+            document.getElementById('export-status').value = document.getElementById('statusFilter').value;
             document.getElementById('export-start-date').value = document.getElementById('start_date').value;
             document.getElementById('export-end-date').value = document.getElementById('end_date').value;
             
@@ -1314,9 +1418,10 @@
             }
             let searchTerm = $('#autoComplete').val();
             let specializationFilter = $('#specializationFilter').val();
+            let statusFilter = $('#statusFilter').val();
             let startDate = $('#start_date').val();
             let endDate = $('#end_date').val();
-            filterData(startDate, endDate, searchTerm, specializationFilter, page);
+            filterData(startDate, endDate, searchTerm, specializationFilter, statusFilter, page);
         });
 
         // Handle Send Email button click

@@ -125,7 +125,7 @@
                 <div class="header-icon notification-icon" id="notificationIcon" title="Notifications">
                     <i class="fas fa-bell"></i>
                     @if($totalNotifications > 0)
-                        <span class="notification-badge">{{ $totalNotifications }}</span>
+                        <span class="notification-badge">{{ $totalNotifications > 99 ? '99+' : $totalNotifications }}</span>
                     @endif
                 </div>
 
@@ -1064,6 +1064,65 @@
         font-weight: 600;
         color: #333;
         margin-bottom: 8px;
+    }
+
+    /* Notification Badge Styles */
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        animation: bounce-notification 2s infinite;
+    }
+
+    @keyframes bounce-notification {
+        0%, 20%, 53%, 80%, 100% {
+            transform: translate(0, 0);
+        }
+        40%, 43% {
+            transform: translate(0, -8px);
+        }
+        70% {
+            transform: translate(0, -4px);
+        }
+        90% {
+            transform: translate(0, -2px);
+        }
+    }
+
+    /* Responsive notification badge */
+    @media (max-width: 768px) {
+        .notification-badge {
+            top: -6px;
+            right: -6px;
+            min-width: 16px;
+            height: 16px;
+            font-size: 9px;
+            border: 1px solid white;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .notification-badge {
+            top: -5px;
+            right: -5px;
+            min-width: 14px;
+            height: 14px;
+            font-size: 8px;
+        }
     }
 
     /* Pulse animation for notification badge */

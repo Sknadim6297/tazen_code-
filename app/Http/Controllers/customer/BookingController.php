@@ -14,6 +14,10 @@ use App\Mail\PaymentFailureMail;
 use Razorpay\Api\Api;
 use App\Models\PaymentFailureLog;
 use App\Notifications\PaymentFailureNotification;
+use App\Notifications\EventBookingNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Admin;
+use App\Models\Professional;
 use Carbon\Carbon;
 
 class BookingController extends Controller
@@ -285,6 +289,51 @@ public function bookingSummary()
                     'error_details' => $e->getTraceAsString()
                 ]);
             }
+
+            // Send notifications to admin and professional
+            try {
+                // Notify all admins
+                $admins = Admin::where('is_active', true)->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new EventBookingNotification($booking, $event, $user));
+                }
+
+                // Notify professional if this event has a professional_id (regardless of created_by_type)
+                if ($event && $event->professional_id) {
+                    $professional = Professional::find($event->professional_id);
+                    if ($professional) {
+                        $professional->notify(new EventBookingNotification($booking, $event, $user));
+                        Log::info('Professional notified for event booking', [
+                            'professional_id' => $professional->id,
+                            'professional_name' => $professional->name,
+                            'event_id' => $event->id,
+                            'booking_id' => $booking->id
+                        ]);
+                    } else {
+                        Log::warning('Professional not found for event booking', [
+                            'professional_id' => $event->professional_id,
+                            'event_id' => $event->id
+                        ]);
+                    }
+                } else {
+                    Log::info('No professional_id found for event', [
+                        'event_id' => $event->id ?? 'null',
+                        'event_professional_id' => $event->professional_id ?? 'null'
+                    ]);
+                }
+
+                Log::info('Event booking notifications sent successfully', [
+                    'booking_id' => $booking->id,
+                    'admins_notified' => $admins->count(),
+                    'professional_notified' => ($event && $event->professional_id) ? 1 : 0
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send event booking notifications: ' . $e->getMessage(), [
+                    'booking_id' => $booking->id,
+                    'error_details' => $e->getTraceAsString()
+                ]);
+            }
+
             session()->forget('event_booking_data');
 
             return response()->json([

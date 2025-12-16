@@ -133,6 +133,23 @@
                         ]);
                     }
                     
+                    // Add event booking notifications
+                    $eventBookingNotifications = DB::table('notifications')
+                        ->where('notifiable_type', 'App\Models\Professional')
+                        ->where('notifiable_id', $professionalId)
+                        ->where('type', 'App\Notifications\EventBookingNotification')
+                        ->whereNull('read_at')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    
+                    foreach($eventBookingNotifications as $notification) {
+                        $allNotifications->push([
+                            'type' => 'event_booking_notification',
+                            'timestamp' => \Carbon\Carbon::parse($notification->created_at),
+                            'data' => $notification
+                        ]);
+                    }
+                    
                     // Sort all notifications by timestamp (newest first)
                     $allNotifications = $allNotifications->sortByDesc('timestamp');
                     
@@ -149,8 +166,11 @@
                 // Count unread additional service notifications
                 $unreadNotificationsCount = $unreadNotifications ? $unreadNotifications->count() : 0;
                 
+                // Count event booking notifications
+                $eventBookingNotificationCount = isset($eventBookingNotifications) ? $eventBookingNotifications->count() : 0;
+                
                 // Count total notifications (including all notification types)
-                $totalNotifications = $newBookings + $rescheduleCount + $unreadNotificationsCount + $unreadChatCount;
+                $totalNotifications = $newBookings + $rescheduleCount + $unreadNotificationsCount + $unreadChatCount + $eventBookingNotificationCount;
                 if (!$hasServices) $totalNotifications++;
                 if (!$hasRates) $totalNotifications++;
                 if (!$hasAvailability) $totalNotifications++;
@@ -163,7 +183,8 @@
                     'total_notifications' => $totalNotifications,
                     'new_bookings' => $newBookings,
                     'reschedule_count' => $rescheduleCount,
-                    'unread_chat_count' => $unreadChatCount
+                    'unread_chat_count' => $unreadChatCount,
+                    'event_booking_notification_count' => $eventBookingNotificationCount
                 ]);
             @endphp
             
@@ -292,6 +313,25 @@
                                 <p><small>Service: {{ $data['service_name'] ?? 'N/A' }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small></p>
                                 <div class="button-container">
                                     <a href="{{ route('professional.booking.index') }}" class="notification-btn view-btn">View Bookings</a>
+                                    <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">Mark as Read</button>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($notificationItem['type'] == 'event_booking_notification')
+                        @php
+                            $notification = $notificationItem['data'];
+                            $data = json_decode($notification->data, true);
+                        @endphp
+                        <div class="notification-item new">
+                            <div class="notification-icon-wrapper">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h5>New Event Booking!</h5>
+                                <p><strong>{{ $data['customer_name'] ?? 'Customer' }}</strong> booked your event "{{ $data['event_name'] ?? 'Event' }}"</p>
+                                <p><small>Amount: ₹{{ number_format($data['total_amount'] ?? 0, 2) }} | {{ $data['persons'] ?? 1 }} person(s) - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small></p>
+                                <div class="button-container">
+                                    <a href="{{ route('professional.event-bookings.index') }}" class="notification-btn view-btn">View Event Bookings</a>
                                     <button class="notification-btn mark-read-btn" onclick="markProfessionalNotificationAsRead('{{ $notification->id }}')">Mark as Read</button>
                                 </div>
                             </div>

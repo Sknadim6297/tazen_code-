@@ -726,6 +726,97 @@
         color: var(--primary-color);
         margin-right: 0.5rem;
     }
+
+    /* Payment QR Code Styles */
+    .qr-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .current-qr,
+    .new-qr-preview {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid rgba(148, 163, 184, 0.3);
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .current-qr:hover,
+    .new-qr-preview:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .qr-preview-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .qr-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .current-qr:hover .qr-overlay {
+        opacity: 1;
+    }
+
+    .btn-view-qr {
+        background: var(--white);
+        color: var(--primary-color);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view-qr:hover {
+        background: var(--primary-color);
+        color: var(--white);
+        transform: scale(1.05);
+    }
+
+    .btn-remove-qr {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove-qr:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
     
     /* Enhanced Photo Preview */
     .photo-preview-container {
@@ -1564,6 +1655,37 @@
                     </div>
 
                     <div class="form-section">
+                        <h4 class="form-section-title">Payment Information</h4>
+                        <div class="form-group col-full">
+                            <label for="paymentQrCode">Payment QR Code</label>
+                            <div class="crop-info">
+                                <i class="fas fa-info-circle"></i>
+                                Upload your payment QR code (UPI/Bank QR) that clients can use to send payments directly to you.
+                            </div>
+                            <input type="file" id="paymentQrCode" name="payment_qr_code" accept="image/*">
+                            
+                            <div class="qr-preview-container">
+                                @if($profile->professional && $profile->professional->payment_qr_code)
+                                    <div class="current-qr">
+                                        <img src="{{ asset('storage/'.$profile->professional->payment_qr_code) }}" alt="Current Payment QR Code" class="qr-preview-img">
+                                        <div class="qr-overlay">
+                                            <button type="button" class="btn-view-qr" onclick="viewQrCode('{{ asset('storage/'.$profile->professional->payment_qr_code) }}')">
+                                                <i class="fas fa-eye"></i> View QR Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                                <div id="newQrPreview" class="new-qr-preview" style="display: none;">
+                                    <img id="qrPreviewImg" src="" alt="QR Code Preview" class="qr-preview-img">
+                                    <button type="button" class="btn-remove-qr" onclick="removeQrPreview()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
                         <h4 class="form-section-title">Additional Information</h4>
                         <div class="form-group col-full">
                             <label for="comments">Additional Comments</label>
@@ -2108,5 +2230,48 @@ $(document).ready(function() {
         }
     });
 });
+
+// Payment QR Code Preview Functions
+$('#paymentQrCode').change(function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            $('#qrPreviewImg').attr('src', e.target.result);
+            $('#newQrPreview').show();
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function removeQrPreview() {
+    $('#paymentQrCode').val('');
+    $('#newQrPreview').hide();
+    $('#qrPreviewImg').attr('src', '');
+}
+
+function viewQrCode(imageUrl) {
+    // Create modal to view QR code in full size
+    const modal = $(`
+        <div class="qr-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+            <div style="background: white; padding: 20px; border-radius: 12px; max-width: 400px; text-align: center;">
+                <h4 style="margin-bottom: 15px;">Payment QR Code</h4>
+                <img src="${imageUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                <div style="margin-top: 15px;">
+                    <button onclick="$(this).closest('.qr-modal').remove()" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Close</button>
+                </div>
+            </div>
+        </div>
+    `);
+    
+    $('body').append(modal);
+    
+    // Close on background click
+    modal.click(function(e) {
+        if (e.target === this) {
+            $(this).remove();
+        }
+    });
+}
 </script>
 @endsection

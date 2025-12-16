@@ -247,40 +247,59 @@ Route::get('/eventlist', function (Request $request) {
     return view('frontend.sections.eventlist', compact('events', 'services', 'filter', 'categories', 'category', 'price_range', 'cities', 'city', 'event_modes', 'event_mode'));
 })->name('event.list');
 Route::get('/allevent/{id}', function ($id) {
-    // First try to find in AllEvent (for professional events)
+    // Try to find in AllEvent (this table has status column)
     $allEvent = AllEvent::where('id', $id)
         ->where('status', 'approved')
         ->first();
 
     if ($allEvent && $allEvent->created_by_type === 'professional') {
-        // This is an approved professional event from AllEvent
+        // Professional event found
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
         
-        // Try to find related event details for this professional event
+        // Get event details if available (EventDetail does NOT have status column)
         $eventDetail = EventDetail::where('event_id', $id)
                                   ->where('creator_type', 'professional')
                                   ->first();
 
         return view('frontend.sections.allevent', compact('allEvent', 'services', 'eventfaqs', 'eventDetail'));
-    } else {
-        // Try to find this as an admin event - EventDetail doesn't have status, Event does
-        $eventDetail = EventDetail::with(['event' => function($query) {
-                $query->where('status', 'approved');
-            }])
-            ->whereHas('event', function($query) {
-                $query->where('status', 'approved');
-            })
-            ->where('id', $id)
-            ->where('creator_type', 'admin')
-            ->firstOrFail();
-            
-        $event = $eventDetail->event;
+    } elseif ($allEvent && $allEvent->created_by_type === 'admin') {
+        // Admin event found in all_events table
+        $event = $allEvent;
         $services = Service::all();
         $eventfaqs = EventFAQ::latest()->get();
-
+        
+        // Get event details if available
+        $eventDetail = EventDetail::where('event_id', $allEvent->id)
+            ->where('creator_type', 'admin')
+            ->first();
+            
         return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs', 'eventDetail'));
     }
+    
+    // Not found in all_events, maybe the ID is an EventDetail ID
+    $eventDetail = EventDetail::where('id', $id)
+        ->where('creator_type', 'admin')
+        ->first();
+
+    if (!$eventDetail || !$eventDetail->event_id) {
+        abort(404, 'Event not found');
+    }
+
+    // Get the associated event from all_events and check if approved
+    $allEvent = AllEvent::where('id', $eventDetail->event_id)
+        ->where('status', 'approved')
+        ->first();
+
+    if (!$allEvent) {
+        abort(404, 'Event not found or not approved');
+    }
+
+    $event = $allEvent;
+    $services = Service::all();
+    $eventfaqs = EventFAQ::latest()->get();
+
+    return view('frontend.sections.allevent', compact('event', 'services', 'eventfaqs', 'eventDetail'));
 })->name('event.details');
 Route::get('allevent', function ($id) {
     $eventdetails = Eventdetail::with('event')->latest()->get();
