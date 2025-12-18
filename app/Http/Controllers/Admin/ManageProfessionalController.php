@@ -39,15 +39,16 @@ class ManageProfessionalController extends Controller
         $query = Professional::with([
             'professionalServices.service', 
             'profile',
-            'planPurchases' => function($q) {
-                $q->where('payment_status', 'success')
-                  ->where(function($query) {
-                      $query->whereNull('end_date')
-                            ->orWhere('end_date', '>', now());
-                  })
-                  ->orderBy('created_at', 'desc')
-                  ->limit(1);
-            }
+            // Commented out subscription/plan module
+            // 'planPurchases' => function($q) {
+            //     $q->where('payment_status', 'success')
+            //       ->where(function($query) {
+            //           $query->whereNull('end_date')
+            //                 ->orWhere('end_date', '>', now());
+            //       })
+            //       ->orderBy('created_at', 'desc')
+            //       ->limit(1);
+            // }
         ]);
         
         // Apply search filters

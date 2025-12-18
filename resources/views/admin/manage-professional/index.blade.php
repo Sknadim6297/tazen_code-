@@ -719,7 +719,7 @@
                                         <th scope="col">Email</th>
                                         <th scope="col">Send Email</th>
                                         <th scope="col">Service Offered</th>
-                                        <th scope="col">Subscription Plan</th>
+                                        {{-- <th scope="col">Subscription Plan</th> --}}
                                         <th scope="col">Margin Percentage</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Active</th> 
@@ -759,7 +759,7 @@
                                                     <span class="text-muted">Not specified</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            {{-- <td>
                                                 <!-- Subscription Plan Column -->
                                                 @php
                                                     $activePlan = $professional->planPurchases->first();
@@ -771,7 +771,7 @@
                                                 @else
                                                     <span class="badge bg-warning text-dark">No Active Plan</span>
                                                 @endif
-                                            </td>
+                                            </td> --}}
                                             <td class="text-center">
                                                 @if($professional->status === 'accepted')
                                                     <form action="{{ route('admin.updateMargin', $professional->id) }}" method="POST" class="margin-update-form">
@@ -1114,20 +1114,20 @@
                                 </form>
                             `;
 
-                            // Generate subscription plan HTML
-                            let subscriptionPlanHtml = '';
-                            if (professional.plan_purchases && professional.plan_purchases.length > 0) {
-                                const activePlan = professional.plan_purchases[0];
-                                const remainingLeads = activePlan.lead_limit - activePlan.leads_used;
-                                const expiryDate = activePlan.end_date ? new Date(activePlan.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-                                subscriptionPlanHtml = `
-                                    <span class="badge bg-success">${activePlan.plan_name}</span>
-                                    <br><small class="text-muted">${remainingLeads}/${activePlan.lead_limit} leads</small>
-                                    <br><small class="text-muted">Expires: ${expiryDate}</small>
-                                `;
-                            } else {
-                                subscriptionPlanHtml = '<span class="badge bg-warning text-dark">No Active Plan</span>';
-                            }
+                            // COMMENTED OUT: Generate subscription plan HTML
+                            // let subscriptionPlanHtml = '';
+                            // if (professional.plan_purchases && professional.plan_purchases.length > 0) {
+                            //     const activePlan = professional.plan_purchases[0];
+                            //     const remainingLeads = activePlan.lead_limit - activePlan.leads_used;
+                            //     const expiryDate = activePlan.end_date ? new Date(activePlan.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+                            //     subscriptionPlanHtml = `
+                            //         <span class="badge bg-success">${activePlan.plan_name}</span>
+                            //         <br><small class="text-muted">${remainingLeads}/${activePlan.lead_limit} leads</small>
+                            //         <br><small class="text-muted">Expires: ${expiryDate}</small>
+                            //     `;
+                            // } else {
+                            //     subscriptionPlanHtml = '<span class="badge bg-warning text-dark">No Active Plan</span>';
+                            // }
 
                             // Build the row
                             professionalsHtml += `
@@ -1148,7 +1148,7 @@
                                         </button>
                                     </td>
                                     <td>${specializationHtml}</td>
-                                    <td>${subscriptionPlanHtml}</td>
+                                    <!-- <td>${subscriptionPlanHtml}</td> -->
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
                                     <td>${toggleSwitchHtml}</td>
