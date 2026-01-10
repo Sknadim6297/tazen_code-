@@ -1071,7 +1071,23 @@
                             // Generate specialization HTML
                             let specializationHtml = '';
                             if (professional.profile && professional.profile.specialization) {
-                                specializationHtml = `<span class="specialization-badge">${professional.profile.specialization}</span>`;
+                                // Clean specialization - extract first part if comma-separated
+                                let cleanSpec = professional.profile.specialization;
+                                if (cleanSpec.includes(',')) {
+                                    cleanSpec = cleanSpec.split(',')[0].trim();
+                                }
+                                
+                                // Limit length to 40 characters for display
+                                if (cleanSpec.length > 40) {
+                                    cleanSpec = cleanSpec.substring(0, 40) + '...';
+                                }
+                                
+                                // Standardize Dietician to Dietitian
+                                if (cleanSpec.toLowerCase() === 'dietician') {
+                                    cleanSpec = 'Dietitian';
+                                }
+                                
+                                specializationHtml = `<span class="specialization-badge">${cleanSpec}</span>`;
                             } else {
                                 specializationHtml = '<span class="text-muted">Not specified</span>';
                             }
@@ -1148,7 +1164,6 @@
                                         </button>
                                     </td>
                                     <td>${specializationHtml}</td>
-                                    <!-- <td>${subscriptionPlanHtml}</td> -->
                                     <td style="display: flex; justify-content: center; align-items: center;">${marginHtml}</td>
                                     <td>${statusBadge}</td>
                                     <td>${toggleSwitchHtml}</td>

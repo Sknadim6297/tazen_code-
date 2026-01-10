@@ -27,13 +27,34 @@ class ManageProfessionalController extends Controller
     public function index(Request $request)
     {
         // Get specializations for filtering dropdown
-        $specializations = DB::table('profiles')
+        $rawSpecializations = DB::table('profiles')
             ->select('specialization')
             ->whereNotNull('specialization')
             ->distinct()
-            ->orderBy('specialization')
             ->get()
             ->pluck('specialization');
+        
+        // Clean and normalize specializations
+        $specializations = $rawSpecializations->map(function($spec) {
+            // Extract first part if it's a comma-separated list
+            if (strpos($spec, ',') !== false) {
+                $spec = trim(explode(',', $spec)[0]);
+            }
+            
+            // Standardize "Dietitian" spelling (use Dietitian as standard)
+            if (strtolower($spec) === 'dietician') {
+                $spec = 'Dietitian';
+            }
+            
+            return $spec;
+        })
+        ->unique()
+        ->filter(function($spec) {
+            // Remove very long entries (likely concatenated descriptions)
+            return strlen($spec) < 50;
+        })
+        ->sort()
+        ->values();
 
         // Build base query with filters
         $query = Professional::with([
