@@ -33,17 +33,24 @@
                     <!-- Filters -->
                     <form method="GET" action="{{ route('admin.purchased-plans.index') }}" class="mb-4">
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <input type="text" name="search" class="form-control" 
                                        placeholder="Search by professional name/email..." 
                                        value="{{ request('search') }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <select name="payment_status" class="form-select">
                                     <option value="">All Status</option>
                                     <option value="pending" {{ request('payment_status') === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="success" {{ request('payment_status') === 'success' ? 'selected' : '' }}>Success</option>
                                     <option value="failed" {{ request('payment_status') === 'failed' ? 'selected' : '' }}>Failed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="active_only" class="form-select">
+                                    <option value="">All Plans</option>
+                                    <option value="1" {{ request('active_only') === '1' ? 'selected' : '' }}>Active Only</option>
+                                    <option value="0" {{ request('active_only') === '0' ? 'selected' : '' }}>Inactive Only</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -76,13 +83,30 @@
                             </thead>
                             <tbody>
                                 @forelse($purchases as $purchase)
-                                    <tr>
+                                    @php
+                                        $activePlan = \App\Models\ProfessionalPlanPurchase::getActivePlanForProfessional($purchase->professional_id);
+                                        $isActive = $activePlan && $activePlan->id === $purchase->id;
+                                    @endphp
+                                    <tr class="{{ $isActive ? 'table-success' : '' }}">
                                         <td>{{ $purchase->id }}</td>
                                         <td>
                                             <strong>{{ $purchase->professional->name ?? 'N/A' }}</strong><br>
                                             <small class="text-muted">{{ $purchase->professional->email ?? '' }}</small>
                                         </td>
-                                        <td>{{ $purchase->plan_name }}</td>
+                                        <td>
+                                            {{ $purchase->plan_name }}
+                                            @if($isActive)
+                                                <span class="badge bg-success ms-1">Active</span>
+                                            @endif
+                                            @php
+                                                $totalPurchases = \App\Models\ProfessionalPlanPurchase::where('professional_id', $purchase->professional_id)
+                                                    ->where('payment_status', 'success')
+                                                    ->count();
+                                            @endphp
+                                            @if($totalPurchases > 1)
+                                                <br><small class="text-muted"><i class="ri-arrow-up-line"></i> Upgraded {{ $totalPurchases }}x</small>
+                                            @endif
+                                        </td>
                                         <td>{{ $purchase->formatted_price }}</td>
                                         <td>
                                             {{ ucfirst($purchase->payment_method ?? 'N/A') }}

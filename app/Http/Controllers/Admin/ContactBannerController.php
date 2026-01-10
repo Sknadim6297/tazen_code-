@@ -41,8 +41,8 @@ class ContactBannerController extends Controller
         if ($request->hasFile('banner_image')) {
             $file = $request->file('banner_image');
             $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('uploads/contactbanners'), $filename);
-            $data['banner_image'] = 'uploads/contactbanners/'.$filename;
+            $file->move(public_path('uploads/banner_images'), $filename);
+            $data['banner_image'] = 'uploads/banner_images/'.$filename;
         }
 
         Contactbanner::create($data);
@@ -88,8 +88,8 @@ class ContactBannerController extends Controller
     
             $file = $request->file('banner_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/contactbanners'), $filename);
-            $data['banner_image'] = 'uploads/contactbanners/' . $filename;
+            $file->move(public_path('uploads/banner_images'), $filename);
+            $data['banner_image'] = 'uploads/banner_images/' . $filename;
         }
     
         $contactbanner->update($data);
@@ -103,8 +103,8 @@ class ContactBannerController extends Controller
     public function destroy($id)
 {
     $contactbanner = ContactBanner::findOrFail($id);
-    if (file_exists(public_path('uploads/contactbanner/' . $contactbanner->banner_image))) {
-        unlink(public_path('uploads/contactbanner/' . $contactbanner->banner_image));
+    if ($contactbanner->banner_image && file_exists(public_path($contactbanner->banner_image))) {
+        unlink(public_path($contactbanner->banner_image));
     }
 
     $contactbanner->delete();

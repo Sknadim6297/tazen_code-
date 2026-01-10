@@ -90,6 +90,16 @@ class PlanController extends Controller
             $screenshotPath = $request->file('payment_screenshot')->store('payment_screenshots', 'public');
         }
 
+        // Expire any existing active plans for this professional
+        // This prevents multiple active plans and ensures clean upgrades
+        ProfessionalPlanPurchase::where('professional_id', $professional->id)
+            ->where('payment_status', 'success')
+            ->where(function($q) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '>', Carbon::now());
+            })
+            ->update(['end_date' => Carbon::now()->subDay()]); // Set to yesterday to mark as expired
+
         // Create purchase record
         $purchase = ProfessionalPlanPurchase::create([
             'professional_id' => $professional->id,

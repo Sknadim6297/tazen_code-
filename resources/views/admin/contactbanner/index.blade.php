@@ -110,7 +110,7 @@
                                             <td>{{ $banner->sub_heading }}</td>
                                             <td>
                                                 @if ($banner->banner_image)
-                                                    <img src="{{ asset('uploads/contactbanner/' . $banner->banner_image) }}" alt="Banner Image" width="80">
+                                                    <img src="{{ asset($banner->banner_image) }}" alt="Banner Image" width="80">
                                                 @else
                                                     N/A
                                                 @endif

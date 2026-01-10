@@ -53,38 +53,83 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label for="end_date" class="form-label">End Date</label>
-                                    <input type="date" class="form-control @error('end_date') is-invalid @enderror" 
-                                           id="end_date" name="end_date" 
-                                           value="{{ old('end_date', $purchase->end_date ? $purchase->end_date->format('Y-m-d') : '') }}">
-                                    @error('end_date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label for="end_date" class="form-label">Plan Expiry Date
+                                        @if($purchase->end_date)
+                                            @if($purchase->end_date->isFuture())
+                                                <span class="badge bg-success ms-2">Active until {{ $purchase->end_date->format('d M, Y') }}</span>
+                                            @else
+                                                <span class="badge bg-danger ms-2">Expired on {{ $purchase->end_date->format('d M, Y') }}</span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-info ms-2">No Expiry</span>
+                                        @endif
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control bg-light" 
+                                           value="{{ $purchase->end_date ? $purchase->end_date->format('d M, Y') : 'No expiry set' }}" 
+                                           readonly>
+                                    <small class="text-muted d-block mt-1">
+                                        <i class="ri-information-line"></i> 
+                                        @if($purchase->end_date)
+                                            @if($purchase->end_date->isFuture())
+                                                <strong>{{ now()->diffInDays($purchase->end_date) }} days remaining</strong> - This date was set when the plan was created and cannot be manually changed.
+                                            @else
+                                                Expired {{ now()->diffInDays($purchase->end_date) }} days ago - This date was set when the plan was created and cannot be manually changed.
+                                            @endif
+                                        @else
+                                            No expiry date set for this plan.
+                                        @endif
+                                    </small>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="lead_limit" class="form-label">Lead Limit <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control @error('lead_limit') is-invalid @enderror" 
                                            id="lead_limit" name="lead_limit" 
                                            value="{{ old('lead_limit', $purchase->lead_limit) }}" 
-                                           min="0" required>
+                                           min="0" required oninput="calculateRemaining()">
+                                    <small class="text-muted">Total leads allowed</small>
                                     @error('lead_limit')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="leads_used" class="form-label">Leads Used <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control @error('leads_used') is-invalid @enderror" 
                                            id="leads_used" name="leads_used" 
                                            value="{{ old('leads_used', $purchase->leads_used) }}" 
-                                           min="0" required>
+                                           min="0" required oninput="calculateRemaining()">
+                                    <small class="text-muted">Already consumed</small>
                                     @error('leads_used')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Leads Remaining</label>
+                                    <input type="number" class="form-control bg-light" 
+                                           id="leads_remaining" 
+                                           value="{{ $purchase->remaining_leads }}" 
+                                           readonly>
+                                    <small class="text-success fw-bold">Auto-calculated</small>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mb-3">
+                                <i class="ri-information-line me-2"></i>
+                                <strong>Important:</strong> 
+                                <ul class="mb-0 mt-2">
+                                    <li><strong>Leads:</strong> Remaining = Lead Limit - Leads Used (currently: {{ $purchase->remaining_leads }})</li>
+                                    <li><strong>End Date:</strong> Should be Start Date + Plan Validity Days
+                                        @if($purchase->start_date && $purchase->plan && $purchase->plan->validity_days)
+                                            <br>Example: {{ $purchase->start_date->format('Y-m-d') }} + {{ $purchase->plan->validity_days }} days = {{ $purchase->start_date->addDays($purchase->plan->validity_days)->format('Y-m-d') }}
+                                        @endif
+                                    </li>
+                                    <li><strong>Active Plan:</strong> Payment Status = Success AND End Date is in future (or null)</li>
+                                </ul>
                             </div>
 
                             <div class="mb-3">
@@ -142,10 +187,89 @@
                             <strong>Remaining Leads:</strong><br>
                             {{ $purchase->remaining_leads }} / {{ $purchase->lead_limit }}
                         </div>
+
+                        @php
+                            $activePlan = \App\Models\ProfessionalPlanPurchase::getActivePlanForProfessional($purchase->professional_id);
+                            $isActive = $activePlan && $activePlan->id === $purchase->id;
+                            $upgradeHistory = \App\Models\ProfessionalPlanPurchase::where('professional_id', $purchase->professional_id)
+                                ->where('payment_status', 'success')
+                                ->orderBy('created_at', 'desc')
+                                ->get();
+                        @endphp
+
+                        @if($isActive)
+                            <div class="alert alert-success">
+                                <i class="ri-checkbox-circle-line me-1"></i> <strong>Active Plan</strong><br>
+                                This is the currently active plan
+                            </div>
+                        @else
+                            <div class="alert alert-danger">
+                                <i class="ri-error-warning-line me-1"></i> <strong>Inactive Plan</strong><br>
+                                This is NOT the active plan
+                            </div>
+                        @endif
+
+                        @if($upgradeHistory->count() > 1)
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <strong><i class="ri-history-line me-1"></i> Upgrade History ({{ $upgradeHistory->count() }} plans)</strong>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        @foreach($upgradeHistory as $index => $history)
+                                            <div class="list-group-item {{ $history->id === $purchase->id ? 'bg-light' : '' }}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <strong class="text-primary">{{ $history->plan_name }}</strong>
+                                                        @if($history->id === $purchase->id)
+                                                            <span class="badge bg-warning text-dark ms-1">Editing</span>
+                                                        @endif
+                                                        @if($activePlan && $activePlan->id === $history->id)
+                                                            <span class="badge bg-success ms-1">Active</span>
+                                                        @endif
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            {{ $history->created_at->format('d M, Y') }}
+                                                        </small>
+                                                    </div>
+                                                    <span class="badge bg-info">{{ $history->lead_limit }} leads</span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function calculateRemaining() {
+    const leadLimit = parseInt(document.getElementById('lead_limit').value) || 0;
+    const leadsUsed = parseInt(document.getElementById('leads_used').value) || 0;
+    const remaining = leadLimit - leadsUsed;
+    
+    document.getElementById('leads_remaining').value = remaining;
+    
+    // Visual feedback
+    const remainingInput = document.getElementById('leads_remaining');
+    if (remaining < 0) {
+        remainingInput.classList.add('border-danger');
+        remainingInput.classList.remove('border-success');
+    } else {
+        remainingInput.classList.add('border-success');
+        remainingInput.classList.remove('border-danger');
+    }
+}
+
+// Calculate on page load
+document.addEventListener('DOMContentLoaded', function() {
+    calculateRemaining();
+});
+</script>
+
 @endsection
